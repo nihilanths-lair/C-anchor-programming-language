@@ -1,1 +1,1 @@
-# C-anchor-programming-language
+# Язык программирования Си-якорь
