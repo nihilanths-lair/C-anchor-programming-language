@@ -7,19 +7,19 @@ static char input[2048];
 
 int main(int argc, char **argv)
 {
-	SetConsoleCP(1251);       	// ввод в CP1251
-	SetConsoleOutputCP(1251);	// вывод в CP1251
+	SetConsoleCP(1251);       	// РІРІРѕРґ РІ CP1251
+	SetConsoleOutputCP(1251);	// РІС‹РІРѕРґ РІ CP1251
 	
-	setlocale(LC_ALL, ""); 		// для printf / scanf
+	setlocale(LC_ALL, ""); 		// РґР»СЏ printf / scanf
 	
 	puts("\n>C$ v.0.0.1");
-	puts("Нажмите Ctrl+C для выхода.\n");
+	puts("РќР°Р¶РјРёС‚Рµ Ctrl+C РґР»СЏ РІС‹С…РѕРґР°.\n");
 
 	while (true)
 	{
-		fputs("Ввод: ", stdout);
+		fputs("Р’РІРѕРґ: ", stdout);
 		fgets(input, sizeof (input), stdin);
-		printf("Вывод: %s\n", input);
+		printf("Р’С‹РІРѕРґ: %s\n", input);
 	}
 	return 0;
 }
