@@ -1,9 +1,11 @@
 #include <windows.h>
 #include <locale.h>
 #include <stdio.h>
-#include <stdbool.h>
+//#include <stdbool.h>
 
 static char input[2048];
+
+#define true 1
 
 int main(int argc, char **argv)
 {
@@ -12,9 +14,7 @@ int main(int argc, char **argv)
 	
 	setlocale(LC_ALL, ""); 	  // для корректного вывода кириллицы у printf() / scanf()
 	
-	puts("\n>C$ v.0.0.2");
-	puts("Нажмите Ctrl+C для выхода.\n");
-
+	puts("\n Ctrl+C для выхода\n");
 	while (true)
 	{
 		fputs("/>_ ", stdout);
