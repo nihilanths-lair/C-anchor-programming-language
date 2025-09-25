@@ -37,8 +37,9 @@ int main(int argc, char **argv)
             unsigned char c = (unsigned char) input[i];
 
 			// если символ печатный — показываем его, иначе выводим точку
-            char display = (c >= 32 && c < 127) ? c : input[i];
-            printf("| %5zu |   %-3c |   %02X   |   %03u    |\n", i, display, c, c);
+            //char display = (c >= 32 && c < 127) ? c : input[i];
+			char display = (c >= 32 && c <= 126) || (c >= 128 && c <= 255) ? c : '¶';
+            printf("| %5zu |   %-3c |   %02X   |   %03u    |\n", i+1, display, c, c);
         }
 		puts("+-------+-------+--------+----------+");
 	}
