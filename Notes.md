@@ -28,10 +28,13 @@
 2) Название конструкции (нетерминал).
 3) Определение конструкции (нетерминал/терминал), с описанием правил.
 
-Native:
+<- Native ->:
+
 1.0) void CreateConstruction();
 ~~ 1.1) void SetConstructionIdentifier(short identifier); ~~
 1.2) short GetConstructionIdentifier(const char *construction_name);
+1.3) void DestroyConstruction();
+
 2.1) void SetConstructionName(const char *construction_name);
 2.2) char *GetConstructionName(short identifier);
 ```
