@@ -28,7 +28,8 @@
 2) Название конструкции (нетерминал).
 3) Определение конструкции (нетерминал/терминал), с описанием правил.
 
-1) SetDesignIdentifier(short identifier), GetDesignIdentifier(const char *structure_name);
+Native:
+1) SetDesignIdentifier(short identifier), short GetDesignIdentifier(const char *structure_name);
 ```
 # Описать грамматику таким образом, чтобы она позволяла определять синтаксические конструкции - вида:
 ```
