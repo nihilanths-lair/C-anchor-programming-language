@@ -29,7 +29,7 @@
 3) Определение конструкции (нетерминал/терминал), с описанием правил.
 
 Native:
-1) SetDesignIdentifier(short identifier), short GetDesignIdentifier(const char *structure_name);
+1) void SetDesignIdentifier(short identifier), short GetDesignIdentifier(const char *structure_name);
 ```
 # Описать грамматику таким образом, чтобы она позволяла определять синтаксические конструкции - вида:
 ```
