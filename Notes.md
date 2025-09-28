@@ -31,7 +31,6 @@
 Native:
 1.1) void SetConstructionIdentifier(short identifier);
 1.2) short GetConstructionIdentifier(const char *construction_name);
-
 2.1) void SetConstructionName(const char *construction_name);
 2.2) char *GetConstructionName(short identifier);
 ```
