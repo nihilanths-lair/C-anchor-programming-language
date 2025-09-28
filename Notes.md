@@ -30,6 +30,7 @@
 
 Native:
 1) void SetDesignIdentifier(short identifier), short GetDesignIdentifier(const char *structure_name);
+2) void SetStructureName(const char *structure_name)
 ```
 # Описать грамматику таким образом, чтобы она позволяла определять синтаксические конструкции - вида:
 ```
