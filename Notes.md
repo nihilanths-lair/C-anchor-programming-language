@@ -28,7 +28,7 @@
 2) Название конструкции (нетерминал).
 3) Определение конструкции (нетерминал/терминал), с описанием правил.
 
-<- Native ->:
+<-/ Native /->:
 
 1.0) void CreateConstruction();
 ~~ 1.1) void SetConstructionIdentifier(short identifier); ~~
