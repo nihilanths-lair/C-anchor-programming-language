@@ -29,8 +29,8 @@
 3) Определение конструкции (нетерминал/терминал), с описанием правил.
 
 Native:
-1) void SetDesignIdentifier(short identifier), short GetDesignIdentifier(const char *structure_name);
-2) void SetStructureName(const char *structure_name), GetStructureName(short identifier);
+1) void SetConstructionIdentifier(short identifier), short GetConstructionIdentifier(const char *construction_name);
+2) void SetConstructionName(const char *construction_name), GetConstructionName(short identifier);
 ```
 # Описать грамматику таким образом, чтобы она позволяла определять синтаксические конструкции - вида:
 ```
