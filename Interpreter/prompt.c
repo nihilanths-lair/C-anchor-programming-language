@@ -3,9 +3,9 @@
 #include <stdio.h>
 //#include <stdbool.h>
 
-static char input[2048];
-
 #define true 1
+
+static char input[2048];
 
 int main(int argc, char **argv)
 {
@@ -27,21 +27,33 @@ int main(int argc, char **argv)
 		if (len > 0 && input[len-1] == '\n') input[len-1] = '\0';
 		//input[strlen(input)-1] = '\0';
 
+		FILE *doc = fopen("prompt.txt", "w");
+
+		fprintf(doc, "		     +-------------------+\n");
+		fprintf(doc, "		     | Система счисления |\n");
+		fprintf(doc, "+----+-------+          +--------+\n");
+		fprintf(doc, "|  № | ASCII | 16 | 010 |\n");
+		fprintf(doc, "+----+-------+----+-----+\n");
+
+		/*
         puts("                +-------------------+");
 		puts("+---------------| Система счисления |");
         puts("|   №   | ASCII |   16   |   _10    |");
         puts("+-------+-------+--------+----------+");
-
+		*/
 		for (size_t i = 0; input[i] != '\0'; i++)
         {
             unsigned char c = (unsigned char) input[i];
 
-			// если символ печатный — показываем его, иначе выводим точку
-            //char display = (c >= 32 && c < 127) ? c : input[i];
-			char display = (c >= 32 && c <= 126) || (c >= 128 && c <= 255) ? c : '·';
-            printf("| %5zu |   %-3c |   %02X   |   %03u    |\n", i+1, display, c, c);
+			// если символ печатный — показываем его, иначе выводим неопознанный символ
+            //char display = (c >= 32 && c < 127) ? c : '';
+			//char display = (c >= 32 && c <= 126) || (c >= 128 && c <= 255) ? c : '';
+            //printf("| %5zu |   %-3c |   %02X   |   %03u    |\n", i+1, display, c, c);
+			fprintf(doc, "|%3zu |   %-3c | %02X | %03u |\n", i+1, c, c, c);
         }
-		puts("+-------+-------+--------+----------+");
+		fprintf(doc, "+----+-------+----+-----+");
+		fclose(doc);
+		//puts("+-----+-------+----+-----+");
 	}
 	return 0;
 }
