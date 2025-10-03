@@ -72,10 +72,10 @@ int main(int argc, char **argv)
 
         fprintf(doc, "short i;\n");
         fprintf(doc, "for (i = 0; i < 9; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"'\\\\t', // №9\");\n");
-        fprintf(doc, "fprintf(doc, \"'\\\\n', // №10\");\n");
+        fprintf(doc, "fprintf(doc, \"    '\\\\t', // №9\");\n");
+        fprintf(doc, "fprintf(doc, \"    '\\\\n', // №10\");\n");
         fprintf(doc, "for (i = 11; i < 13; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '\\r', // №13\");\n");
+        fprintf(doc, "fprintf(doc, \"    '\\\\r', // №13\");\n");
         fprintf(doc, "for (i = 14; i < 39; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
         fprintf(doc, "fprintf(doc, \"    '\\%%c', // №39\", i);\n");
         fprintf(doc, "for (i = 40; i < 92; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
