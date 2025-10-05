@@ -9,6 +9,8 @@
 #define runblock {
 #define endblock }
 
+#define __TAB__ "    "
+
 unsigned short dec_to_bin(unsigned short dec);
 
 static char input[2048];
@@ -56,42 +58,57 @@ int main(int argc, char **argv)
 
 		short i;
 		for (i = 0; i < 9; i++) fprintf(doc, "    '%c', // №%d\n", i, i);
-		fprintf(doc, "    '\\t', // №9\n");
-		fprintf(doc, "    '\\n', // №10\n");
+		fprintf(doc, ""__TAB__"'\\t', // №9\n");
+		fprintf(doc, ""__TAB__"'\\n', // №10\n");
 		for (i = 11; i < 13; i++) fprintf(doc, "    '%c', // №%d\n", i, i);
-		fprintf(doc, "    '\\r', // №13\n");
+		fprintf(doc, ""__TAB__"'\\r', // №13\n");
 		for (i = 14; i < 39; i++) fprintf(doc, "    '%c', // №%d\n", i, i);
-		fprintf(doc, "    '\\%c', // №39\n", i);
+		fprintf(doc, ""__TAB__"'\\%c', // №39\n", i);
 		for (i = 40; i < 92; i++) fprintf(doc, "    '%c', // №%d\n", i, i);
-		fprintf(doc, "    '\\%c', // №92\n", i);
+		fprintf(doc, ""__TAB__"'\\%c', // №92\n", i);
 		for (i = 93; i < 255; i++) fprintf(doc, "    '%c', // №%d\n", i, i);
 
-		fprintf(doc, "    '%c' // №255\n", i);
+		fprintf(doc, ""__TAB__"'%c' // №255\n", i);
 		fprintf(doc, "};\n");
 
-		fprintf(doc, "int main(){}\n");
-		fprintf(doc, "/*-------------------------------------------------------------------/\n");
-        fprintf(doc, "FILE *doc = fopen(\"gnt_prompt.c\", \"w\");\n");
+        fprintf(doc, "unsigned short table_bin[] =\n");
+        fprintf(doc, "{\n");
+        //dec_to_bin
+        fprintf(doc, "};\n");
 
-        fprintf(doc, "fprintf(doc, \"unsigned char table_ascii[] =\\n\");\n");
-        fprintf(doc, "fprintf(doc, {\\n\");\n");
+        fprintf(doc, "#include <stdio.h>\n");
+        fprintf(doc, "#define __TAB__ \"    \"\n");
 
-        fprintf(doc, "short i;\n");
-        fprintf(doc, "for (i = 0; i < 9; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '\\\\t', // №9\");\n");
-        fprintf(doc, "fprintf(doc, \"    '\\\\n', // №10\");\n");
-        fprintf(doc, "for (i = 11; i < 13; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '\\\\r', // №13\");\n");
-        fprintf(doc, "for (i = 14; i < 39; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '\\%%c', // №39\", i);\n");
-        fprintf(doc, "for (i = 40; i < 92; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '\\%%c', // №92\", i);\n");
-        fprintf(doc, "for (i = 93; i < 255; i++) fprintf(doc, \"    '%%c', // №%%d\", i, i);\n");
-        fprintf(doc, "fprintf(doc, \"    '%%c' // №255\", i);\n");
-        fprintf(doc, "fprintf(doc, \"};\\n\");\n");
-        fprintf(doc, "int main(){}\n");
-        fprintf(doc, "fclose(doc);\n");
-        fprintf(doc, "/-------------------------------------------------------------------*/");
+		fprintf(doc, "int main()\n");
+        fprintf(doc, "{\n");
+		//fprintf(doc, "/*-------------------------------------------------------------------/\n");
+        fprintf(doc, ""__TAB__"FILE *doc = fopen(\"gnt_prompt.c\", \"w\");\n");
+
+        fprintf(doc, ""__TAB__"fprintf(doc, \"unsigned char table_ascii[] =\\n\");\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"{\\n\");\n");
+
+        fprintf(doc, ""__TAB__"short i;\n");
+        fprintf(doc, ""__TAB__"for (i = 0; i < 9; i++) fprintf(doc, \"\\\"__TAB__\\\"'%%c', // №%%d\", i, i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'\\\\t', // №9\");\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'\\\\n', // №10\");\n");
+        fprintf(doc, ""__TAB__"for (i = 11; i < 13; i++) fprintf(doc, \"\\\"__TAB__\\\"'%%c', // №%%d\", i, i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'\\\\r', // №13\");\n");
+        fprintf(doc, ""__TAB__"for (i = 14; i < 39; i++) fprintf(doc, \"\\\"__TAB__\\\"'%%c', // №%%d\", i, i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'\\%%c', // №39\", i);\n");
+        fprintf(doc, ""__TAB__"for (i = 40; i < 92; i++) fprintf(doc, \"\\\"__TAB__\\\"'%%c', // №%%d\", i, i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'\\%%c', // №92\", i);\n");
+        fprintf(doc, ""__TAB__"for (i = 93; i < 255; i++) fprintf(doc, \"\\\"__TAB__\\\"'%%c', // №%%d\", i, i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"\\\"__TAB__\\\"'%%c' // №255\", i);\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"};\\n\");\n");
+
+        fprintf(doc, ""__TAB__"fprintf(doc, \"unsigned short table_bin[] =\\n\");\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"{\\n\");\n");
+        fprintf(doc, ""__TAB__"fprintf(doc, \"};\\n\");\n");
+
+        //fprintf(doc, "int main(){}\n");
+        fprintf(doc, ""__TAB__"fclose(doc);\n");
+        //fprintf(doc, "/-------------------------------------------------------------------*/");
+        fprintf(doc, "}");
 		//fprintf(doc, "{");
 		//fprintf(doc, "}");
 		/*
