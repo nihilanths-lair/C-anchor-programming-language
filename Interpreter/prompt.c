@@ -9,7 +9,7 @@
 #define runblock {
 #define endblock }
 
-short dec_to_bin(unsigned short dec);
+unsigned short dec_to_bin(unsigned short dec);
 
 static char input[2048];
 
@@ -112,28 +112,22 @@ int main(int argc, char **argv)
 	return 0;
 }
 // decimal to binary | десятичное в двоичное
-short dec_to_bin(unsigned short dec)
+unsigned short dec_to_bin(unsigned short dec)
 {
-    unsigned short bin[8];
-    //unsigned short rmnd = dec;
-    for (short i = 8; i >= 0; i--)
+    unsigned short factor = 1;
+    unsigned short bin = 0;
+    
+    for (short i = 7; i >= 0; i--)
     {
         switch (dec % 2)
         runblock
-        case 0: bin[i] = 0; break; // remainder | остаток
-        default: bin[i] = 1; break; // remainder | остаток
+        case 0: bin += (0 * factor); break; // remainder | остаток
+        default: bin += (1 * factor); break; // remainder | остаток
         endblock
         dec = (dec / 2);
     }
-    bin[0] *= 128;
-    bin[1] *= 64;
-    bin[2] *= 32;
-    bin[3] *= 16;
-    bin[4] *= 8;
-    bin[5] *= 4;
-    bin[6] *= 2;
-    //bin[7] *= 1; // оставляем как есть
-    return 152;
+    //bin[0] *= 128 + bin[1] *= 64 + bin[2] *= 32 + bin[3] *= 16 + bin[4] *= 8 + bin[5] *= 4 + bin[6] *= 2; //bin[7] *= 1; // оставляем как есть
+    return bin;
 }
 unsigned char bin_to_dec()
 {
