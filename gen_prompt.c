@@ -56,7 +56,8 @@ int main(int argc, char **argv)
 
 		fprintf(doc, "unsigned char table_ascii[] =\n");
 		fprintf(doc, "{\n");
-		for (i = 0; i < 9; i++) fprintf(doc, ""__TAB__"'%c', // №%d\n", i, i);
+		fprintf(doc, ""__TAB__"'\\0', // №0\n");
+		for (i = 1; i < 9; i++) fprintf(doc, ""__TAB__"'%c', // №%d\n", i, i);
 		fprintf(doc, ""__TAB__"'\\t', // №9\n");
 		fprintf(doc, ""__TAB__"'\\n', // №10\n");
 		for (i = 11; i < 13; i++) fprintf(doc, ""__TAB__"'%c', // №%d\n", i, i);
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
 		fprintf(doc, ""__TAB__"'%c' /// №255\n", i);
 		fprintf(doc, "};\n");
 
-        fprintf(doc, "unsigned short table_bin[] =\n");
+        fprintf(doc, "unsigned int table_bin[] =\n");
         fprintf(doc, "{\n");
         for (i = 0; i < 255; i++)
 		{
@@ -84,7 +85,18 @@ int main(int argc, char **argv)
 		}
 		fprintf(doc, "/**/%d /// №255\n", dec_to_bin(i));
         fprintf(doc, "};\n");
-		fprintf(doc, "int main() { return 0; }\n");
+		fprintf(doc, "#include <stdio.h>\n");
+		fprintf(doc, "int main()\n");
+		fprintf(doc, "{\n");
+		fprintf(doc, ""__TAB__"unsigned char i = 0;\n");
+		//fprintf(doc, ""__TAB__"do\n");
+		//fprintf(doc, ""__TAB__"for (unsigned char i = 0; i <= 255; i++)\n");
+		//fprintf(doc, ""__TAB__""__TAB__"printf(\"%%d - %%d\\n\", i, table_bin[i]);\n");
+		fprintf(doc, ""__TAB__"do printf(\"%%d - %%d\\n\", i, table_bin[i]);\n");
+		//fprintf(doc, ""__TAB__""__TAB__"i++;\n");
+		fprintf(doc, ""__TAB__"while (i++ != 255);\n");
+		fprintf(doc, ""__TAB__"return 0;\n");
+		fprintf(doc, "}\n");
 
 		fprintf(doc, "/*-------------------------------------------------------------------/\n");
         fprintf(doc, "#include <stdio.h>\n");
