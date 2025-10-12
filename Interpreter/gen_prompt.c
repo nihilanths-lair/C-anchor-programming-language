@@ -11,8 +11,8 @@
 
 #define __TAB__ "    "
 
-#define _1 "2"
-#define _2 "4"
+#define _1 "127"
+#define _2 "128"
 
 unsigned int dec_to_bin(unsigned short dec);
 
@@ -92,8 +92,8 @@ int main(int argc, char **argv)
 		//fprintf(doc, "#define _1 255\n");
 		//fprintf(doc, "#define _2 255\n");
 		fprintf(doc, "unsigned int GetBin(unsigned char bin);\n");
-		fprintf(doc, "unsigned short AddBin(unsigned char bin_1, unsigned char bin_2);\n");
-		fprintf(doc, "unsigned short SubBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned int SubBin(unsigned char bin_1, unsigned char bin_2);\n");
 		fprintf(doc, "int main()\n");
 		fprintf(doc, "{\n");
 		fprintf(doc, ""__TAB__"unsigned char i = 0;\n");
@@ -127,8 +127,8 @@ int main(int argc, char **argv)
 		fprintf(doc, "}\n");
 
 		fprintf(doc, "unsigned int GetBin(unsigned char bin) { return table_bin[bin]; }\n");
-		fprintf(doc, "unsigned short AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }\n");
-		fprintf(doc, "unsigned short SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }\n");
+		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }\n");
+		fprintf(doc, "unsigned int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }\n");
 
 		fprintf(doc, "/*-------------------------------------------------------------------/\n");
         fprintf(doc, "#include <stdio.h>\n");
