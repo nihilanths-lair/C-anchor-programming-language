@@ -86,17 +86,41 @@ int main(int argc, char **argv)
 		fprintf(doc, "/**/%d /// №255\n", dec_to_bin(i));
         fprintf(doc, "};\n");
 		fprintf(doc, "#include <stdio.h>\n");
+		fprintf(doc, "unsigned short AddBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned short SubBin(unsigned char bin_1, unsigned char bin_2);\n");
 		fprintf(doc, "int main()\n");
 		fprintf(doc, "{\n");
 		fprintf(doc, ""__TAB__"unsigned char i = 0;\n");
 		//fprintf(doc, ""__TAB__"do\n");
 		//fprintf(doc, ""__TAB__"for (unsigned char i = 0; i <= 255; i++)\n");
 		//fprintf(doc, ""__TAB__""__TAB__"printf(\"%%d - %%d\\n\", i, table_bin[i]);\n");
-		fprintf(doc, ""__TAB__"do printf(\"%%d - %%d\\n\", i, table_bin[i]);\n");
+		fprintf(doc, ""__TAB__"do printf(\"%%3d - %%8d\\n\", i, table_bin[i]);\n");
 		//fprintf(doc, ""__TAB__""__TAB__"i++;\n");
 		fprintf(doc, ""__TAB__"while (i++ != 255);\n");
+
+		fprintf(doc, ""__TAB__"putchar('\\n');\n");
+
+		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\"  BINARY  | DECIMAL\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[0], table_ascii[0]);\n");
+		fprintf(doc, ""__TAB__"printf(\"+\t  +\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[2], table_ascii[2]);\n");
+		fprintf(doc, ""__TAB__"printf(\"=\t  =\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", AddBin(table_bin[0], table_bin[2]), table_ascii[0 + 2]);\n");
+		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
+		fprintf(doc, ""__TAB__"putchar('\\n');\n");
+		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\"  BINARY  | DECIMAL\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[0], table_ascii[0]);\n");
+		fprintf(doc, ""__TAB__"printf(\"+\\t\\t    +\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[2], table_ascii[2]);\n");
+		fprintf(doc, ""__TAB__"printf(\"=\\t\\t    =\\n\");\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[table_bin[0] + table_bin[2]], table_ascii[0 + 2]);\n");
+		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
 		fprintf(doc, ""__TAB__"return 0;\n");
 		fprintf(doc, "}\n");
+		fprintf(doc, "unsigned short AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }\n");
+		fprintf(doc, "unsigned short SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }\n");
 
 		fprintf(doc, "/*-------------------------------------------------------------------/\n");
         fprintf(doc, "#include <stdio.h>\n");
