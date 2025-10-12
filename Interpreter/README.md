@@ -9,9 +9,11 @@
 
 В зависимости от того, какой файл скачали, переходим к одному из трёх действий:
 
- Компиляция 1 этап: cc -std=c99 -Wall gen_prompt.c -o prompt.exe
- Запуск: prompt.exe
- Жмём `Enter`
- Компиляция 2 этап: cc -std=c99 -Wall prompt.c -o prompt.exe
- Имея файл prompt.exe можно запустить его для работы, введя в консоли: prompt.exe
+ (1.1) Компиляция 1 этап: cc -std=c99 -Wall gen_prompt.c -o prompt.exe
+ (1.2) Запуск: prompt.exe
+ (1.3) Жмём `Enter`
+ 
+ (2) Компиляция 2 этап: cc -std=c99 -Wall prompt.c -o prompt.exe
+ 
+ (3) Имея файл prompt.exe можно запустить его для работы, введя в консоли: prompt.exe
 ```
