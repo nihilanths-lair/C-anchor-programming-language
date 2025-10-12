@@ -517,13 +517,35 @@ unsigned int table_bin[] =
 /**/11111111 /// №255
 };
 #include <stdio.h>
+unsigned short AddBin(unsigned char bin_1, unsigned char bin_2);
+unsigned short SubBin(unsigned char bin_1, unsigned char bin_2);
 int main()
 {
     unsigned char i = 0;
-    do printf("%d - %d\n", i, table_bin[i]);
+    do printf("%3d - %8d\n", i, table_bin[i]);
     while (i++ != 255);
+    putchar('\n');
+    printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
+    printf("  BINARY  | DECIMAL\n");
+    printf(" %08d | %8d\n", table_bin[0], table_ascii[0]);
+    printf("+	  +\n");
+    printf(" %08d | %8d\n", table_bin[2], table_ascii[2]);
+    printf("=	  =\n");
+    printf(" %08d | %8d\n", AddBin(table_bin[0], table_bin[2]), table_ascii[0 + 2]);
+    printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
+    putchar('\n');
+    printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
+    printf("  BINARY  | DECIMAL\n");
+    printf(" %08d | %8d\n", table_bin[0], table_ascii[0]);
+    printf("+\t\t    +\n");
+    printf(" %08d | %8d\n", table_bin[2], table_ascii[2]);
+    printf("=\t\t    =\n");
+    printf(" %08d | %8d\n", table_bin[table_bin[0] + table_bin[2]], table_ascii[0 + 2]);
+    printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     return 0;
 }
+unsigned short AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }
+unsigned short SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }
 /*-------------------------------------------------------------------/
 #include <stdio.h>
 #define __TAB__ "    "
