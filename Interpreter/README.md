@@ -16,7 +16,8 @@
  (1.2) Запуск: prompt.exe
  (1.3) Жмём `Enter`
  
- (2) Компиляция 2 этап: cc -std=c99 -Wall prompt.c -o prompt.exe
- 
+ (2) Имя файл prompt.c производим его компиляцию: cc -std=c99 -Wall prompt.c -o prompt.exe
+ Получаем файл prompt.exe, который готов для работы, запустить его можно, введя в консоли prompt.exe
+
  (3) Имея файл prompt.exe можно запустить его для работы, введя в консоли: prompt.exe
 ```
