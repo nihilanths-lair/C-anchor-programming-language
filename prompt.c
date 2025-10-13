@@ -532,7 +532,7 @@ int main()
     printf("+	  +\n");
     printf(" %08d | %8d\n", table_bin[128], table_ascii[128]);
     printf("=	  =\n");
-    printf(" %08d | %8d\n", AddBin(table_ascii[127], table_ascii[128]), table_ascii[127 + 128]);
+    printf(" %08d | %8d\n", GetBin(table_ascii[127 + 128]), table_ascii[127 + 128]);
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     putchar('\n');
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
@@ -541,12 +541,12 @@ int main()
     printf("+\t\t    +\n");
     printf(" %08d | %8d\n", table_bin[128], table_ascii[128]);
     printf("=\t\t    =\n");
-    printf(" %08d | %8d\n", table_bin[table_ascii[127 + 128]], table_ascii[127 + 128]);
+    printf(" %08d | %8d\n", table_bin[table_ascii[(127 + 128) % 256]], table_ascii[(127 + 128) % 256]);
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     return 0;
 }
 unsigned int GetBin(unsigned char bin) { return table_bin[bin]; }
-unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }
+unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(bin_1 + bin_2) % 256]; }
 unsigned int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }
 /*-------------------------------------------------------------------/
 #include <stdio.h>
