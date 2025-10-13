@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 		fprintf(doc, ""__TAB__"printf(\"+\t  +\\n\");\n");
 		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin["_2"], table_ascii["_2"]);\n");
 		fprintf(doc, ""__TAB__"printf(\"=\t  =\\n\");\n");
-		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", AddBin(table_ascii["_1"], table_ascii["_2"]), table_ascii["_1" + "_2"]);\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", GetBin(table_ascii["_1" + "_2"]), table_ascii["_1" + "_2"]);\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
 		fprintf(doc, ""__TAB__"putchar('\\n');\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
@@ -121,13 +121,13 @@ int main(int argc, char **argv)
 		fprintf(doc, ""__TAB__"printf(\"+\\t\\t    +\\n\");\n");
 		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin["_2"], table_ascii["_2"]);\n");
 		fprintf(doc, ""__TAB__"printf(\"=\\t\\t    =\\n\");\n");
-		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[table_ascii["_1" + "_2"]], table_ascii["_1" + "_2"]);\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[table_ascii[("_1" + "_2") %% 256]], table_ascii[("_1" + "_2") %% 256]);\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
 		fprintf(doc, ""__TAB__"return 0;\n");
 		fprintf(doc, "}\n");
 
 		fprintf(doc, "unsigned int GetBin(unsigned char bin) { return table_bin[bin]; }\n");
-		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 + bin_2]; }\n");
+		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(bin_1 + bin_2) %% 256]; }\n");
 		fprintf(doc, "unsigned int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }\n");
 
 		fprintf(doc, "/*-------------------------------------------------------------------/\n");
