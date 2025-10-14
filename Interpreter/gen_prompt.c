@@ -11,8 +11,8 @@
 
 #define __TAB__ "    "
 
-#define _1 "127"
-#define _2 "128"
+#define _1 "128"
+#define _2 "130"
 
 unsigned int dec_to_bin(unsigned short dec);
 
@@ -91,16 +91,20 @@ int main(int argc, char **argv)
 		fprintf(doc, "#include <stdio.h>\n");
 		//fprintf(doc, "#define _1 255\n");
 		//fprintf(doc, "#define _2 255\n");
-		fprintf(doc, "unsigned int GetBin(unsigned char bin);\n");
-		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2);\n");
-		fprintf(doc, "unsigned int SubBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned char GetDec(unsigned char ascii);\n");
+		fprintf(doc, "unsigned  int GetBin(unsigned char bin);\n");
+		fprintf(doc, "unsigned  int AddBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned  int SubBin(unsigned char bin_1, unsigned char bin_2);\n");
+		fprintf(doc, "unsigned int dec_to_bin(unsigned char dec);\n");
+		fprintf(doc, "#define runblock {\n");
+		fprintf(doc, "#define endblock }\n");
 		fprintf(doc, "int main()\n");
 		fprintf(doc, "{\n");
 		fprintf(doc, ""__TAB__"unsigned char i = 0;\n");
 		//fprintf(doc, ""__TAB__"do\n");
 		//fprintf(doc, ""__TAB__"for (unsigned char i = 0; i <= 255; i++)\n");
 		//fprintf(doc, ""__TAB__""__TAB__"printf(\"%%d - %%d\\n\", i, table_bin[i]);\n");
-		fprintf(doc, ""__TAB__"do printf(\"%%3d - %%8d\\n\", i, table_bin[i]);\n");
+		fprintf(doc, ""__TAB__"do printf(\"%%3d - %%8d\\n\", i, table_bin[(unsigned char)i]); // table_bin[i %% 256]\n");
 		//fprintf(doc, ""__TAB__""__TAB__"i++;\n");
 		fprintf(doc, ""__TAB__"while (i++ != 255);\n");
 
@@ -112,7 +116,7 @@ int main(int argc, char **argv)
 		fprintf(doc, ""__TAB__"printf(\"+\t  +\\n\");\n");
 		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin["_2"], table_ascii["_2"]);\n");
 		fprintf(doc, ""__TAB__"printf(\"=\t  =\\n\");\n");
-		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", GetBin(table_ascii["_1" + "_2"]), table_ascii["_1" + "_2"]);\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", GetBin(table_ascii["_1"] + table_ascii["_2"]), GetDec(table_ascii["_1"] + table_ascii["_2"])); // (table_ascii[128] + table_ascii[130]) %% 256\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
 		fprintf(doc, ""__TAB__"putchar('\\n');\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
@@ -121,14 +125,35 @@ int main(int argc, char **argv)
 		fprintf(doc, ""__TAB__"printf(\"+\\t\\t    +\\n\");\n");
 		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin["_2"], table_ascii["_2"]);\n");
 		fprintf(doc, ""__TAB__"printf(\"=\\t\\t    =\\n\");\n");
-		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[table_ascii[("_1" + "_2") %% 256]], table_ascii[("_1" + "_2") %% 256]);\n");
+		fprintf(doc, ""__TAB__"printf(\" %%08d | %%8d\\n\", table_bin[(unsigned char)(table_ascii["_1"] + table_ascii["_2"])], (unsigned char)(table_ascii["_1"] + table_ascii["_2"])); // (table_ascii[128] + table_ascii[130]) %% 256\n");
 		fprintf(doc, ""__TAB__"printf(\"~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\\n\");\n");
 		fprintf(doc, ""__TAB__"return 0;\n");
 		fprintf(doc, "}\n");
 
-		fprintf(doc, "unsigned int GetBin(unsigned char bin) { return table_bin[bin]; }\n");
-		fprintf(doc, "unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(bin_1 + bin_2) %% 256]; }\n");
-		fprintf(doc, "unsigned int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }\n");
+		fprintf(doc, "unsigned char GetDec(unsigned char ascii                     ) { return ascii;                                     }\n");
+		fprintf(doc, "unsigned  int GetBin(unsigned char bin                       ) { return table_bin[(unsigned char) bin           ]; } // table_bin[bin %% 256]\n");
+		fprintf(doc, "unsigned  int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(unsigned char)(bin_1 + bin_2)]; } // table_bin[(bin_1 + bin_2) %% 256]\n");
+		fprintf(doc, "unsigned  int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(unsigned char)(bin_1 - bin_2)]; } // table_bin[(bin_1 - bin_2) %% 256]\n");
+		fprintf(doc, "// decimal to binary | десятичное в двоичное\n");
+		fprintf(doc, "unsigned int dec_to_bin(unsigned char dec)\n");
+		fprintf(doc, "{\n");
+		fprintf(doc, "	unsigned int factor = 1;\n");
+		fprintf(doc, "	unsigned int bin = 0;\n");
+		fprintf(doc, "	\n");
+		fprintf(doc, "	for (short i = 7; i >= 0; i--)\n");
+		fprintf(doc, "	{\n");
+		fprintf(doc, "		switch (dec %% 2)\n");
+		fprintf(doc, "		runblock\n");
+		fprintf(doc, "		case 0: bin += (0 * factor); break;\n");
+		fprintf(doc, "		default: bin += (1 * factor); break;\n");
+		fprintf(doc, "		endblock\n");
+		fprintf(doc, "		dec = (dec / 2);\n");
+		fprintf(doc, "		//factor *= 2;\n");
+		fprintf(doc, "		factor *= 10;\n");
+		fprintf(doc, "	}\n");
+		fprintf(doc, "	//bin[0] *= 128 + bin[1] *= 64 + bin[2] *= 32 + bin[3] *= 16 + bin[4] *= 8 + bin[5] *= 4 + bin[6] *= 2; //bin[7] *= 1; // оставляем как есть // remainder | остаток\n");
+		fprintf(doc, "	return bin;\n");
+		fprintf(doc, "}\n");
 
 		fprintf(doc, "/*-------------------------------------------------------------------/\n");
         fprintf(doc, "#include <stdio.h>\n");
@@ -185,22 +210,22 @@ int main(int argc, char **argv)
 // decimal to binary | десятичное в двоичное
 unsigned int dec_to_bin(unsigned short dec)
 {
-    unsigned int factor = 1;
-    unsigned int bin = 0;
-    
-    for (short i = 7; i >= 0; i--)
-    {
-        switch (dec % 2)
-        runblock
-        case 0: bin += (0 * factor); break;
-        default: bin += (1 * factor); break;
-        endblock
-        dec = (dec / 2);
+	unsigned int factor = 1;
+	unsigned int bin = 0;
+	
+	for (short i = 7; i >= 0; i--)
+	{
+		switch (dec % 2)
+		runblock
+		case 0: bin += (0 * factor); break;
+		default: bin += (1 * factor); break;
+		endblock
+		dec = (dec / 2);
 		//factor *= 2;
 		factor *= 10;
-    }
-    //bin[0] *= 128 + bin[1] *= 64 + bin[2] *= 32 + bin[3] *= 16 + bin[4] *= 8 + bin[5] *= 4 + bin[6] *= 2; //bin[7] *= 1; // оставляем как есть // remainder | остаток
-    return bin;
+	}
+	//bin[0] *= 128 + bin[1] *= 64 + bin[2] *= 32 + bin[3] *= 16 + bin[4] *= 8 + bin[5] *= 4 + bin[6] *= 2; //bin[7] *= 1; // оставляем как есть // remainder | остаток
+	return bin;
 }
 unsigned char bin_to_dec()
 {
