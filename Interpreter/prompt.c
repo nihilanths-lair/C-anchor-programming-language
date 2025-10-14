@@ -517,37 +517,62 @@ unsigned int table_bin[] =
 /**/11111111 /// №255
 };
 #include <stdio.h>
-unsigned int GetBin(unsigned char bin);
-unsigned int AddBin(unsigned char bin_1, unsigned char bin_2);
-unsigned int SubBin(unsigned char bin_1, unsigned char bin_2);
+unsigned char GetDec(unsigned char ascii);
+unsigned  int GetBin(unsigned char bin);
+unsigned  int AddBin(unsigned char bin_1, unsigned char bin_2);
+unsigned  int SubBin(unsigned char bin_1, unsigned char bin_2);
+unsigned int dec_to_bin(unsigned char dec);
+#define runblock {
+#define endblock }
 int main()
 {
     unsigned char i = 0;
-    do printf("%3d - %8d\n", i, table_bin[i]);
+    do printf("%3d - %8d\n", i, table_bin[(unsigned char)i]); // table_bin[i % 256]
     while (i++ != 255);
     putchar('\n');
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     printf("  BINARY  | DECIMAL\n");
-    printf(" %08d | %8d\n", table_bin[127], table_ascii[127]);
-    printf("+	  +\n");
     printf(" %08d | %8d\n", table_bin[128], table_ascii[128]);
+    printf("+	  +\n");
+    printf(" %08d | %8d\n", table_bin[130], table_ascii[130]);
     printf("=	  =\n");
-    printf(" %08d | %8d\n", GetBin(table_ascii[127 + 128]), table_ascii[127 + 128]);
+    printf(" %08d | %8d\n", GetBin(table_ascii[128] + table_ascii[130]), GetDec(table_ascii[128] + table_ascii[130])); // (table_ascii[128] + table_ascii[130]) % 256
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     putchar('\n');
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     printf("  BINARY  | DECIMAL\n");
-    printf(" %08d | %8d\n", table_bin[127], table_ascii[127]);
-    printf("+\t\t    +\n");
     printf(" %08d | %8d\n", table_bin[128], table_ascii[128]);
+    printf("+\t\t    +\n");
+    printf(" %08d | %8d\n", table_bin[130], table_ascii[130]);
     printf("=\t\t    =\n");
-    printf(" %08d | %8d\n", table_bin[table_ascii[(127 + 128) % 256]], table_ascii[(127 + 128) % 256]);
+    printf(" %08d | %8d\n", table_bin[(unsigned char)(table_ascii[128] + table_ascii[130])], (unsigned char)(table_ascii[128] + table_ascii[130])); // (table_ascii[128] + table_ascii[130]) % 256
     printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
     return 0;
 }
-unsigned int GetBin(unsigned char bin) { return table_bin[bin]; }
-unsigned int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(bin_1 + bin_2) % 256]; }
-unsigned int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[bin_1 - bin_2]; }
+unsigned char GetDec(unsigned char ascii                     ) { return ascii;                                     }
+unsigned  int GetBin(unsigned char bin                       ) { return table_bin[(unsigned char) bin           ]; } // table_bin[bin % 256]
+unsigned  int AddBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(unsigned char)(bin_1 + bin_2)]; } // table_bin[(bin_1 + bin_2) % 256]
+unsigned  int SubBin(unsigned char bin_1, unsigned char bin_2) { return table_bin[(unsigned char)(bin_1 - bin_2)]; } // table_bin[(bin_1 - bin_2) % 256]
+// decimal to binary | десятичное в двоичное
+unsigned int dec_to_bin(unsigned char dec)
+{
+	unsigned int factor = 1;
+	unsigned int bin = 0;
+	
+	for (short i = 7; i >= 0; i--)
+	{
+		switch (dec % 2)
+		runblock
+		case 0: bin += (0 * factor); break;
+		default: bin += (1 * factor); break;
+		endblock
+		dec = (dec / 2);
+		//factor *= 2;
+		factor *= 10;
+	}
+	//bin[0] *= 128 + bin[1] *= 64 + bin[2] *= 32 + bin[3] *= 16 + bin[4] *= 8 + bin[5] *= 4 + bin[6] *= 2; //bin[7] *= 1; // оставляем как есть // remainder | остаток
+	return bin;
+}
 /*-------------------------------------------------------------------/
 #include <stdio.h>
 #define __TAB__ "    "
