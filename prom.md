@@ -4,7 +4,12 @@
 /-------/      _       /----/
 ¦ ASCII ¦  16  ¦  010  ¦
 >-------+------+-------<
-¦       ¦  00  ¦  000  ¦ - [&#0;]
+¦       ¦  00  ¦  000  ¦ - [<span style="display:inline-block;width:1.2em;height:1.2em;
+background:#ff4444;color:white;font-size:0.7em;
+text-align:center;line-height:1.2em;border-radius:3px;">
+NUL
+</span>
+]
 ¦       ¦  01  ¦  001  ¦ - []
 ¦       ¦  02  ¦  002  ¦ - []
 ¦       ¦  03  ¦  003  ¦ - []
@@ -285,6 +290,7 @@
 \----------------------/
 
 ```    
+
 
 
 
