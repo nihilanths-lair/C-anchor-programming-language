@@ -11,7 +11,7 @@
 ¦       ¦  04  ¦  004  ¦ - [□]
 ¦       ¦  05  ¦  005  ¦ - [□]
 ¦       ¦  06  ¦  006  ¦ - [□]
-¦       ¦  07  ¦  007  ¦ - [□]
+¦       ¦  07  ¦  007  ¦ - [<span style="display:inline-block;width:2.2em;height:2.2em;background:#a00;color:#fff;text-align:center;line-height:2.2em;font-weight:bold;border-radius:4px;font-family:monospace;">BEL</span>]
 ¦       ¦  08  ¦  008  ¦ - [□]
 ¦       ¦  09  ¦  009  ¦ - [HT]
 ¦       ¦  0A  ¦  010  ¦ - [LF]
@@ -285,6 +285,7 @@
 \----------------------/
 
 ```    
+
 
 
 
