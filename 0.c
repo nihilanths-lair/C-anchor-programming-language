@@ -204,16 +204,7 @@ void OutputToFile(const char *name)
         case 0x0F: case 0x1F: case 0x7F: case 0x8F: case 0x9F: case 0xAF: case 0xBF: fprintf(doc, "0x%02X,\n", cell++); break;
         default: fprintf(doc, "'%c',\n", cell++);
         endblock
-        /*
-        if (iter_0 < 0x10) { fprintf(doc, "0x%02X, ", iter_0); continue; }
-        if (iter_0 % 0x10 == 0) { fprintf(doc, "\n    ", iter_0); continue; }
-        if (iter_0 < 0x20) { fprintf(doc, "0x%X, ", iter_0); continue; }
-        if (iter_0 == '\'' || iter_0 == '\\') { fprintf(doc, "'\\%c', ", iter_0); continue; }
-        //if (iter_0 == '\\') { fprintf(doc, "'\\%c', ", iter_0); continue; }
-        if (iter_0 > 0x7E && iter_0 < 0xA8 || iter_0 > 0xA8 && iter_0 < 0xB8 || iter_0 > 0xB9 && iter_0 < 0xC0) { fprintf(doc, "0x%X,", iter_0); continue; }
-        //if (iter_0 > 0xA8 && iter_0 < 0xB8) { fprintf(doc, "0x%X, ", iter_0); continue; }
-        fprintf(doc, "'%c', ", iter_0);
-        */
+        //if (iter_0 % 0x10 == 0) { fprintf(doc, "\n    ", iter_0); continue; }
     }
     fprintf(doc, "    ");
     for (unsigned char iter_0 = 0x0; iter_0 < 0xF; iter_0++)
