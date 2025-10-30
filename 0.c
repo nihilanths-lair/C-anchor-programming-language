@@ -135,7 +135,7 @@ void OutputToConsole()
         printf("%c", memory[iter_0]);
     }
     printf("|\n");
-    printf("|     %d |", 16);
+    printf("|     %d |", 16); // Второй ряд
     for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
     {
         printf("[%03d]", memory[iter_0]);
