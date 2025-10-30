@@ -1,10 +1,15 @@
+//--------------------------------------------------------//
 #include <stdio.h>
-//#define __void_filler
+#include <locale.h>
+//#include <windows.h>
+//--------------------------------------------------------//
 #define runblock {
 #define endblock }
+//--------------------------------------------------------//
 //unsigned char _iter[2] = {0};
 unsigned char cell;
 unsigned char memory[0x100];
+//--------------------------------------------------------//
 /*
 unsigned char ascii[] =
 {"\
@@ -14,6 +19,7 @@ unsigned char ascii[] =
 ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя\
 "};
 */
+//--------------------------------------------------------//
 unsigned char ext_ascii[] =
 {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -33,6 +39,7 @@ unsigned char ext_ascii[] =
     'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п',
     'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
 };
+//--------------------------------------------------------//
 void SetValue(unsigned char *memory)//, const unsigned char value
 {
     /*
@@ -62,79 +69,130 @@ void SetValue(unsigned char *memory)//, const unsigned char value
     //memory['\n'] = ' '; // 10
     //memory['\r'] = ' '; // 13
 }
+//--------------------------------------------------------//
 void OutputToConsole()
 {
-    SetValue(memory);
-    puts("--------+----------------------------------------------------------------+----------------+");
-    puts(" Offset | 00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F |     ASCII      |");
-    puts("--------+----------------------------------------------------------------+----------------+");
-    for (unsigned char iter_0 = 0; iter_0 <= 0xF; iter_0++)
+    //SetConsoleCP(1251);       // ввод в CP1251
+	//SetConsoleOutputCP(1251); // вывод в CP1251
+    setlocale(0, "");
+    printf("+--------+----------------------------------------------------------------+----------------+\n");
+    printf("| Offset | 00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F |     ASCII      |\n");
+    printf("+--------+----------------------------------------------------------------+----------------+\n");
+    printf("|      0 |"); // Первый ряд
+    for (unsigned char iter_0 = 0x0; iter_0 <= 0xF; iter_0++)
     {
-        printf("     %2X |", cell = iter_0 * 0x10);
-        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
-        {
-            printf("[%2X]", memory[cell + iter_1] & 0xFF);
-        }
-        putchar('|');
-        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
-        {
-            //if (memory[cell + iter_1] == '\t' || memory[cell + iter_1] == '\n' || memory[cell + iter_1] == '\r') memory[cell + iter_1] = ' ';
-            //if (memory[cell + iter_1] < ' ' || memory[cell + iter_1] == 0x7F || memory[cell + iter_1] == 0x98) memory[cell + iter_1] = ' ';
-            printf("%c", memory[cell + iter_1]);
-        }
-        puts("|");
+        printf("[%02X]", memory[iter_0] = iter_0); // Код (00-0F)
     }
-    puts("--------+----------------------------------------------------------------+----------------+");
-    SetValue(memory);
-    puts("--------+--------------------------------------------------------------------------------+----------------+");
-    puts(" Offset | 000  001  002  003  004  005  006  007  008  009  010  011  012  013  014  015 |     ASCII      |");
-    puts("--------+--------------------------------------------------------------------------------+----------------+");
-    for (unsigned char iter_0 = 0; iter_0 <= 0xF; iter_0++)
+    printf("|");
+    for (unsigned char iter_0 = 0x0; iter_0 <= 0xF; iter_0++)
     {
-        printf("    %3d |", cell = iter_0 * 0x10);
-        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
-        {
-            printf("[%3d]", memory[cell + iter_1]);
-        }
-        putchar('|');
-        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
-        {
-            //if (memory[cell + iter_1] == '\t' || memory[cell + iter_1] == '\n' || memory[cell + iter_1] == '\r') memory[cell + iter_1] = ' ';
-            //if (memory[cell + iter_1] < ' ' || memory[cell + iter_1] == 0x7F || memory[cell + iter_1] == 0x98) memory[cell + iter_1] = ' ';
-            printf("%c", memory[cell + iter_1]);
-        }
-        puts("|");
+        memory[iter_0] = ' ';
+        printf("%c", memory[iter_0]); // ASCII (00-0F)
     }
-    puts("--------+--------------------------------------------------------------------------------+----------------+");
+    printf("|\n");
+    printf("|     %2X |", 0x10); // Второй ряд
+    for (unsigned char iter_0 = 0x10; iter_0 <= 0x1F; iter_0++)
+    {
+        printf("[%02X]", memory[iter_0] = iter_0); // Код (10-1F)
+        memory[iter_0] = ' ';
+    }
+    printf("|");
+    for (unsigned char iter_0 = 0x10; iter_0 <= 0x1F; iter_0++)
+    {
+        printf("%c", memory[iter_0]); // ASCII (10-1F)
+    }
+    printf("|\n");
+    for (unsigned char iter_0 = 0x2; iter_0 <= 0xF; iter_0++)
+    {
+        printf("|     %02X |", cell = iter_0*0x10);
+        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
+        {
+            printf("[%02X]", memory[cell+iter_1] = cell+iter_1);
+        }
+        printf("|");
+        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
+        {
+            if (cell+iter_1 > 0x7E && cell+iter_1 < 0xA8) memory[cell+iter_1] = ' ';
+            else if (cell+iter_1 > 0xA8 && cell+iter_1 < 0xB8) memory[cell+iter_1] = ' ';
+            else if (cell+iter_1 > 0xB8 && cell+iter_1 < 0xC0) memory[cell+iter_1] = ' ';
+            printf("%c", memory[cell+iter_1]);
+        }
+        printf("|\n");
+    }
+    printf("+--------+----------------------------------------------------------------+----------------+\n");
+    printf("+--------+--------------------------------------------------------------------------------+----------------+\n");
+    printf("| Offset | 000  001  002  003  004  005  006  007  008  009  010  011  012  013  014  015 |     ASCII      |\n");
+    printf("+--------+--------------------------------------------------------------------------------+----------------+\n");
+    printf("|      0 |"); // Первый ряд
+    for (unsigned char iter_0 = 0; iter_0 <= 15; iter_0++)
+    {
+        printf("[%03d]", memory[iter_0] = iter_0);
+    }
+    printf("|");
+    for (unsigned char iter_0 = 0; iter_0 <= 15; iter_0++)
+    {
+        memory[iter_0] = ' ';
+        printf("%c", memory[iter_0]);
+    }
+    printf("|\n");
+    printf("|     %d |", 16);
+    for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
+    {
+        printf("[%03d]", memory[iter_0]);
+        memory[iter_0] = ' ';
+    }
+    printf("|");
+    for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
+    {
+        printf("%c", memory[iter_0]);
+    }
+    printf("|\n");
+    for (unsigned char iter_0 = 0x2; iter_0 <= 0xF; iter_0++)
+    {
+        printf("|    %3d |", cell = iter_0*0x10);
+        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
+        {
+            printf("[%03d]", memory[cell+iter_1]);
+        }
+        printf("|");
+        for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
+        {
+            if (cell+iter_1 > 0x7E && cell+iter_1 < 0xA8) memory[cell+iter_1] = ' ';
+            else if (cell+iter_1 > 0xA8 && cell+iter_1 < 0xB8) memory[cell+iter_1] = ' ';
+            else if (cell+iter_1 > 0xB8 && cell+iter_1 < 0xC0) memory[cell+iter_1] = ' ';
+            printf("%c", memory[cell+iter_1]);
+        }
+        printf("|\n");
+    }
+    printf("+--------+--------------------------------------------------------------------------------+----------------+");
 }
+//--------------------------------------------------------//
 void OutputToFile(const char *name)
 {
     FILE *doc = fopen(name, "w");
-    SetValue(memory);
     fprintf(doc, "+--------+----------------------------------------------------------------+----------------+\n");
     fprintf(doc, "| Offset | 00  01  02  03  04  05  06  07  08  09  0A  0B  0C  0D  0E  0F |     ASCII      |\n");
     fprintf(doc, "+--------+----------------------------------------------------------------+----------------+\n");
     fprintf(doc, "|      0 |");
     for (unsigned char iter_0 = 0; iter_0 <= 0xF; iter_0++)
     {
-        memory[iter_0] = iter_0;
-        fprintf(doc, "[%02X]", memory[iter_0]);
+        fprintf(doc, "[%02X]", memory[iter_0] = iter_0);
         memory[iter_0] = ' ';
     }
     fprintf(doc, "|");
-    for (unsigned char iter_0 = 0; iter_0 <= 15; iter_0++)
+    for (unsigned char iter_0 = 0x0; iter_0 <= 0xF; iter_0++)
     {
         fprintf(doc, "%c", memory[iter_0]);
     }
     fprintf(doc, "|\n");
     fprintf(doc, "|     %2X |", 0x10);
-    for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
+    for (unsigned char iter_0 = 0x10; iter_0 <= 0x1F; iter_0++)
     {
-        fprintf(doc, "[%02X]", memory[iter_0]);
+        fprintf(doc, "[%02X]", memory[iter_0] = iter_0);
         memory[iter_0] = ' ';
     }
     fprintf(doc, "|");
-    for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
+    for (unsigned char iter_0 = 0x10; iter_0 <= 0x1F; iter_0++)
     {
         fprintf(doc, "%c", memory[iter_0]);
     }
@@ -144,7 +202,7 @@ void OutputToFile(const char *name)
         fprintf(doc, "|     %02X |", cell = iter_0*0x10);
         for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
         {
-            fprintf(doc, "[%02X]", memory[cell+iter_1]);
+            fprintf(doc, "[%02X]", memory[cell+iter_1] = cell+iter_1);
         }
         fprintf(doc, "|");
         for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
@@ -164,7 +222,7 @@ void OutputToFile(const char *name)
     for (unsigned char iter_0 = 0; iter_0 <= 15; iter_0++)
     {
         memory[iter_0] = iter_0;
-        fprintf(doc, "[%03d]", memory[iter_0]);
+        fprintf(doc, "[%03d]", memory[iter_0] = iter_0);
         memory[iter_0] = ' ';
     }
     fprintf(doc, "|");
@@ -173,10 +231,10 @@ void OutputToFile(const char *name)
         fprintf(doc, "%c", memory[iter_0]);
     }
     fprintf(doc, "|\n");
-    fprintf(doc, "|     16 |");
+    fprintf(doc, "|     %d |", 16);
     for (unsigned char iter_0 = 16; iter_0 <= 31; iter_0++)
     {
-        fprintf(doc, "[%03d]", memory[iter_0]);
+        fprintf(doc, "[%03d]", memory[iter_0] = iter_0);
         memory[iter_0] = ' ';
     }
     fprintf(doc, "|");
@@ -190,7 +248,7 @@ void OutputToFile(const char *name)
         fprintf(doc, "|    %3d |", cell = iter_0*0x10);
         for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
         {
-            fprintf(doc, "[%03d]", memory[cell+iter_1]);
+            fprintf(doc, "[%03d]", memory[cell+iter_1] = cell+iter_1);
         }
         fprintf(doc, "|");
         for (unsigned char iter_1 = 0; iter_1 <= 0xF; iter_1++)
@@ -275,12 +333,14 @@ void OutputToFile(const char *name)
     */
     fclose(doc);
 }
+//--------------------------------------------------------//
 int main()
 {
     OutputToConsole();
     OutputToFile("0.txt");
     return 0;
 }
+//--------------------------------------------------------//
 /*
 void *case_[] = runblock
 &&_0x00, &&_0x01, &&_0x02, &&_0x03, &&_0x04, &&_0x05, &&_0x06, &&_0x07, &&_0x08, &&_0x09, &&_0x0A, &&_0x0B, &&_0x0C, &&_0x0D, &&_0x0E,
