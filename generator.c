@@ -8,7 +8,7 @@
 // Заменить на нужное название
 #define FILE_NAME "template.c"
 // Установите 1 если хотите отслеживать работу интерпретатора, в противном случае 0
-#define DEBUG 0
+#define DEBUG 1
 
 FILE *f;
 
@@ -72,7 +72,6 @@ int main()
     }
     fprintf(f, "    };\n");
     //fprintf(f, "    unsigned char i = 0xFF;\n");
-    fprintf(f, "    // Обработчик команд (диспетчеризация)\n");
     fprintf(f, "    _%02X: goto *address[operation_code[++OPERATION_CODE]];\n", 0x100);
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
@@ -86,7 +85,7 @@ int main()
     fprintf(f, "     return 0;\n");
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
-    fprintf(f, "    _%02X: // %s\n", ++count, "INC @~> (Increment/Инкремент) текущей ячейки памяти");
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
@@ -94,7 +93,7 @@ int main()
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
-    fprintf(f, "    _%02X: // %s\n", ++count, "DEC @~> (Decrement/Декремент) текущей ячейки памяти");
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
@@ -102,7 +101,7 @@ int main()
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
-    fprintf(f, "    _%02X: // %s\n", ++count, "SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS");
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
@@ -110,7 +109,7 @@ int main()
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
-    fprintf(f, "    _%02X: // %s\n", ++count, "SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS");
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
@@ -118,11 +117,20 @@ int main()
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n");  // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
-    fprintf(f, "    _%02X: // %s\n", ++count, "PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)");
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `=` | PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     memory[MEMORY] = operation_code[++OPERATION_CODE];\n");
+    fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
+    fprintf(f, "    _%02X: // %s\n", ++count, "BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell");
+    #if (DEBUG)
+    fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
+    #endif
+    fprintf(f, "");
+    fprintf(f, "     // <?> = memory[MEMORY];\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
@@ -133,8 +141,9 @@ int main()
     #endif
     fprintf(f, "     stack[STACK]++;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
-    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    */\n");
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "?? POP ??");
     fprintf(f, "    /*\n");
     #if (DEBUG)
@@ -143,6 +152,8 @@ int main()
     fprintf(f, "     stack[STACK]--;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    */\n");
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "?? INT ??");
     fprintf(f, "    /*\n");
     #if (DEBUG)
@@ -150,8 +161,10 @@ int main()
     #endif
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    */\n");
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    ");
-    for (unsigned char j = 9; j < 15; j++)
+    for (unsigned char j = 10; j < 15; j++)
     {
         fprintf(f, "_%02X:", 0 + j); // 0 * 16 + j
     }
@@ -180,7 +193,7 @@ int main()
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\\n\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]); // Unused/Reserve Instructions @ Undefined behavior...\n");
     #endif
-    fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]]; // goto _100; //\n");
+    fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]]; // goto _100;\n");
     //fprintf(f, "     return 0;\n");
     //fprintf(f, "    //-==========-[END_BLOCK]-==========-//\n");
     fprintf(f, "    return 0;\n");

@@ -48,47 +48,63 @@ int main()
         &&_E0, &&_E1, &&_E2, &&_E3, &&_E4, &&_E5, &&_E6, &&_E7, &&_E8, &&_E9, &&_EA, &&_EB, &&_EC, &&_ED, &&_EE, &&_EF,
         &&_F0, &&_F1, &&_F2, &&_F3, &&_F4, &&_F5, &&_F6, &&_F7, &&_F8, &&_F9, &&_FA, &&_FB, &&_FC, &&_FD, &&_FE, &&_FF
     };
-    // Обработчик команд (диспетчеризация)
     _100: goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
     _00: // STOP
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      return 0;
     //----------------------------------------------------------------------------------------------------//
-    _01: // INC @~> (Increment/Инкремент) текущей ячейки памяти
+    _01: // BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      memory[MEMORY]++;
      goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
-    _02: // DEC @~> (Decrement/Декремент) текущей ячейки памяти
+    _02: // BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      memory[MEMORY]--;
      goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
-    _03: // SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
+    _03: // BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      MEMORY++;
      goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
-    _04: // SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
+    _04: // BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      MEMORY--;
      goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
-    _05: // PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)
+    _05: // BF: `=` | PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      memory[MEMORY] = operation_code[++OPERATION_CODE];
      goto *address[operation_code[++OPERATION_CODE]];
     //----------------------------------------------------------------------------------------------------//
-    _06: // ?? PUSH ??
+    _06: // BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
+     // <?> = memory[MEMORY];
+     goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
+    _07: // ?? PUSH ??
     /*
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      stack[STACK]++;
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _07: // ?? POP ??
+    //----------------------------------------------------------------------------------------------------//
+    _08: // ?? POP ??
     /*
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      stack[STACK]--;
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _08: // ?? INT ??
+    //----------------------------------------------------------------------------------------------------//
+    _09: // ?? INT ??
     /*
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _09:_0A:_0B:_0C:_0D:_0E:_0F:
+    //----------------------------------------------------------------------------------------------------//
+    _0A:_0B:_0C:_0D:_0E:_0F:
     _10:_11:_12:_13:_14:_15:_16:_17:_18:_19:_1A:_1B:_1C:_1D:_1E:_1F:
     _20:_21:_22:_23:_24:_25:_26:_27:_28:_29:_2A:_2B:_2C:_2D:_2E:_2F:
     _30:_31:_32:_33:_34:_35:_36:_37:_38:_39:_3A:_3B:_3C:_3D:_3E:_3F:
@@ -104,6 +120,7 @@ int main()
     _D0:_D1:_D2:_D3:_D4:_D5:_D6:_D7:_D8:_D9:_DA:_DB:_DC:_DD:_DE:_DF:
     _E0:_E1:_E2:_E3:_E4:_E5:_E6:_E7:_E8:_E9:_EA:_EB:_EC:_ED:_EE:_EF:
     _F0:_F1:_F2:_F3:_F4:_F5:_F6:_F7:_F8:_F9:_FA:_FB:_FC:_FD:_FE:_FF:
-     goto *address[operation_code[++OPERATION_CODE]]; // goto _100; //
+     printf("Offset: [%02X|%03d], byte: [%02X|%03d]\n", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]); // Unused/Reserve Instructions @ Undefined behavior...
+     goto *address[operation_code[++OPERATION_CODE]]; // goto _100;
     return 0;
 }
