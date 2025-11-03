@@ -74,6 +74,8 @@ int main()
     //fprintf(f, "    unsigned char i = 0xFF;\n");
     fprintf(f, "    // Обработчик команд (диспетчеризация)\n");
     fprintf(f, "    _%02X: goto *address[operation_code[++OPERATION_CODE]];\n", 0x100);
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     //unsigned char label_name[7][10+1] = {}
     unsigned char count = 0xFF;
     //fprintf(f, "    //-==========-[RUN_BLOCK]-==========-//\n");
@@ -82,41 +84,56 @@ int main()
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     return 0;\n");
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "INC @~> (Increment/Инкремент) текущей ячейки памяти");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     memory[MEMORY]++;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
-
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "DEC @~> (Decrement/Декремент) текущей ячейки памяти");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     memory[MEMORY]--;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
-
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     MEMORY++;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
-
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     MEMORY--;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n");  // goto _100;
-    //fprintf(f, "    /*\n");
-    fprintf(f, "    _%02X: // %s\n", ++count, "PUSH");
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
+    fprintf(f, "    _%02X: // %s\n", ++count, "PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)");
+    #if (DEBUG)
+    fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
+    #endif
+    fprintf(f, "     memory[MEMORY] = operation_code[++OPERATION_CODE];\n");
+    fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
+    fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
+    //----------------------------------------------------------------------------------------------------//
+    fprintf(f, "    _%02X: // %s\n", ++count, "?? PUSH ??");
     fprintf(f, "    /*\n");
     #if (DEBUG)
     fprintf(f, "     printf(\"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     stack[STACK]++;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
+    //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    */\n");
     fprintf(f, "    _%02X: // %s\n", ++count, "?? POP ??");
     fprintf(f, "    /*\n");
@@ -134,7 +151,7 @@ int main()
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
     fprintf(f, "    */\n");
     fprintf(f, "    ");
-    for (unsigned char j = 8; j < 15; j++)
+    for (unsigned char j = 9; j < 15; j++)
     {
         fprintf(f, "_%02X:", 0 + j); // 0 * 16 + j
     }

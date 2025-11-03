@@ -50,35 +50,45 @@ int main()
     };
     // Обработчик команд (диспетчеризация)
     _100: goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
     _00: // STOP
      return 0;
+    //----------------------------------------------------------------------------------------------------//
     _01: // INC @~> (Increment/Инкремент) текущей ячейки памяти
      memory[MEMORY]++;
      goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
     _02: // DEC @~> (Decrement/Декремент) текущей ячейки памяти
      memory[MEMORY]--;
      goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
     _03: // SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
      MEMORY++;
      goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
     _04: // SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
      MEMORY--;
      goto *address[operation_code[++OPERATION_CODE]];
-    _05: // PUSH
+    //----------------------------------------------------------------------------------------------------//
+    _05: // PVICMC @~> (Place a value into the current memory cell / Поместить значение в текущую ячейку памяти)
+     memory[MEMORY] = operation_code[++OPERATION_CODE];
+     goto *address[operation_code[++OPERATION_CODE]];
+    //----------------------------------------------------------------------------------------------------//
+    _06: // ?? PUSH ??
     /*
      stack[STACK]++;
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _06: // ?? POP ??
+    _07: // ?? POP ??
     /*
      stack[STACK]--;
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _07: // ?? INT ??
+    _08: // ?? INT ??
     /*
      goto *address[operation_code[++OPERATION_CODE]];
     */
-    _08:_09:_0A:_0B:_0C:_0D:_0E:_0F:
+    _09:_0A:_0B:_0C:_0D:_0E:_0F:
     _10:_11:_12:_13:_14:_15:_16:_17:_18:_19:_1A:_1B:_1C:_1D:_1E:_1F:
     _20:_21:_22:_23:_24:_25:_26:_27:_28:_29:_2A:_2B:_2C:_2D:_2E:_2F:
     _30:_31:_32:_33:_34:_35:_36:_37:_38:_39:_3A:_3B:_3C:_3D:_3E:_3F:
