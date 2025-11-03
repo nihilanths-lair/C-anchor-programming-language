@@ -5,9 +5,21 @@
 #include <stdio.h>
 #include <locale.h>
 
+//unsigned char __pointer_1 = 0x00;
+//unsigned char __pointer_2 = 0x00;
+
+#define OPERATION_CODE __pointer_1
+unsigned char OPERATION_CODE = 0x00;
 unsigned char operation_code[0xFF];
-unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`
+//unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`
+
+#define MEMORY __pointer_2
+unsigned char MEMORY = 0x00;
 unsigned char memory[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора
+
+#define STACK __pointer_3
+unsigned char STACK = 0x00;
+unsigned char stack[0xFF]; // = {0}; / Если требуется инициализировать стек для избавления от мусора
 
 int main()
 {
@@ -37,19 +49,36 @@ int main()
         &&_F0, &&_F1, &&_F2, &&_F3, &&_F4, &&_F5, &&_F6, &&_F7, &&_F8, &&_F9, &&_FA, &&_FB, &&_FC, &&_FD, &&_FE, &&_FF
     };
     // Обработчик команд (диспетчеризация)
-    _100: goto *address[operation_code[++conveyor]];
+    _100: goto *address[operation_code[++OPERATION_CODE]];
     _00: // STOP
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", conveyor, conveyor, operation_code[conveyor], operation_code[conveyor]);
      return 0;
-    _01: // INC
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", conveyor, conveyor, operation_code[conveyor], operation_code[conveyor]);
-     memory[conveyor]++;
-     goto *address[operation_code[++conveyor]]; // goto _100; // 
-    _02: // DEC
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", conveyor, conveyor, operation_code[conveyor], operation_code[conveyor]);
-     memory[conveyor]--;
-     goto *address[operation_code[++conveyor]]; // goto _100; // 
-    _02:_03:_04:_05:_06:_07:_08:_09:_0A:_0B:_0C:_0D:_0E:_0F:
+    _01: // INC @~> (Increment/Инкремент) текущей ячейки памяти
+     memory[MEMORY]++;
+     goto *address[operation_code[++OPERATION_CODE]];
+    _02: // DEC @~> (Decrement/Декремент) текущей ячейки памяти
+     memory[MEMORY]--;
+     goto *address[operation_code[++OPERATION_CODE]];
+    _03: // SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
+     MEMORY++;
+     goto *address[operation_code[++OPERATION_CODE]];
+    _04: // SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
+     MEMORY--;
+     goto *address[operation_code[++OPERATION_CODE]];
+    _05: // PUSH
+    /*
+     stack[STACK]++;
+     goto *address[operation_code[++OPERATION_CODE]];
+    */
+    _06: // ?? POP ??
+    /*
+     stack[STACK]--;
+     goto *address[operation_code[++OPERATION_CODE]];
+    */
+    _07: // ?? INT ??
+    /*
+     goto *address[operation_code[++OPERATION_CODE]];
+    */
+    _08:_09:_0A:_0B:_0C:_0D:_0E:_0F:
     _10:_11:_12:_13:_14:_15:_16:_17:_18:_19:_1A:_1B:_1C:_1D:_1E:_1F:
     _20:_21:_22:_23:_24:_25:_26:_27:_28:_29:_2A:_2B:_2C:_2D:_2E:_2F:
     _30:_31:_32:_33:_34:_35:_36:_37:_38:_39:_3A:_3B:_3C:_3D:_3E:_3F:
@@ -65,7 +94,6 @@ int main()
     _D0:_D1:_D2:_D3:_D4:_D5:_D6:_D7:_D8:_D9:_DA:_DB:_DC:_DD:_DE:_DF:
     _E0:_E1:_E2:_E3:_E4:_E5:_E6:_E7:_E8:_E9:_EA:_EB:_EC:_ED:_EE:_EF:
     _F0:_F1:_F2:_F3:_F4:_F5:_F6:_F7:_F8:_F9:_FA:_FB:_FC:_FD:_FE:_FF:
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]\n", conveyor, conveyor, operation_code[conveyor], operation_code[conveyor]); // Unused/Reserve Instructions @ Undefined behavior...
-     goto *address[operation_code[++conveyor]]; // goto loop; // 
+     goto *address[operation_code[++OPERATION_CODE]]; // goto _100; //
     return 0;
 }
