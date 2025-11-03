@@ -1,6 +1,7 @@
 /*/
  *    <-- Encoding Windows-1251 / Кодировка Windows-1251 -->
 /*/
+// Подключаемые библиотеки
 #include <stdio.h>
 //#include <stdlib.h> // Для system()
 
