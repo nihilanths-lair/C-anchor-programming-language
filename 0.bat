@@ -1,4 +1,5 @@
-gcc -o 0.exe generator.c
+REM
+gcc -std=c99 -o 0.exe generator.c
 0.exe
-gcc -o 0.exe template.c
+gcc -std=c99 -o 0.exe interpreter.c
 0.exe
