@@ -11,7 +11,7 @@
 //#define __end_namespace__ }
 
 // Заменить на нужное название
-#define FILE_NAME "template.c"
+#define FILE_NAME "interpreter.c"
 ///#define FILE_NAME "compiler.c"
 // Установите 1 если хотите отслеживать работу интерпретатора, в противном случае 0
 #define DEBUG 1
@@ -61,7 +61,6 @@ unsigned char yt[] = "\
 ";
 void format(const unsigned char s[])
 {
-    //
     return;
 }
 void fformat(const unsigned char *file_name, const unsigned char *mode, const unsigned char *s)
@@ -113,6 +112,33 @@ void Main()
 
     #if (DEBUG)
     fprintf(f, "FILE *f;\n");
+    fprintf(f, "void ShowMemoryPanel()\n");
+    fprintf(f, "{\n");
+    fprintf(f, "    fprintf(f, \"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\\n\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
+    fprintf(f, "    fprintf(f, \"+--------+--------------------------------------------------------------------------------+----------------+\\n\");\n");
+    fprintf(f, "    fprintf(f, \"| Offset | 000  001  002  003  004  005  006  007  008  009  010  011  012  013  014  015 |     ASCII      |\\n\");\n");
+    fprintf(f, "    fprintf(f, \"+--------+--------------------------------------------------------------------------------+----------------+\\n\");\n");
+    for (unsigned char iter_0 = 0; iter_0 < 16; iter_0++)
+    {
+        fprintf(f, "    fprintf(f, \"|    %3d |", iter_0 * 16);
+        for (unsigned char iter_1 = 0; iter_1 < 16; iter_1++)
+        {
+            fprintf(f, " %%03d ");
+        }
+        fprintf(f, "|                |\\n\",");
+        //fprintf(f, " |                |\\n\",\n");
+        //fprintf(f, "    ");
+        for (unsigned char iter_1 = 0; iter_1 < 15; iter_1++)
+        {
+            fprintf(f, " memory[%d],", iter_0 * 16 + iter_1);
+        }
+        //fprintf(f, " memory[%d]\n", 15);
+        fprintf(f, " memory[%d]);\n", iter_0 * 16 + 15);
+        //fprintf(f, "     );\n");
+    }
+    fprintf(f, "    fprintf(f, \"+--------+--------------------------------------------------------------------------------+----------------+\\n\");\n");
+    fprintf(f, "    fprintf(f, \"\\n\");\n");
+    fprintf(f, "}\n");
     #endif
 
     fprintf(f, "unsigned char vCPU()\n");
@@ -145,6 +171,7 @@ void Main()
     fprintf(f, "    f = fopen(\"logging.txt\", \"w\");\n");
     //fprintf(f, "    fclose(f);\n");
     //fprintf(f, "    f = fopen(\"logging.txt\", \"a\");\n");
+    fprintf(f, "    ShowMemoryPanel();\n");
     #endif
 
     fprintf(f, "    //  /!\\ Запускаем процессор на исполнение команд / инструкций (даём старт) /!\\  //\n");
@@ -162,7 +189,8 @@ void Main()
     //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти");
     #if (DEBUG)
-    fprintf(f, "     fprintf(f, \"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\\n\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
+    fprintf(f, "     ShowMemoryPanel();\n");
+    //fprintf(f, "     fprintf(f, \"Offset: [%%02X|%%03d], byte: [%%02X|%%03d]\\n\", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);\n");
     #endif
     fprintf(f, "     memory[MEMORY]++;\n");
     fprintf(f, "     goto *address[operation_code[++OPERATION_CODE]];\n"); // goto _100;
