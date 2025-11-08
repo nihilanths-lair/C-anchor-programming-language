@@ -4,8 +4,7 @@
 // Подключаемые библиотеки
 #include <stdio.h>
 #include <locale.h>
-//unsigned char __pointer_1 = 0x00;
-//unsigned char __pointer_2 = 0x00;
+
 unsigned char __operation_code__[0xFF];
 unsigned char *operation_code = __operation_code__;
 //unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`

@@ -27,10 +27,7 @@ void Main()
     fprintf(f, "// Подключаемые библиотеки\n");
     fprintf(f, "#include <stdio.h>\n");
     fprintf(f, "#include <locale.h>\n");
-
-    fprintf(f, "//unsigned char __pointer_1 = 0x00;\n");
-    fprintf(f, "//unsigned char __pointer_2 = 0x00;\n");
-
+    fprintf(f, "\n");
     fprintf(f, "unsigned char __operation_code__[0xFF];\n");
     fprintf(f, "unsigned char *operation_code = __operation_code__;\n");
 
