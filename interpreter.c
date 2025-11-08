@@ -8,6 +8,9 @@
 unsigned char __operation_code__[0xFF];
 unsigned char *operation_code = __operation_code__;
 //unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`
+
+unsigned char instruction_pointer = 0; // IP
+
 unsigned char __memory__[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора
 unsigned char *memory = __memory__;
 
@@ -15,15 +18,35 @@ unsigned char *memory = __memory__;
 unsigned char STACK = 0x00;
 unsigned char stack[0xFF]; // = {0}; / Если требуется инициализировать стек для избавления от мусора
 
+#include <windows.h>
 #include "declaration.h"
-unsigned char Main()
+#include "main.c"
+char file_name[128] = {'\0'};
+unsigned char iter = 0;
+unsigned char Main(int argc, char *argv[])
 {
+    if (argc == 2)
+    {
+        printf("argv[1] = %s\n", argv[1]);
+        int len = strlen(argv[1]);
+        printf("Длина ссылки %d\n", len);
+        for (int i = --len, iter = 0xFF; argv[1][i] != '\\'; i--)
+        {
+            printf("argv[%d] = '%c'\n", i, argv[1][i]);
+            file_name[++iter] = argv[1][i];
+            printf("~ %s", file_name);
+        }
+        //file_name[++iter] = '\0';
+        printf("file_name = \"%s\"\n", file_name);
+        //FILE *f;
+        // Открытие файла на чтение
+        //if ((f = fopen(file_name, "rb")) == NULL) return 1;
+    }
     FILE *f;
-    // Открытие файла на чтение
-    if ((f = fopen("0.bf++", "r")) == NULL) return 1;
     // Чтение всего файла целиком
-    fread(operation_code, sizeof (operation_code), 1, f);
-    fclose(f);
+    //fread(operation_code, sizeof (operation_code), 1, f);
+    //fclose(f);
+    system("pause");
     return vCPU();
 }
 FILE *f;
@@ -35,6 +58,7 @@ void ShowMemoryPanel()
     ++counter;
     fprintf(f, "Counter: %02X|%03d\n", counter, counter);
     fprintf(f, "Bytecode: %02X|%03d\n", *operation_code, *operation_code);
+    fprintf(f, "IP: %02X|%03d\n", instruction_pointer, instruction_pointer);
     fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+\n");
     fprintf(f, "| Offset | 000  001  002  003  004  005  006  007  008  009  010  011  012  013  014  015 |     ASCII      |\n");
     fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+\n");
@@ -78,57 +102,67 @@ unsigned char vCPU()
         &&_F0, &&_F1, &&_F2, &&_F3, &&_F4, &&_F5, &&_F6, &&_F7, &&_F8, &&_F9, &&_FA, &&_FB, &&_FC, &&_FD, &&_FE, &&_FF
     };
     f = fopen("logging.txt", "w");
-    //  /!\ Запускаем процессор на исполнение команд / инструкций (даём старт) /!\  //
+    //  /!\ Запускаем виртуальный процессор на исполнение команд / инструкций (даём старт) /!\  //
+    ShowMemoryPanel();
     goto *address[*operation_code];
     //----------------------------------------------------------------------------------------------------//
     _00: // STOP
      ShowMemoryPanel();
      return 0;
     //----------------------------------------------------------------------------------------------------//
-    _01: // BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти
+    _01: // BF: `=` | ASM: JMP  /:~:/  Переход к указанному адресу
+     ++instruction_pointer;
+     ShowMemoryPanel();
+     goto *address[*memory];
+    //----------------------------------------------------------------------------------------------------//
+    _02: // BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти
      ++(*memory);
      ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _02: // BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти
+    _03: // BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти
      --(*memory);
      ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _03: // BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
+    _04: // BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
      ++memory;
+     ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _04: // BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
+    _05: // BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
      --memory;
+     ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _05: // BF: `=` | Поместить значение в текущую ячейку памяти / Place a value into the current memory cell (@~> PVICMC
+    _06: // BF: `=` | Поместить значение в текущую ячейку памяти / Place a value into the current memory cell (@~> PVICMC
+     ++instruction_pointer;
      *memory = *(++operation_code);
+     ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _06: // BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell (@~> GVFCMC
+    _07: // BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell (@~> GVFCMC
      // <?> = memory[MEMORY];
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
-    _07: // ?? PUSH ??
+    _08: // ?? PUSH ??
     /*
      stack[STACK]++;
      goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
-    _08: // ?? POP ??
+    _09: // ?? POP ??
     /*
      stack[STACK]--;
      goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
-    _09: // ?? INT ??
+    _0A: // ?? INT ??
     /*
      goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
-    _0A:_0B:_0C:_0D:_0E:_0F:
+    _0B:_0C:_0D:_0E:_0F:
     _10:_11:_12:_13:_14:_15:_16:_17:_18:_19:_1A:_1B:_1C:_1D:_1E:_1F:
     _20:_21:_22:_23:_24:_25:_26:_27:_28:_29:_2A:_2B:_2C:_2D:_2E:_2F:
     _30:_31:_32:_33:_34:_35:_36:_37:_38:_39:_3A:_3B:_3C:_3D:_3E:_3F:
@@ -149,4 +183,3 @@ unsigned char vCPU()
     fclose(f);
     return 0;
 }
-#include "main.c"
