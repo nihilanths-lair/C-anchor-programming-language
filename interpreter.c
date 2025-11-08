@@ -6,9 +6,8 @@
 #include <locale.h>
 //unsigned char __pointer_1 = 0x00;
 //unsigned char __pointer_2 = 0x00;
-#define OPERATION_CODE __pointer_1
-unsigned char OPERATION_CODE = 0x00;
-unsigned char operation_code[0xFF];
+unsigned char __operation_code__[0xFF];
+unsigned char *operation_code = __operation_code__;
 //unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`
 #define MEMORY __pointer_2
 unsigned char MEMORY = 0x00;
@@ -16,6 +15,7 @@ unsigned char memory[0xFF]; // = {0}; / Если требуется инициа
 #define STACK __pointer_3
 unsigned char STACK = 0x00;
 unsigned char stack[0xFF]; // = {0}; / Если требуется инициализировать стек для избавления от мусора
+
 #include "declaration.h"
 unsigned char Main()
 {
@@ -30,7 +30,12 @@ unsigned char Main()
 FILE *f;
 void ShowMemoryPanel()
 {
-    fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]\n", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
+    static unsigned char counter = 0;
+    if (!counter) fprintf(f, "        HEX|DEC\n");
+    else fprintf(f, "\n\n        HEX|DEC\n");
+    ++counter;
+    fprintf(f, "Counter: %02X|%03d\n", counter, counter);
+    fprintf(f, "Bytecode: %02X|%03d\n", *operation_code, *operation_code);
     fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+\n");
     fprintf(f, "| Offset | 000  001  002  003  004  005  006  007  008  009  010  011  012  013  014  015 |     ASCII      |\n");
     fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+\n");
@@ -50,8 +55,7 @@ void ShowMemoryPanel()
     fprintf(f, "|    208 | %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d |                |\n", memory[208], memory[209], memory[210], memory[211], memory[212], memory[213], memory[214], memory[215], memory[216], memory[217], memory[218], memory[219], memory[220], memory[221], memory[222], memory[223]);
     fprintf(f, "|    224 | %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d |                |\n", memory[224], memory[225], memory[226], memory[227], memory[228], memory[229], memory[230], memory[231], memory[232], memory[233], memory[234], memory[235], memory[236], memory[237], memory[238], memory[239]);
     fprintf(f, "|    240 | %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d |                |\n", memory[240], memory[241], memory[242], memory[243], memory[244], memory[245], memory[246], memory[247], memory[248], memory[249], memory[250], memory[251], memory[252], memory[253], memory[254], memory[255]);
-    fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+\n");
-    fprintf(f, "\n");
+    fprintf(f, "+--------+--------------------------------------------------------------------------------+----------------+");
 }
 unsigned char vCPU()
 {
@@ -75,62 +79,54 @@ unsigned char vCPU()
         &&_F0, &&_F1, &&_F2, &&_F3, &&_F4, &&_F5, &&_F6, &&_F7, &&_F8, &&_F9, &&_FA, &&_FB, &&_FC, &&_FD, &&_FE, &&_FF
     };
     f = fopen("logging.txt", "w");
-    ShowMemoryPanel();
     //  /!\ Запускаем процессор на исполнение команд / инструкций (даём старт) /!\  //
-    _100: goto *address[operation_code[OPERATION_CODE]]; // либо ++OPERATION_CODE, с 0x00
+    goto *address[*operation_code];
     //----------------------------------------------------------------------------------------------------//
     _00: // STOP
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
+     ShowMemoryPanel();
      return 0;
     //----------------------------------------------------------------------------------------------------//
     _01: // BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти
-     ShowMemoryPanel();
      memory[MEMORY]++;
-     goto *address[operation_code[++OPERATION_CODE]];
+     ShowMemoryPanel();
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _02: // BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      memory[MEMORY]--;
-     goto *address[operation_code[++OPERATION_CODE]];
+     ShowMemoryPanel();
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _03: // BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      MEMORY++;
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _04: // BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      MEMORY--;
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _05: // BF: `=` | Поместить значение в текущую ячейку памяти / Place a value into the current memory cell (@~> PVICMC
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
-     memory[MEMORY] = operation_code[++OPERATION_CODE];
-     goto *address[operation_code[++OPERATION_CODE]];
+     memory[MEMORY] = *(++operation_code);
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _06: // BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell (@~> GVFCMC
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      // <?> = memory[MEMORY];
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _07: // ?? PUSH ??
     /*
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      stack[STACK]++;
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
     _08: // ?? POP ??
     /*
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
      stack[STACK]--;
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
     _09: // ?? INT ??
     /*
-     printf("Offset: [%02X|%03d], byte: [%02X|%03d]", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]);
-     goto *address[operation_code[++OPERATION_CODE]];
+     goto *address[*(++operation_code)];
     */
     //----------------------------------------------------------------------------------------------------//
     _0A:_0B:_0C:_0D:_0E:_0F:
@@ -149,8 +145,7 @@ unsigned char vCPU()
     _D0:_D1:_D2:_D3:_D4:_D5:_D6:_D7:_D8:_D9:_DA:_DB:_DC:_DD:_DE:_DF:
     _E0:_E1:_E2:_E3:_E4:_E5:_E6:_E7:_E8:_E9:_EA:_EB:_EC:_ED:_EE:_EF:
     _F0:_F1:_F2:_F3:_F4:_F5:_F6:_F7:_F8:_F9:_FA:_FB:_FC:_FD:_FE:_FF:
-     fprintf(f, "Offset: [%02X|%03d], byte: [%02X|%03d]\n", OPERATION_CODE, OPERATION_CODE, operation_code[OPERATION_CODE], operation_code[OPERATION_CODE]); // Unused/Reserve Instructions @ Undefined behavior...
-     goto *address[operation_code[++OPERATION_CODE]]; // goto _100;
+     goto *address[*(++operation_code)]; // goto _100;
     //----------------------------------------------------------------------------------------------------//
     fclose(f);
 }
