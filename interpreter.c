@@ -8,9 +8,9 @@
 unsigned char __operation_code__[0xFF];
 unsigned char *operation_code = __operation_code__;
 //unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`
-#define MEMORY __pointer_2
-unsigned char MEMORY = 0x00;
-unsigned char memory[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора
+unsigned char __memory__[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора
+unsigned char *memory = __memory__;
+
 #define STACK __pointer_3
 unsigned char STACK = 0x00;
 unsigned char stack[0xFF]; // = {0}; / Если требуется инициализировать стек для избавления от мусора
@@ -24,7 +24,7 @@ unsigned char Main()
     // Чтение всего файла целиком
     fread(operation_code, sizeof (operation_code), 1, f);
     fclose(f);
-    vCPU();
+    return vCPU();
 }
 FILE *f;
 void ShowMemoryPanel()
@@ -86,25 +86,25 @@ unsigned char vCPU()
      return 0;
     //----------------------------------------------------------------------------------------------------//
     _01: // BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти
-     memory[MEMORY]++;
+     ++(*memory);
      ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _02: // BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти
-     memory[MEMORY]--;
+     --(*memory);
      ShowMemoryPanel();
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _03: // BF: `>` | SCRF @~> Scroll forward ~ Прокрутка на шаг вперёд [|] (Move the memory pointer forward one step / Переместить указатель памяти на один шаг вперед) :: MMPFOS
-     MEMORY++;
+     ++memory;
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _04: // BF: `<` | SCRB @~> Scroll back ~ Прокрутка на шаг назад [|] (Move the memory pointer back one step / Переместить указатель памяти на один шаг назад) :: MMPBOS
-     MEMORY--;
+     --memory;
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _05: // BF: `=` | Поместить значение в текущую ячейку памяти / Place a value into the current memory cell (@~> PVICMC
-     memory[MEMORY] = *(++operation_code);
+     *memory = *(++operation_code);
      goto *address[*(++operation_code)];
     //----------------------------------------------------------------------------------------------------//
     _06: // BF: `&` | Получить значение с текущей ячейки памяти / Get the value from the current memory cell (@~> GVFCMC
@@ -147,5 +147,6 @@ unsigned char vCPU()
      goto *address[*(++operation_code)]; // goto _100;
     //----------------------------------------------------------------------------------------------------//
     fclose(f);
+    return 0;
 }
 #include "main.c"

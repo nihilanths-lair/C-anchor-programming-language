@@ -18,7 +18,7 @@
 
 unsigned char source_code[4096];
 //FILE *f;
-void Main()
+unsigned char Main()
 {
     FILE *f = fopen(""FILE_NAME"", "w");
     fprintf(f, "/*/\n");
@@ -33,10 +33,9 @@ void Main()
 
     fprintf(f, "//unsigned char conveyor = 0xFF; // Размер конвейера всегда должен соответствовать размеру `operation code`\n");
 
-    fprintf(f, "#define MEMORY __pointer_2\n");
-    fprintf(f, "unsigned char MEMORY = 0x00;\n");
-    fprintf(f, "unsigned char memory[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора\n");
-
+    fprintf(f, "unsigned char __memory__[0xFF]; // = {0}; / Если требуется инициализировать память для избавления от мусора\n");
+    fprintf(f, "unsigned char *memory = __memory__;\n");
+    fprintf(f, "\n");
     fprintf(f, "#define STACK __pointer_3\n");
     fprintf(f, "unsigned char STACK = 0x00;\n");
     fprintf(f, "unsigned char stack[0xFF]; // = {0}; / Если требуется инициализировать стек для избавления от мусора\n");
@@ -53,7 +52,7 @@ void Main()
     fprintf(f, "    fread(operation_code, sizeof (operation_code), 1, f);\n");
     fprintf(f, "    fclose(f);\n");
     
-    fprintf(f, "    vCPU();\n");
+    fprintf(f, "    return vCPU();\n");
 
     fprintf(f, "}\n");
 
@@ -140,7 +139,7 @@ void Main()
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "BF: `+` | INC @~> (Increment/Инкремент) текущей ячейки памяти");
-    fprintf(f, "     memory[MEMORY]++;\n");
+    fprintf(f, "     ++(*memory);\n");
     #if (DEBUG)
     fprintf(f, "     ShowMemoryPanel();\n");
     #endif
@@ -148,7 +147,7 @@ void Main()
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    _%02X: // %s\n", ++count, "BF: `-` | DEC @~> (Decrement/Декремент) текущей ячейки памяти");
-    fprintf(f, "     memory[MEMORY]--;\n");
+    fprintf(f, "     --(*memory);\n");
     #if (DEBUG)
     fprintf(f, "     ShowMemoryPanel();\n");
     #endif
@@ -159,7 +158,7 @@ void Main()
     #if (DEBUG)
     
     #endif
-    fprintf(f, "     MEMORY++;\n");
+    fprintf(f, "     ++memory;\n");
     fprintf(f, "     goto *address[*(++operation_code)];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
@@ -167,7 +166,7 @@ void Main()
     #if (DEBUG)
     
     #endif
-    fprintf(f, "     MEMORY--;\n");
+    fprintf(f, "     --memory;\n");
     fprintf(f, "     goto *address[*(++operation_code)];\n");  // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
@@ -175,7 +174,7 @@ void Main()
     #if (DEBUG)
     
     #endif
-    fprintf(f, "     memory[MEMORY] = *(++operation_code);\n");
+    fprintf(f, "     *memory = *(++operation_code);\n");
     fprintf(f, "     goto *address[*(++operation_code)];\n"); // goto _100;
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
@@ -251,6 +250,7 @@ void Main()
     fprintf(f, "    //----------------------------------------------------------------------------------------------------//\n");
     //----------------------------------------------------------------------------------------------------//
     fprintf(f, "    fclose(f);\n");
+    fprintf(f, "    return 0;\n");
     fprintf(f, "}\n");
     fprintf(f, "#include \"main.c\"");
     fclose(f);
