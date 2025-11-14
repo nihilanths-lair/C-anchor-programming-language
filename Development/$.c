@@ -10,7 +10,7 @@ int main()
     printf(collection);
     return 0;
 }
-// syntax assembly: [метка:][мнемоника][операнд-1][операнд-2]
+// syntax assembly: [РјРµС‚РєР°:][РјРЅРµРјРѕРЅРёРєР°][РѕРїРµСЂР°РЅРґ-1][РѕРїРµСЂР°РЅРґ-2]
 /*/
     1 | 1: jmp 2 | jmp 2
     2 | 2: jmp 1 | jmp 0
