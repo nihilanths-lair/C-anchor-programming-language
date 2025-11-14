@@ -4,6 +4,7 @@
 unsigned char collection[2048] =
 {"\
 ; Assembly VM-C$\n\
+0: #model-1\n\
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
