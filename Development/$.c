@@ -10,8 +10,7 @@ unsigned char assembler_source_code[] =
 2: jmp 1 ; 001 001\
 "};
 //--------------------------------------------------//
-// Общая память для всех процессов
-unsigned char __collection__[0x400*0x400*0x10];
+#include "container.h"
 
 // Добавить в контейнер
 char AddToContainer(unsigned char *mtape)
