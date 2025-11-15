@@ -5,10 +5,18 @@
 
 unsigned char assembler_source_code[] =
 {"\
-; Assembly VM-C$\n\
+; Исходный код Assembly\n\
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
+
+unsigned char c_isi_source_code[] =
+{"\
+// Исходный код C$\n\
+1: print 2\n\
+2: print 5 + 6\
+"};
+
 //--------------------------------------------------//
 #include "container.h"
 //--------------------------------------------------//
@@ -35,14 +43,14 @@ int main()
     setlocale(0, "");
     
     unsigned char *collection = malloc(0xFF);
-    strcpy(collection, assembler_source_code);
+    //strcpy(collection, assembler_source_code);
+    strcpy(collection, c_isi_source_code);
     printf("%s\n--\n", collection);
     //*collection = '\0';
     free(collection);
     //*collection = '\0';
     printf(collection);
     NewMemory(15);
-    printf("container = 0x%X | %d", 1<<24, 1<<24);
     return 0;
 }
 /*/
