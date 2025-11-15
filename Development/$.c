@@ -13,14 +13,14 @@ unsigned char assembler_source_code[] =
 // Общая память для всех процессов
 unsigned char __collection__[0x400*0x400*0x10];
 
-NewMemory()
+char NewMemory()
 {
-
+    return 0;
 }
 
-FreeMemory()
+char FreeMemory()
 {
-
+    return 0;
 }
 
 int main()
