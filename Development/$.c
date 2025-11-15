@@ -13,8 +13,16 @@ unsigned char assembler_source_code[] =
 // Общая память для всех процессов
 unsigned char __collection__[0x400*0x400*0x10];
 
-char NewMemory()
+// Количество выделенных зон (блоков) памяти
+unsigned char kolvo = 0xFF; // Всего может быть 255 слотов
+
+// Указатель на свободную зону (блок) памяти
+unsigned char ptr_free = 0x00;
+
+char NewMemory(unsigned char cell) // От 0 до 255
 {
+    printf("cell = %d", cell);
+    ptr_free += cell;
     return 0;
 }
 
@@ -34,7 +42,7 @@ int main()
     free(collection);
     //*collection = '\0';
     printf(collection);
-    
+    NewMemory(15);
     return 0;
 }
 /*/
