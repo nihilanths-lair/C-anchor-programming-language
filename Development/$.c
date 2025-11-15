@@ -42,6 +42,7 @@ int main()
     //*collection = '\0';
     printf(collection);
     NewMemory(15);
+    printf("container = 0x%X | %d", 1<<24, 1<<24);
     return 0;
 }
 /*/

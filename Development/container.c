@@ -1,7 +1,8 @@
 #include "container.h"
 
 // Определение
-unsigned char container[0x400*0x400*0x10];
+//unsigned char container[1<<24]; // Массив виден отовсюду
+static unsigned char container[1<<24]; // Массив инкапсулирован, доступ осуществляется через функции
 
 // Добавить в контейнер
 char AddToContainer(unsigned char *mtape)
