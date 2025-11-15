@@ -1,22 +1,40 @@
 #include <stdio.h>
 #include <locale.h>
 #include <stdlib.h>
+#include <string.h>
 
-unsigned char *collection = NULL;
+unsigned char assembler_source_code[] =
 {"\
 ; Assembly VM-C$\n\
-0: #model-1\n\
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
 
+// Общая память для всех процессов
+unsigned char __collection__[0x400*0x400*0x10];
+
+NewMemory()
+{
+
+}
+
+FreeMemory()
+{
+
+}
+
 int main()
 {
     setlocale(0, "");
+    
+    unsigned char *collection = malloc(0xFF);
+    strcpy(collection, assembler_source_code);
+    printf("%s\n--\n", collection);
     //*collection = '\0';
-    collection = malloc(0xFF);
-    printf(collection);
     free(collection);
+    //*collection = '\0';
+    printf(collection);
+    
     return 0;
 }
 /*/
@@ -24,6 +42,7 @@ int main()
 -------------------------------------------------------------------------------------------------------
 Номер метки является необязательным условием, операнд может быть один, два (а в новой модели и три/четыре), а может вовсе отсутствовать
 Ниже ассемблерный код который выполняется бесконечно (зациклен)
+0 | 0: #model-1\n\
 1 | 1: jmp 2 ; однострочный комментарий | 001 002
 2 | 2: jmp 1 ; однострочный комментарий | 001 001
 На выходе получим байт-код: 001 002 001 001 в 10-й СС или 01 02 01 01 в 16-й СС
