@@ -9,10 +9,26 @@ unsigned char assembler_source_code[] =
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
-
+//--------------------------------------------------//
 // Общая память для всех процессов
 unsigned char __collection__[0x400*0x400*0x10];
 
+// Добавить в контейнер
+char AddToContainer(unsigned char *mtape)
+{
+    return 0;
+}
+// Извлечь из контейнера
+char ExtractFromContainer(const unsigned char *mtape)
+{
+    return 0;
+}
+// Удалить из контейнера
+char RemoveFromContainer(const unsigned char *mtape)
+{
+    return 0;
+}
+//--------------------------------------------------//
 // Количество выделенных зон (блоков) памяти
 unsigned char kolvo = 0xFF; // Всего может быть 255 слотов
 
