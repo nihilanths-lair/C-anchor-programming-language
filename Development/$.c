@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <locale.h>
+#include <stdlib.h>
 
-unsigned char collection[2048] =
+unsigned char *collection = NULL;
 {"\
 ; Assembly VM-C$\n\
 0: #model-1\n\
@@ -13,7 +14,9 @@ int main()
 {
     setlocale(0, "");
     //*collection = '\0';
+    collection = malloc(0xFF);
     printf(collection);
+    free(collection);
     return 0;
 }
 /*/
