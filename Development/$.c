@@ -11,7 +11,7 @@ unsigned char assembler_source_code[] =
 "};
 unsigned char c_isi_source_code[] =
 {"\
-00: /-/ Исходный код C$ (Через препроцессорный шаблон можно переопределить синтаксис для языка)\n\
+00: /-/ Исходный код C$ (Через шаблонный паттерн можно переопределить/управлять синтаксисом языка)\n\
 01: print 2\n\
 02: print 5 + 6\n\
 03: печатать Привет мир!\n\
@@ -34,25 +34,9 @@ unsigned char c_isi_source_code[] =
 "};
 
 //--------------------------------------------------//
+#include "tape.h"
 #include "container.h"
 //--------------------------------------------------//
-// Количество выделенных зон (блоков) памяти
-unsigned char kolvo = 0xFF; // Всего может быть 255 слотов
-
-// Указатель на свободную зону (блок) памяти
-unsigned char ptr_free = 0x00;
-
-char NewMemory(unsigned char cell) // От 0 до 255
-{
-    printf("cell = %d", cell);
-    ptr_free += cell;
-    return 0;
-}
-
-char FreeMemory()
-{
-    return 0;
-}
 
 int main()
 {
@@ -67,6 +51,7 @@ int main()
     //*collection = '\0';
     printf(collection);
     NewMemory(15);
+    printf(tape);
     return 0;
 }
 /*/
