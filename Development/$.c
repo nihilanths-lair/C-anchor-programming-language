@@ -50,8 +50,7 @@ int main()
     free(collection);
     //*collection = '\0';
     printf(collection);
-    NewMemory(15);
-    printf(tape);
+    //printf(tape);
     return 0;
 }
 /*/
