@@ -4,8 +4,16 @@
 // Объявление
 //extern unsigned char container[]; Делает массив видимым в других файлах
 
-char AddToContainer(unsigned char *mtape);
-char ExtractFromContainer(const unsigned char *mtape);
-char RemoveFromContainer(const unsigned char *mtape);
+// Вставить эдемент в контейнер
+char InsertElementIntoContainer();
+
+// Обновить элемент контейнера
+char UpdateContainerElement();
+
+// Извлечь элемент из контейнера
+char ExtractElementFromContainer();
+
+// Удалить элемент из контейнера
+char RemoveElementFromContainer();
 
 #endif
