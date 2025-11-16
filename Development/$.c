@@ -51,6 +51,9 @@ int main()
     //*collection = '\0';
     printf(collection);
     //printf(tape);
+    void *p = AllocateMemory(50);
+    printf("AllocateMemory = %p\n", p);
+    FreeMemory(p);
     return 0;
 }
 /*/

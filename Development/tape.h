@@ -1,13 +1,15 @@
 #ifndef TAPE_H
 #define TAPE_H
 
+//#include "corecrt.h"
+
 // Объявление
 //extern unsigned char tape[]; Делает массив видимым в других файлах
 
 // Занять память
-char AllocateMemory();
+void *AllocateMemory(unsigned short size);
 
 // Освободить память
-char FreeMemory();
+void FreeMemory(void *tape);
 
 #endif

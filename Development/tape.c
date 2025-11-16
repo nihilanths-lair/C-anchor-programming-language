@@ -1,16 +1,19 @@
 #include "tape.h"
 
+//#include "corecrt.h"
+
 // Определение
 //unsigned char tape[1<<24]; // Массив виден отовсюду
-static unsigned char tape[0xFFFFFF]; // 1<<24, 1024*1024*16 // Массив инкапсулирован, доступ осуществляется через функции
-
+static unsigned char tape[0xFFFF+1]; // 1<<24, 1024*1024*16 // Массив инкапсулирован, доступ осуществляется через функции
+//static strreg[][]
 // Занять память
-char AllocateMemory()
+void *AllocateMemory(unsigned short size)
 {
-    return 0;
+    // 1 шаг: найти свободную зону
+    return tape;
 }
 // Освободить память
-char FreeMemory()
+void FreeMemory(void *tape)
 {
-    return 0;
+    
 }
