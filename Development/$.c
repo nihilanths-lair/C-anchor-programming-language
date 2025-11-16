@@ -9,7 +9,7 @@ unsigned char assembler_source_code[] =
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
-unsigned char c_isi_source_code[] =
+unsigned char c_anchor_source_code[] =
 {"\
 00: /-/ Исходный код C$ (Через шаблонный паттерн можно переопределить/управлять синтаксисом языка)\n\
 01: print 2\n\
@@ -37,27 +37,18 @@ unsigned char c_isi_source_code[] =
 #include "tape.h"
 #include "container.h"
 //--------------------------------------------------//
-
+unsigned long long iter;
 int main()
 {
     setlocale(0, "");
-    
-    unsigned char *collection = malloc(0xFFF);
+    printf("len = %d\n", strlen(c_anchor_source_code));
+    printf("size = %d\n", sizeof (c_anchor_source_code));
+    unsigned char *collection = malloc(sizeof (c_anchor_source_code));
     //strcpy(collection, assembler_source_code);
-    strcpy(collection, c_isi_source_code);
+    strcpy(collection, c_anchor_source_code);
     printf("%s\n--\n", collection);
     //*collection = '\0';
     free(collection);
-    //*collection = '\0';
-    printf(collection);
-    //Logged();
-    void *p;
-    p = AllocateMemory(50);
-    Logged();
-    FreeMemory(p);
-    p = AllocateMemory(150);
-    Logged();
-    FreeMemory(p);
     return 0;
 }
 /*/
