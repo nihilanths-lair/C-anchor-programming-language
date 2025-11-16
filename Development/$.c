@@ -50,9 +50,13 @@ int main()
     free(collection);
     //*collection = '\0';
     printf(collection);
-    //printf(tape);
-    void *p = AllocateMemory(50);
-    printf("AllocateMemory = %p\n", p);
+    //Logged();
+    void *p;
+    p = AllocateMemory(50);
+    Logged();
+    FreeMemory(p);
+    p = AllocateMemory(150);
+    Logged();
     FreeMemory(p);
     return 0;
 }

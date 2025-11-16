@@ -1,19 +1,29 @@
 #include "tape.h"
 
-//#include "corecrt.h"
-
-// Определение
-//unsigned char tape[1<<24]; // Массив виден отовсюду
 static unsigned char tape[0xFFFF+1]; // 1<<24, 1024*1024*16 // Массив инкапсулирован, доступ осуществляется через функции
-//static strreg[][]
-// Занять память
+static unsigned short ptr_pos = 0;
+
+typedef struct {
+    unsigned short size;
+} Header;
+
 void *AllocateMemory(unsigned short size)
 {
-    // 1 шаг: найти свободную зону
-    return tape;
+    Header *header = (Header *) &tape[ptr_pos];
+    header->size = size;
+    ptr_pos += sizeof (Header) + size;
+    return (void *) (header + 1);
 }
-// Освободить память
-void FreeMemory(void *tape)
+
+void FreeMemory(void *ptr)
 {
-    
+    Header *header = (Header *) ptr - 1;
+    ptr_pos -= sizeof (Header) + header->size;
+}
+#include <stdio.h>
+void Logged()
+{
+    printf("ptr_pos = %d\n", ptr_pos);
+    Header *header;
+    printf("header->size = %d\n", header->size);
 }
