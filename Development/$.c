@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define then {
+#define end }
+
 unsigned char assembler_source_code[] =
 {"\
 ; Исходный код Assembly\n\
@@ -32,7 +35,7 @@ void strpack(char *dest, const char *source, bool remove_whitespace_characters)
     iter_2 = 0;
     while (source[iter_1] != '\0')
     {
-        switch (source[iter_1]){
+        switch (source[iter_1]) then
         case 10: // Символ переноса строки
         {
             dest[iter_2] = '\\';
@@ -57,7 +60,8 @@ void strpack(char *dest, const char *source, bool remove_whitespace_characters)
         {
             dest[iter_2] = source[iter_1];
             iter_2++;
-        }}
+        }
+        end
         iter_1++;
     }
 }
