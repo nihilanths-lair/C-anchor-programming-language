@@ -9,46 +9,107 @@ unsigned char assembler_source_code[] =
 1: jmp 2 ; 001 002\n\
 2: jmp 1 ; 001 001\
 "};
-unsigned char c_anchor_source_code[] =
-{"\
-00: /-/ Исходный код C$ (Через шаблонный паттерн можно переопределить/управлять синтаксисом языка)\n\
-01: print 2\n\
-02: print 5 + 6\n\
-03: печатать Привет мир!\n\
-04: #emit jmp 2 ; Одиночная ассемблерная вставка\n\
-05: печатать на консоль Это моя первая программа.\n\
-06: Вывод на консоль (Смотри как я могу!)\n\
-07: /-/ Многострочный комментарий (начало)\n\
-08: </\n\
-09:  Связная\n\
-10:  ассемблерная\n\
-11:  вставка\n\
-12: />\n\
-13: /-/ Многострочный комментарий (конец)\n\
-14: #emit\n\
-15:  jmp 2\n\
-16:  jmp 1\n\
-17: Вывод на консоль [Смотри как я могу!]\n\
-18: 100$(<Вау!>);\n\
-19: puts(\"Стандартный синтаксис.\");\
-"};
-
+unsigned char *c_anchor_source_code;
+unsigned char *c_anchor_source_code_2;
 //--------------------------------------------------//
 #include "tape.h"
 #include "container.h"
 //--------------------------------------------------//
-unsigned long long iter;
+FILE *desc = NULL;
+long file_size = 0;
+long long iter_0;
+long long iter_1;
+long long iter_2;
+long long iter_3;
+long long iter_4;
+long long iter_5;
+#define bool _Bool
+#define false 0
+#define true 1
+void strpack(char *dest, const char *source, bool remove_whitespace_characters)
+{
+    iter_1 = 0;
+    iter_2 = 0;
+    while (source[iter_1] != '\0')
+    {
+        switch (source[iter_1]){
+        case 10: // Символ переноса строки
+        {
+            dest[iter_2] = '\\';
+            iter_2++;
+            dest[iter_2] = 'n';
+            iter_2++;
+            break;
+        }
+        case 13: // Символ каретки
+        {
+            dest[iter_2] = '\\';
+            iter_2++;
+            dest[iter_2] = 'r';
+            iter_2++;
+            break;
+        }
+        case 32: // Символ пробела
+        {
+            if (remove_whitespace_characters) break;
+        }
+        default:
+        {
+            dest[iter_2] = source[iter_1];
+            iter_2++;
+        }}
+        iter_1++;
+    }
+}
+void strunpack()
+{
+
+}
+void zeroing(char *arr, int size)
+{
+    iter_0 = -1;
+    do arr[iter_0] = '\0';
+    while (++iter_0 != size);
+}
 int main()
 {
     setlocale(0, "");
+    // Открываем файл
+    desc = fopen("source_code.ca", "rb");
+    // При неудачной попытки открытия файла
+    if (desc == NULL) return -1;
+    // Узнаем размер файла для создания массива подходящего под хранение данных
+    fseek(desc, 0, SEEK_END);
+    file_size = ftell(desc);
+    //
+    puts("--");
+    printf("file_size = %ld\n", file_size);
+    // Выделяем память для работы с ней
+    c_anchor_source_code = malloc(file_size);
+    if (c_anchor_source_code == NULL) return -2;
+    fseek(desc, 0, SEEK_SET);
+    fread(c_anchor_source_code, file_size+1, 1, desc);
+    // Закрываем файл
+    fclose(desc);
     printf("len = %d\n", strlen(c_anchor_source_code));
     printf("size = %d\n", sizeof (c_anchor_source_code));
-    unsigned char *collection = malloc(sizeof (c_anchor_source_code));
+    printf("c_anchor_source_code =\n--\n%s\n", c_anchor_source_code);
+    puts("--");
+    // Выделяем память для работы с ней
+    c_anchor_source_code_2 = malloc(file_size*2);
+    zeroing(c_anchor_source_code_2, file_size*2);
+    strpack(c_anchor_source_code_2, c_anchor_source_code, false);
+    printf("c_anchor_source_code_2 =\n--\n%s\n", c_anchor_source_code_2);
+    zeroing(c_anchor_source_code_2, file_size*2);
+    strpack(c_anchor_source_code_2, c_anchor_source_code, true);
+    printf("-\n%s\n", c_anchor_source_code_2);
+    printf("--");
+    // Освобождаем память когда больше не нужна
+    free(c_anchor_source_code_2);
+    free(c_anchor_source_code);
     //strcpy(collection, assembler_source_code);
-    strcpy(collection, c_anchor_source_code);
-    printf("%s\n--\n", collection);
+    //strcpy(collection, c_anchor_source_code);
     //*collection = '\0';
-    free(collection);
     return 0;
 }
 /*/
