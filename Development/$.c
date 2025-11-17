@@ -101,6 +101,7 @@ int main()
     puts("--");
     // Âûהוכÿול ןאלÿעü הכÿ נאבמעû ס םוי
     c_anchor_source_code_2 = malloc(file_size*2);
+    if (c_anchor_source_code == NULL) return -3;
     zeroing(c_anchor_source_code_2, file_size*2);
     strpack(c_anchor_source_code_2, c_anchor_source_code, false);
     printf("c_anchor_source_code_2 =\n--\n%s\n", c_anchor_source_code_2);
