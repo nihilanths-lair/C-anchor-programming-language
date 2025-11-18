@@ -20,8 +20,8 @@
 Compiler C$ (C-anchor) v.0.1
 -- - - - - - - - - - - - - --
 
- ca file_name.ca +p preprocessed_files/file_name.ca -c                                        ; Вариант 1: Препроцессорная обработка (видимая), без этапа компиляции
- ca file_name.ca +p preprocessed_files/file_name.ca +c=asm file_name.asm                      ; Вариант 2: Препроцессорная обработка (видимая) -> Компиляция в язык ассемблера ВМ (видимая)
+ ca file_name.ca +p preprocessed_files/file_name.ca -c=asm               -c=bc                ; Вариант 1: Препроцессорная обработка (видимая), без этапа компиляции
+ ca file_name.ca +p preprocessed_files/file_name.ca +c=asm file_name.asm -c=bc                ; Вариант 2: Препроцессорная обработка (видимая) -> Компиляция в язык ассемблера ВМ (видимая)
  ca file_name.ca +p                                 +c=asm file_name.asm -c=bc                ; Вариант 3: Препроцессорная обработка (скрытая) -> Компиляция в язык ассемблера ВМ (видимая)
  ca file_name.ca +p                                 +c=asm               +c=bc file_name.bin  ; Вариант 4: Препроцессорная обработка (скрытая) -> Компиляция в язык ассемблера ВМ (скрытая) + Компиляция в байт-код (видимая)
  ca file_name.ca -p                                 +c=asm file_name.asm +c=bc file_name.bin  ; Вариант 5: Компиляция в язык ассемблера ВМ (видимая) -> Компиляция в байт-код (видимая)
@@ -30,8 +30,8 @@ Compiler C$ (C-anchor) v.0.1
 
 Вариант 8: Компиляция в сырой (двоичный/бинарный) код
  ; под OS Windows
- ca file_name.ca -p +c=bin file_name.bin
- ca file_name.ca +p +c=bin file_name.bin
+ ca file_name.ca -p                                 -c=asm               +c=bin file_name.bin
+ ca file_name.ca +p                                 -c=asm               +c=bin file_name.bin
 
  ; под OS Linux
  ca file_name.ca -p +c=bin file_name
