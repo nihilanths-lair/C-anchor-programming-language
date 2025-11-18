@@ -34,12 +34,12 @@ Compiler C$ (C-anchor) v.0.1
  ca file_name.ca +p                                 -c=asm               +c=bin file_name.bin
 
  ; под OS Linux
- ca file_name.ca -p +c=bin file_name
- ca file_name.ca +p +c=bin file_name
+ ca file_name.ca -p                                 -c=asm               +c=bin file_name
+ ca file_name.ca +p                                 -c=asm               +c=bin file_name
 
  ; под OS Biome
- ca file_name.ca -p +c=bin file_name
- ca file_name.ca +p +c=bin file_name
+ ca file_name.ca -p                                 -c=asm               +c=bin file_name
+ ca file_name.ca +p                                 -c=asm               +c=bin file_name
 
 Вариант 9: Компиляция в объектный модуль
  ca file_name.ca -c file_name.o   ; под OS Linux
@@ -50,6 +50,10 @@ Compiler C$ (C-anchor) v.0.1
  ca file_name.ca -c file_name     ; под OS Linux
  ca file_name.ca -c file_name.exe ; под OS Windows
  ca file_name.ca -c -b file_name  ; под OS Biome
+
+-p           | Игнорировать препроцессорную обработку
++p           | Включить препроцессорную обработку, файл при этом не генерировать
++p file_name | Включить препроцессорную обработку и сгенерировать файл
 ```
 ``` Таблица команд интерпретатора ```
 ```
