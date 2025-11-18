@@ -15,6 +15,41 @@
 Общий прогресс:
 [●●··································································································] 2/100%
 ```
+```
+-- - - - - - - - - - - - - --
+Compiler C$ (C-anchor) v.0.1
+-- - - - - - - - - - - - - --
+
+Вариант 1: Препроцессорная обработка (видимая, с генерацией файла)
+ ca file_name.ca -p preprocessed_files/file_name.ca
+
+Вариант 2: Препроцессорная обработка (видимая, с генерацией файла) + Компиляция
+ ca file_name.ca -p preprocessed_files/file_name.ca -c file_name.asm
+
+Вариант 3: Препроцессорная обработка (скрытая, без генерации файла) + Компиляция
+ ca file_name.ca -pc file_name.asm
+
+Вариант 4: Компиляция, без препроцессорной обработки
+ ca file_name.ca -c file_name.asm
+
+Вариант 5: Компиляция в байт-код
+ ca file_name.ca -cbc file_name
+
+Вариант 6: Компиляция в сырой (двоичный/бинарный) код
+ ca file_name.ca -cb file_name     ; под OS Linux
+ ca file_name.ca -cb file_name.bin ; под OS Windows
+ ca file_name.ca -cb file_name     ; под OS Biome
+
+Вариант 7: Компиляция в объектный модуль
+ ca file_name.ca -c file_name.o   ; под OS Linux
+ ca file_name.ca -c file_name.obj ; под OS Windows
+ ca file_name.ca -c file_name     ; под OS Biome
+
+Вариант 8: Компиляция в машинный код (исполняемый файл)
+ ca file_name.ca -c file_name     ; под OS Linux
+ ca file_name.ca -c file_name.exe ; под OS Windows
+ ca file_name.ca -c -b file_name  ; под OS Biome
+```
 ``` Таблица команд интерпретатора ```
 ```
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
