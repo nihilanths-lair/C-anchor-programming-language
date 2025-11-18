@@ -20,32 +20,25 @@
 Compiler C$ (C-anchor) v.0.1
 -- - - - - - - - - - - - - --
 
-Вариант 1: Препроцессорная обработка (видимая, с генерацией файла)
- ca file_name.ca -p preprocessed_files/file_name.ca
+ ca file_name.ca +p preprocessed_files/file_name.ca -c                                        ; Вариант 1: Препроцессорная обработка (видимая), без этапа компиляции
+ ca file_name.ca +p preprocessed_files/file_name.ca +c=asm file_name.asm                      ; Вариант 2: Препроцессорная обработка (видимая) -> Компиляция в язык ассемблера ВМ (видимая)
+ ca file_name.ca +p                                 +c=asm file_name.asm -c=bc                ; Вариант 3: Препроцессорная обработка (скрытая) -> Компиляция в язык ассемблера ВМ (видимая)
+ ca file_name.ca +p                                 +c=asm               +c=bc file_name.bin  ; Вариант 4: Препроцессорная обработка (скрытая) -> Компиляция в язык ассемблера ВМ (скрытая) + Компиляция в байт-код (видимая)
+ ca file_name.ca -p                                 +c=asm file_name.asm +c=bc file_name.bin  ; Вариант 5: Компиляция в язык ассемблера ВМ (видимая) -> Компиляция в байт-код (видимая)
+ ca file_name.ca -p                                 +c=asm               +c=bc file_name.bin  ; Вариант 6: Компиляция в язык ассемблера ВМ (скрытая) -> Компиляция в байт-код (видимая)
+ ca file_name.ca -p                                 -asm                 +c=bc file_name.bin  ; Вариант 7: Компиляция в байт-код (видимая) ; Минует этап препроцессинга и ассемблерного кода (как видимого, так и скрытого)
 
-Вариант 2: Препроцессорная обработка (видимая, с генерацией файла) + Компиляция
- ca file_name.ca -p preprocessed_files/file_name.ca -c file_name.asm
-
-Вариант 3: Препроцессорная обработка (скрытая, без генерации файла) + Компиляция
- ca file_name.ca -pc file_name.asm
-
-Вариант 4: Компиляция, без препроцессорной обработки
- ca file_name.ca -c file_name.asm
-
-Вариант 5: Компиляция в байт-код
- ca file_name.ca -cbc file_name
-
-Вариант 6: Компиляция в сырой (двоичный/бинарный) код
+Вариант 8: Компиляция в сырой (двоичный/бинарный) код
  ca file_name.ca -cb file_name     ; под OS Linux
  ca file_name.ca -cb file_name.bin ; под OS Windows
  ca file_name.ca -cb file_name     ; под OS Biome
 
-Вариант 7: Компиляция в объектный модуль
+Вариант 9: Компиляция в объектный модуль
  ca file_name.ca -c file_name.o   ; под OS Linux
  ca file_name.ca -c file_name.obj ; под OS Windows
  ca file_name.ca -c file_name     ; под OS Biome
 
-Вариант 8: Компиляция в машинный код (исполняемый файл)
+Вариант 10: Компиляция в машинный код (исполняемый файл)
  ca file_name.ca -c file_name     ; под OS Linux
  ca file_name.ca -c file_name.exe ; под OS Windows
  ca file_name.ca -c -b file_name  ; под OS Biome
