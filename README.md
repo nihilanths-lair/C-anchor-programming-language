@@ -29,9 +29,17 @@ Compiler C$ (C-anchor) v.0.1
  ca file_name.ca -p                                 -c=asm               +c=bc file_name.bin  ; Вариант 7: Компиляция в байт-код (видимая) ; Минует этап препроцессинга и ассемблерного кода (как видимого, так и скрытого)
 
 Вариант 8: Компиляция в сырой (двоичный/бинарный) код
- ca file_name.ca -cb file_name     ; под OS Linux
- ca file_name.ca -cb file_name.bin ; под OS Windows
- ca file_name.ca -cb file_name     ; под OS Biome
+ ; под OS Windows
+ ca file_name.ca -p +c=bin file_name.bin
+ ca file_name.ca +p +c=bin file_name.bin
+
+ ; под OS Linux
+ ca file_name.ca -p +c=bin file_name
+ ca file_name.ca +p +c=bin file_name
+
+ ; под OS Biome
+ ca file_name.ca -p +c=bin file_name
+ ca file_name.ca +p +c=bin file_name
 
 Вариант 9: Компиляция в объектный модуль
  ca file_name.ca -c file_name.o   ; под OS Linux
