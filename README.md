@@ -68,20 +68,23 @@ Compiler C$ (C-anchor) v.0.1
  [ Управление комментариями на уровне препроцессора ]
 
 Убрать препроцессором:
- +p comment=d file_name                              ; Комментарии не добавляются в новый файл с исходным кодом - prepropcessing/file.ca
+ +p comment=d file_name                              ; Комментарии не добавляются в новый файл с исходным кодом - preprocessing/file.ca
  +p comment=d (без создания файла, для компилятора)  ; Комментарии в компилятор не попадают
 
 Оставить препроцессором:
- +p comment=s file_name                              ; С сохранением комментариев в новом файле с исходным кодом - prepropcessing/file.ca
+ +p comment=s file_name                              ; С сохранением комментариев в новом файле с исходным кодом - preprocessing/file.ca
  +p comment=s (без создания файла, для компилятора)  ; Комментарии уходят в компилятор
 
 
  [ Управление комментариями на уровне компилятора ]
 
 Убрать компилятором:
- +c=asm comment=d file_name                          ; Комментарии не добавляются в новый файл с исходным кодом - file_name.asm
- +c=asm comment=s file_name                          ; Комментарии добавляются в новый файл с исходным кодом - file_name.asm
- +c=cabc file_name                                   ; Комментарии не добавляются в файл с байт-кодом - file_name.cabc [По умолчанию]
+ +c=asm_vm comment=d file_name.ca                    ; Комментарии не добавляются в новый файл с исходным кодом интерпретатор (ВМ) - source_code/asm_vm/file_name.asm
+ +c=easm comment=d file_name.ca                      ; Комментарии не добавляются в новый файл с исходным кодом под CPU - source_code/easm/file_name.asm
+
+Оставить компилятором:
+ +c=asm_vm comment=s file_name.ca                    ; Комментарии добавляются в новый файл с исходным кодом под интерпретатор (ВМ) - source_code/asm_vm/file_name.asm
+ +c=easm comment=s file_name.ca                      ; Комментарии добавляются в новый файл с исходным кодом под CPU - source_code/easm/file_name.asm
 ```
 ``` Таблица команд интерпретатора ```
 ```
