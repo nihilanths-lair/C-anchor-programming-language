@@ -1,3 +1,7 @@
+/*/
+    <!-- Encoding Windows-1251 / Кодировка Windows-1251 -->
+/*/
+
 #include <stdio.h>
 #include <locale.h>
 
