@@ -6,7 +6,6 @@
 
 FILE *desc[2] = {NULL, NULL};
 unsigned char container[0xFFFFFF*4]; // 16 Mb. * 4 = 64 Mb.
-unsigned int ptr_container = 0;
 
 unsigned long long row = 0; // строка
 unsigned long long column = 0; // столбец
@@ -15,7 +14,7 @@ int main(int argc, char *argv[]) then
  setlocale(0, "");
 
  desc[0] = fopen("source_code.ca", "rb");
- if (desc[0] == NULL) { printf("\ndebug: code = -1"); return -1; }
+ if (desc[0] == NULL) { printf("\nDebug: code = -1"); return -1; }
 
  fseek(desc[0], 0, SEEK_END);
  long file_size = ftell(desc[0]);
@@ -25,7 +24,7 @@ int main(int argc, char *argv[]) then
  fclose(desc[0]);
 
  desc[0] = fopen("file_io.txt", "wb");
- if (desc[0] == NULL) { printf("\ndebug: code = -2"); return -2; }
+ if (desc[0] == NULL) { printf("\nDebug: code = -2"); return -2; }
 
  int i = -1;
  int j = -1;
@@ -70,7 +69,7 @@ _2: fprintf(desc[0], "\n-");
  fclose(desc[0]);
  
  desc[1] = fopen("preprocessor/source_code.ca", "wb");
- if (desc[1] == NULL) { printf("\ndebug: code = -2"); return -2; }
+ if (desc[1] == NULL) { printf("\nDebug: code = -3"); return -3; }
 
  fclose(desc[1]);
  return 0;
