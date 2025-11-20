@@ -9,7 +9,11 @@
 #define end }
 
 FILE *desc[2] = {NULL, NULL};
-unsigned char container[0xFFFFFF*4]; // 16 Mb. * 4 = 64 Mb.
+unsigned char container[0xFFFF];
+/**
+unsigned char container_1[0xFFFF];
+unsigned char container_2[0xFFFF];
+/**/
 
 unsigned long long row = 0; // строка
 unsigned long long column = 0; // столбец
@@ -56,7 +60,7 @@ _2: printf("\n-");
 #ifdef DEBUG_FILE
 fprintf(desc[0], "Исходный код языка C$:\n-\n%s\n-\nРазбив кода на составляющие:\n-\n", container);
 _0: switch (container[++i]) then
- case '\0': fputchar('\n'); goto _1;
+ case '\0': fputc('\n', desc[0]); goto _1;
  case '\n': if (i >= 10 && i < 100) fprintf(desc[0], " ··%d\n", i); else if (i >= 0 && i < 10) fprintf(desc[0], " ···%d\n", i); goto _1;
  case '\r': if (i >= 10 && i < 100) fprintf(desc[0], " ··%d ", i); else if (i >= 0 && i < 10) fprintf(desc[0], " ···%d ", i); goto _0;
  end
