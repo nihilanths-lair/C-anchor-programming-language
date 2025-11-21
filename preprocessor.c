@@ -23,6 +23,7 @@ long long iter_0 = 0;
 unsigned long long row = 1; // строка
 unsigned long long column = 1; // столбец / позиция
 unsigned long long position = 1; // позиция / индекс/элемент
+unsigned char *file_name = "source_code.ca";
 
 int main(int argc, char *argv[]) then
  setlocale(0, "");
@@ -86,27 +87,151 @@ _2: fprintf(df, "\n-");
  desc[1] = fopen("preprocessor/source_code.ca", "wb");
  if (desc[1] == NULL) { printf("\nDebug: code = -3"); return -3; }
 
- putchar('\n');
- iter_0 = -1;
+unsigned char *comment_1 = "//";
+unsigned char *comment_2 = "/*";
+unsigned char *comment_3 = "*/";
+unsigned char comment[3][2+1] =
+{
+    "//",
+    "/*",
+    "*/"
+};
+putchar('\n');
+iter_0 = -1;
+// Препроцессорная обработка начата...
+printf(" Preprocessing started...\n");
 _2_1:
- collection (container[++iter_0]) then
- target '\0':
-  jmp _2_2;
- target '\n':
-  ++position;
-  ++row;
-  column = 1; 
-  jmp _2_1;
- target '/':
-  printf("[preprocessor - строка: %d, столбец: %d, позиция: %d]: Возможно начало комментария?\n", row, column, position);
-  ++position;
-  ++column;
-  jmp _2_1;
- end
+switch (container[++iter_0]) then
+case '\0': goto _2_3;
+case '\n':
+{
+    ++position;
+    ++row;
+    column = 1;
+    goto _2_1;
+}
+case '*': // Начинающий закрывающий комментарий
+{
+    printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Символ: '*'.", file_name, row, column, position);
+    ++position;
+    ++column;
+    switch (container[++iter_0]) then
+    case '\0': goto _2_3;
+    case '\n':
+    {
+        ++position;
+        ++row;
+        column = 1;
+        goto _2_1;
+    }
+    case '/': // Завершающий закрывающий многострочный комментарий
+    {
+        printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружен конец многострочного комментария.", file_name, row, column, position);
+        ++position;
+        ++column;
+        goto _2_1;
+    }
+    end
+    ++position;
+    ++column;
+    goto _2_1;
+}
+case '/':
+{
+    printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Символ: '/'.", file_name, row, column, position);
+    ++position;
+    ++column;
+    switch (container[++iter_0]) then
+    case '\0': goto _2_3;
+    case '\n':
+    {
+        ++position;
+        ++row;
+        column = 1;
+        goto _2_1;
+    }
+    case '*': // Начало многострочного комментария
+    {
+        printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружено начало многострочного комментария", file_name, row, column, position);
+        ++position;
+        ++column;
+        _ghg: switch (container[++iter_0]) then
+        case '\0': goto _2_3;
+        case '\n':
+        {
+            ++position;
+            ++row;
+            column = 1;
+            goto _2_1;
+        }
+        case '*': // 42
+        {
+            printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Возможно конец многострочного комментария?", file_name, row, column, position);
+            ++position;
+            ++column;
+            _ghf: switch (container[++iter_0]) then
+            case '\0': goto _2_3;
+            case '\n':
+            {
+                ++position;
+                ++row;
+                column = 1;
+                goto _2_1;
+            }
+            case '/': // Конец многострочного комментария
+            {
+                printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружен конец многострочного комментария", file_name, row, column, position);
+                ++position;
+                ++column;
+                goto _2_1;
+            }
+            end
+            goto _ghf;
+        }
+        case '/': // 47
+        {
+            printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружен конец многострочного комментария", file_name, row, column, position);
+            ++position;
+            ++column;
+            goto _2_1;
+        }
+        end
+        goto _ghg;
+    }
+    case '/': // Начало однострочного комментария
+    {
+        printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружено начало однострочного комментария", file_name, row, column, position);
+        ++position;
+        ++column;
+        _2_2: switch (container[++iter_0]) then
+        case '\0': goto _2_3;
+        case '\n':
+        {
+            printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Обнаружен конец однострочного комментария", file_name, row, column, position);
+            ++position;
+            ++row;
+            column = 1;
+            goto _2_1;
+        }
+        end
+        ++position;
+        ++column;
+        goto _2_2;
+    }
+    end
+    printf("\n[Preprocessor | Файл: %s, строка: %d, столбец: %d, позиция: %d]: Не комментарий", file_name, row, column, position);
+    iter_0 -= 2;
+    goto not_a_comment;
+}
+end
+not_a_comment:
+ fputc(container[iter_0], desc[1]);
  ++position;
  ++column;
- jmp _2_1;
-_2_2:
+ goto _2_1;
+_2_3:
  fclose(desc[1]);
+ // Препроцессорная обработка закончена!
+ printf("\n\n Preprocessing completed!\n");
  return 0;
 end
