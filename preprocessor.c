@@ -40,10 +40,10 @@ int main(int argc, char *argv[]) then
 printf("\nИсходный код языка C$:\n-\n%s\n-\nРазбив кода на составляющие:\n-\n", container);
 _0: switch (container[++i]) then
  case '\0': putchar('\n'); goto _1;
- case '\n': if (i >= 10 && i < 100) printf(" ··%d\n", i); else if (i >= 0 && i < 10) printf(" ···%d\n", i); goto _1;
- case '\r': if (i >= 10 && i < 100) printf(" ··%d ", i); else if (i >= 0 && i < 10) printf(" ···%d ", i); goto _0;
+ case '\n': if (i >= 100 && i < 1000) printf(" ·%d\n", i); else if (i >= 10 && i < 100) printf(" ··%d\n", i); else if (i >= 0 && i < 10) printf(" ···%d\n", i); goto _1;
+ case '\r': if (i >= 100 && i < 1000) printf(" ·%d ", i); else if (i >= 10 && i < 100) printf(" ··%d ", i); else if (i >= 0 && i < 10) printf(" ···%d ", i); goto _0;
  end
- if (i >= 10 && i < 100) printf(" ··%d ", i); else if (i >= 0 && i < 10) printf(" ···%d ", i);
+ if (i >= 100 && i < 1000) printf(" ·%d ", i); else if (i >= 10 && i < 100) printf(" ··%d ", i); else if (i >= 0 && i < 10) printf(" ···%d ", i);
  goto _0;
 _1: switch (container[++j]) then
  case '\0': goto _2;
