@@ -62,10 +62,10 @@ _2: printf("\n-");
 fprintf(df, "Исходный код языка C$:\n-\n%s\n-\nРазбив кода на составляющие:\n-\n", container);
 _0: switch (container[++i]) then
  case '\0': fputc('\n', df); goto _1;
- case '\n': if (i >= 10 && i < 100) fprintf(df, " ··%d\n", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d\n", i); goto _1;
- case '\r': if (i >= 10 && i < 100) fprintf(df, " ··%d ", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d ", i); goto _0;
+ case '\n': if (i >= 100 && i < 1000) fprintf(df, " ·%d\n", i); else if (i >= 10 && i < 100) fprintf(df, " ··%d\n", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d\n", i); goto _1;
+ case '\r': if (i >= 100 && i < 1000) fprintf(df, " ·%d ", i); else if (i >= 10 && i < 100) fprintf(df, " ··%d ", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d ", i); goto _0;
  end
- if (i >= 10 && i < 100) fprintf(df, " ··%d ", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d ", i);
+ if (i >= 100 && i < 1000) fprintf(df, " ·%d ", i); else if (i >= 10 && i < 100) fprintf(df, " ··%d ", i); else if (i >= 0 && i < 10) fprintf(df, " ···%d ", i);
  goto _0;
 _1: switch (container[++j]) then
  case '\0': goto _2;
@@ -79,6 +79,8 @@ _2: fprintf(df, "\n-");
  
  desc[1] = fopen("preprocessor/source_code.ca", "wb");
  if (desc[1] == NULL) { printf("\nDebug: code = -3"); return -3; }
+
+ /// /// ///
 
  fclose(desc[1]);
  return 0;
