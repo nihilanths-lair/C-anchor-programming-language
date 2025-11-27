@@ -1,10 +1,10 @@
-NUMBER %% [0-9]*
-VARIABLE %% [а-я]*
+NUMBER %% [0-9]+
+VARIABLE %% [а-я]+
 SEMICOLON %% ;
 SPACE %% [ \n\t\r]
 ASSIGN %% РАВНО
 LOG %% КОНСОЛЬ
 PLUS %% ПЛЮС
 MINUS %% МИНУС
-LPAR %% (
-RPAR %% )
+LPAR %% \(
+RPAR %% \)
