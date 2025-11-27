@@ -1,10 +1,10 @@
 NUMBER %% [0-9]*
-VARIABLE %% [Ю-Ъ]*
+VARIABLE %% [п╟-я▐]*
 SEMICOLON %% ;
 SPACE %% [ \n\t\r]
-ASSIGN %% пюбмн
-LOG %% йнмянкэ
-PLUS %% окчя
-MINUS %% лхмся
+ASSIGN %% п═п░п▓п²п·
+LOG %% п п·п²п║п·п⌡п╛
+PLUS %% п÷п⌡п╝п║
+MINUS %% п°п≤п²пёп║
 LPAR %% (
 RPAR %% )
