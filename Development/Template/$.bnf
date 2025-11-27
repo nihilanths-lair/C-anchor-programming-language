@@ -1,7 +1,7 @@
 NUMBER %% [0-9]+
 VARIABLE %% [а-я]+
 SEMICOLON %% ;
-SPACE %% [ \n\t\r]
+SPACE %% [ \n\t\r]+
 ASSIGN %% РАВНО
 LOG %% КОНСОЛЬ
 PLUS %% ПЛЮС
