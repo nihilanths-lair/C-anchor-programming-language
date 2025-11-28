@@ -5,13 +5,12 @@
 //                         STORAGE                          //
 //----------------------------------------------------------//
 char code[0xFFF];
-// Нотация регулярной грамматики (тип 4) для лексера
 char regular_grammar_notation[0xFFF];
 typedef struct {
-    const char *input; // входной поток
+    const char *input;
     const char *cursor;
-    int line; // позиция в строке
-    int column; // позиция в столбце (колонке)
+    int row;
+    int column;
 } Lexer;
 typedef enum {
     TOKEN_NUMBER,
@@ -22,7 +21,7 @@ typedef struct {
     TokenType type;
     const char *begin;
     const char *end;
-    int line;
+    int row;
     int column;
 } Token;
 FILE *file = NULL;
@@ -36,6 +35,7 @@ size_t symbols;
 //----------------------------------------------------------//
 void lexer_init(Lexer *lexer, const char *code);
 Token lexer_nextToken(Lexer *lexer);
+void lexer_printToken(Token *token);
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //                        PROGRAM                           //
@@ -75,11 +75,11 @@ int main()
     putchar('\n');
     Lexer lexer;
     lexer_init(&lexer, code);
+    Token token;
     for (;;)
     {
-        Token token = lexer_nextToken(&lexer);
-        //print_token(token);
-        printf("token.type = %d", token.type);
+        token = lexer_nextToken(&lexer);
+        lexer_printToken(&token);
         if (token.type == TOKEN_EOF) break;
     }
     putchar('\n');
@@ -96,8 +96,8 @@ void lexer_init(Lexer *lexer, const char *code)
 {
     lexer->input = code;
     lexer->cursor = code;
-    lexer->line = 0;
-    lexer->column = 0;
+    lexer->row = 1;
+    lexer->column = 1;
 }
 // Заглушка
 Token lexer_nextToken(Lexer *lexer)
@@ -105,8 +105,14 @@ Token lexer_nextToken(Lexer *lexer)
     Token token;
     token.type = TOKEN_EOF;
     token.begin = token.end = lexer->cursor;
-    token.line = lexer->line;
+    token.row = lexer->row;
     token.column = lexer->column;
     return token;
+}
+void lexer_printToken(Token *token)
+{
+    printf("Тип токена: %d", token->type);
+    printf("\nПозиция в ряду: %d", token->row);
+    printf("\nПозиция в колонке: %d", token->column);
 }
 //----------------------------------------------------------//
