@@ -6,6 +6,7 @@
 //----------------------------------------------------------//
 char code[0xFFF];
 char regular_grammar_notation[0xFFF];
+// Класс токенов
 const char token_type[0xF][0xFF] =
 {
     "NUMBER",
@@ -30,7 +31,7 @@ typedef struct {
     int row;
     int column;
 } Token;
-FILE *file = NULL;
+//FILE *__file = NULL;
 size_t symbols;
 //----------------------------------------------------------//
 //
@@ -50,8 +51,9 @@ int main()
 {
     setlocale(0, "");
 
+    FILE *file;
     file = fopen("$.bnf", "rb");
-    if (file == NULL) { printf("\nAn exception was thrown: 1."); return 1; }
+    if (file == NULL) { printf("\n[file: $.c | function: main]: An exception was thrown: 1."); return 1; }
     /** Временно убрано, пока без malloc, задано фиксировано
     fseek(file, 0, SEEK_END);
     long flength = ftell(file);
@@ -65,7 +67,7 @@ int main()
     printf("\nПосле: regular_grammar_notation = \"\n%s\n\".", regular_grammar_notation); // После загрузки грамматики
 
     file = fopen("$.txt", "rb");
-    if (file == NULL) { printf("\nAn exception was thrown: 2."); return 2; }
+    if (file == NULL) { printf("\n[file: $.c | function: main]: An exception was thrown: 2."); return 2; }
     /** Временно убрано, пока без malloc, задано фиксировано
     fseek(file, 0, SEEK_END);
     long flength = ftell(file);
@@ -115,10 +117,18 @@ Token lexer_nextToken(Lexer *lexer)
     token.column = lexer->column;
     return token;
 }
+// Отладочная информация / Debugging information
 void lexer_printToken(Token *token)
 {
+    /*
     printf("\nТип токена: \"%s\"", token_type[token->type]);
     printf("\nПозиция в ряду: %d", token->row);
     printf("\nПозиция в колонке: %d", token->column);
+    */
+    printf("\nToken: %d, pos = %d:%d", token->type, token->row, token->column);
+    FILE *file = fopen("debug_info.txt", "wb");
+    if (file == NULL) { printf("\n[file: $.c | function: lexer_printToken]: An exception was thrown: 1."); }
+    fprintf(file, "Token: %d, pos = %d:%d", token->type, token->row, token->column);
+    fclose(file);
 }
 //----------------------------------------------------------//
