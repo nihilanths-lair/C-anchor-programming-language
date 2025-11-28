@@ -6,6 +6,12 @@
 //----------------------------------------------------------//
 char code[0xFFF];
 char regular_grammar_notation[0xFFF];
+const char token_type[0xF][0xFF] =
+{
+    "NUMBER",
+    "IDENT",
+    "EOF"
+};
 typedef struct {
     const char *input;
     const char *cursor;
@@ -111,7 +117,7 @@ Token lexer_nextToken(Lexer *lexer)
 }
 void lexer_printToken(Token *token)
 {
-    printf("Тип токена: %d", token->type);
+    printf("Тип токена: \"%s\"", token_type[token->type]);
     printf("\nПозиция в ряду: %d", token->row);
     printf("\nПозиция в колонке: %d", token->column);
 }
