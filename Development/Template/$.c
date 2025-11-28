@@ -117,7 +117,7 @@ Token lexer_nextToken(Lexer *lexer)
 }
 void lexer_printToken(Token *token)
 {
-    printf("Тип токена: \"%s\"", token_type[token->type]);
+    printf("\nТип токена: \"%s\"", token_type[token->type]);
     printf("\nПозиция в ряду: %d", token->row);
     printf("\nПозиция в колонке: %d", token->column);
 }
