@@ -13,23 +13,30 @@ const char token_type[0xF][0xFF] =
     "IDENT",
     "EOF"
 };
+// Lexer //
 typedef struct {
     const char *input;
     const char *cursor;
     int row;
     int column;
 } Lexer;
+/**/
+// TokenType //
 typedef enum {
     TOKEN_NUMBER,
     TOKEN_IDENT,
     TOKEN_EOF
 } TokenType;
+/**/
+// Token //
 typedef struct {
+    int number;
     TokenType type;
     const char *begin;
     const char *end;
     int row;
     int column;
+    int offset;
 } Token;
 //FILE *__file = NULL;
 size_t symbols;
@@ -104,17 +111,19 @@ void lexer_init(Lexer *lexer, const char *code)
 {
     lexer->input = code;
     lexer->cursor = code;
-    lexer->row = 1;
-    lexer->column = 1;
+    lexer->row = 0;
+    lexer->column = 0;
 }
 // Заглушка
 Token lexer_nextToken(Lexer *lexer)
 {
     Token token;
+    token.number = 0;
     token.type = TOKEN_EOF;
     token.begin = token.end = lexer->cursor;
     token.row = lexer->row;
     token.column = lexer->column;
+    token.offset = 0;
     return token;
 }
 // Отладочная информация / Debugging information
@@ -125,10 +134,10 @@ void lexer_printToken(Token *token)
     printf("\nПозиция в ряду: %d", token->row);
     printf("\nПозиция в колонке: %d", token->column);
     */
-    printf("\nToken: %d, pos = %d:%d", token->type, token->row, token->column);
+    printf("\nНомер токена: %d, тип токена: \"%s\", строка: %d, позиция: %d, смещение: %d.", token->number, token_type[token->type], token->row, token->column, token->offset);
     FILE *file = fopen("debug_info.txt", "wb");
     if (file == NULL) { printf("\n[file: $.c | function: lexer_printToken]: An exception was thrown: 1."); }
-    fprintf(file, "Token: %d, pos = %d:%d", token->type, token->row, token->column);
+    fprintf(file, "Номер токена: %d, тип токена: \"%s\", строка: %d, позиция: %d, смещение: %d.", token->number, token_type[token->type], token->row, token->column, token->offset);
     fclose(file);
 }
 //----------------------------------------------------------//
