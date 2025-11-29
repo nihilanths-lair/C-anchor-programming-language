@@ -120,7 +120,7 @@ int main()
     putchar('\n');
     parse_pattern("\"+\"");
 
-
+    /*
     FILE *gen = fopen("gen.txt", "wb");
     int ch = 0;
     while (ch < 256)
@@ -129,6 +129,7 @@ int main()
         ch++;
     }
     fclose(gen);
+    */
     putchar('\n');
     return 0;
 }
@@ -217,60 +218,55 @@ void lexer_printToken(Token *token)
 //----------------------------------------------------------//
 void parse_rule(const char *line)
 {
-    char token[0xFF];
+    char token[0xFF] = "";
     char separator = '\0';
-    char pattern[0xFF];
+    char pattern[0xFF] = "";
 
     char *ptr_token = token;
     char *ptr_pattern = pattern;
 
 _1: // Читаем имя токена
     switch (*line) {
-    case '\0':
-    case '\n':
-    case '\r':
+    case '\0': case '\n': case '\r':
         goto _0;
     case ' ': // игнорируем пробельные символы
         line++;
         goto _1;
     case '=': // разделитель
         *ptr_token = '\0';
+        printf("\ntoken      = %s", token);
         separator = *line;
+        printf("\nseparator  = %c", separator);
         line++;
         if (*line == ' ') line++;
         goto _2;
     }
-    //default:
     *ptr_token = *line;
     ptr_token++;
     line++;
     goto _1;
 _2: // Читаем шаблон (правую часть)
     switch (*line) {
-    case '\0':
-    case '\n':
-    case '\r':
+    case '\0': case '\n': case '\r':
         *ptr_pattern = '\0';
         goto _0;
     }
-    //default:
     *ptr_pattern = *line;
     ptr_pattern++;
     line++;
     goto _2;
 _0:
-    printf("\ntoken      = %s", token);
-    printf("\nseparator  = %c", separator);
     printf("\npattern    = %s", pattern);
 }
 void parse_pattern(const char *pattern)
 {
-    char ch[0xFF] = "";     // 4) CHAR (символ: )
+    //char ch[0xFF] = "";     // 4) CHAR (символ: )
+    char ch = '\0';
     char string[0xFF] = ""; // 3) STRING (кавычки: "")
     char class[0xFF] = "";  // 1) CLASS (квадратные скобки: [])
     char quantifier = '\0'; // 2) QUANTIFIER (квантификаторы: *+?)
 
-    char *ptr_ch = ch;
+    //char *ptr_ch = ch;
     char *ptr_string = string;
     char *ptr_class = class;
 
@@ -297,8 +293,8 @@ _1: // Читаем шаблон
         printf("Syntax error: A quantifier cannot appear before a class.");
         goto _0;
     // Обнаружен символ
-    *ptr_ch = *pattern;
-    printf("\nchar     = %c", ch);
+    ch = *pattern;
+    printf("\nchar      = %c", ch);
     pattern++;
     goto _1;
     }
@@ -311,6 +307,8 @@ _string: // Пока внутри строки
         ptr_string++;
         *ptr_string = '\0';
         printf("\nstring     = %s", string);
+        ptr_string = string;
+        string[0] = '\0'; // Можно так: *string = '\0'?
         pattern++;
         goto _1;
     *ptr_string = *pattern;
@@ -327,6 +325,8 @@ _class: // Перебираем элементы класса
         ptr_class++;
         *ptr_class = '\0';
         printf("\nclass      = %s", class);
+        ptr_class = class;
+        class[0] = '\0'; // Можно так: *class = '\0'?
         pattern++;
         goto _quantifier;
     }
