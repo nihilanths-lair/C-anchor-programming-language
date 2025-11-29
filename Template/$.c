@@ -328,7 +328,7 @@ _string: // Пока внутри строки
     goto _string;
 _class: // Перебираем элементы класса
     switch (*pattern) then
-    case '\0':case '\n':case '\r': goto _0;
+    case '\0': case '\n': case '\r': goto _0;
     case ']': // Если конец класса
     {
         *ptr_class = *pattern;
