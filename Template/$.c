@@ -216,6 +216,9 @@ void lexer_printToken(Token *token)
     fclose(file);
 }
 //----------------------------------------------------------//
+#define then {
+#define switch_end }
+
 void parse_rule(const char *line)
 {
     char token[0xFF] = "";
@@ -271,38 +274,44 @@ void parse_pattern(const char *pattern)
     char *ptr_class = class;
 
 _1: // Читаем шаблон
-    switch (*pattern) {
-    case '\0':case '\n':case '\r':
-        goto _0;
+    switch (*pattern) then
+    case '\0':case '\n':case '\r': goto _0;
     case '"': // Разбор строки
+    {
         *ptr_string = *pattern;
         ptr_string++;
         pattern++;
         goto _string; // Разбор строки символов
+    }
     case '[': // Обнаружение класса (его начало)
+    {
         *ptr_class = *pattern;
         ptr_class++;
         pattern++;
         goto _class; // Разбор класса символов
+    }
     case ']': // Не был обнаружен класс (его начало)
+    {
         printf("Синтаксическая ошибка: Класс должен начинаться с открывающейся квадратной скобки.");
         printf("Syntax error: Class must begin with an opening square bracket.");
         goto _0;
+    }
     case '*': case '+': case '?':
+    {
         printf("Синтаксическая ошибка: Квантификатор не может стоять перед классом.");
         printf("Syntax error: A quantifier cannot appear before a class.");
         goto _0;
-    // Обнаружен символ
+    }
+    switch_end
     ch = *pattern;
     printf("\nchar      = %c", ch);
     pattern++;
     goto _1;
-    }
 _string: // Пока внутри строки
-    switch (*pattern) {
-    case '\0':case '\n':case '\r':
-        goto _0;
+    switch (*pattern) then
+    case '\0':case '\n':case '\r': goto _0;
     case '"': // Конец строки
+    {
         *ptr_string = *pattern;
         ptr_string++;
         *ptr_string = '\0';
@@ -311,16 +320,17 @@ _string: // Пока внутри строки
         string[0] = '\0'; // Можно так: *string = '\0'?
         pattern++;
         goto _1;
+    }
+    switch_end
     *ptr_string = *pattern;
     ptr_string++;
     pattern++;
     goto _string;
-    }
 _class: // Перебираем элементы класса
-    switch (*pattern) {
-    case '\0':case '\n':case '\r':
-        goto _0;
+    switch (*pattern) then
+    case '\0':case '\n':case '\r': goto _0;
     case ']': // Если конец класса
+    {
         *ptr_class = *pattern;
         ptr_class++;
         *ptr_class = '\0';
@@ -330,19 +340,21 @@ _class: // Перебираем элементы класса
         pattern++;
         goto _quantifier;
     }
+    switch_end
     *ptr_class = *pattern;
     ptr_class++;
     pattern++;
     goto _class;
 _quantifier:
-    switch (*pattern) {
-    case '\0':case '\n':case '\r':
-        goto _0;
-    case '*':case '+':case '?':
+    switch (*pattern) then
+    case '\0':case '\n':case '\r': goto _0;
+    case '*': case '+': case '?':
+    {
         quantifier = *pattern;
         printf("\nquantifier = %c", quantifier);
         pattern++;
     }
+    switch_end
     goto _1;
 _0:
 }
