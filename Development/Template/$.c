@@ -109,10 +109,16 @@ int main()
     printf("\n\n");
 
     parse_rule("ЧИСЛО = [0-9]+");
+    putchar('\n');
     parse_pattern("[0-9]+");
     putchar('\n');
     parse_rule("ИДЕНТИФИКАТОР = [a-zA-Z_][a-zA-Z0-9_]*");
+    putchar('\n');
     parse_pattern("[a-zA-Z_][a-zA-Z0-9_]*");
+    putchar('\n');
+    parse_rule("АРИФМЕТИЧЕСКИЙ_ОПЕРАТОР_ПЛЮС = \"+\"");
+    putchar('\n');
+    parse_pattern("\"+\"");
 
 
     FILE *gen = fopen("gen.txt", "wb");
@@ -224,25 +230,21 @@ _1: // Читаем имя токена
     case '\n':
     case '\r':
         goto _0;
-
     case ' ': // игнорируем пробельные символы
         line++;
         goto _1;
-
     case '=': // разделитель
-    {
         *ptr_token = '\0';
         separator = *line;
         line++;
         if (*line == ' ') line++;
         goto _2;
     }
-    default:
-        *ptr_token = *line;
-        ptr_token++;
-        line++;
-        goto _1;
-    }
+    //default:
+    *ptr_token = *line;
+    ptr_token++;
+    line++;
+    goto _1;
 _2: // Читаем шаблон (правую часть)
     switch (*line) {
     case '\0':
@@ -250,140 +252,97 @@ _2: // Читаем шаблон (правую часть)
     case '\r':
         *ptr_pattern = '\0';
         goto _0;
-
-    default:
-        *ptr_pattern = *line;
-        ptr_pattern++;
-        line++;
-        goto _2;
     }
+    //default:
+    *ptr_pattern = *line;
+    ptr_pattern++;
+    line++;
+    goto _2;
 _0:
-    printf("\ntoken     = \"%s\"", token);
-    printf("\nseparator = '%c'", separator);
-    printf("\npattern   = \"%s\"\n", pattern);
+    printf("\ntoken      = %s", token);
+    printf("\nseparator  = %c", separator);
+    printf("\npattern    = %s", pattern);
 }
 void parse_pattern(const char *pattern)
 {
-    char class[0xFF] = {'\0'}; // 1) CLASS (квадратные скобки: [])
+    char ch[0xFF] = "";     // 4) CHAR (символ: )
+    char string[0xFF] = ""; // 3) STRING (кавычки: "")
+    char class[0xFF] = "";  // 1) CLASS (квадратные скобки: [])
     char quantifier = '\0'; // 2) QUANTIFIER (квантификаторы: *+?)
 
+    char *ptr_ch = ch;
+    char *ptr_string = string;
     char *ptr_class = class;
 
 _1: // Читаем шаблон
     switch (*pattern) {
-    case '\0':
-    case '\n':
-    case '\r':
+    case '\0':case '\n':case '\r':
         goto _0;
-    case '[': // Если класс
+    case '"': // Разбор строки
+        *ptr_string = *pattern;
+        ptr_string++;
+        pattern++;
+        goto _string; // Разбор строки символов
+    case '[': // Обнаружение класса (его начало)
         *ptr_class = *pattern;
         ptr_class++;
         pattern++;
-        goto _2;
-    }
+        goto _class; // Разбор класса символов
+    case ']': // Не был обнаружен класс (его начало)
+        printf("Синтаксическая ошибка: Класс должен начинаться с открывающейся квадратной скобки.");
+        printf("Syntax error: Class must begin with an opening square bracket.");
+        goto _0;
+    case '*': case '+': case '?':
+        printf("Синтаксическая ошибка: Квантификатор не может стоять перед классом.");
+        printf("Syntax error: A quantifier cannot appear before a class.");
+        goto _0;
+    // Обнаружен символ
+    *ptr_ch = *pattern;
+    printf("\nchar     = %c", ch);
+    pattern++;
     goto _1;
-_2: // Перебираем элементы класса
+    }
+_string: // Пока внутри строки
     switch (*pattern) {
-    case '\0':
-    case '\n':
-    case '\r':
+    case '\0':case '\n':case '\r':
         goto _0;
-    case '-':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
-    case 'H':
-    case 'I':
-    case 'J':
-    case 'K':
-    case 'L':
-    case 'M':
-    case 'N':
-    case 'O':
-    case 'P':
-    case 'Q':
-    case 'R':
-    case 'S':
-    case 'T':
-    case 'U':
-    case 'V':
-    case 'W':
-    case 'X':
-    case 'Y':
-    case 'Z':
-    case '_':
-    case 'a':
-    case 'b':
-    case 'c':
-    case 'd':
-    case 'e':
-    case 'f':
-    case 'g':
-    case 'h':
-    case 'i':
-    case 'j':
-    case 'k':
-    case 'l':
-    case 'm':
-    case 'n':
-    case 'o':
-    case 'p':
-    case 'q':
-    case 'r':
-    case 's':
-    case 't':
-    case 'u':
-    case 'v':
-    case 'w':
-    case 'x':
-    case 'y':
-    case 'z':
-        *ptr_class = *pattern;
-        ptr_class++;
+    case '"': // Конец строки
+        *ptr_string = *pattern;
+        ptr_string++;
+        *ptr_string = '\0';
+        printf("\nstring     = %s", string);
         pattern++;
-        goto _2;
+        goto _1;
+    *ptr_string = *pattern;
+    ptr_string++;
+    pattern++;
+    goto _string;
+    }
+_class: // Перебираем элементы класса
+    switch (*pattern) {
+    case '\0':case '\n':case '\r':
+        goto _0;
     case ']': // Если конец класса
         *ptr_class = *pattern;
         ptr_class++;
         *ptr_class = '\0';
+        printf("\nclass      = %s", class);
         pattern++;
-        goto _3;
+        goto _quantifier;
     }
-    //default:
     *ptr_class = *pattern;
     ptr_class++;
     pattern++;
-    goto _2;
-_3: // Смотрим, есть ли квантификатор
+    goto _class;
+_quantifier:
     switch (*pattern) {
-    case '\0':
-    case '\n':
-    case '\r':
+    case '\0':case '\n':case '\r':
         goto _0;
-    case '*':
-    case '+':
-    case '?':
+    case '*':case '+':case '?':
         quantifier = *pattern;
+        printf("\nquantifier = %c", quantifier);
         pattern++;
-        //goto _1;
     }
-    // IGNORE: Квантификатор не обнаружен
     goto _1;
 _0:
-    printf("\nclass = \"%s\"", class);
-    printf("\nquantifier = '%c'", quantifier);
 }
