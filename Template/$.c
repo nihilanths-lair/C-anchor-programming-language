@@ -347,7 +347,7 @@ _class: // Перебираем элементы класса
     goto _class;
 _quantifier:
     switch (*pattern) then
-    case '\0':case '\n':case '\r': goto _0;
+    case '\0': case '\n': case '\r': goto _0;
     case '*': case '+': case '?':
     {
         quantifier = *pattern;
