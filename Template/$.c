@@ -219,7 +219,7 @@ void lexer_printToken(Token *token)
 #define then {
 #define switch_end }
 
-void parse_rule(const char *line)
+void parse_rule(const char *rule)
 {
     char token[0xFF] = "";
     char separator = '\0';
@@ -229,34 +229,39 @@ void parse_rule(const char *line)
     char *ptr_pattern = pattern;
 
 _1: // Читаем имя токена
-    switch (*line) {
-    case '\0': case '\n': case '\r':
-        goto _0;
+    switch (*rule) then
+    case '\0': case '\n': case '\r': goto _0;
     case ' ': // игнорируем пробельные символы
-        line++;
+    {
+        rule++;
         goto _1;
+    }
     case '=': // разделитель
+    {
         *ptr_token = '\0';
         printf("\ntoken      = %s", token);
-        separator = *line;
+        separator = *rule;
         printf("\nseparator  = %c", separator);
-        line++;
-        if (*line == ' ') line++;
+        rule++;
+        if (*rule == ' ') rule++;
         goto _2;
     }
-    *ptr_token = *line;
+    switch_end
+    *ptr_token = *rule;
     ptr_token++;
-    line++;
+    rule++;
     goto _1;
 _2: // Читаем шаблон (правую часть)
-    switch (*line) {
+    switch (*rule) then
     case '\0': case '\n': case '\r':
+    {
         *ptr_pattern = '\0';
         goto _0;
     }
-    *ptr_pattern = *line;
+    switch_end
+    *ptr_pattern = *rule;
     ptr_pattern++;
-    line++;
+    rule++;
     goto _2;
 _0:
     printf("\npattern    = %s", pattern);
