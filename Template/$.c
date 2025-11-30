@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <locale.h>
+#include <string.h>
 
 //----------------------------------------------------------//
 //                         STORAGE                          //
@@ -51,6 +52,8 @@ size_t symbols;
 //----------------------------------------------------------//
 //                       DECLARATION                        //
 //----------------------------------------------------------//
+void trim(char *s, const char *chars_to_remove);
+
 void lexer_init(Lexer *lexer, const char *code);
 Token lexer_nextToken(Lexer *lexer);
 void lexer_printToken(Token *token);
@@ -108,17 +111,12 @@ int main()
     }
     printf("\n\n");
 
-    parse_rule("ЧИСЛО = [0-9]+");
+    //parse_rule("= a | b"); putchar('\n');
+    //parse_rule("= a|b)c"); putchar('\n');
+    //parse_rule("= [0-9]+ | \"xyz\"");
+    parse_rule("ТОКЕН-1 = '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|' '");
     putchar('\n');
-    parse_pattern("[0-9]+");
-    putchar('\n');
-    parse_rule("ИДЕНТИФИКАТОР = [a-zA-Z_][a-zA-Z0-9_]*");
-    putchar('\n');
-    parse_pattern("[a-zA-Z_][a-zA-Z0-9_]*");
-    putchar('\n');
-    parse_rule("АРИФМЕТИЧЕСКИЙ_ОПЕРАТОР_ПЛЮС = \"+\"");
-    putchar('\n');
-    parse_pattern("\"+\"");
+    parse_rule("ТОКЕН-2 = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | ' '");
 
     /*
     FILE *gen = fopen("gen.txt", "wb");
@@ -140,6 +138,28 @@ int main()
 //----------------------------------------------------------//
 //                      SUBPROGRAM                          //
 //----------------------------------------------------------//
+// Удаляет символы из начала и конца строки
+void trim(char *s, const char *chars_to_remove)
+{
+    char *start = s;
+    char *end;
+
+    // --- Сдвигаем start до первого символа, который не нужно удалять
+    while (*start && strchr(chars_to_remove, *start)) start++;
+
+    // --- Если строка не пустая, сдвигаем оставшуюся часть в начало
+    if (start != s) memmove(s, start, strlen(start) + 1);
+
+    // --- Находим конец строки
+    end = s + strlen(s) - 1;
+
+    // --- Отрезаем символы справа
+    while (end >= s && strchr(chars_to_remove, *end))
+    {
+        *end = '\0';
+        end--;
+    }
+}
 void lexer_init(Lexer *lexer, const char *code)
 {
     lexer->input = code;
@@ -239,9 +259,9 @@ _1: // Читаем имя токена
     case '=': // разделитель
     {
         *ptr_token = '\0';
-        printf("\ntoken      = %s", token);
+        printf("\ntoken       = %s", token);
         separator = *rule;
-        printf("\nseparator  = %c", separator);
+        printf("\nseparator   = %c", separator);
         rule++;
         if (*rule == ' ') rule++;
         goto _2;
@@ -251,6 +271,7 @@ _1: // Читаем имя токена
     ptr_token++;
     rule++;
     goto _1;
+
 _2: // Читаем шаблон (правую часть)
     switch (*rule) then
     case '\0': case '\n': case '\r':
@@ -263,22 +284,37 @@ _2: // Читаем шаблон (правую часть)
     ptr_pattern++;
     rule++;
     goto _2;
+
 _0:
-    printf("\npattern    = %s", pattern);
+    printf("\npattern     = %s", pattern);
+    parse_pattern(pattern);
 }
+
 void parse_pattern(const char *pattern)
-{
-    //char ch[0xFF] = "";     // 4) CHAR (символ: )
-    char ch = '\0';
+{   
+    char chr[0xF] = "";     // 4) CHAR (символ: '')
     char string[0xFF] = ""; // 3) STRING (кавычки: "")
     char class[0xFF] = "";  // 1) CLASS (квадратные скобки: [])
     char quantifier = '\0'; // 2) QUANTIFIER (квантификаторы: *+?)
 
-    //char *ptr_ch = ch;
+    //char alternation[0xFF]; // 5) ALTERNATION (чередование: |) //[0xFF];
+
+    char *ptr_chr = chr;
     char *ptr_string = string;
     char *ptr_class = class;
 
+    // --- добавляем буфер для последовательности/альтернатив
+    char element[0xFF] = "";     // текущий элемент
+    char alternation[0xFF] = ""; // накопление альтернатив
+    char *ptr_element = element;
+
 _1: // Читаем шаблон
+    // --- пропускаем пробелы и табы вне кавычек и классов
+    if (*pattern == ' ' || *pattern == '\t')
+    {
+        pattern++;
+        goto _1;
+    }
     switch (*pattern) then
     case '\0':case '\n':case '\r': goto _0;
     case '"': // Разбор строки
@@ -286,43 +322,94 @@ _1: // Читаем шаблон
         *ptr_string = *pattern;
         ptr_string++;
         pattern++;
-        goto _string; // Разбор строки символов
+        goto _string;
     }
-    case '[': // Обнаружение класса (его начало)
+    case '\'': // Разбор символа
+    {
+        *ptr_chr = *pattern;
+        ptr_chr++;
+        pattern++;
+        goto _chr;
+    }
+    case '[': // Обнаружение класса
     {
         *ptr_class = *pattern;
         ptr_class++;
         pattern++;
-        goto _class; // Разбор класса символов
+        goto _class;
     }
     case ']': // Не был обнаружен класс (его начало)
     {
-        printf("Синтаксическая ошибка: Класс должен начинаться с открывающейся квадратной скобки.");
-        printf("Syntax error: Class must begin with an opening square bracket.");
+        printf("\nСинтаксическая ошибка: Класс должен начинаться с открывающейся квадратной скобки.");
+        printf("\nSyntax error: Class must begin with an opening square bracket.");
         goto _0;
     }
     case '*': case '+': case '?':
     {
-        printf("Синтаксическая ошибка: Квантификатор не может стоять перед классом.");
-        printf("Syntax error: A quantifier cannot appear before a class.");
+        printf("\nСинтаксическая ошибка: Квантификатор не может стоять перед классом.");
+        printf("\nSyntax error: A quantifier cannot appear before a class.");
         goto _0;
     }
+    case '|': // альтернатива
+    {
+        if (*element != '\0')
+        {
+            trim(element, " \t\n\r");  // удаляем пробелы
+            if (*alternation != '\0') strcat(alternation, " | ");
+            strcat(alternation, element);
+            *element = '\0';
+            ptr_element = element;
+        }
+        pattern++;
+        goto _1;
+    }
     switch_end
-    ch = *pattern;
-    printf("\nchar      = %c", ch);
+    // добавляем текущий символ в элемент, если это одиночный символ
+    *ptr_element = *pattern;
+    ptr_element++;
+    *ptr_element = '\0';
     pattern++;
     goto _1;
-_string: // Пока внутри строки
+
+_chr: // Начало символа
     switch (*pattern) then
-    case '\0':case '\n':case '\r': goto _0;
+    case '\0': case '\n': case '\r': goto _0;
+    case '\'': // Конец символа
+    {
+        *ptr_chr = *pattern;
+        ptr_chr++;
+        *ptr_chr = '\0';
+
+        // --- добавляем в элемент
+        strcat(element, chr);
+        *chr = '\0';
+        ptr_chr = chr;
+
+        printf("\nchar        = %s", element);
+        pattern++;
+        goto _1;
+    }
+    switch_end
+    *ptr_chr = *pattern;
+    ptr_chr++;
+    pattern++;
+    goto _chr;
+
+_string: // Начало строки
+    switch (*pattern) then
+    case '\0': case '\n': case '\r': goto _0;
     case '"': // Конец строки
     {
         *ptr_string = *pattern;
         ptr_string++;
         *ptr_string = '\0';
-        printf("\nstring     = %s", string);
+
+        // --- добавляем в элемент
+        strcat(element, string);
+        *string = '\0';
         ptr_string = string;
-        string[0] = '\0'; // Можно так: *string = '\0'?
+
+        printf("\nstring     = %s", element);
         pattern++;
         goto _1;
     }
@@ -331,6 +418,7 @@ _string: // Пока внутри строки
     ptr_string++;
     pattern++;
     goto _string;
+
 _class: // Перебираем элементы класса
     switch (*pattern) then
     case '\0': case '\n': case '\r': goto _0;
@@ -339,9 +427,13 @@ _class: // Перебираем элементы класса
         *ptr_class = *pattern;
         ptr_class++;
         *ptr_class = '\0';
-        printf("\nclass      = %s", class);
+
+        // --- добавляем в элемент
+        strcat(element, class);
+        *class = '\0';
         ptr_class = class;
-        class[0] = '\0'; // Можно так: *class = '\0'?
+
+        printf("\nclass      = %s", element);
         pattern++;
         goto _quantifier;
     }
@@ -350,6 +442,7 @@ _class: // Перебираем элементы класса
     ptr_class++;
     pattern++;
     goto _class;
+
 _quantifier:
     switch (*pattern) then
     case '\0': case '\n': case '\r': goto _0;
@@ -361,5 +454,13 @@ _quantifier:
     }
     switch_end
     goto _1;
+
 _0:
+    if (*element != '\0')
+    {
+        trim(element, " \t\n\r");  // удаляем пробелы
+        if (*alternation != '\0') strcat(alternation, " | ");
+        strcat(alternation, element);
+    }
+    if (*alternation != '\0') printf("\nalternation = %s", alternation);
 }
