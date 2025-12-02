@@ -89,16 +89,13 @@ PNode* parse_dsl(const char *filename)
         // удаляем \n и лишние пробелы
         char *newline = strchr(line, '\n');
         if (newline) *newline = '\0';
-
         if (line[0] == '\0') continue;
-
         PNode *node = parse_dsl_line(line);
         pnode_add_child(root, node);
     }
     fclose(file);
     return root;
 }
-
 int main() {
     setlocale(0, "");
 
