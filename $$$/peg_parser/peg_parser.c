@@ -13,7 +13,8 @@ typedef enum {
     PEG_ALT,
     PEG_LITERAL,
     PEG_IDENT,
-    PEG_GROUP
+    PEG_GROUP,
+    PEG_REPEAT // <-- квантификаторы *, +, ?
 } PEGNodeType;
 
 typedef struct PEGNode {
@@ -45,7 +46,9 @@ void peg_print(PEGNode *n, int lvl)
     if (!n) return;
     for (int i = 0; i < lvl; i++) printf("  ");
 
-    const char *names[] = {"RULE","SEQ","ALT","LIT","IDENT","GROUP"};
+    const char *names[] = {
+        "RULE", "SEQ", "ALT", "LIT", "IDENT", "GROUP", "REPEAT"
+    };
     printf("[%s] %s\n", names[n->type], n->text ? n->text : "");
 
     for (int i = 0; i < n->child_count; i++) peg_print(n->child[i], lvl + 1);
@@ -144,6 +147,31 @@ PEGNode *parse_group()
     return g;
 }
 
+PEGNode *parse_postfix(PEGNode *p)
+{
+    skip_ws();
+
+    while (*src == '*' || *src == '+' || *src == '?')
+    {
+        char op = *src;
+        src++;
+
+        PEGNode *r = peg_new(PEG_REPEAT, NULL);
+
+        // text хранит символ квантификатора
+        char *t = malloc(2);
+        t[0] = op;
+        t[1] = 0;
+        r->text = t;
+
+        peg_add(r, p);
+        p = r;
+
+        skip_ws();
+    }
+    return p;
+}
+
 /*/--------------------------------/*/
 /*/    PEG: primary = group | literal | ident    /*/
 /*/--------------------------------/*/
@@ -152,17 +180,27 @@ PEGNode *parse_primary()
 {
     skip_ws();
 
+    PEGNode *p = NULL;
+
     // группа
-    PEGNode *g = parse_group();
-    if (g) return g;
+    p = parse_group();
+    if (p) return parse_postfix(p);
 
     // литерал
     char *lit = read_literal();
-    if (lit) return peg_new(PEG_LITERAL, lit);
+    if (lit)
+    {
+        p = peg_new(PEG_LITERAL, lit);
+        return parse_postfix(p);
+    }
 
     // идентификатор
     char *id = read_ident();
-    if (id) return peg_new(PEG_IDENT, id);
+    if (id)
+    {
+        p = peg_new(PEG_IDENT, id);
+        return parse_postfix(p);
+    }
 
     return NULL;
 }
