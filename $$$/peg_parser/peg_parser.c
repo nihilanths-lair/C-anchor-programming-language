@@ -3,9 +3,12 @@
 #include <string.h>
 #include <ctype.h>
 
-/*/---------------/*/
-/*/    PEG AST    /*/
-/*/---------------/*/
+/*/-------------------/*/
+/*/      PEG AST      /*/
+/*/-------------------/*/
+/*----------------------------------------*/
+/*      PEG: QUANTIFIERS & CHARCLASS      */
+/*----------------------------------------*/
 
 typedef enum {
     PEG_RULE,
@@ -14,58 +17,91 @@ typedef enum {
     PEG_LITERAL,
     PEG_IDENT,
     PEG_GROUP,
-    PEG_REPEAT // <-- квантификаторы *, +, ?
+    PEG_REPEAT,
+    PEG_CLASS,
+    PEG_CLASS_ITEM,
+    PEG_CLASS_RANGE,
+    PEG_CLASS_ESC,
+    PEG_CLASS_CHAR
 } PEGNodeType;
 
 typedef struct PEGNode {
     PEGNodeType type;
-    char *text;
-    struct PEGNode **child;
+    char * text; // имя правила, литерал или квантификатор
+    struct PEGNode ** child;
     int child_count;
 } PEGNode;
 
-PEGNode *peg_new(PEGNodeType type, const char *text)
+PEGNode * peg_new(PEGNodeType type, const char * text)
 {
-    PEGNode *n = malloc(sizeof (PEGNode));
+    PEGNode * n = malloc(sizeof (PEGNode));
     n->type = type;
     n->text = text ? strdup(text) : NULL;
     n->child = NULL;
     n->child_count = 0;
     return n;
 }
-
-void peg_add(PEGNode *parent, PEGNode *child)
+void peg_add(PEGNode * parent, PEGNode * child)
 {
     parent->child_count++;
-    parent->child = realloc(parent->child, sizeof (PEGNode*) * parent->child_count);
+    parent->child = realloc(parent->child, sizeof (PEGNode *) * parent->child_count);
     parent->child[parent->child_count - 1] = child;
 }
-
-void peg_print(PEGNode *n, int lvl)
+/*/----------------------------/*/
+/*/      PEG: AST printer      /*/
+/*/----------------------------/*/
+const char * names[] =
+{
+    "RULE",        // 0
+    "SEQ",         // 1
+    "ALT",         // 2
+    "LIT",         // 3
+    "IDENT",       // 4
+    "GROUP",       // 5
+    "REPEAT",      // 6
+    "CLASS",       // 7
+    "CLASS_ITEM",  // 8
+    "CLASS_RANGE", // 9
+    "CLASS_ESC",   // 10
+    "CLASS_CHAR"   // 11
+};
+void peg_print(PEGNode * n, int lvl)
 {
     if (!n) return;
     for (int i = 0; i < lvl; i++) printf("  ");
 
-    const char *names[] = {
-        "RULE", "SEQ", "ALT", "LIT", "IDENT", "GROUP", "REPEAT"
-    };
-    printf("[%s] %s\n", names[n->type], n->text ? n->text : "");
-
-    for (int i = 0; i < n->child_count; i++) peg_print(n->child[i], lvl + 1);
+    int idx = (int) n->type;
+    const char * tname = (idx >= 0 && idx < (int) (sizeof (names) / sizeof (names[0]))) ? names[idx] : "UNKNOWN";
+    printf("<%s> %s", tname, n->text ? n->text : "");
+    for (int i = 0; i < n->child_count; i++)
+    {
+        putchar('\n');
+        peg_print(n->child[i], lvl + 1);
+    }
 }
-
 /*/-----------------------/*/
 /*/    PEG PARSER CORE    /*/
 /*/-----------------------/*/
-
-const char *src; // указатель в тексте
-
-/* skip_ws: НЕ удаляем '\n' — оставляем перевод строки как маркер конца правила */
-void skip_ws() {
-    while (*src == ' ' || *src == '\t' || *src == '\r') src++;
+const char * src; // указатель на текст
+void skip_ws()
+{
+    for (;;)
+    {
+        if (*src == ' ' || *src == '\t' || *src == '\r' || *src == '\n')
+        {
+            src++;
+            continue;
+        }
+        // Однострочный комментарий
+        if (*src == ';')
+        {
+            while (*src && *src != '\n') src++;
+            continue;
+        }
+        break;
+    }
 }
-
-int match(const char *s)
+int match(const char * s)
 {
     skip_ws();
     int len = strlen(s);
@@ -76,269 +112,249 @@ int match(const char *s)
     }
     return 0;
 }
-
-char *read_ident()
+char * read_ident()
 {
     skip_ws();
     const char *start = src;
-
-    if (!isalpha((unsigned char)*src) && *src != '_') return NULL;
-    while (isalnum((unsigned char)*src) || *src == '_') src++;
-
+    if (!isalpha(*src) && *src != '_') return NULL;
+    while (isalnum(*src) || *src == '_') src++;
     int len = src - start;
     char *out = malloc(len + 1);
     memcpy(out, start, len);
     out[len] = 0;
     return out;
 }
-
-char *read_literal()
+char * read_literal()
 {
     skip_ws();
     if (*src != '"') return NULL;
-
-    src++; // пропустили "
-
+    src++;
     const char *start = src;
     while (*src && *src != '"') src++;
-
     int len = src - start;
     char *out = malloc(len + 1);
     memcpy(out, start, len);
     out[len] = 0;
-
     if (*src == '"') src++;
     return out;
 }
+/*/-----------------------------------------------/*/
+/*/      PEG: CLASS = [A..Z a..z 0..9 _ - .]      /*/
+/*/-----------------------------------------------/*/
+PEGNode * parse_class()
+{
+    skip_ws();
+    if (*src != '[')
+        return NULL;
 
-/*/-------------------------------------------------/*/
-/*/    PEG extension: GROUP = "(" expression ")"    /*/
-/*/-------------------------------------------------/*/
+    src++; // consume '['
+    skip_ws();
 
-PEGNode *parse_expression(); // forward
+    int neg = 0;
+    if (*src == '!')
+    {
+        neg = 1;
+        src++;
+        skip_ws();
+    }
+    PEGNode * class_node = peg_new(PEG_CLASS, neg ? "NEG" : "POS");
+    while (*src && *src != ']')
+    {
+        skip_ws();
+        // -------- escape ----------
+        if (*src == '\\')
+        {
+            src++;
+            if (!*src)
+                break;
 
-PEGNode *parse_group()
+            char esc = *src++;
+            char str[2] = {esc, 0};
+
+            PEGNode *e = peg_new(PEG_CLASS_ESC, str);
+            peg_add(class_node, e);
+            continue;
+        }
+        // -------- range: x..z  or x...z ----------
+        if (src[0] && src[1] && src[2] && src[1] == '.' && src[2] == '.')
+        {
+            char start = *src;
+            src += 3; // skip "x.."
+            int three = 0;
+            if (*src == '.')
+            {
+                three = 1;
+                src++;
+            }
+            if (!*src)
+            {
+                printf("Ошибка: незавершённый диапазон в классе.\n");
+                break;
+            }
+            char end = *src++;
+            char buf[4];
+            buf[0] = start;
+            buf[1] = end;
+            buf[2] = three ? '3' : '2';
+            buf[3] = '\0';
+
+            PEGNode * r = peg_new(PEG_CLASS_RANGE, buf);
+            peg_add(class_node, r);
+            continue;
+        }
+
+        // -------- single char ----------
+        char c = *src++;
+        char str[2] = {c, 0};
+
+        PEGNode *ch = peg_new(PEG_CLASS_CHAR, str);
+        peg_add(class_node, ch);
+    }
+    if (*src == ']')
+        src++; // consume ']'
+    else
+        printf("Ошибка: нет закрывающей квадратной скобки в классе символов.\n");
+
+    return class_node;
+}
+/*/-------------------------------------------/*/
+/*/      PEG: GROUP = "(" expression ")"      /*/
+/*/-------------------------------------------/*/
+// forward
+PEGNode * parse_expression();
+PEGNode * parse_group()
 {
     skip_ws();
     if (*src != '(') return NULL;
-
-    src++;  // consume "("
-    skip_ws();
-
+    src++; // consume "("
     PEGNode *inside = parse_expression();
-    if (!inside)
-    {
-        /* пустая группа — это синтаксическая ошибка в грамматике */
-        fprintf(stderr, "Ошибка: пустая или неверная группа\n");
-        return NULL;
-    }
-
     skip_ws();
     if (*src != ')')
     {
-        fprintf(stderr, "Ошибка: нет закрывающей ')'\n");
+        printf("Ошибка: нет закрывающей круглой скобки.\n");
         return NULL;
     }
-
     src++; // consume ")"
-
     PEGNode *g = peg_new(PEG_GROUP, NULL);
     peg_add(g, inside);
     return g;
 }
-
-PEGNode *parse_postfix(PEGNode *p)
+/*/--------------------------------------------------------------/*/
+/*/      PEG: primary = group | charclass | literal | ident      /*/
+/*/--------------------------------------------------------------/*/
+PEGNode * parse_primary()
 {
     skip_ws();
 
-    while (*src == '*' || *src == '+' || *src == '?')
-    {
-        char op = *src;
-        src++;
+    PEGNode *cls = parse_class();
+    if (cls) return cls;
 
-        PEGNode *r = peg_new(PEG_REPEAT, NULL);
+    PEGNode *g = parse_group();
+    if (g) return g;
 
-        // text хранит символ квантификатора
-        char *t = malloc(2);
-        t[0] = op;
-        t[1] = 0;
-        r->text = t;
-
-        peg_add(r, p);
-        p = r;
-
-        skip_ws();
-    }
-    return p;
-}
-
-/*/--------------------------------/*/
-/*/    PEG: primary = group | literal | ident    /*/
-/*/--------------------------------/*/
-
-PEGNode *parse_primary()
-{
-    skip_ws();
-
-    PEGNode *p = NULL;
-
-    // группа
-    p = parse_group();
-    if (p) return parse_postfix(p);
-
-    // литерал
     char *lit = read_literal();
-    if (lit)
-    {
-        p = peg_new(PEG_LITERAL, lit);
-        return parse_postfix(p);
-    }
+    if (lit) return peg_new(PEG_LITERAL, lit);
 
-    // идентификатор
     char *id = read_ident();
-    if (id)
-    {
-        p = peg_new(PEG_IDENT, id);
-        return parse_postfix(p);
-    }
+    if (id) return peg_new(PEG_IDENT, id);
 
     return NULL;
 }
-
-/*/--------------------------------/*/
-/*/    PEG: sequence = primary+    /*/
-/*/--------------------------------/*/
-
-PEGNode *parse_sequence()
+/*/-------------------------------------------------------/*/
+/*/      PEG: sequence = primary+ с квантификаторами      /*/
+/*/-------------------------------------------------------/*/
+PEGNode * parse_sequence()
 {
-    PEGNode *seq = peg_new(PEG_SEQ, NULL);
-    PEGNode *p;
-    while ((p = parse_primary()))
+    PEGNode * seq = peg_new(PEG_SEQ, NULL);
+    PEGNode * p;
+    const char * last_src;
+    while (1)
     {
+        last_src = src;
+        p = parse_primary();
+        if (!p) break;
+
+        skip_ws();
+
+        if (*src == '*' || *src == '+' || *src == '?')
+        {
+            char qtxt[2];
+            qtxt[0] = *src;
+            qtxt[1] = '\0';
+
+            PEGNode * r = peg_new(PEG_REPEAT, qtxt);
+            src++;
+            peg_add(r, p);
+            p = r;
+        }
+
         peg_add(seq, p);
+        if (src == last_src) break;
         skip_ws();
     }
-
     if (seq->child_count == 1)
     {
-        PEGNode *tmp = seq->child[0];
+        PEGNode * tmp = seq->child[0];
         free(seq->child);
         free(seq);
         return tmp;
     }
     return seq;
 }
-
-/*/--------------------------------------------------/*/
-/*/    PEG: expression = sequence ("/" sequence)*    /*/
-/*/--------------------------------------------------/*/
-
-PEGNode *parse_expression()
+/*/------------------------------------------------------/*/
+/*/      PEG: expression = sequence ("/" sequence)*      /*/
+/*/------------------------------------------------------/*/
+PEGNode * parse_expression()
 {
-    PEGNode *left = parse_sequence();
-    if (!left) return NULL;
-
-    while (1)
+    PEGNode * left = parse_sequence();
+    while (match("/"))
     {
-        // мы не используем match("/") напрямую, потому что match() вызывает skip_ws()
-        // и skip_ws() не убирает '\n' => если '/' будет на следующей строке, match("/") вернёт 0.
-        skip_ws();
-        if (*src != '/') break;
-        src++; // consume '/'
-        PEGNode *right = parse_sequence();
-        if (!right)
-        {
-            fprintf(stderr, "Ошибка: ожидается sequence после '/'\n");
-            return NULL;
-        }
-        PEGNode *alt = peg_new(PEG_ALT, NULL);
+        PEGNode * alt = peg_new(PEG_ALT, NULL);
         peg_add(alt, left);
-        peg_add(alt, right);
+        peg_add(alt, parse_sequence());
         left = alt;
     }
     return left;
 }
-
-/*/----------------------------------------/*/
-/*/    PEG: rule = IDENT "=" expression    /*/
-/*/----------------------------------------/*/
-
-PEGNode *parse_rule()
+/*/--------------------------------------------/*/
+/*/      PEG: rule = IDENT "=" expression      /*/
+/*/--------------------------------------------/*/
+PEGNode * parse_rule()
 {
-    skip_ws();
-
-    /* если мы на переводе строки — это пустая строка; пропустим */
-    if (*src == '\n')
-    {
-        src++;
-        return NULL;
-    }
-
-    char *id = read_ident();
+    char * id = read_ident();
     if (!id) return NULL;
-
-    /* после идентификатора обязательно '=' */
-    skip_ws();
-    if (*src != '=')
+    if (!match("="))
     {
-        fprintf(stderr, "Ошибка: ожидался '=' после %s\n", id);
-        free(id);
-        return NULL;
+        printf("Ошибка: ожидался символ присваивания после %s.\n", id);
+        exit(1);
     }
-    src++; // consume '='
-
-    PEGNode *expr = parse_expression();
-    if (!expr)
-    {
-        fprintf(stderr, "Ошибка: выражение после '=' отсутствует для %s\n", id);
-        free(id);
-        return NULL;
-    }
-
-    /* после выражения допустим конеч строки — если есть, пропускаем один \n */
-    skip_ws();
-    if (*src == '\n') src++;
-
-    PEGNode *rule = peg_new(PEG_RULE, id);
-    peg_add(rule, expr);
+    PEGNode * rule = peg_new(PEG_RULE, id);
+    peg_add(rule, parse_expression());
     return rule;
 }
-
-/*/-----------------/*/
-/*/    READ FILE    /*/
-/*/-----------------/*/
-
-char *load_file(const char *fn)
+/*/---------------------/*/
+/*/      READ FILE      /*/
+/*/---------------------/*/
+char * load_file(const char * fn)
 {
-    FILE *f = fopen(fn, "r"); /* текстовый режим */
-    if (!f)
-    {
-        printf("Не открыть %s\n", fn);
-        return NULL;
-    }
-
+    FILE * f = fopen(fn, "rb");
+    if (!f) { printf("Не открыть %s\n", fn); return NULL; }
     fseek(f, 0, SEEK_END);
     long sz = ftell(f);
     rewind(f);
-
     char *buf = malloc(sz + 1);
     fread(buf, 1, sz, f);
     buf[sz] = 0;
-
     fclose(f);
     return buf;
 }
-
-/*/-------/*/
-/*/  MAIN /*/
-/*/-------/*/
-
+/*//*/
 int main()
 {
-    char *text = load_file("grammar.peg");
+    char * text = load_file("grammar.peg");
     if (!text) return 1;
 
-    PEGNode *root = peg_new(PEG_SEQ, "ROOT");
+    PEGNode * root = peg_new(PEG_SEQ, "ROOT");
 
     src = text;
     while (*src)
@@ -346,19 +362,21 @@ int main()
         skip_ws();
         if (!*src) break;
 
-        PEGNode *r = parse_rule();
-        if (r)
-        {
+        PEGNode * r = parse_rule();
+        if (r) {
             peg_add(root, r);
-            continue;
         }
-        /* parse_rule вернул NULL — сдвинем к началу следующей строки,
-           чтобы избежать зацикливания при некорректных/пустых строках */
-        while (*src && *src != '\n') src++;
-        if (*src == '\n') src++;
+        else
+        {
+            // Если правило не распарсилось — продвигаемся до конца строки,
+            // чтобы не остаться в той же позиции и не зациклиться.
+            while (*src && *src != '\n') src++;
+            if (*src == '\n') src++; // skip newline
+        }
     }
-
+    //putchar('\n');
     peg_print(root, 0);
+    printf("\n--");
     free(text);
     return 0;
 }
