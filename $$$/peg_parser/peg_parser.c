@@ -1,14 +1,11 @@
+/*/----------------
+<!-- PEG PARSER -->
+----------------/*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-/*/-------------------/*/
-/*/      PEG AST      /*/
-/*/-------------------/*/
-/*----------------------------------------*/
-/*      PEG: QUANTIFIERS & CHARCLASS      */
-/*----------------------------------------*/
 
 typedef enum {
     PEG_RULE,
