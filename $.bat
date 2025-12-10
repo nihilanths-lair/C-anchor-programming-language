@@ -7,10 +7,10 @@
 ::del .i/*.i
 ::del .o/*.o
 
-gcc -c LexicalAnalyzer.c -o .o/LexicalAnalyzer.o 
-gcc -c SyntacticAnalyzer.c -o .o/SyntacticAnalyzer.o
-gcc -c SemanticAnalyzer.c -o .o/SemanticAnalyzer.o
-gcc -c InterpreterAST.c -o .o/InterpreterAST.o
+::gcc -c LexicalAnalyzer.c -o .o/LexicalAnalyzer.o 
+::gcc -c SyntacticAnalyzer.c -o .o/SyntacticAnalyzer.o
+::gcc -c SemanticAnalyzer.c -o .o/SemanticAnalyzer.o
+::gcc -c InterpreterAST.c -o .o/InterpreterAST.o
 
 gcc -c $.c -o .o/$.o
 gcc .o/*.o -o $.exe
