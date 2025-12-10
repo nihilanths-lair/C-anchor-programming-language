@@ -17,4 +17,4 @@ gcc .o/*.o -o $.exe
 
 $.exe
 
-gcc C$/$.c
+gcc C$/$.c -o C$/$.exe
