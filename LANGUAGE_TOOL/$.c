@@ -19,8 +19,22 @@
 int i;
 int j;
 FILE * handle;
-unsigned char buf[0xFFFF];
-
+//-/
+unsigned char dp = 0;
+unsigned char storage[0xFF] = "";
+unsigned char bytecode[0xFF] = "";
+//-/
+void display_memory()
+{
+    i = 0;
+    do
+    {
+        if (i % 16 == 0) putchar('\n');
+        printf(" [%03d] = %03d,", i, storage[i]);
+    }
+    while (++i != 0xFF);
+    printf(" [%03d] = %03d.", i, storage[i]);
+}
 void compile_code(unsigned char * code, const char * mode)
 {
     if (!strcmp(mode, "DSL")) 
@@ -45,11 +59,7 @@ op_invalid:
 end_program:
     return;
 }
-//-/
-unsigned char dp = 0;
-unsigned char storage[0xFF] = "";
-unsigned char bytecode[0xFF] = "";
-//-/
+/*/-/*/
 int main()
 {
     setlocale(0, "");
@@ -82,14 +92,6 @@ int main()
     fputc('}', handle);
     fclose(handle);
     /**/
-    i = 0;
-    do
-    {
-        if (i % 16 == 0) putchar('\n');
-        printf(" [%03d] = %03d,", i, storage[i]);
-    }
-    while (++i != 0xFF);
-    printf(" [%03d] = %03d.", i, storage[i]);
     putchar('\n');
     //  Загрузка в память правой части шаблона сопоставления (целиком)
     unsigned char construction[0xFF] = "";      // Определение конструкции
