@@ -2,7 +2,7 @@
 
 Digit        :: '0'..'9'
 Number       :: Digit+
-Separator    :: ';' / Newline+
+Separator    :: ';' / '\n'+
 Whitespace   :: (' ' / '\t')*
 
 Синтаксис:
