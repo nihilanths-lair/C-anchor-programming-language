@@ -16,7 +16,6 @@
     #9 InterpreterMIR
     #10 InterpreterLIR
 /*/
-#define NOP ""
 int i;
 int j;
 FILE * handle;
@@ -35,7 +34,7 @@ void compile_code(unsigned char * code, const char * mode)
 }
 void run_code(unsigned char * code)
 {
-    printf("code = %s", code);
+    printf("\ncode = %s", code);
     static void *dispatch_table[] = {[0 ... 255] = &&op_invalid};
     goto *dispatch_table[0];
 
@@ -48,42 +47,38 @@ end_program:
 }
 //-/
 unsigned char dp = 0;
-unsigned char storage[0xFF] = {0};
-unsigned char bytecode[0xFF] = {0};
+unsigned char storage[0xFF] = "";
+unsigned char bytecode[0xFF] = "";
 //-/
 int main()
 {
     setlocale(0, "");
 
-    handle = fopen("$.c", "rb");
-    if (handle == NULL) printf(" Для начала создайте файл `$.c`.");
-
-    fread(buf, sizeof (buf), 1, handle);
-    fclose(handle);
-
-    //printf(buf);
-
     //  Загрузка в память исходного кода C$ (целиком)
-    unsigned char source_code_cdlr[] = "563;\n\t2450;"; // Тесты делаются с программы напрямую
-    /*/
-    handle = fopen("C$/$.cdlr", "r");
-    if (handle == NULL) printf(" Для начала создайте файл `$.cdlr`.");
+    unsigned char source_code_cdlr[0xFFF] = "";
+
+    handle = fopen("C$\\$.cdlr", "r");
+    if (handle == NULL)
+    {
+        printf(" Для начала создайте файл `$.cdlr`.");
+        return -1;
+    }
     fread(source_code_cdlr, sizeof (source_code_cdlr), 1, handle);
     fclose(handle);
-
+    printf(source_code_cdlr);
+    /*
     handle = fopen("C$/$.cdlr", "w");
     fwrite(source_code_cdlr, sizeof (source_code_cdlr)-1, 1, handle);
     fclose(handle);
     /*/
     /**/
-    handle = fopen("C$/$.c", "w");
-    if (handle == NULL) printf(" Не удалось записать данные в файл `C$/$.c`.");
+    handle = fopen("C$\\$.c", "w");
     //fwrite("#include <stdio.h>\n", sizeof ("#include <stdio.h>\n")-1, 1, handle);
     fwrite("int main()\n", sizeof ("int main()\n")-1, 1, handle);
     fwrite("{\n", sizeof ("{\n")-1, 1, handle);
     fputc('\t', handle);
-    fwrite(source_code_cdlr, sizeof (source_code_cdlr)-1, 1, handle);
-    fputc('\n', handle);
+    fwrite(source_code_cdlr, strlen(source_code_cdlr), 1, handle);
+    fwrite(";\n", sizeof(";\n")-1, 1, handle);
     fputc('}', handle);
     fclose(handle);
     /**/
@@ -97,13 +92,17 @@ int main()
     printf(" [%03d] = %03d.", i, storage[i]);
     putchar('\n');
     //  Загрузка в память правой части шаблона сопоставления (целиком)
-    unsigned char construction[0xFF];      // Определение конструкции
-    unsigned char separator[0xF];          // Разделитель шаблона
-    unsigned char product_rules_dsl[0xFF]; // Правила продукции задаваемые/описываемые в DSL
+    unsigned char construction[0xFF] = "";      // Определение конструкции
+    unsigned char separator[0xF] = "";          // Разделитель шаблона
+    unsigned char product_rules_dsl[0xFF] = ""; // Правила продукции задаваемые/описываемые в DSL
 
-    unsigned char form[0xFFF] = {0};
-    handle = fopen("C$/$.form", "r");
-    if (handle == NULL) printf(" Для начала создайте файл `$.form`.");
+    unsigned char form[0xFFF] = "";
+    handle = fopen("C$\\$.form", "r");
+    if (handle == NULL)
+    {
+        printf(" Для начала создайте файл `$.form`.");
+        return -1;
+    }
     fread(form, sizeof (form), 1, handle);
     fclose(handle);
     printf("\nform =\n%s", form);
@@ -115,8 +114,8 @@ int main()
     unsigned char product_rules_gpl[0xFF];
     compile_code(product_rules_gpl, "GPL");
     //run_code();
-    printf("\nDSL | %s%s%s", construction, separator, product_rules_dsl);
-    printf("\nGPL | %s\n%s\n%s", construction, separator, product_rules_gpl);
+    //printf("\nDSL | %s%s%s", construction, separator, product_rules_dsl);
+    //printf("\nGPL | %s\n%s\n%s", construction, separator, product_rules_gpl);
 
     unsigned char * code = "Hello world!";
     run_code(code);
@@ -135,12 +134,5 @@ int main()
     putchar('\n');
     */
     //---------///
-
-    unsigned char ch[256] = {'5', '6', '0', '\0', '2', '6', '\0', '3', '\0'};
-    //ch[0] = '5'; ch[1] = '6'; ch[2] = '0'; ch[3] = '\0'; ch[4] = '2'; ch[5] = '6'; ch[6] = '\0'; ch[7] = '3', ch[8] = '\0';
-    //unsigned char * ptr_ch = ch;
-    //for (int i = 0; i < 8; i++) printf(" '%c'", ch[i]);
-    //printf(&ch[4]);
-
     return 0;
 }
