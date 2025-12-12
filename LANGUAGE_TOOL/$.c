@@ -20,16 +20,18 @@ typedef unsigned char uch;
 uch source_code_cdlr[0xFFFF] = "";
 uch grammar_form[0xFFF] = "";  // Форма грамматики
 /* - - */
+uch separator[] = "::";        // Разделитель шаблона
+/* - - */
 typedef struct {
     uch token[0xFF];
     uch productions_rule[0xFF];  // Правила продукции задаваемые/описываемые в DSL
 } GrammarForm;
-//uch node[0xFF] = "";   // Определение узла
-uch separator[] = "::";  // Разделитель шаблона
+/* - - */
 typedef struct {
     uch token[0xFF];
     uch productions_rule[0xFF];
 } LexicalAnalyzer;
+/* - - */
 typedef struct {
     uch * node[0xFF];
     uch productions_rule[0xFF];
