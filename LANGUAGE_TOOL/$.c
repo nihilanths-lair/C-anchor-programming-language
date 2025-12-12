@@ -42,7 +42,7 @@ uch * CompileForm(const uch * code, const uch * mode)
     if (!strcmp(mode, "DSL"))
     {
         int i = 0;
-        while ('@')
+        while (';')
         {
             if (code[i] == '\0')
             {
