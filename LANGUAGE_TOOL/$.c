@@ -10,36 +10,36 @@
     #5 High/Middle/Low-level intermediate representation
     #6 InterpreterIR
 /*/
-int i;
-int j;
+/* - - */
 FILE * handle;
-//-/
 /* - - */
 typedef char ch;
 typedef unsigned char uch;
 /* - - */
 // Load source code and grammar form
 uch source_code_cdlr[0xFFFF] = "";
-uch grammar_form[0xFFF] = ""; // Форма грамматики
+uch grammar_form[0xFFF] = "";  // Форма грамматики
 /* - - */
-uch         construction[0xFF] = "";    // Определение конструкции
-uch                separator[] = "::";  // Разделитель шаблона
-uch productions_rule_dsl[0xFF] = "";    // Правила продукции задаваемые/описываемые в DSL
-uch productions_rule_gpl[0xFF] = "";    // Правила продукции задаваемые/описываемые в GPL
+typedef struct {
+    uch token[0xFF];
+    uch productions_rule[0xFF];  // Правила продукции задаваемые/описываемые в DSL
+} GrammarForm;
+//uch node[0xFF] = "";   // Определение узла
+uch separator[] = "::";  // Разделитель шаблона
 typedef struct {
     uch token[0xFF];
     uch productions_rule[0xFF];
 } LexicalAnalyzer;
-void CompileForm(unsigned char * code, const char * mode)
+uch * CompileForm(const uch * code, const uch * mode)
 {
-    if (!strcmp(mode, "DSL")) 
+    if (!strcmp(mode, "DSL"))
     {
-        i = 0;
+        int i = 0;
         while ('@')
         {
             if (code[i] == '\0')
             {
-                printf("\nForm compilation completed."); // Компиляция формы завершена
+                printf("\nForm compilation completed."); // Компиляция формы завершена.
                 break;
             }
             // ... //
@@ -80,7 +80,7 @@ int main()
     fclose(handle);
     printf("\ngrammar_form =\n%s", grammar_form);
     //putchar('\n');
-    CompileForm(grammar_form, "DSL"); // Пока поверхностно
+    //CompileForm(grammar_form, "DSL"); // Пока поверхностно
     //compile_code(grammar_form, "GPL");
 
     handle = fopen("C$\\$.cdlr", "r");
@@ -118,7 +118,6 @@ int main()
 
     //addNewToken("Числовой_целочисленный_литерал", "563");
 
-    //run_code();
     //run_code();
     //printf("\nDSL | %s%s%s", construction, separator, product_rules_dsl);
     //printf("\nGPL | %s\n%s\n%s", construction, separator, product_rules_gpl);
