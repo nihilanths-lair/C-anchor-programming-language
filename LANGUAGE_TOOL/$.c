@@ -30,6 +30,11 @@ typedef struct {
     uch token[0xFF];
     uch productions_rule[0xFF];
 } LexicalAnalyzer;
+typedef struct {
+    uch * node[0xFF];
+    uch productions_rule[0xFF];
+} SyntacticAnalyzer;
+/* - - */
 uch * CompileForm(const uch * code, const uch * mode)
 {
     if (!strcmp(mode, "DSL"))
