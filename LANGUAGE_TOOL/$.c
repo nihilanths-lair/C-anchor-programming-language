@@ -2,75 +2,91 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "LexicalAnalyzer.h"   // #1 Лексический анализатор (Токенизатор) / Lexical analyzer (Tokenizer)
-#include "SyntacticAnalyzer.h" // #2 Синтаксический анализатор (Парсер) / Syntactic analyzer (Parser)
-#include "SemanticAnalyzer.h"  // #3 Семантический анализатор / Semantic analyzer
-#include "InterpreterAST.h"    // #4 Интерпретатор АСД / Interpreter AST
-
+//#include "LexicalAnalyzer.h"   // #1 Р›РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·Р°С‚РѕСЂ (РўРѕРєРµРЅРёР·Р°С‚РѕСЂ) / Lexical analyzer (Tokenizer)
+//#include "SyntacticAnalyzer.h" // #2 РЎРёРЅС‚Р°РєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·Р°С‚РѕСЂ (РџР°СЂСЃРµСЂ) / Syntactic analyzer (Parser)
+//#include "SemanticAnalyzer.h"  // #3 РЎРµРјР°РЅС‚РёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·Р°С‚РѕСЂ / Semantic analyzer
+//#include "InterpreterAST.h"    // #4 РРЅС‚РµСЂРїСЂРµС‚Р°С‚РѕСЂ РђРЎР” / Interpreter AST
 /*/
-    #5 High-level intermediate representation
-    #6 Middle-level intermediate representation
-    #7 Low-level intermediate representation
-
-    #8 InterpreterHIR
-    #9 InterpreterMIR
-    #10 InterpreterLIR
+    #5 High/Middle/Low-level intermediate representation
+    #6 InterpreterIR
 /*/
 int i;
 int j;
 FILE * handle;
 //-/
-unsigned char dp = 0;
-unsigned char storage[0xFF] = "";
-unsigned char bytecode[0xFF] = "";
-//-/
-void display_memory()
-{
-    i = 0;
-    do
-    {
-        if (i % 16 == 0) putchar('\n');
-        printf(" [%03d] = %03d,", i, storage[i]);
-    }
-    while (++i != 0xFF);
-    printf(" [%03d] = %03d.", i, storage[i]);
-}
-void compile_code(unsigned char * code, const char * mode)
+/* - - */
+typedef char ch;
+typedef unsigned char uch;
+/* - - */
+// Load source code and grammar form
+uch source_code_cdlr[0xFFFF] = "";
+uch grammar_form[0xFFF] = ""; // Р¤РѕСЂРјР° РіСЂР°РјРјР°С‚РёРєРё
+/* - - */
+uch         construction[0xFF] = "";    // РћРїСЂРµРґРµР»РµРЅРёРµ РєРѕРЅСЃС‚СЂСѓРєС†РёРё
+uch                separator[] = "::";  // Р Р°Р·РґРµР»РёС‚РµР»СЊ С€Р°Р±Р»РѕРЅР°
+uch productions_rule_dsl[0xFF] = "";    // РџСЂР°РІРёР»Р° РїСЂРѕРґСѓРєС†РёРё Р·Р°РґР°РІР°РµРјС‹Рµ/РѕРїРёСЃС‹РІР°РµРјС‹Рµ РІ DSL
+uch productions_rule_gpl[0xFF] = "";    // РџСЂР°РІРёР»Р° РїСЂРѕРґСѓРєС†РёРё Р·Р°РґР°РІР°РµРјС‹Рµ/РѕРїРёСЃС‹РІР°РµРјС‹Рµ РІ GPL
+typedef struct {
+    uch token[0xFF];
+    uch productions_rule[0xFF];
+} LexicalAnalyzer;
+void CompileForm(unsigned char * code, const char * mode)
 {
     if (!strcmp(mode, "DSL")) 
     {
-        printf("\nmode = 1");
+        i = 0;
+        while ('@')
+        {
+            if (code[i] == '\0')
+            {
+                printf("\nForm compilation completed."); // РљРѕРјРїРёР»СЏС†РёСЏ С„РѕСЂРјС‹ Р·Р°РІРµСЂС€РµРЅР°
+                break;
+            }
+            // ... //
+            // Р’СЃС‘ РѕСЃС‚Р°Р»СЊРЅРѕРµ
+            // ... //
+            i++;
+        }
     }
     else if (!strcmp(mode, "GPL"))
     {
-        printf("\nmode = 2");
+        // ... //
+        // Р’СЃС‘ РѕСЃС‚Р°Р»СЊРЅРѕРµ
+        // ... //
     }
 }
-void run_code(unsigned char * code)
+// Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІС‹Р№ С‚РѕРєРµРЅ
+void addNewToken(const ch * token, const ch * production_rule)
 {
-    printf("\ncode = %s", code);
-    static void *dispatch_table[] = {[0 ... 255] = &&op_invalid};
-    goto *dispatch_table[0];
-
-op_invalid:
-    printf("\nInvalid opcode.\n");
-    //goto end_program;
-
-end_program:
-    return;
+    printf("~ token = %s", token);
 }
-/*/-/*/
+// РџРѕР»СѓС‡РёС‚СЊ СЃР»РµРґ. С‚РѕРєРµРЅ
+char * GetNextToken(const ch * source_code)
+{
+
+}
+//@//
 int main()
 {
     setlocale(0, "");
 
-    //  Загрузка в память исходного кода C$ (целиком)
-    unsigned char source_code_cdlr[0xFFF] = "";
+    handle = fopen("C$\\$.form", "r");
+    if (handle == NULL)
+    {
+        printf(" Р”Р»СЏ РЅР°С‡Р°Р»Р° СЃРѕР·РґР°Р№С‚Рµ С„Р°Р№Р» `$.form`.");
+        return -1;
+    }
+    fread(grammar_form, sizeof (grammar_form), 1, handle);
+    fclose(handle);
+    printf("\ngrammar_form =\n%s", grammar_form);
+    //putchar('\n');
+    CompileForm(grammar_form, "DSL"); // РџРѕРєР° РїРѕРІРµСЂС…РЅРѕСЃС‚РЅРѕ
+    //compile_code(grammar_form, "GPL");
 
     handle = fopen("C$\\$.cdlr", "r");
     if (handle == NULL)
     {
-        printf(" Для начала создайте файл `$.cdlr`.");
+        printf(" Р”Р»СЏ РЅР°С‡Р°Р»Р° СЃРѕР·РґР°Р№С‚Рµ С„Р°Р№Р» `$.cdlr`.");
         return -1;
     }
     fread(source_code_cdlr, sizeof (source_code_cdlr), 1, handle);
@@ -93,46 +109,33 @@ int main()
     fclose(handle);
     /**/
     putchar('\n');
-    //  Загрузка в память правой части шаблона сопоставления (целиком)
-    unsigned char construction[0xFF] = "";      // Определение конструкции
-    unsigned char separator[0xF] = "";          // Разделитель шаблона
-    unsigned char product_rules_dsl[0xFF] = ""; // Правила продукции задаваемые/описываемые в DSL
 
-    unsigned char form[0xFFF] = "";
-    handle = fopen("C$\\$.form", "r");
-    if (handle == NULL)
+    LexicalAnalyzer lexical_analyzer[0xFF];
+    while ('\0')
     {
-        printf(" Для начала создайте файл `$.form`.");
-        return -1;
+        //lexical_analyzer[0].token = GetNextToken(source_code_cdlr);
     }
-    fread(form, sizeof (form), 1, handle);
-    fclose(handle);
-    printf("\nform =\n%s", form);
-    putchar('\n');
 
-    compile_code(product_rules_dsl, "DSL");
+    //addNewToken("Р§РёСЃР»РѕРІРѕР№_С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Р№_Р»РёС‚РµСЂР°Р»", "563");
+
     //run_code();
-    // Правила продукции задаваемые/описываемые в GPL (Применяемая модель: BF++)
-    unsigned char product_rules_gpl[0xFF];
-    compile_code(product_rules_gpl, "GPL");
     //run_code();
     //printf("\nDSL | %s%s%s", construction, separator, product_rules_dsl);
     //printf("\nGPL | %s\n%s\n%s", construction, separator, product_rules_gpl);
 
-    unsigned char * code = "Hello world!";
-    run_code(code);
+    //RunLexicalAnalysis(source_code_cdlr, " ");
     //putchar('\n');
 
     ///---------//
     /*
-    printf("\nSyntax analysis has begun."); // Начат синтаксический анализ.
+    printf("\nSyntax analysis has begun."); // РќР°С‡Р°С‚ СЃРёРЅС‚Р°РєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·.
     i = 0, j = 0;
     while (product_rules[i] != '\0' && source_code_cdlr[j] != '\0')
     {
         //source_code_cdlr[j]
         i++, j++;
     }
-    if (product_rules[i] == '\0' || source_code_cdlr[j] == '\0') printf("\nSyntax parsing completed."); // Синтаксический анализ завершен.
+    if (product_rules[i] == '\0' || source_code_cdlr[j] == '\0') printf("\nSyntax parsing completed."); // РЎРёРЅС‚Р°РєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Р·Р°РІРµСЂС€РµРЅ.
     putchar('\n');
     */
     //---------///
