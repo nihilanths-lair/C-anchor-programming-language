@@ -8,9 +8,13 @@ void parse_expr();
 void parse_stmt();
 void parse_block();
 void parse_if();
+void parse_while();
+void parse_for();
 void parse_func_def();
 void parse_call(const char * func_name);
+void parse_return();
 void parse_param_list();
+void parse_assign();
 
 enum TypeToken {
     T_IDENT,
@@ -28,8 +32,11 @@ enum TypeToken {
     T_LBRACE,  //    {
     T_RBRACE,  //    }
     T_COMMA,   //    ,
+    T_SEMICOLON, //    ;
 
     T_RETURN,  //(если хотим)
+    T_WHILE,
+    T_FOR,
     T_IF,
     T_ELSE     //(опционально)
 };
@@ -138,19 +145,49 @@ void parse_expr()
 // stmt → IDENT '=' expr
 void parse_stmt()
 {
+    if (tokens[pos].type == T_WHILE)
+    {
+        parse_while();
+        return;
+    }
+
+    if (tokens[pos].type == T_FOR)
+    {
+        parse_for();
+        return;
+    }
+
     if (tokens[pos].type == T_IF)
     {
         parse_if();
         return;
     }
 
-    // 1. Проверяем, что первый токен — идентификатор
-    if (tokens[pos].type != T_IDENT)
+    if (tokens[pos].type == T_RETURN)
     {
-        printf("Error: expected identifier in statement\n");
-        exit(1);
+        parse_return();
+        return;
     }
 
+    // блок { ... }
+    if (tokens[pos].type == T_LBRACE)
+    {
+        parse_block();
+        return;
+    }
+
+    // 1. Проверяем, что первый токен — идентификатор
+    // присваивание
+    if (tokens[pos].type == T_IDENT && tokens[pos+1].type == T_EQ)
+    {
+        parse_assign();
+        return;
+    }
+
+    // 3. Парсим выражение справа
+    // иначе — выражение (например вызов функции)
+    parse_expr();
+    /*
     // выводим имя переменной (позже — создадим узел AST)
     printf("STMT: ident %s\n", tokens[pos].text);
     pos++;
@@ -165,8 +202,8 @@ void parse_stmt()
     printf("STMT: '='\n");
     pos++;
 
-    // 3. Парсим выражение справа
     parse_expr();
+    */
 }
 
 // func_def → 'func' IDENT '(' param_list ')' block
@@ -335,6 +372,153 @@ void parse_if()
         printf("IF: else-branch\n");
         parse_stmt();
     }
+}
+
+// while_stmt → 'while' '(' expr ')' stmt
+void parse_while()
+{
+
+    if (tokens[pos].type != T_WHILE)
+    {
+        printf("Error: expected 'while'\n");
+        exit(1);
+    }
+    pos++;
+
+    if (tokens[pos].type != T_LPAREN)
+    {
+        printf("Error: expected '('\n");
+        exit(1);
+    }
+    pos++;
+
+    printf("WHILE: condition\n");
+    parse_expr();
+
+    if (tokens[pos].type != T_RPAREN)
+    {
+        printf("Error: expected ')'\n");
+        exit(1);
+    }
+    pos++;
+
+    printf("WHILE: body\n");
+    parse_stmt();
+}
+
+// assign → IDENT '=' expr
+// stmt   → assign | expr | block | if | ...
+void parse_assign()
+{
+    if (tokens[pos].type != T_IDENT)
+    {
+        printf("Error: expected identifier for assignment\n");
+        exit(1);
+    }
+
+    char * name = tokens[pos].text;
+    pos++;
+
+    if (tokens[pos].type != T_EQ)
+    {
+        printf("Error: expected '='\n");
+        exit(1);
+    }
+    pos++;
+    printf("ASSIGN: %s =\n", name);
+
+    // справа полноценное выражение
+    parse_expr();
+}
+
+// return_stmt → 'return' expr
+// stmt        → return_stmt | assign | expr | block | if | while ...
+void parse_return()
+{
+
+    if (tokens[pos].type != T_RETURN)
+    {
+        printf("Error: expected 'return'\n");
+        exit(1);
+    }
+    pos++;
+    printf("RETURN: \n");
+
+    // если хотите разрешить пустой return (как в Python), можно поставить проверку:
+    // if (tokens[pos].type == T_SEMICOLON || tokens[pos].type == T_RBRACE) return;
+
+    // а пока — обязательное выражение
+    parse_expr();
+}
+
+// for_stmt → 'for' '(' init ';' cond ';' step ')' stmt
+// init → stmt или expr или пусто
+// cond → expr или пусто
+// step → expr или пусто
+void parse_for()
+{
+
+    if (tokens[pos].type != T_FOR)
+    {
+        printf("Error: expected 'for'\n");
+        exit(1);
+    }
+    pos++;
+
+    if (tokens[pos].type != T_LPAREN)
+    {
+        printf("Error: expected '('\n");
+        exit(1);
+    }
+    pos++;
+
+    printf("FOR: init\n");
+
+    // ---- init ----
+
+    // пустой init? for (; ...
+    if (tokens[pos].type != T_SEMICOLON)
+    {
+        // init может быть присваиванием или выражением
+        parse_stmt();  // можно и parse_expr(), но stmt лучше
+    }
+
+    if (tokens[pos].type != T_SEMICOLON)
+    {
+        printf("Error: expected ';' after for-init\n");
+        exit(1);
+    }
+    pos++;
+
+    // ---- condition ----
+    printf("FOR: condition\n");
+
+    if (tokens[pos].type != T_SEMICOLON)
+    {
+        parse_expr();
+    }
+
+    if (tokens[pos].type != T_SEMICOLON)
+    {
+        printf("Error: expected ';' after for-condition\n");
+        exit(1);
+    }
+    pos++;
+
+    // ---- step ----
+    printf("FOR: step\n");
+
+    if (tokens[pos].type != T_RPAREN) parse_expr();
+    if (tokens[pos].type != T_RPAREN)
+    {
+        printf("Error: expected ')'\n");
+        exit(1);
+    }
+    pos++;
+
+    // ---- body ----
+    printf("FOR: body\n");
+    parse_stmt();
 }
 
 int main()
