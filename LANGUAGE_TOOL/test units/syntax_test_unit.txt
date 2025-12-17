@@ -1,0 +1,4 @@
+rule = IDENT ":" expr ";" ;
+expr = term ("|" term)* ;
+term = factor+ ;
+factor = IDENT | STRING | "(" expr ")" | "?" | "*" | "+" ;
