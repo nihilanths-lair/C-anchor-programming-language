@@ -11,13 +11,13 @@ enum TypeToken {
 };
 
 typedef struct {
-    const char * grammar;    // äàííûå
-    int cursor;              // ïîçèöèÿ â äàííûõ
+    const char * grammar;    // Ð´Ð°Ð½Ð½Ñ‹Ðµ
+    int cursor;              // Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð² Ð´Ð°Ð½Ð½Ñ‹Ñ…
 
-    char TypeToken;          // òèï òîêåíà
-    int vertical_position;   // ïîçèöèÿ â ñòðîêå
-    int horizontal_position; // ïîçèöèÿ â êîëîíêå
-    int position_in_file;    // ïîçèöèÿ â ôàéëå
+    char TypeToken;          // Ñ‚Ð¸Ð¿ Ñ‚Ð¾ÐºÐµÐ½Ð°
+    int vertical_position;   // Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð² ÑÑ‚Ñ€Ð¾ÐºÐµ
+    int horizontal_position; // Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð² ÐºÐ¾Ð»Ð¾Ð½ÐºÐµ
+    int position_in_file;    // Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð² Ñ„Ð°Ð¹Ð»Ðµ
 } Lexer;
 
 static inline char peek(Lexer * lexer) { return lexer->grammar[lexer->cursor]; }
@@ -32,16 +32,17 @@ static inline char advance(Lexer * lexer)
     else lexer->horizontal_position++;
     return c;
 }
+static inline void skip_whitespace() {}
 
 FILE * file = NULL;
-char grammar[1<<24] = ""; // âðåìåííî, ïîòîì çàìåíþ íà malloc ïðè íåîáõîäèìîñòè
+char grammar[1<<24] = ""; // Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾, Ð¿Ð¾Ñ‚Ð¾Ð¼ Ð·Ð°Ð¼ÐµÐ½ÑŽ Ð½Ð° malloc Ð¿Ñ€Ð¸ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ÑÑ‚Ð¸
 
 int main()
 {
     setlocale(0, "");
 
-    file = fopen("syntax_test_unit.txt", "rb"); // èëè r?
-    if (file == NULL) { printf("\nÂîçíèêëà îøèáêà ¹%d.\n", 1); return 1; } // Íå óäàëîñü îòêðûòü ôàéë, îäíà èç âîçìîæíûõ ïðè÷èí: îòñóòñòâèå ôàéëà.
+    file = fopen("syntax_test_unit.txt", "rb"); // Ð¸Ð»Ð¸ r?
+    if (file == NULL) { printf("\nÐ’Ð¾Ð·Ð½Ð¸ÐºÐ»Ð° Ð¾ÑˆÐ¸Ð±ÐºÐ° â„–%d.\n", 1); return 1; } // ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ñ„Ð°Ð¹Ð», Ð¾Ð´Ð½Ð° Ð¸Ð· Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹Ñ… Ð¿Ñ€Ð¸Ñ‡Ð¸Ð½: Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ðµ Ñ„Ð°Ð¹Ð»Ð°.
 
     fread(grammar, sizeof (grammar), 1, file);
     printf("grammar =\n<#\n%s\n#>", grammar);
@@ -49,6 +50,7 @@ int main()
     Lexer lexer;
     while ('@')
     {
+        //skip_whitespace();
         char c = peek(&lexer);
         if (isalpha(c) || c == '_') {} //return read_identifier();
         if (isdigit(c)) {} //return read_number();
