@@ -135,12 +135,6 @@ int main()
         }
         token = read_symbol(&lexer);//return read_symbol();
         printf("\nТокен: %.*s , тип токена: Символ.", token.length, token.grammar);
-        //if (c == '"') {} //return read_string();
-        //return read_symbol();
-        /*
-        printf("\nNEXT CHAR: '%c'", c);
-        advance(&lexer);
-        */
     }
     putchar('\n');
     return 0;
