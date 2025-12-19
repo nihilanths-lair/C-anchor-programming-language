@@ -46,7 +46,7 @@ static inline void advance(Lexer * lexer)
     if (c == '\n')
     {
         lexer->row_pos++;
-        lexer->col_pos = 0;
+        lexer->col_pos = 1;
         lexer->offset_pos++;
     }
     else
@@ -185,7 +185,7 @@ static inline void parse_rule()
     expect(TOKEN__IDENTIFIER); // имя правила
     if (!(current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == '~'))
     {
-        printf("\nExpected: ~");
+        printf("\nExpected '~' at %d:%d,%d.", current_token.row_pos, current_token.col_pos, current_token.offset_pos);
         printf("\n          ^");
         exit(1);
     }
@@ -193,7 +193,7 @@ static inline void parse_rule()
     parse_expr();
     if (!(current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == ';'))
     {
-        printf("\nExpected: ;");
+        printf("\nExpected ';' at %d:%d,%d.", current_token.row_pos, current_token.col_pos, current_token.offset_pos);
         printf("\n          ^");
         exit(1);
     }
@@ -214,10 +214,11 @@ int main()
     grammar[count] = '\0';
     printf("grammar =\n<#\n%s\n#>", grammar);
 
-    lexer.grammar = grammar;
-    lexer.cursor  = 0;
-    lexer.row_pos = 1;
-    lexer.col_pos = 0;
+    lexer.grammar    = grammar;
+    lexer.cursor     = 0;
+    lexer.row_pos    = 1;
+    lexer.col_pos    = 1;
+    lexer.offset_pos = 1;
 
     //Token token = next_token(&lexer);
     current_token = next_token(&lexer);
