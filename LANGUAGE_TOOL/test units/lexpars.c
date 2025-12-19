@@ -17,6 +17,7 @@ typedef struct {
     int cursor;
     int row_pos;
     int col_pos;
+    int offset_pos;
 } Lexer;
 Lexer lexer;
 
@@ -26,14 +27,17 @@ typedef struct {
     int length;
     int row_pos;
     int col_pos;
+    int offset_pos;
 } Token;
 // Текущий токен
 Token current_token;
 
+/*
 typedef struct Node {
     int dummy;
 } Node;
 Node * NODE_DUMMY;
+*/
 
 static inline char peek(Lexer * lexer) { return lexer->grammar[lexer->cursor]; }
 static inline void advance(Lexer * lexer)
@@ -43,8 +47,13 @@ static inline void advance(Lexer * lexer)
     {
         lexer->row_pos++;
         lexer->col_pos = 0;
+        lexer->offset_pos++;
     }
-    else lexer->col_pos++;
+    else
+    {
+        lexer->col_pos++;
+        lexer->offset_pos++;
+    }
     //return c;
 }
 static inline void skip_whitespace(Lexer * lexer)
@@ -64,9 +73,10 @@ static inline Token read_identifier(Lexer * lexer)
 {
     Token token;
     token.type_token = TOKEN__IDENTIFIER;
-    token.grammar = lexer->grammar + lexer->cursor;
-    token.row_pos = lexer->row_pos;
-    token.col_pos = lexer->col_pos;
+    token.grammar    = lexer->grammar + lexer->cursor;
+    token.row_pos    = lexer->row_pos;
+    token.col_pos    = lexer->col_pos;
+    token.offset_pos = lexer->offset_pos;
     advance(lexer); // первый символ уже гарантированно буква или '_'
     for (;;)
     {
@@ -84,6 +94,7 @@ static inline Token read_number(Lexer * lexer)
     token.grammar    = lexer->grammar + lexer->cursor;
     token.row_pos    = lexer->row_pos;
     token.col_pos    = lexer->col_pos;
+    token.offset_pos = lexer->offset_pos;
     while (isdigit(peek(lexer))) advance(lexer);
     token.length     = (lexer->grammar + lexer->cursor) - token.grammar;
     return token;
@@ -95,6 +106,7 @@ static inline Token read_symbol(Lexer * lexer)
     token.grammar    = lexer->grammar + lexer->cursor;
     token.row_pos    = lexer->row_pos;
     token.col_pos    = lexer->col_pos;
+    token.offset_pos = lexer->offset_pos;
     token.length     = 1;
     advance(lexer);
     return token;
@@ -113,6 +125,7 @@ static inline Token next_token(Lexer * lexer)
         token.length = 0;
         token.row_pos = lexer->row_pos;
         token.col_pos = lexer->col_pos;
+        token.offset_pos = lexer->offset_pos;
         return token;
     }
     if (isalpha(c) || c == '_') return read_identifier(lexer); //printf("\nТокен: %.*s , тип токена: Идентификатор.", token.length, token.grammar);
@@ -124,14 +137,44 @@ static inline void expect(TypeToken type_token)
 {
     if (current_token.type_token != type_token)
     {
-        printf("\nParse error at %d:%d\n", current_token.row_pos, current_token.col_pos);
+        printf("\nParse error at %d:%d,%d", current_token.row_pos, current_token.col_pos, current_token.offset_pos);
         exit(1);
     }
     current_token = next_token(&lexer);
 }
+static inline void parse_expr();
+static inline void parse_atom();
+
 static inline void parse_expr()
 {
-    expect(TOKEN__IDENTIFIER);
+    parse_atom();
+    while (current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == '/')
+    {
+        current_token = next_token(&lexer); // '/'
+        parse_atom();
+    }
+}
+static inline void parse_atom()
+{
+    if (current_token.type_token == TOKEN__IDENTIFIER)
+    {
+        current_token = next_token(&lexer);
+        return;
+    }
+    if (current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == '(')
+    {
+        current_token = next_token(&lexer); // '('
+        parse_expr();
+        if (!(current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == ')'))
+        {
+            printf("Expected ')'\n");
+            exit(1);
+        }
+        current_token = next_token(&lexer); // ')'
+        return;
+    }
+    printf("\nExpected atom at %d:%d,%d.", current_token.row_pos, current_token.col_pos, current_token.offset_pos);
+    exit(1);
 }
 /*
 static inline void parse_term(){}
@@ -140,10 +183,21 @@ static inline void parse_factor(){}
 static inline void parse_rule()
 {
     expect(TOKEN__IDENTIFIER); // имя правила
-    expect(TOKEN__SYMBOL);     // ':'
+    if (!(current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == '~'))
+    {
+        printf("\nExpected: ~");
+        printf("\n          ^");
+        exit(1);
+    }
+    current_token = next_token(&lexer);
     parse_expr();
-    //expect(TOKEN__IDENTIFIER); // имя выражения
-    expect(TOKEN__SYMBOL);     // ';'
+    if (!(current_token.type_token == TOKEN__SYMBOL && current_token.grammar[0] == ';'))
+    {
+        printf("\nExpected: ;");
+        printf("\n          ^");
+        exit(1);
+    }
+    current_token = next_token(&lexer);
 }
 
 FILE * file = NULL;
