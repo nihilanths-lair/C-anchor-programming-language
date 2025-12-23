@@ -21,15 +21,19 @@ int main(int argc, char * argv[])
 
     void * dispatcher[0xFF+1] = {
        [0] = &&_op_invalid,
-       [1] = &&_op_jump,
+       [1] = &&jump,
        [2] = &&_op_move,
        [3] = &&_op_inc, [4] = &&_op_dec,
        [5] = &&_op_add, [6] = &&_op_sub, [7] = &&_op_mul, [8] = &&_op_div,
-       [9 ... 0xFF] = &&_op_invalid
+       [9] = &&compare,
+       [10] = &&jump_if_not_zero,
+       [11] = &&call, [12] = &&push, [13] = &&pop, [14] = &&ret,
+       [15 ... 0xFF] = &&_op_invalid
     };
     goto * dispatcher[opcode[instruction_pointer]];
 
-_op_jump: printf("\nop_jump");
+/*/ START_OF_BLOCK /*/
+jump: printf("\nop_jump");
     goto * dispatcher[opcode[++instruction_pointer]];
 
 _op_move: printf("\nop_move"); // move [1], 0 / move *1, 0
@@ -52,16 +56,45 @@ _op_sub: printf("\nop_sub"); // sub [1], 1 / sub *1, 1
     memory[opcode[instruction_pointer-1]] -= opcode[instruction_pointer+=2];
     goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_mul: printf("\op_mul"); // mul [1], 1 / mul *1, 1
+_op_mul: printf("\nop_mul"); // mul [1], 1 / mul *1, 1
     memory[opcode[instruction_pointer-1]] *= opcode[instruction_pointer+=2];
     goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_div: printf("\op_div"); // div [1], 1 / div *1, 1
+_op_div: printf("\nop_div"); // div [1], 1 / div *1, 1
     memory[opcode[instruction_pointer-1]] /= opcode[instruction_pointer+=2];
     goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_invalid: printf("\nop_invalid");
+// Сравнивать
+compare:
+ printf("\ncompare"); // cmp [1], 1 / cmp *1, 1
+ if (memory[opcode[instruction_pointer-1]] == opcode[instruction_pointer+=2]) {}
+ goto * dispatcher[opcode[++instruction_pointer]];
 
+// Прыгни если не ноль
+jump_if_not_zero:
+ printf("\njump_if_not_zero");
+ return 0;
+// Вызов
+call:
+ printf("\ncall");
+ return 0;
+// Втолкнуть / положить на верхушку стека
+push:
+ printf("\npush");
+ return 0;
+// Вытолкнуть / снять с верхушки стека
+pop:
+ printf("\npop");
+ return 0;
+// Вернуться
+ret:
+ printf("\nret");
+ return 0;
+
+_op_invalid:
+ printf("\nop_invalid");
+ return 0;
+/*/ END_OF_BLOCK /*/
     putchar('\n');
     return 0;
 }
