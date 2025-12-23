@@ -20,49 +20,60 @@ int main(int argc, char * argv[])
     unsigned char memory[0xFF] = {0};
 
     void * dispatcher[0xFF+1] = {
-       [0] = &&_op_invalid,
+       [0] = &&invalid,
        [1] = &&jump,
-       [2] = &&_op_move,
-       [3] = &&_op_inc, [4] = &&_op_dec,
-       [5] = &&_op_add, [6] = &&_op_sub, [7] = &&_op_mul, [8] = &&_op_div,
+       [2] = &&move,
+       [3] = &&inc,
+       [4] = &&dec,
+       [5] = &&add,
+       [6] = &&sub,
+       [7] = &&mul,
+       [8] = &&div,
        [9] = &&compare,
        [10] = &&jump_if_not_zero,
        [11] = &&call, [12] = &&push, [13] = &&pop, [14] = &&ret,
-       [15 ... 0xFF] = &&_op_invalid
+       [15 ... 0xFF] = &&invalid
     };
     goto * dispatcher[opcode[instruction_pointer]];
-
 /*/ START_OF_BLOCK /*/
-jump: printf("\nop_jump");
-    goto * dispatcher[opcode[++instruction_pointer]];
+jump:
+ printf("\njump");
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_move: printf("\nop_move"); // move [1], 0 / move *1, 0
-    memory[opcode[instruction_pointer-1]] = opcode[instruction_pointer+=2];
-    goto * dispatcher[opcode[++instruction_pointer]];
+move:
+ printf("\nmove"); // move [1], 0 / move *1, 0
+ memory[opcode[instruction_pointer-1]] = opcode[instruction_pointer+=2];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_inc: printf("\nop_inc"); // inc [1] / inc *1
-    ++memory[opcode[++instruction_pointer]];
-    goto * dispatcher[opcode[++instruction_pointer]];
+inc:
+ printf("\ninc"); // inc [1] / inc *1
+ ++memory[opcode[++instruction_pointer]];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_dec: printf("\nop_dec"); // dec [1] / dec *1
-    --memory[opcode[++instruction_pointer]];
-    goto * dispatcher[opcode[++instruction_pointer]];
+dec:
+ printf("\ndec"); // dec [1] / dec *1
+ --memory[opcode[++instruction_pointer]];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_add: printf("\nop_add"); // add [1], 1 / add *1, 1
-    memory[opcode[instruction_pointer-1]] += opcode[instruction_pointer+=2];
-    goto * dispatcher[opcode[++instruction_pointer]];
+add:
+ printf("\nadd"); // add [1], 1 / add *1, 1
+ memory[opcode[instruction_pointer-1]] += opcode[instruction_pointer+=2];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_sub: printf("\nop_sub"); // sub [1], 1 / sub *1, 1
-    memory[opcode[instruction_pointer-1]] -= opcode[instruction_pointer+=2];
-    goto * dispatcher[opcode[++instruction_pointer]];
+sub:
+ printf("\nsub"); // sub [1], 1 / sub *1, 1
+ memory[opcode[instruction_pointer-1]] -= opcode[instruction_pointer+=2];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_mul: printf("\nop_mul"); // mul [1], 1 / mul *1, 1
-    memory[opcode[instruction_pointer-1]] *= opcode[instruction_pointer+=2];
-    goto * dispatcher[opcode[++instruction_pointer]];
+mul:
+ printf("\nmul"); // mul [1], 1 / mul *1, 1
+ memory[opcode[instruction_pointer-1]] *= opcode[instruction_pointer+=2];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
-_op_div: printf("\nop_div"); // div [1], 1 / div *1, 1
-    memory[opcode[instruction_pointer-1]] /= opcode[instruction_pointer+=2];
-    goto * dispatcher[opcode[++instruction_pointer]];
+div:
+ printf("\ndiv"); // div [1], 1 / div *1, 1
+ memory[opcode[instruction_pointer-1]] /= opcode[instruction_pointer+=2];
+ goto * dispatcher[opcode[++instruction_pointer]];
 
 // Сравнивать
 compare:
@@ -91,8 +102,8 @@ ret:
  printf("\nret");
  return 0;
 
-_op_invalid:
- printf("\nop_invalid");
+invalid:
+ printf("\ninvalid");
  return 0;
 /*/ END_OF_BLOCK /*/
     putchar('\n');
