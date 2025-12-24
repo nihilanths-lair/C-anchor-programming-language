@@ -6,18 +6,18 @@ _()
     printf("\nswitch-case");
     i = 3;
     switch (i){
-    case 1: printf("\n1"); // break;
-    case 2: printf("\n2"); // break;
-    case 3: printf("\n3"); // break;
-    case 4: printf("\n4"); // break;
-    default: printf("\n0 || 5 .. max");
+     case 1: printf("\n1"); // break;
+     case 2: printf("\n2"); // break;
+     case 3: printf("\n3"); // break;
+     case 4: printf("\n4"); // break;
+     default: printf("\n0 || 5 .. max");
     }
     
     printf("\n\nwhile");
     i = 3;
     while (i <= 4){
-        printf("\n%d", i);
-        i++;
+     printf("\n%d", i);
+     i++;
     }
     printf("\n0 || 5 .. max");
 
