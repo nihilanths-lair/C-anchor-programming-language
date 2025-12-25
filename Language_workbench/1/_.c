@@ -1,17 +1,15 @@
+/** [Path: Language_workbench/1/_.c] **/
+
 #include <stdio.h>
 #include <locale.h>
 
-/*/ |№1| /*/ void compile(const char *code);
-/*/ |№2| /*/ void execute(const char *code);
-/*/ |№3| /*/ void parse(const char *code);
-/*/ |№4| /*/ void analysis(const char *code);
-/*/ |№5| /*/ void synthesis(const char *code);
+#include "_.h"
 
 int main()
 {
    setlocale(0, "");
 
-   analysis("code...");
+   parse_analysis("code...");
    //synthesis();
    //parse("code...");
    //compile("code...");
@@ -33,10 +31,10 @@ void parse(const char *code)
    //analysis();
    //synthesis();
 }
-void analysis(const char *code)
+void parse_analysis(const char *code)
 {
    //synthesis();
 }
-void synthesis(const char *code)
+void parse_synthesis(const char *code)
 {
 }
