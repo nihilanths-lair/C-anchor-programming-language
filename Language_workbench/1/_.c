@@ -4,15 +4,16 @@
 /*/ |№1| /*/ void compile(const char *code);
 /*/ |№2| /*/ void execute();
 /*/ |№3| /*/ void parse(const char *code);
-/*/ |№4| /*/ void analysis();
+/*/ |№4| /*/ void analysis(const char *code);
 /*/ |№5| /*/ void synthesis();
 
 int main()
 {
    setlocale(0, "");
 
+   analysis("code...");
    //parse("code...");
-   compile("code...");
+   //compile("code...");
    //execute();
 
    return 0;
@@ -20,17 +21,18 @@ int main()
 
 void compile(const char *code)
 {
-   parse(code);
+   //parse(code);
 }
 void execute()
 {
+   //parse(code);
 }
 void parse(const char *code)
 {
-   analysis();
-   synthesis();
+   //analysis();
+   //synthesis();
 }
-void analysis()
+void analysis(const char *code)
 {
 }
 void synthesis()
