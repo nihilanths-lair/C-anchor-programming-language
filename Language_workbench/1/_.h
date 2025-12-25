@@ -27,4 +27,4 @@ void semantic_analyzer(const char *data) { return; }
 void semantic_synthesizer(const char *data) { return; }
 
 // Intermediate_representation.h (опционально) //
-/*/ |№:5-1| {?} /*/
+/*/ |№:5-1| /*/ // {?}
