@@ -5,13 +5,14 @@
 /*/ |№2| /*/ void execute(const char *code);
 /*/ |№3| /*/ void parse(const char *code);
 /*/ |№4| /*/ void analysis(const char *code);
-/*/ |№5| /*/ void synthesis();
+/*/ |№5| /*/ void synthesis(const char *code);
 
 int main()
 {
    setlocale(0, "");
 
    analysis("code...");
+   //synthesis();
    //parse("code...");
    //compile("code...");
    //execute();
@@ -34,7 +35,8 @@ void parse(const char *code)
 }
 void analysis(const char *code)
 {
+   //synthesis();
 }
-void synthesis()
+void synthesis(const char *code)
 {
 }
