@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <locale.h>
 
-/*/ |¹1| /*/ void compile(const char *code);
-/*/ |¹2| /*/ void parse(const char *code);
-/*/ |¹3| /*/ void analysis();
-/*/ |¹4| /*/ void synthesis();
+/*/ |â„–1| /*/ void compile(const char *code);
+/*/ |â„–2| /*/ void execute();
+/*/ |â„–3| /*/ void parse(const char *code);
+/*/ |â„–4| /*/ void analysis();
+/*/ |â„–5| /*/ void synthesis();
 
 int main()
 {
@@ -12,6 +13,7 @@ int main()
 
    //parse("code...");
    compile("code...");
+   //execute();
 
    return 0;
 }
@@ -20,9 +22,13 @@ void compile(const char *code)
 {
    parse(code);
 }
+void execute()
+{
+}
 void parse(const char *code)
 {
-   printf(code);
+   analysis();
+   synthesis();
 }
 void analysis()
 {
