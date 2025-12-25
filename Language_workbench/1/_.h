@@ -17,7 +17,7 @@ void lexical_synthesizer(const char *data) { return; }
 void syntactic_analyzer(const char *data) { return; }
 void syntactic_synthesizer(const char *data) { return; }
 
-/*/ |№:3-3| /*/ //void parse(const char *code);
+/*/ |№:3-3| /*/ // void parse(const char *code);
 
 // Semantic.h //
 /*/ |№:4-1| /*/ void semantic_analyzer(const char *data);
