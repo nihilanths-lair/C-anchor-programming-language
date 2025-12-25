@@ -2,7 +2,7 @@
 #include <locale.h>
 
 /*/ |№1| /*/ void compile(const char *code);
-/*/ |№2| /*/ void execute();
+/*/ |№2| /*/ void execute(const char *code);
 /*/ |№3| /*/ void parse(const char *code);
 /*/ |№4| /*/ void analysis(const char *code);
 /*/ |№5| /*/ void synthesis();
@@ -23,7 +23,7 @@ void compile(const char *code)
 {
    //parse(code);
 }
-void execute()
+void execute(const char *code)
 {
    //parse(code);
 }
