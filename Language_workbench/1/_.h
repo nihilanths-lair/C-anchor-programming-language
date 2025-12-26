@@ -12,15 +12,17 @@
 **    (Яркий пример — работа препроцессора языка С и производных от него.) Так, в зависимости от значения некой константы,
 **    транслятор заданную часть транслируемого исходного текста программы транслирует или пропускает (игнорирует).
 */
-
+// Представление в памяти
 unsigned char json[1<<24];
 
-/*/ |№:0-1| /*/ void json_encode();
-/*/ |№:0-2| /*/ void json_decode();
+/*/ |№:0-1| /*/ char *json_encode(const char *json);
+/*/ |№:0-2| /*/ void json_decode(const char *str);
 /*/ |№:0-1| /*/
-void json_encode() { return; }
+// Возвращает строку в формате JSON
+char *json_encode(const char *json) { return "{}"; }
 /*/ |№:0-2| /*/
-void json_decode() { return; }
+// Преобразует строку в формате JSON в значение C
+void json_decode(const char *str) { return; }
 
 /*/ |№:1-1| /*/ //void compile(const char *code);
 /*/ |№:1-2| /*/ //void execute(const char *code);
@@ -47,8 +49,10 @@ void synthesizer() { return; }
 /*/ |№:4-1| /*/ void syntactic_analyzer(const char *data);
 /*/ |№:4-2| /*/ void syntactic_synthesizer();
 
-/*/ |№:4-1| /*/ void syntactic_analyzer(const char *data) { return; }
-/*/ |№:4-2| /*/ void syntactic_synthesizer() { return; }
+/*/ |№:4-1| /*/
+void syntactic_analyzer(const char *data) { return; }
+/*/ |№:4-2| /*/
+void syntactic_synthesizer() { return; }
 
 // semantic.h //
 /*/ |№:5-1| /*/ void semantic_analyzer();
