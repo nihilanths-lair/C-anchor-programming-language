@@ -10,11 +10,17 @@
 int main(int argc, char *argv[])
 {
    setlocale(0, "");
-   putchar('\n');
+   //putchar('\n');
 
+   char source_code[] = "5 + 6";
+   syntactic_analyzer(source_code);
    code_generator(ABSTRACT_COMPUTING_MACHINE, "_.bin", "5 + 6");
 
-   // Интерпретатор грамматики
+   
+   //putchar('\n');
+   return 0;
+}
+// Интерпретатор грамматики
    //char byte_code[] = {'^', '\0'};
    //parse_string("x = 8", "Идентификатор = Число"); // Спецификация
    //code_constructor();
@@ -47,6 +53,3 @@ int main(int argc, char *argv[])
    
    free(lang);
 */
-   putchar('\n');
-   return 0;
-}
