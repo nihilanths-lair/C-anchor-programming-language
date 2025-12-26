@@ -1,13 +1,10 @@
 /** [Path: Language_workbench/1/_.h] **/
 
-/*/ |№:1-1| /*/ char *code_constructor(const char *block_name_definition);
-/*/ |№:1-2| /*/ void code_destructor();
+/*/ |№:1-1| /*/ //void compile(const char *code);
+/*/ |№:1-2| /*/ //void execute(const char *code);
 
-/*/ |№:1-1| /*/ char *code_constructor(const char *block_name_definition) { return "^"; }
-/*/ |№:1-2| /*/ void code_destructor() { return; }
-
-/*/ |№:1-3| /*/ //void compile(const char *code);
-/*/ |№:1-4| /*/ //void execute(const char *code);
+//void compile(const char *code) { return; }
+//void execute(const char *code) { return; }
 
 /*/ |№:2-1| /*/ void analyzer(const char *data, const char *mapping_table);
 /*/ |№:2-2| /*/ void synthesizer();
@@ -70,3 +67,8 @@ char code_generator(const char back_end, const char *file_name, const char *data
    fclose(file);
    return 0;
 }
+/*/ |№:0-1| /*/ char *code_constructor(const char *block_name_definition);
+/*/ |№:0-2| /*/ void code_destructor();
+
+/*/ |№:0-1| /*/ char *code_constructor(const char *block_name_definition) { return "^"; }
+/*/ |№:0-2| /*/ void code_destructor() { return; }
