@@ -36,10 +36,12 @@ void analyzer(const char *data, const char *mapping_table) { return; }
 /*/ |№:2-2| /*/
 void synthesizer() { return; }
 
-// tokenizer.h (опционально)
+//---------------------------//
+// tokenizer.h (опционально) //
+//---------------------------//
 /*/ |№:3-1| /*/ void lexical_analyzer();
 /*/ |№:3-2| /*/ void lexical_synthesizer();
-
+//
 /*/ |№:3-1| /*/ void lexical_analyzer() { return; }
 /*/ |№:3-2| /*/ void lexical_synthesizer() { return; }
 
@@ -69,20 +71,28 @@ void semantic_analyzer() { return; }
 /*/ |№:5-2| /*/
 void semantic_synthesizer() { return; }
 
+//---------------------------------------------//
 // intermediate_representation.h (опционально) //
+//---------------------------------------------//
 /*/ |№:6-1| /*/ // {?}
 
-// code_optimizer.h
+//------------------//
+// code_optimizer.h //
+//------------------//
 /*/ |№:7-1| /*/ void code_optimizer();
-/*/ |№:7-2| /*/ void code_optimizer() { return; }
+//
+/*/ |№:7-2| /*/
+void code_optimizer() { return; }
 
-// code_generator.h
-/*/ |№:8-1| /*/
-
+//------------------//
+// code_generator.h //
+//------------------//
 #define MACHINE_CODE_X86 0x00
 #define ABSTRACT_COMPUTING_MACHINE 0x01
 
-char code_generator(const char back_end, const char *file_name, const char *data);
+/*/ |№:8-1| /*/ char code_generator(const char back_end, const char *file_name, const char *data);
+//
+/*/ |№:8-1| /*/
 char code_generator(const char back_end, const char *file_name, const char *data)
 { 
    FILE *file = fopen(file_name, "wb");
