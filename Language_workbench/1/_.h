@@ -87,10 +87,12 @@ void code_optimizer() { return; }
 //------------------//
 // code_generator.h //
 //------------------//
-#define C 0x01
-#define MACHINE_CODE_X86 0x02
-#define ABSTRACT_COMPUTING_MACHINE 0x03
-
+enum {
+   C,
+   EASM,
+   MACHINE_CODE_X86,
+   ABSTRACT_COMPUTING_MACHINE
+};
 /*/ |№:8-1| /*/ char code_generator(const char back_end, const char *file_name, const char *data);
 //
 /*/ |№:8-1| /*/
@@ -102,17 +104,17 @@ char code_generator(const char back_end, const char *file_name, const char *data
    switch (back_end){
    case C:
    {
-      printf("\n/-> C");
+      printf("\n/-> C.");
    }
    break;
    case MACHINE_CODE_X86:
    {
-      printf("\n/-> MACHINE_CODE_X86");
+      printf("\n/-> MACHINE_CODE_X86.");
    }
    break;
    case ABSTRACT_COMPUTING_MACHINE:
    {
-      printf("\n/-> ABSTRACT_COMPUTING_MACHINE");
+      printf("\n/-> ABSTRACT_COMPUTING_MACHINE.");
    }
    break;}
 
