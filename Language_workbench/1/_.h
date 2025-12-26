@@ -13,6 +13,15 @@
 **    транслятор заданную часть транслируемого исходного текста программы транслирует или пропускает (игнорирует).
 */
 
+unsigned char json[1<<24];
+
+/*/ |№:0-1| /*/ void json_encode();
+/*/ |№:0-2| /*/ void json_decode();
+/*/ |№:0-1| /*/
+void json_encode() { return; }
+/*/ |№:0-2| /*/
+void json_decode() { return; }
+
 /*/ |№:1-1| /*/ //void compile(const char *code);
 /*/ |№:1-2| /*/ //void execute(const char *code);
 
@@ -22,8 +31,10 @@
 /*/ |№:2-1| /*/ void analyzer(const char *data, const char *mapping_table);
 /*/ |№:2-2| /*/ void synthesizer();
 
-/*/ |№:2-1| /*/ void analyzer(const char *data, const char *mapping_table) { return; }
-/*/ |№:2-2| /*/ void synthesizer() { return; }
+/*/ |№:2-1| /*/
+void analyzer(const char *data, const char *mapping_table) { return; }
+/*/ |№:2-2| /*/
+void synthesizer() { return; }
 
 // tokenizer.h (опционально)
 /*/ |№:3-1| /*/ void lexical_analyzer();

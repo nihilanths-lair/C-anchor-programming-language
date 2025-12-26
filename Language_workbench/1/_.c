@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
    char source_code[] = "5 + 6";
    syntactic_analyzer(source_code);
-   code_generator(ABSTRACT_COMPUTING_MACHINE, "_.bin", "5 + 6");
+   code_generator(ABSTRACT_COMPUTING_MACHINE, "_.bin", "^");
 
    
    //putchar('\n');
