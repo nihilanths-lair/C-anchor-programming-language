@@ -122,6 +122,7 @@ char code_generator(const char back_end, const char *file_name, const char *data
       printf("\n/-> ASSEMBLER_ABSTRACT_MACHINE.");
    } }
 
+   putchar('\n');
    fclose(file);
    return 0;
 }
