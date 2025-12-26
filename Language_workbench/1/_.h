@@ -44,16 +44,26 @@
 /*/ |№:7-2| /*/ void code_optimizer() { return; }
 
 // code_generator.h
-/*/ |№:8-1| /*/ void code_generator(const char *back_end);
-void code_generator(const char *back_end)
-{
-   if (!strcmp(back_end, "vm_c$")) goto _1;
-   if (!strcmp(back_end, "x86")) goto _2;
-   goto _0;
-_1:
-   goto _0;
-_2:
-   goto _0;
-_0:
-   return;
+#define MACHINE_CODE_X86 0x00
+#define ABSTRACT_COMPUTING_MACHINE 0x01
+/*/ |№:8-1| /*/ char code_generator(const char back_end, const char *output_file, const char *data);
+char code_generator(const char back_end, const char *output_file, const char *data)
+{ 
+   FILE *file = fopen(output_file, "wb");
+   if (file == NULL) return 0x01;
+
+   switch (back_end){
+   case MACHINE_CODE_X86:
+   {
+      
+   }
+   break;
+   case ABSTRACT_COMPUTING_MACHINE:
+   {
+
+   }
+   break;}
+
+   fclose(file);
+   return 0;
 }

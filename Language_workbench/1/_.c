@@ -12,6 +12,8 @@ int main(int argc, char *argv[])
    setlocale(0, "");
    putchar('\n');
 
+   code_generator(ABSTRACT_COMPUTING_MACHINE, "_.bin", "5 + 6");
+
    // Интерпретатор грамматики
    //char byte_code[] = {'^', '\0'};
    //parse_string("x = 8", "Идентификатор = Число"); // Спецификация
