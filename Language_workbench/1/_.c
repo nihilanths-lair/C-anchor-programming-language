@@ -10,10 +10,12 @@
 int main(int argc, char *argv[])
 {
    setlocale(0, "");
+   putchar('\n');
 
-   analyzer("x = 8;", ""); // спецификация
-   code_constructor();
-   code_destructor();
+   // РРЅС‚РµСЂРїСЂРµС‚Р°С‚РѕСЂ РіСЂР°РјРјР°С‚РёРєРё
+   //char byte_code[] = {'^', '\0'};
+   //parse_string("x = 8", "РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ = Р§РёСЃР»Рѕ"); // РЎРїРµС†РёС„РёРєР°С†РёСЏ
+   //code_constructor();
 /*
    if (strcmp(argv[0], "meta_compiler.exe")) return -1;
 
@@ -24,7 +26,7 @@ int main(int argc, char *argv[])
    long fsize = ftell(file);
    printf("\nfsize = %ld", fsize);
    
-   // Выделяем память с запасом для нулевого терминатора
+   // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ СЃ Р·Р°РїР°СЃРѕРј РґР»СЏ РЅСѓР»РµРІРѕРіРѕ С‚РµСЂРјРёРЅР°С‚РѕСЂР°
    char *lang = malloc(fsize + 1);
    if (lang == NULL)
    {
@@ -33,10 +35,10 @@ int main(int argc, char *argv[])
    }
    
    fseek(file, 0, SEEK_SET);
-   size_t count_symbols = fread(lang, 1, fsize, file); // Читаем fsize байт
+   size_t count_symbols = fread(lang, 1, fsize, file); // Р§РёС‚Р°РµРј fsize Р±Р°Р№С‚
    fclose(file);
    
-   lang[count_symbols] = '\0'; // Корректно завершаем строку
+   lang[count_symbols] = '\0'; // РљРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РІРµСЂС€Р°РµРј СЃС‚СЂРѕРєСѓ
    
    printf("\ncount_symbols = %zu", count_symbols);
    printf("\nlang:\n%s", lang);
