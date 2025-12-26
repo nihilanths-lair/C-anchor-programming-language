@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
    syntactic_analyzer("5 + 6");  // Разбирает синтаксис
    //syntactic_synthesizer();      // Воспроизводит  AST
-   code_generator(CODE_ABSTRACT_MACHINE, "_", "^");
+   code_generator(ASSEMBLER_ABSTRACT_MACHINE, "_", "+ 5 6");
 
    //putchar('\n');
    return 0;

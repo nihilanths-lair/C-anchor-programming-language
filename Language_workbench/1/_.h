@@ -127,6 +127,8 @@ char code_generator(const char back_end, const char *file_name, const char *data
       file = fopen(_file_name, "wb");
       if (file == NULL) return 0x01;
 
+      fwrite(data, 1, sizeof (data)-1, file);
+
    } break;
    case ASSEMBLER_ABSTRACT_MACHINE:
    {
@@ -135,6 +137,8 @@ char code_generator(const char back_end, const char *file_name, const char *data
       strcat(_file_name, ".asm");
       file = fopen(_file_name, "wb");
       if (file == NULL) return 0x01;
+
+      fwrite(data, 1, sizeof (data)-1, file);
 
    } }
 
