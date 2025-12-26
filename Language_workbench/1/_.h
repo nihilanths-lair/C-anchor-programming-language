@@ -64,8 +64,8 @@ void syntactic_synthesizer() { return; }
 /*/ |№:5-1| /*/ void semantic_validator();
 /*/ |№:5-1| /*/ void semantic_analyzer();
 /*/ |№:5-2| /*/ void semantic_synthesizer();
-
-/*/ |№:5-1| /*/ 
+//
+/*/ |№:5-1| /*/
 void semantic_validator() { return; }
 void semantic_analyzer() { return; }
 /*/ |№:5-2| /*/
