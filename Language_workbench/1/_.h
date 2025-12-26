@@ -101,12 +101,12 @@ char code_generator(const char back_end, const char *file_name, const char *data
    switch (back_end){
    case MACHINE_CODE_X86:
    {
-      printf("\n/-> MACHINE_CODE_X86");
+      printf("\n//-> MACHINE_CODE_X86");
    }
    break;
    case ABSTRACT_COMPUTING_MACHINE:
    {
-      printf("\n/-> ABSTRACT_COMPUTING_MACHINE");
+      printf("\n//-> ABSTRACT_COMPUTING_MACHINE");
    }
    break;}
 
