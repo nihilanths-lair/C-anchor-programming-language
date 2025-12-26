@@ -8,9 +8,7 @@
 **   Построчная.
 **    Машинный код порождается и затем исполняется для каждой завершённой грамматической конструкции языка. Внешне воспринимается как интерпретация, но имеет иное устройство.
 **   Условная.
-**    На фазе трансляции результат трансляции зависит от условий, прописанных в исходном транслируемом тексте программы директивами компилятора.
-**    (Яркий пример — работа препроцессора языка С и производных от него.) Так, в зависимости от значения некой константы,
-**    транслятор заданную часть транслируемого исходного текста программы транслирует или пропускает (игнорирует).
+**    -
 */
 // Представление в памяти
 unsigned char json[1<<24];
@@ -45,21 +43,31 @@ void synthesizer() { return; }
 /*/ |№:3-1| /*/ void lexical_analyzer() { return; }
 /*/ |№:3-2| /*/ void lexical_synthesizer() { return; }
 
+//----------//
 // parser.h //
+//----------//
+/*/ |№:4-1| /*/ void syntax_validator();
 /*/ |№:4-1| /*/ void syntactic_analyzer(const char *data);
 /*/ |№:4-2| /*/ void syntactic_synthesizer();
-
+//
 /*/ |№:4-1| /*/
+void syntax_validator() { return; }
 void syntactic_analyzer(const char *data) { return; }
 /*/ |№:4-2| /*/
 void syntactic_synthesizer() { return; }
 
+//------------//
 // semantic.h //
+//------------//
+/*/ |№:5-1| /*/ void semantic_validator();
 /*/ |№:5-1| /*/ void semantic_analyzer();
 /*/ |№:5-2| /*/ void semantic_synthesizer();
 
-/*/ |№:5-1| /*/ void semantic_analyzer() { return; }
-/*/ |№:5-2| /*/ void semantic_synthesizer() { return; }
+/*/ |№:5-1| /*/ 
+void semantic_validator() { return; }
+void semantic_analyzer() { return; }
+/*/ |№:5-2| /*/
+void semantic_synthesizer() { return; }
 
 // intermediate_representation.h (опционально) //
 /*/ |№:6-1| /*/ // {?}

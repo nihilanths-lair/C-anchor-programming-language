@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
    //syntactic_synthesizer();      // Воспроизводит  AST
    //code_generator(ABSTRACT_COMPUTING_MACHINE, "_.bin", "^");
 
-   
+
    //putchar('\n');
    return 0;
 }
