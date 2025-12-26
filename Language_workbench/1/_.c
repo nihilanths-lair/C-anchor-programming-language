@@ -11,6 +11,10 @@ int main(int argc, char *argv[])
 {
    setlocale(0, "");
 
+   analyzer("x = 8;", ""); // спецификация
+   code_constructor();
+   code_destructor();
+/*
    if (strcmp(argv[0], "meta_compiler.exe")) return -1;
 
    FILE *file = fopen(argv[1], "rb");
@@ -38,6 +42,7 @@ int main(int argc, char *argv[])
    printf("\nlang:\n%s", lang);
    
    free(lang);
+*/
    putchar('\n');
    return 0;
 }
