@@ -96,14 +96,20 @@ enum PROGRAMMING_LANGUAGE
 //
 /*/ |№:8-1| /*/
 char code_generator(const char back_end, const char *file_name, const char *data)
-{ 
-   FILE *file = fopen(file_name, "wb");
-   if (file == NULL) return 0x01;
-
+{
+   FILE *file;
+   char _file_name[128];
+   strcpy(_file_name, file_name);
+   
    switch (back_end){
    case C:
    {
       printf("\n/-> C.");
+
+      strcat(_file_name, ".c");
+      file = fopen(_file_name, "wb");
+      if (file == NULL) return 0x01;
+
    } break;
    case MACHINE_CODE_X86:
    {
@@ -116,10 +122,20 @@ char code_generator(const char back_end, const char *file_name, const char *data
    case CODE_ABSTRACT_MACHINE:
    {
       printf("\n/-> CODE_ABSTRACT_MACHINE.");
+
+      strcat(_file_name, ".bin");
+      file = fopen(_file_name, "wb");
+      if (file == NULL) return 0x01;
+
    } break;
    case ASSEMBLER_ABSTRACT_MACHINE:
    {
       printf("\n/-> ASSEMBLER_ABSTRACT_MACHINE.");
+
+      strcat(_file_name, ".asm");
+      file = fopen(_file_name, "wb");
+      if (file == NULL) return 0x01;
+
    } }
 
    putchar('\n');

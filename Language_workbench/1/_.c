@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
 
    syntactic_analyzer("5 + 6");  // Разбирает синтаксис
    //syntactic_synthesizer();      // Воспроизводит  AST
-   code_generator(CODE_ABSTRACT_MACHINE, "_.bin", "^");
-
+   code_generator(CODE_ABSTRACT_MACHINE, "_", "^");
 
    //putchar('\n');
    return 0;
