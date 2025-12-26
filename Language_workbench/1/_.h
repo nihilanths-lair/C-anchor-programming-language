@@ -91,7 +91,7 @@ enum {
    C,
    EASM,
    MACHINE_CODE_X86,
-   ABSTRACT_COMPUTING_MACHINE
+   BYTE_CODE_ABSTRACT_COMPUTING_MACHINE
 };
 /*/ |№:8-1| /*/ char code_generator(const char back_end, const char *file_name, const char *data);
 //
@@ -112,9 +112,9 @@ char code_generator(const char back_end, const char *file_name, const char *data
       printf("\n/-> MACHINE_CODE_X86.");
    }
    break;
-   case ABSTRACT_COMPUTING_MACHINE:
+   case BYTE_CODE_ABSTRACT_COMPUTING_MACHINE:
    {
-      printf("\n/-> ABSTRACT_COMPUTING_MACHINE.");
+      printf("\n/-> BYTE_CODE_ABSTRACT_COMPUTING_MACHINE.");
    }
    break;}
 
