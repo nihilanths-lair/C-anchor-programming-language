@@ -44,39 +44,16 @@
 /*/ |№:7-2| /*/ void code_optimizer() { return; }
 
 // code_generator.h
-/*/ |№:8-1| /*/ void code_generator();
-/*/ |№:8-2| /*/ void code_generator() { return; }
-
-/*/ |№:2-3| /*/ void parse_string(const char *data, const char *mapping_table)
+/*/ |№:8-1| /*/ void code_generator(const char *back_end);
+void code_generator(const char *back_end)
 {
-   unsigned char ptr__data = 0;
+   if (!strcmp(back_end, "vm_c$")) goto _1;
+   if (!strcmp(back_end, "x86")) goto _2;
+   goto _0;
 _1:
-   switch (data[ptr__data]){
-      case '\0': goto _2;
-   }
-   printf("%c", data[ptr__data]);
-   ptr__data++;
-   goto _1;
+   goto _0;
 _2:
-   printf(" | ");
-   unsigned char ptr__mapping_table = 0;
-_3:
-   switch (mapping_table[ptr__mapping_table]){
-      case '\0': goto _4;
-   }
-   printf("%c", mapping_table[ptr__mapping_table]);
-   ptr__mapping_table++;
-   goto _3;
-_4:
-   putchar('\n');
-   ptr__data = 0;
-_5:
-   putchar('^');
-_6:
-   printf(" | ");
-   ptr__mapping_table = 0;
-_7:
-   putchar('^');
-_8:
+   goto _0;
+_0:
    return;
 }
