@@ -1,30 +1,38 @@
 /** [Path: Language_workbench/1/_.h] **/
 
-/*/ |‚Ññ:1-1| /*/ //void compile(const char *code);
-/*/ |‚Ññ:1-2| /*/ //void execute(const char *code);
+/*/ |π:1-1| /*/ void analyzer(const char *data, const char *mapping_table);
+/*/ |π:1-2| /*/ void synthesizer(const char *data);
 
-// Tokenizer.h (–æ–ø—Ü–∏–æ–Ω–∞–ª—å–Ω–æ)
-/*/ |‚Ññ:2-1| /*/ void lexical_analyzer(const char *data);
-/*/ |‚Ññ:2-2| /*/ void lexical_synthesizer(const char *data);
+/*/ |π:1-1| /*/
+void analyzer(const char *data, const char *mapping_table) { return; }
+/*/ |π:1-2| /*/
+void synthesizer(const char *data) { return; }
 
-void lexical_analyzer(const char *data) { return; }
+/*/ |π:1-3| /*/ //void compile(const char *code);
+/*/ |π:1-4| /*/ //void execute(const char *code);
+
+// Tokenizer.h (ÓÔˆËÓÌ‡Î¸ÌÓ)
+/*/ |π:2-1| /*/ void lexical_analyzer(const char *data, const char *mapping_table);
+/*/ |π:2-2| /*/ void lexical_synthesizer(const char *data);
+
+void lexical_analyzer(const char *data, const char *mapping_table) { return; }
 void lexical_synthesizer(const char *data) { return; }
 
 // Parser.h //
-/*/ |‚Ññ:3-1| /*/ void syntactic_analyzer(const char *data);
-/*/ |‚Ññ:3-2| /*/ void syntactic_synthesizer(const char *data);
+/*/ |π:3-1| /*/ void syntactic_analyzer(const char *data, const char *mapping_table);
+/*/ |π:3-2| /*/ void syntactic_synthesizer(const char *data);
 
-void syntactic_analyzer(const char *data) { return; }
+void syntactic_analyzer(const char *data, const char *mapping_table) { return; }
 void syntactic_synthesizer(const char *data) { return; }
 
-/*/ |‚Ññ:3-3| /*/ // void parse(const char *code);
+/*/ |π:3-3| /*/ // void parse(const char *code);
 
 // Semantic.h //
-/*/ |‚Ññ:4-1| /*/ void semantic_analyzer(const char *data);
-/*/ |‚Ññ:4-2| /*/ void semantic_synthesizer(const char *data);
+/*/ |π:4-1| /*/ void semantic_analyzer(const char *data, const char *mapping_table);
+/*/ |π:4-2| /*/ void semantic_synthesizer(const char *data);
 
-void semantic_analyzer(const char *data) { return; }
+void semantic_analyzer(const char *data, const char *mapping_table) { return; }
 void semantic_synthesizer(const char *data) { return; }
 
-// Intermediate_representation.h (–æ–ø—Ü–∏–æ–Ω–∞–ª—å–Ω–æ) //
-/*/ |‚Ññ:5-1| /*/ // {?}
+// Intermediate_representation.h (ÓÔˆËÓÌ‡Î¸ÌÓ) //
+/*/ |π:5-1| /*/ // {?}
