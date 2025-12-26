@@ -87,7 +87,8 @@ void code_optimizer() { return; }
 //------------------//
 // code_generator.h //
 //------------------//
-enum {
+enum PROGRAMMING_LANGUAGE
+{
    C,
    MACHINE_CODE_X86,
    EXTRA_ASSEMBLER_X86,
