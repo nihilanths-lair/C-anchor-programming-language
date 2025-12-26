@@ -89,9 +89,10 @@ void code_optimizer() { return; }
 //------------------//
 enum {
    C,
-   EASM,
    MACHINE_CODE_X86,
-   BYTE_CODE_ABSTRACT_COMPUTING_MACHINE
+   EXTRA_ASSEMBLER_X86,
+   CODE_ABSTRACT_MACHINE,
+   ASSEMBLER_ABSTRACT_MACHINE
 };
 /*/ |№:8-1| /*/ char code_generator(const char back_end, const char *file_name, const char *data);
 //
@@ -105,18 +106,23 @@ char code_generator(const char back_end, const char *file_name, const char *data
    case C:
    {
       printf("\n/-> C.");
-   }
-   break;
+   } break;
    case MACHINE_CODE_X86:
    {
       printf("\n/-> MACHINE_CODE_X86.");
-   }
-   break;
-   case BYTE_CODE_ABSTRACT_COMPUTING_MACHINE:
+   } break;
+   case EXTRA_ASSEMBLER_X86:
    {
-      printf("\n/-> BYTE_CODE_ABSTRACT_COMPUTING_MACHINE.");
-   }
-   break;}
+      printf("\n/-> EXTRA_ASSEMBLER_X86.");
+   } break;
+   case CODE_ABSTRACT_MACHINE:
+   {
+      printf("\n/-> CODE_ABSTRACT_MACHINE.");
+   } break;
+   case ASSEMBLER_ABSTRACT_MACHINE:
+   {
+      printf("\n/-> ASSEMBLER_ABSTRACT_MACHINE.");
+   } }
 
    fclose(file);
    return 0;
