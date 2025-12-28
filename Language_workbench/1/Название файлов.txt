@@ -1,8 +1,0 @@
-         VM_C$_v-0.x_.txt
-         VM_C$_v-0.x_.exe
-
-   Compiler_C$_v-0.x_.txt
-   Compiler_C$_v-0.x_.exe
-
-Interpreter_C$_v-0.x_.txt
-Interpreter_C$_v-0.x_.exe
