@@ -1,9 +1,9 @@
 <?php
-  $file_name_1 = "Interpreter_C\$_v-0.x_";
-  $file_name_2 = "VM_C\$_v-0.x_";
-  $file_name_3 = "Compiler_C\$_v-0.x_";
   $txt = "txt";
   $exe = "exe";
+  $file_name_1 = "Interpreter_C\$_0.x_";
+  $file_name_2 = "VM_C\$_0.x_";
+  $file_name_3 = "Compiler_C\$_0.x_";
 ?>
 <!DOCTYPE html>
 <html lang="ru">
