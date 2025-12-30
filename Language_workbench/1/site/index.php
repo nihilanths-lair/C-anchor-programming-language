@@ -12,6 +12,7 @@
   $nbsp_6 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   $nbsp_7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   $nbsp_8 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  $nbsp_09 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   $nbsp_10 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   $nbsp_11 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   $nbsp_12 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -24,9 +25,9 @@
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <title>Главная</title>
   <style>
-  h4 {
+  div {
     font-family: "Courier New", "monospace";
-    font-size: 13px;
+    font-size: 14px;
   }
   </style>
 </head>
@@ -39,9 +40,9 @@
     <hr>
   </center>
 
-<br>
+<br><br>
 <div style="text-align: center;">
-  <div style="display: inline-block; text-align: left; margin: 0; font-family: Courier New; font-size: 14px;">
+  <div style="display: inline-block; text-align: left; margin: 0;">
     <b>
 <?=$nbsp_2?>Операционная система<br>
 <?=$nbsp_2?>│<br>
@@ -52,130 +53,48 @@
    <?//<!-- Интерпретатор C$ -->?>
    <?=$nbsp_8?>├︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="_blank">Интерпретатор C$</a><br>
    <?=$nbsp_8?>│<?=$nbsp_2?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_2?>└︎─︎›︎Версия<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>├─›Beta-release<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>└─›Stable-release<br>
-   <?=$nbsp_8?>│<?=$nbsp_8?>└─›0.X (в разработке)<br>
+   <details style="margin-left: 67px;">
+      <summary style="list-style: none;">│<?=$nbsp_2?>└︎─›Версия [∨]</summary>
+   │<?=$nbsp_5?>│<br>
+   │<?=$nbsp_5?>├─›Beta-release<br>
+   │<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
+   │<?=$nbsp_5?>│<br>
+   │<?=$nbsp_5?>└─›Stable-release<br>
+   │<?=$nbsp_8?>└─›0.X (в разработке)<br>
+   </details>
    <?=$nbsp_8?>│<br>
    <?//<!-- Виртуальная машина C$ -->?>
    <?=$nbsp_8?>├︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="_blank">Виртуальная машина C$</a><br>
    <?=$nbsp_8?>│<?=$nbsp_2?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_2?>└︎─︎›︎Версия<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>├─›Beta-release<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>│<br>
-   <?=$nbsp_8?>│<?=$nbsp_5?>└─›Stable-release<br>
-   <?=$nbsp_8?>│<?=$nbsp_8?>└─›0.X (в разработке)<br>
+   <details style="margin-left: 67px;">
+      <summary style="list-style: none;">│<?=$nbsp_2?>└︎─›Версия [∨]</summary>
+   │<?=$nbsp_5?>│<br>
+   │<?=$nbsp_5?>├─›Beta-release<br>
+   │<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
+   │<?=$nbsp_5?>│<br>
+   │<?=$nbsp_5?>└─›Stable-release<br>
+   │<?=$nbsp_8?>└─›0.X (в разработке)<br>
+   </details>
    <?=$nbsp_8?>│<br>
    <?//<!-- Компилятор C$ -->?>
    <?=$nbsp_8?>└︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="_blank">Компилятор C$</a><br>
      <?=$nbsp_11?>│<br>
-     <?=$nbsp_11?>└︎─︎›︎Версия<br>
-        <?=$nbsp_14?>│<br>
-        <?=$nbsp_14?>├─›Beta-release<br>
-<?=$nbsp_14?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
-<?=$nbsp_14?>│<br>
-        <?=$nbsp_14?>└─›Stable-release<br>
-           <?=$nbsp_17?>└─›0.X (в разработке)<br>
+      <details style="margin-left: 92px;">
+        <summary style="list-style: none;"><?//<span style="position: absolute; left: 0;">[+]</span>?>└︎─›Версия [∨]</summary>
+        <?=$nbsp_3?>│<br>
+        <?=$nbsp_3?>├─›Beta-release<br>
+<?=$nbsp_3?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
+<?=$nbsp_3?>│<br>
+        <?=$nbsp_3?>└─›Stable-release<br>
+           <?=$nbsp_6?>└─›0.X (в разработке)<br>
+      </details>
     </b>
   </div>
 </div>
-<br>
-
-    <center>
-    <hr><br>
-    <div>
-      Программное обеспечение: <a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="blank">Интерпретатор</a> C$<br>
-      Последние изменения в ветке: 28/12/2025
-    </div>
-    <br><br>
-    <h4>
-      Имя файла: <?=$file_name_1.'.'.$exe?><br>
-      Версия: 0.X (Beta)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_1.'.'.$txt?>><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_1.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br>
-    <h4>
-      Имя файла: <?=$file_name_1.'.'.$exe?><br>
-      Версия: 0.X (Release)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_1.'.'.$txt?>"><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_1.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br><hr><br>
-    <div>
-      Программное обеспечение: <a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="blank">Виртуальная машина</a> C$<br>
-      Последние изменения в ветке: 28/12/2025
-    </div>
-    <br><br>
-    <h4>
-      Имя файла: <?=$file_name_2.'.'.$exe?><br>
-      Версия: 0.X (Beta)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_2.'.'.$txt?> target="blank"><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_2.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br>
-    <h4>
-      Имя файла: <?=$file_name_2.'.'.$exe?><br>
-      Версия: 0.X (Release)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_2.'.'.$txt?> target="blank"><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_2.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br><hr><br>
-    <div>
-      Программное обеспечение: <a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="blank">Компилятор</a> C$<br>
-      Последние изменения в ветке: 28/12/2025
-    <div>
-    <br><br>
-    <h4>
-      Имя файла: <?=$file_name_3.'.'.$exe?><br>
-      Версия: 0.X (Beta)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_3.'.'.$txt?> target="blank"><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_3.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br>
-    <h4>
-      Имя файла: <?=$file_name_3.'.'.$exe?><br>
-      Версия: 0.X (Release)<br>
-      Дата публикации: XX/XX/202X<br>
-      Размер файла: 0 байт
-    </h4>
-    <h4>
-      <a href=<?=$file_name_3.'.'.$txt?> target="blank"><button>Содержимое файла</button></a>&nbsp;&nbsp;::&nbsp;&nbsp;<a href=<?=$file_name_3.'.'.$exe?> download><button>Скачать</button></a>
-    </h4>
-    <br><hr>
+<br><br>
+<hr>
+  <center>
     <copy>© Meltrune 2026</copy>
   </center>
 </body>
 </html>
-<!---
-<h1>Демонстрация показа кода</h1>
-<form>
-    <label for="language">Выберите язык:</label>
-    <select id="language">
-        <option value="javascript">JavaScript</option>
-        <option value="python">Python</option>
-        <option value="html">HTML</option>
-    </select>
-    <button type="button" id="showCodeBtn">Показать код</button>
-</form
--->
