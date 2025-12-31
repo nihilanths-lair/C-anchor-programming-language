@@ -92,13 +92,14 @@
 <div style="text-align: center;">
   <div style="display: inline-block; text-align: left; margin: 0;">
     <b>
-            Карта навигации<br>
-            │<br>
-            └─›Программное обеспечение<br>
-   <?=$nbsp_3?>│<br>
-   <?=$nbsp_3?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="_blank">Интерпретатор C$</a><br>
-   <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
-   <details style="margin-left: 23px;">
+      <span class="select-style">
+      Карта навигации</span><br>
+<?=$nbsp_1?>│<br>
+<?=$nbsp_1?>└─›<span class="select-style">Программное обеспечение<br></span><br>
+   <?=$nbsp_5?>│<br>
+   <?=$nbsp_5?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="_blank">Интерпретатор C$</a><br>
+   <?=$nbsp_5?>│<?=$nbsp_2?>│<br>
+   <details style="margin-left: 39px;">
       <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
                │                              <?=$nbsp_5?>│<br>
                │                              <?=$nbsp_5?>├─›<span class="select-style">0.X</span>🔒<br>
@@ -107,10 +108,10 @@
                │<br>
    </details>
 
-   <?=$nbsp_3?>│<br>
-   <?=$nbsp_3?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="_blank">Виртуальная машина C$</a><br>
-   <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
-   <details style="margin-left: 23px;">
+   <?=$nbsp_5?>│<br>
+   <?=$nbsp_5?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="_blank">Виртуальная машина C$</a><br>
+   <?=$nbsp_5?>│<?=$nbsp_2?>│<br>
+   <details style="margin-left: 39px;">
       <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
                │                              <?=$nbsp_5?>│<br>
                │                              <?=$nbsp_5?>├─›<span class="select-style">0.X</span>🔒<br>
@@ -119,10 +120,10 @@
                │<br>
    </details>
 
-   <?=$nbsp_3?>│<br>
-   <?=$nbsp_3?>└─›<a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="_blank">Компилятор C$</a><br>
-      <?=$nbsp_6?>│<br>
-      <details style="margin-left: 46px;">
+   <?=$nbsp_5?>│<br>
+   <?=$nbsp_5?>└─›<a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="_blank">Компилятор C$</a><br>
+      <?=$nbsp_8?>│<br>
+      <details style="margin-left: 62px;">
          <summary>└─›<span class="select-style">Версия</span></summary>
                                     <?=$nbsp_4?>│<br>
                            <details>
@@ -131,26 +132,26 @@
                                             <details><!-- 0.0.X -->
                                             <summary><?=$nbsp_4?>│<?=$nbsp_3?>├─›<span class="select-style">0.0.X</span></summary>
                                     <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>├─›0.0.0 🔰<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>├─›Beta-release [в разработке] 🎯<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>└─›Stable-release [после обката бэтки] 🔒<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>├─›<span class="select-style">0.0.0 [текущая версия]</span>🔰<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>├─›Beta-release [в разработке] 🎯<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>└─›Stable-release [после обката бэтки] 🔒<br>
                                     <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
                                     <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
-                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>└─›0.0.1 [следующая версия] 🔒<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>└─›<span class="select-style">0.0.1 [следующая версия]</span>🔒</summary>
                                             </details>
                                     <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
                                     <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
-                                            <details><!-- 0.1.X -->
-                                            <summary><?=$nbsp_4?>│<?=$nbsp_3?>└─›<span class="select-style">0.1.X</span>🔒</summary>
-                                            </details>
-                                    <?=$nbsp_4?>│<br>
+                                            <!--<details>-->
+                                            <!--<summary>--><?=$nbsp_4?>│<?=$nbsp_3?>└─›<span class="select-style">0.1.X</span>🔒<!--</summary>-->
+                                            <!--</details>-->
+                                    <!--<?=$nbsp_4?>│<br>-->
                            </details>
                                     <?=$nbsp_4?>│<br>
-                           <details>
-                           <summary><?=$nbsp_4?>└─›<span class="select-style">1.X</span>🔒</summary>
-                           </details>
+                           <!--<details>-->
+                           <!--<summary>--><?=$nbsp_4?>└─›<span class="select-style">1.X</span>🔒<!--</summary>-->
+                           <!--</details>-->
       </details>
     </b>
   </div>
