@@ -58,7 +58,7 @@
     color: #666;
   }
   
-  details[open] .select-style::after {
+  details[open] > summary > .select-style::after {
     content: '▲';
   }
   
@@ -101,9 +101,9 @@
    <details style="margin-left: 23px;">
       <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
                │                              <?=$nbsp_5?>│<br>
-               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X</span>🔒<br>
                │                              <?=$nbsp_5?>│<br>
-               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X</span>🔒<br>
                │<br>
    </details>
 
@@ -113,9 +113,9 @@
    <details style="margin-left: 23px;">
       <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
                │                              <?=$nbsp_5?>│<br>
-               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X</span>🔒<br>
                │                              <?=$nbsp_5?>│<br>
-               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X</span>🔒<br>
                │<br>
    </details>
 
@@ -125,36 +125,32 @@
       <details style="margin-left: 46px;">
          <summary>└─›<span class="select-style">Версия</span></summary>
                                     <?=$nbsp_4?>│<br>
-          <details>
-          <summary><?=$nbsp_4?>├─›<span class="select-style">0.X.X</span></summary>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>├─›0.0.X [текущая версия] 🔰<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>├─›0.0.0 🔰<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>├─›Beta-release [в разработке] 🎯<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>└─›Stable-release [после обката бэтки] 🔒<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>└─›0.0.1 [следующая версия] 🔒<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>├─›Beta-release 🔒<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>└─›Stable-release 🔒<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
-                   <?=$nbsp_4?>│                 <?=$nbsp_2?>└─›0.1.X 🔒<br>
-                   <?=$nbsp_4?>│                    <?=$nbsp_5?>│<br>
-                   <?=$nbsp_4?>│                    <?=$nbsp_5?>├─›Beta-release 🔒<br>
-                   <?=$nbsp_4?>│                    <?=$nbsp_5?>│<br>
-                   <?=$nbsp_4?>│                    <?=$nbsp_5?>└─›Stable-release 🔒<br>
-                   <?=$nbsp_4?>│<br>
-                  </details>
+                           <details>
+                           <summary><?=$nbsp_4?>├─›<span class="select-style">0.X</span></summary>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                                            <details><!-- 0.0.X -->
+                                            <summary><?=$nbsp_4?>│<?=$nbsp_3?>├─›<span class="select-style">0.0.X</span></summary>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>├─›0.0.0 🔰<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>├─›Beta-release [в разработке] 🎯<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>└─›Stable-release [после обката бэтки] 🔒<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│                 <?=$nbsp_2?>└─›0.0.1 [следующая версия] 🔒<br>
+                                            </details>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                                    <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                                            <details><!-- 0.1.X -->
+                                            <summary><?=$nbsp_4?>│<?=$nbsp_3?>└─›<span class="select-style">0.1.X</span>🔒</summary>
+                                            </details>
                                     <?=$nbsp_4?>│<br>
-                                  <details>
-                                    <summary><?=$nbsp_4?>└─›<span class="select-style">1.X.X</span>🔒</summary>
-                                  </details>
+                           </details>
+                                    <?=$nbsp_4?>│<br>
+                           <details>
+                           <summary><?=$nbsp_4?>└─›<span class="select-style">1.X</span>🔒</summary>
+                           </details>
       </details>
     </b>
   </div>
