@@ -23,18 +23,66 @@
 <html lang="ru">
 <head>
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8">
   <title>Главная</title>
   <style>
   div {
     font-family: "Courier New", "monospace";
-    font-size: 14px;
+    font-size: 13px;
+  }
+  
+  /* Стили для summary, чтобы выглядел как select */
+  .select-style {
+    display: inline-block;/**/
+    border: 1px solid #aaa;/**/
+    border-radius: 3px;/**/
+    padding: 0 20px 0 5px;/**/
+    background: #f8f8f8;/**/
+    cursor: pointer;/**/
+    position: relative;/**/
+    color: #333;/**/
+    text-decoration: none;/**/
+    font-weight: normal;/**/
+    margin: 0 2px;/**/
+    vertical-align: baseline;/**/
+    line-height: 1.4;/**/
+  }
+  
+  .select-style::after {
+    content: '▼';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #666;
+  }
+  
+  details[open] .select-style::after {
+    content: '▲';
+  }
+  
+  summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline;
+  }
+  
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  /* Отключение стандартных стилей для стрелочек в details */
+  details[open] > summary::after,
+  details:not([open]) > summary::after {
+    content: none !important;
   }
   </style>
 </head>
 <body style="background-color: #F0F0F0;">
   <center>
     <h3>
-      Дата создания сайта: 28/12/2025 | Последнее обновление: 30/12/2025<br>
+      Последнее обновление: 31/12/2025<br>
       /!\ Убедительная просьба дождаться окончания реконструкции сайта! Окончательный запуск сайта будет произведён в начале января 2026 года.
     </h3>
     <hr>
@@ -44,79 +92,69 @@
 <div style="text-align: center;">
   <div style="display: inline-block; text-align: left; margin: 0;">
     <b>
-<?=$nbsp_2?>Операционная система<br>
-<?=$nbsp_2?>│<br>
-<?=$nbsp_2?>└─›Windows 10+<br>
-   <?=$nbsp_5?>│<br>
-   <?=$nbsp_5?>└─›Программное обеспечение<br>
-   <?=$nbsp_8?>│<br>
-   <?//<!-- Интерпретатор C$ -->?>
-   <?=$nbsp_8?>├︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="_blank">Интерпретатор C$</a><br>
-   <?=$nbsp_8?>│<?=$nbsp_2?>│<br>
-   <details style="margin-left: 67px;">
-      <summary style="list-style: none;">│<?=$nbsp_2?>└︎─›Версия👈🏻</summary>
-   │<?=$nbsp_5?>│<br>
-   │<?=$nbsp_5?>├─›Beta-release<br>
-   │<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
-   │<?=$nbsp_5?>│<br>
-   │<?=$nbsp_5?>└─›Stable-release<br>
-   │<?=$nbsp_8?>└─›0.X (в разработке)<br>
+            Карта навигации<br>
+            │<br>
+            └─›Программное обеспечение<br>
+   <?=$nbsp_3?>│<br>
+   <?=$nbsp_3?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BF%D1%80%D0%B5%D1%82%D0%B0%D1%82%D0%BE%D1%80" target="_blank">Интерпретатор C$</a><br>
+   <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
+   <details style="margin-left: 23px;">
+      <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
+               │                              <?=$nbsp_5?>│<br>
+               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>│<br>
+               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X.X</span>🔒<br>
+               │<br>
    </details>
-   <?=$nbsp_8?>│<br>
-   <?//<!-- Виртуальная машина C$ -->?>
-   <?=$nbsp_8?>├︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="_blank">Виртуальная машина C$</a><br>
-   <?=$nbsp_8?>│<?=$nbsp_2?>│<br>
-   <details style="margin-left: 67px;">
-      <summary style="list-style: none;">│<?=$nbsp_2?>└︎─›Версия👈🏻</summary>
-   │<?=$nbsp_5?>│<br>
-   │<?=$nbsp_5?>├─›Beta-release<br>
-   │<?=$nbsp_5?>│<?=$nbsp_2?>└─›0.X (в разработке)<br>
-   │<?=$nbsp_5?>│<br>
-   │<?=$nbsp_5?>└─›Stable-release<br>
-   │<?=$nbsp_8?>└─›0.X (в разработке)<br>
-   </details>
-   <?=$nbsp_8?>│<br>
-   <?//<!-- Компилятор C$ -->?>
-   <?=$nbsp_8?>└︎─︎›︎<a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="_blank">Компилятор C$</a><br>
-     <?=$nbsp_11?>│<br>
-      <details style="margin-left: 92px;">
-        <summary style="list-style: none;"><?//<span style="position: absolute; left: 0;">[+]</span>?>└︎─›Версия👈🏻</summary>
-        <?=$nbsp_3?>│<br>
 
-        <details>
-          <summary style="list-style: none;"><?=$nbsp_3?>├─›1.X [текущая версия]👈🏻</summary>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>├─›1.1 (текущая версия)<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<?=$nbsp_2?>├─›Beta-release (в разработке)<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<?=$nbsp_2?>└─›Stable-release (после обката бэтки)<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_3?>│<?=$nbsp_2?>└─›1.2 (следующая версия)<br>
-          <?=$nbsp_3?>│   <?=$nbsp_4?>│<br>
-          <?=$nbsp_3?>│   <?=$nbsp_4?>├─›Beta-release (позже)<br>
-          <?=$nbsp_3?>│   <?=$nbsp_4?>│<br>
-          <?=$nbsp_3?>│   <?=$nbsp_4?>└─›Stable-release (позже)<br>
-          <?=$nbsp_3?>│<br>
-        </details>
-          <?=$nbsp_3?>│<br>
-        <details>
-          <summary style="list-style: none;"><?=$nbsp_3?>└─›2.X [будущие версии]👈🏻</summary>
-          <?=$nbsp_6?>│<br>
-          <?=$nbsp_6?>├─›2.1 (ветка заблокирована)<br>
-          <?=$nbsp_6?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_6?>│<?=$nbsp_2?>├─›Beta-release<br>
-          <?=$nbsp_6?>│<?=$nbsp_2?>│<br>
-          <?=$nbsp_6?>│<?=$nbsp_2?>└─›Stable-release<br>
-          <?=$nbsp_6?>│<br>
-          <?=$nbsp_6?>│<br>
-          <?=$nbsp_6?>└─›2.2 (ветка заблокирована)<br>
-            <?=$nbsp_09?>│<br>
-            <?=$nbsp_09?>├─›Beta-release<br>
-            <?=$nbsp_09?>│<br>
-            <?=$nbsp_09?>└─›Stable-release<br>
-        </details>
+   <?=$nbsp_3?>│<br>
+   <?=$nbsp_3?>├─›<a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%BC%D0%B0%D1%88%D0%B8%D0%BD%D0%B0" target="_blank">Виртуальная машина C$</a><br>
+   <?=$nbsp_3?>│<?=$nbsp_2?>│<br>
+   <details style="margin-left: 23px;">
+      <summary>│<?=$nbsp_2?>└─›<span class="select-style">Версия</span></summary>
+               │                              <?=$nbsp_5?>│<br>
+               │                              <?=$nbsp_5?>├─›<span class="select-style">0.X.X</span>🔒<br>
+               │                              <?=$nbsp_5?>│<br>
+               │                              <?=$nbsp_5?>└─›<span class="select-style">1.X.X</span>🔒<br>
+               │<br>
+   </details>
+
+   <?=$nbsp_3?>│<br>
+   <?=$nbsp_3?>└─›<a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80" target="_blank">Компилятор C$</a><br>
+      <?=$nbsp_6?>│<br>
+      <details style="margin-left: 46px;">
+         <summary>└─›<span class="select-style">Версия</span></summary>
+                                    <?=$nbsp_4?>│<br>
+          <details>
+          <summary><?=$nbsp_4?>├─›<span class="select-style">0.X.X</span></summary>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>├─›0.0.X [текущая версия] 🔰<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>├─›0.0.0 🔰<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>├─›Beta-release [в разработке] 🎯<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<?=$nbsp_2?>└─›Stable-release [после обката бэтки] 🔒<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<?=$nbsp_2?>└─›0.0.1 [следующая версия] 🔒<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>├─›Beta-release 🔒<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│   <?=$nbsp_4?>└─›Stable-release 🔒<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>│<br>
+                   <?=$nbsp_4?>│                 <?=$nbsp_2?>└─›0.1.X 🔒<br>
+                   <?=$nbsp_4?>│                    <?=$nbsp_5?>│<br>
+                   <?=$nbsp_4?>│                    <?=$nbsp_5?>├─›Beta-release 🔒<br>
+                   <?=$nbsp_4?>│                    <?=$nbsp_5?>│<br>
+                   <?=$nbsp_4?>│                    <?=$nbsp_5?>└─›Stable-release 🔒<br>
+                   <?=$nbsp_4?>│<br>
+                  </details>
+                                    <?=$nbsp_4?>│<br>
+                                  <details>
+                                    <summary><?=$nbsp_4?>└─›<span class="select-style">1.X.X</span>🔒</summary>
+                                  </details>
       </details>
     </b>
   </div>
