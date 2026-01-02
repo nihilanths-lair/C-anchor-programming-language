@@ -9,10 +9,10 @@ void lexical_synthesizer(const char *strinp)
    {
       while (*strinp >= '0' && *strinp <= '9')
       {
-         printf("\nTOKEN__NUMBER");
          pos_cursor++;
          strinp++;
       }
+      printf("\nTOKEN__NUMBER");
       switch (*strinp)
       {
          case '*':
