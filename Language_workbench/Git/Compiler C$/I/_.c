@@ -2,105 +2,127 @@
 #include <locale.h>
 #include <string.h>
 
-// Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð° Ð¸Ð¼Ñ‘Ð½ Ñ‚Ð¾ÐºÐµÐ½Ð¾Ð²
-char table_token_name[][40+1] =
-{
-   {"NUMBER"},
-   {"OP_MUL"},
-   {"OP_DIV"},
-   {"OP_ADD"},
-   {"OP_SUB"}
-};
+#define MAX_TOKENS 1000
+#define MAX_TOKEN_VALUE_LEN 50
 
-int __number_of_tokens = 0;
-char *token__name[40];  // Ð¸Ð¼Ñ Ñ‚Ð¾ÐºÐµÐ½Ð°
-char *token__value[40]; // Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð¾ÐºÐµÐ½Ð°
+// Òèïû òîêåíîâ
+typedef enum {
+   TOKEN_NUMBER,
+   TOKEN_OP_MUL,
+   TOKEN_OP_DIV,
+   TOKEN_OP_ADD,
+   TOKEN_OP_SUB,
+   TOKEN_UNKNOWN
+} TokenType;
 
-void lexical_synthesizer(const char *strinp)
+// Ñòðóêòóðà äëÿ õðàíåíèÿ òîêåíà
+typedef struct {
+   TokenType type;
+   char value[MAX_TOKEN_VALUE_LEN];
+} Token;
+
+Token tokens[MAX_TOKENS];
+int token_count = 0;
+
+// Ôóíêöèÿ äëÿ äîáàâëåíèÿ òîêåíà
+void add_token(TokenType type, const char *value)
 {
-   int pos_cursor = 0;
-   while (*strinp != '\0')
+   if (token_count >= MAX_TOKENS)
    {
-      if (*strinp >= '0' && *strinp <= '9')
-      {
-         pos_cursor++;
-         strinp++;
-         if (*strinp == '\0') return;
-         while (*strinp >= '0' && *strinp <= '9')
-         {
-            pos_cursor++;
-            strinp++;
-            if (*strinp == '\0') break;
-         }
-         //printf("\nTOKEN__NUMBER");
-         printf("\n[Ð”Ð¾]: token: {name: %s, value: %s}", token__name[__number_of_tokens], token__value[__number_of_tokens]);
-         token__name[__number_of_tokens] = "NUMBER";
-         token__value[__number_of_tokens] = (char *) &strinp[__number_of_tokens];
-         token__value[__number_of_tokens][pos_cursor] = '\0';
-         printf("\n[ÐŸÐ¾ÑÐ»Ðµ]: token: {name: %s, value: %s}", token__name[__number_of_tokens], token__value[__number_of_tokens]);
-         __number_of_tokens++;
-      }
-      switch (*strinp)
-      {
-         case '*':
-            //printf("\nTOKEN__OP_MUL");
-            printf("\n[Ð”Ð¾]: token: {name: %s, value: %s}", token__name[__number_of_tokens], token__value[__number_of_tokens]);
-            token__name[__number_of_tokens] = "OP_MUL";
-            token__value[__number_of_tokens] = (char *) &strinp[__number_of_tokens];
-            token__value[__number_of_tokens][pos_cursor] = '\0';
-            printf("\n[ÐŸÐ¾ÑÐ»Ðµ]: token: {name: %s, value: %s}", token__name[__number_of_tokens], token__value[__number_of_tokens]);
-            __number_of_tokens++;
-            pos_cursor++;
-            strinp++;
-            break;
-
-         case '/':
-            printf("\nTOKEN__OP_DIV");
-            pos_cursor++;
-            strinp++;
-            break;
-
-         case '+':
-            printf("\nTOKEN__OP_ADD");
-            pos_cursor++;
-            strinp++;
-            break;
-
-         case '-':
-            printf("\nTOKEN__OP_SUB");
-            pos_cursor++;
-            strinp++;
-            break;
-         
-         default:
-            //printf("\nTOKEN__UNKNOWN));
-            pos_cursor++;
-            strinp++;
-            break;
-      }
-      //strinp++;
+      printf("\nÑëèøêîì ìíîãî òîêåíîâ!");
+      return;
    }
-   return;
+   tokens[token_count].type = type;
+   if (value)
+   {
+      strncpy(tokens[token_count].value, value, MAX_TOKEN_VALUE_LEN - 1);
+      tokens[token_count].value[MAX_TOKEN_VALUE_LEN - 1] = '\0';
+   }
+   else {
+      tokens[token_count].value[0] = '\0';
+   }
+   token_count++;
+}
+
+// Ëåêñè÷åñêèé àíàëèçàòîð
+void lexical_analyzer(const char *input)
+{
+   token_count = 0; // Ñáðîñ ñ÷åò÷èêà òîêåíîâ
+   while (*input)
+   {
+      // Ïðîïóñêàåì ïðîáåëû
+      if (*input == ' ')
+      {
+         input++;
+         continue;
+      }
+
+      // Åñëè öèôðà, òî ñ÷èòûâàåì âñ¸ ÷èñëî
+      if (*input >= '0' && *input <= '9')
+      {
+         char number[MAX_TOKEN_VALUE_LEN];
+         int i = 0;
+         while (*input >= '0' && *input <= '9' && i < MAX_TOKEN_VALUE_LEN - 1) {
+            number[i++] = *input++;
+         }
+         number[i] = '\0';
+         add_token(TOKEN_NUMBER, number);
+         continue;
+      }
+
+      // Îïåðàòîðû
+      switch (*input){
+      case '*':
+         add_token(TOKEN_OP_MUL, "*");
+         break;
+      case '/':
+         add_token(TOKEN_OP_DIV, "/");
+         break;
+      case '+':
+         add_token(TOKEN_OP_ADD, "+");
+         break;
+      case '-':
+         add_token(TOKEN_OP_SUB, "-");
+         break;
+      default: // Íåèçâåñòíûé ñèìâîë
+         char unknown[2] = {*input, '\0'};
+         add_token(TOKEN_UNKNOWN, unknown);
+         break;
+      }
+      input++;
+   }
+}
+
+// Ôóíêöèÿ äëÿ ïå÷àòè òîêåíîâ
+void print_tokens()
+{
+   for (int i = 0; i < token_count; i++)
+   {
+      const char *type_str;
+      switch (tokens[i].type)
+      {
+         case TOKEN_NUMBER: type_str = "NUMBER"; break;
+         case TOKEN_OP_MUL: type_str = "OP_MUL"; break;
+         case TOKEN_OP_DIV: type_str = "OP_DIV"; break;
+         case TOKEN_OP_ADD: type_str = "OP_ADD"; break;
+         case TOKEN_OP_SUB: type_str = "OP_SUB"; break;
+         default: type_str = "UNKNOWN"; break;
+      }
+      printf("Token: { type: %s, value: %s }\n", type_str, tokens[i].value);
+   }
 }
 
 int main()
 {
-   setlocale(0, "");
-   printf("\n<DEBUG>: Ð˜Ð½Ñ‚ÐµÑ€Ð¿Ñ€ÐµÑ‚Ð°Ñ‚Ð¾Ñ€ Ð²Ñ‹Ñ€Ð°Ð¶ÐµÐ½Ð¸Ð¹ Ð·Ð°Ð¿ÑƒÑ‰ÐµÐ½.\n");
-   char strinp[100];
-   while ('!')
-   {
-      printf("\n/ Ð’Ð²Ð¾Ð´ /> ");
-      fgets(strinp, sizeof (strinp), stdin); // Ð§Ð¸Ñ‚Ð°ÐµÑ‚ ÑÑ‚Ñ€Ð¾ÐºÑƒ Ñ Ð¿Ñ€Ð¾Ð±ÐµÐ»Ð°Ð¼Ð¸
-      strinp[strcspn(strinp, "\n")] = '\0';  // Ð‘ÐµÐ· ÑÑ‚Ð¾Ð³Ð¾, print Ð¼Ð¾Ð¶ÐµÑ‚ Ð½Ðµ Ð²Ñ‹Ð²Ð¾Ð´Ð¸Ñ‚ÑŒ Ð»Ð¸ÑˆÐ½ÑŽÑŽ Ð½Ð¾Ð²ÑƒÑŽ ÑÑ‚Ñ€Ð¾ÐºÑƒ
+   setlocale(LC_ALL, "");
+   
+   char input[100];
+   printf("Ââåäèòå âûðàæåíèå: ");
+   fgets(input, sizeof (input), stdin);
+   input[strcspn(input, "\n")] = '\0'; // Óáèðàåì ñèìâîë íîâîé ñòðîêè
 
-      // Ð·Ð´ÐµÑÑŒ Ð½Ð°Ñ‡Ð¸Ð½Ð°ÐµÑ‚ÑÑ ÑÐ°Ð¼Ð¾Ðµ Ð¸Ð½Ñ‚ÐµÑ€ÐµÑÐ½Ð¾Ðµ
-      // Ð²ÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ Ð² Ñ€Ð°Ð±Ð¾Ñ‚Ñƒ Ñ‚Ð¾ÐºÐµÐ½Ð¸Ð·Ð°Ñ‚Ð¾Ñ€
-      //lexical_analyzer(text);    // Ð¿Ñ€Ð¾Ð²Ð¾Ð´Ð¸Ñ‚ Ð°Ð½Ð°Ð»Ð¸Ð· (ÑÐºÐ°Ð½Ð¸Ñ€ÑƒÐµÑ‚) Ð¸ Ð²Ñ‹Ð´Ð°Ñ‘Ñ‚ Ð¾ÑˆÐ¸Ð±ÐºÐ¸ Ð»ÐµÐºÑÐµÐ¼
-      lexical_synthesizer(strinp); // Ð²Ð¾ÑÐ¿Ñ€Ð¾Ð¸Ð·Ð²Ð¾Ð´Ð¸Ñ‚ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÑƒ (Ð¿Ð¾ÑÐ»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ) Ñ‚Ð¾ÐºÐµÐ½Ð¾Ð²
+   lexical_analyzer(input);
+   print_tokens();
 
-      printf("\n/ Ð’Ñ‹Ð²Ð¾Ð´ /> %s\n", strinp);
-      //printf("TOKEN_%s", getTokenStr(1));
-   }
    return 0;
 }
