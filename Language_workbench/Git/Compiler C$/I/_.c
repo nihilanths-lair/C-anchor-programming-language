@@ -24,7 +24,7 @@ typedef struct {
 } Token;
 
 // Таблица для отладочного вывода
-const char* token_names[] =
+const char *token_names[] =
 {
    "UNKNOWN",
    "NUMBER",
