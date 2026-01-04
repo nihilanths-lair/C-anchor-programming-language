@@ -8,10 +8,24 @@
 
 unsigned char number_of_tokens = 0;
 unsigned char token_starting_position = 0;
-char token_id[MAX_TOKENS];
-char token_type[MAX_TOKENS];
+
+enum
+{
+    TOKEN_UNKNOWN,
+    TOKEN_NUMBER,
+    TOKEN_OP_MUL, TOKEN_OP_ADD, TOKEN_OP_SUB, TOKEN_OP_DIV
+};
+const char token_name_table[][40+1] =
+{
+    "UNKNOWN",
+    "NUMBER",
+    "OP_MUL", "OP_ADD", "OP_SUB", "OP_DIV"
+};
+
+unsigned char token_id[MAX_TOKENS];
+unsigned char token_type[MAX_TOKENS];
 char token_name[MAX_TOKENS][40+1];
-char token_value[MAX_TOKENS];
+char token_value[MAX_TOKENS][40+1];
 
 void lexical_analyzer(const char *input)
 {
@@ -25,43 +39,107 @@ void lexical_analyzer(const char *input)
             case '\0':
             {
                 printf("[%d] = '\\0'\n", token_starting_position);
-                token_name[number_of_tokens][token_starting_position] = '\0';
+
+                token_id[number_of_tokens] = number_of_tokens;
+                token_value[number_of_tokens][token_starting_position] = '\0';
+
                 loop = 0;
                 break;
             }
-        }
-        if (*input >= '0' && *input <= '9')
-        {
-            token_name[number_of_tokens][token_starting_position++] = *input++;
-            while (loop)
+            case '*':
             {
-                switch (*input)
+                token_value[number_of_tokens][token_starting_position++] = *input++;
+                token_value[number_of_tokens][token_starting_position] = '\0';
+                token_type[number_of_tokens] = TOKEN_OP_MUL;
+                token_id[number_of_tokens] = number_of_tokens++;
+
+                token_starting_position = 0;
+                break;
+            }
+            case '+':
+            {
+                token_value[number_of_tokens][token_starting_position++] = *input++;
+                token_value[number_of_tokens][token_starting_position] = '\0';
+                token_type[number_of_tokens] = TOKEN_OP_ADD;
+                token_id[number_of_tokens] = number_of_tokens++;
+
+                token_starting_position = 0;
+                break;
+            }
+            case '-':
+            {
+                token_value[number_of_tokens][token_starting_position++] = *input++;
+                token_value[number_of_tokens][token_starting_position] = '\0';
+                token_type[number_of_tokens] = TOKEN_OP_SUB;
+                token_id[number_of_tokens] = number_of_tokens++;
+
+                token_starting_position = 0;
+                break;
+            }
+            case '/':
+            {
+                token_value[number_of_tokens][token_starting_position++] = *input++;
+                token_value[number_of_tokens][token_starting_position] = '\0';
+                token_type[number_of_tokens] = TOKEN_OP_DIV;
+                token_id[number_of_tokens] = number_of_tokens++;
+
+                token_starting_position = 0;
+                break;
+            }
+            default:
+            {
+                if (*input >= '0' && *input <= '9')
                 {
-                    case '\0':
+                    token_value[number_of_tokens][token_starting_position++] = *input++;
+                    while (loop)
                     {
-                        printf("[%d] = '\\0'\n", token_starting_position);
-                        token_name[number_of_tokens][token_starting_position] = '\0';
-                        loop = 0;
-                        break;
-                    }
-                    default:
-                    {
-                        if (*input >= '0' && *input <= '9') token_name[number_of_tokens][token_starting_position++] = *input++;
-                        else
+                        switch (*input)
                         {
-                            token_name[number_of_tokens][token_starting_position] = '\0';
-                            token_starting_position = 0;
-                            loop = 0;
+                            case '\0':
+                            {
+                                printf("[%d] = '\\0'\n", token_starting_position);
+
+                                token_id[number_of_tokens] = number_of_tokens;
+                                token_value[number_of_tokens][token_starting_position] = '\0';
+
+                                loop = 0;
+                                break;
+                            }
+                            default:
+                            {
+                                if (*input >= '0' && *input <= '9') token_value[number_of_tokens][token_starting_position++] = *input++;
+                                else
+                                {
+                                    token_value[number_of_tokens][token_starting_position] = '\0';
+                                    token_type[number_of_tokens] = TOKEN_NUMBER;
+                                    token_id[number_of_tokens] = number_of_tokens++;
+                                    
+                                    token_starting_position = 0;
+                                    loop = 0;
+                                }
+                            }
                         }
                     }
+                    loop = 1;
+                }
+                else
+                {
+                    token_value[number_of_tokens][token_starting_position++] = *input++;
+                    token_type[number_of_tokens] = TOKEN_UNKNOWN;
+                    token_id[number_of_tokens] = number_of_tokens++;
                 }
             }
-            loop = 1;
         }
-        printf("[%d] = '%c'\n", token_starting_position, *input);
+        printf("[%d] = '\\0'\n", token_starting_position);
         input++;
     }
-    printf("Òîêåí: %s.\n", token_name[0]);
+
+    for (int i = 0; i < number_of_tokens; i++)
+    {
+        printf("\nÈäåíòèôèêàòîğ òîêåíà: %d", token_id[i]);
+        printf("\nÒèï òîêåíà: %s", token_name_table[token_type[i]]);
+        printf("\nÇíà÷åíèå òîêåíà: %s\n", token_value[i]);
+    }
 
     printf("\nÂîçâğàò èç ôóíêöèè: lexical_analyzer\n");
 }
