@@ -2,7 +2,13 @@
 #include <locale.h>
 #include <string.h>
 
-#include "lexer.h"
+//#include "lexer.h"
+
+void lexical_analyzer(const char *input)
+{
+    printf("\nВызов функции: lexical_analyzer(\"%s\")", input);
+    printf("\nВозврат из функции: lexical_analyzer\n");
+}
 
 int main()
 {
@@ -13,9 +19,11 @@ int main()
 
     char file_input[0xFF];
     size_t len = fread(file_input, 1, sizeof (file_input)-1, file_descriptor);
-    file_input[len] = '\0';
 
     fclose(file_descriptor);
+    file_input[len] = '\0';
+
+    lexical_analyzer(file_input);
 
     //printf("Файловой ввод: %s.", file_input);
     putchar('\n');
@@ -39,7 +47,7 @@ int main()
             case '\r':
                 printf("[%d] = '\\r'\n", i);
                 break;
-            
+
             default:
                 printf("[%d] = '%c'\n", i, file_input[i]);
         }

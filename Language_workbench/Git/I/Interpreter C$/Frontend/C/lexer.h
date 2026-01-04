@@ -4,6 +4,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-// TODO:
+void lexical_analyzer(const char *input);
 
 #endif
