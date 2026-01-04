@@ -4,9 +4,65 @@
 
 //#include "lexer.h"
 
+#define MAX_TOKENS 0xFF
+
+unsigned char number_of_tokens = 0;
+unsigned char token_starting_position = 0;
+char token_id[MAX_TOKENS];
+char token_type[MAX_TOKENS];
+char token_name[MAX_TOKENS][40+1];
+char token_value[MAX_TOKENS];
+
 void lexical_analyzer(const char *input)
 {
-    printf("\nÂûçîâ ôóíêöèè: lexical_analyzer(\"%s\")", input);
+    printf("\nÂûçîâ ôóíêöèè: lexical_analyzer(\"%s\")\n\n", input);
+
+    unsigned char loop = 1;
+    while (loop)
+    {
+        switch (*input)
+        {
+            case '\0':
+            {
+                printf("[%d] = '\\0'\n", token_starting_position);
+                token_name[number_of_tokens][token_starting_position] = '\0';
+                loop = 0;
+                break;
+            }
+        }
+        if (*input >= '0' && *input <= '9')
+        {
+            token_name[number_of_tokens][token_starting_position++] = *input++;
+            while (loop)
+            {
+                switch (*input)
+                {
+                    case '\0':
+                    {
+                        printf("[%d] = '\\0'\n", token_starting_position);
+                        token_name[number_of_tokens][token_starting_position] = '\0';
+                        loop = 0;
+                        break;
+                    }
+                    default:
+                    {
+                        if (*input >= '0' && *input <= '9') token_name[number_of_tokens][token_starting_position++] = *input++;
+                        else
+                        {
+                            token_name[number_of_tokens][token_starting_position] = '\0';
+                            token_starting_position = 0;
+                            loop = 0;
+                        }
+                    }
+                }
+            }
+            loop = 1;
+        }
+        printf("[%d] = '%c'\n", token_starting_position, *input);
+        input++;
+    }
+    printf("Òîêåí: %s.\n", token_name[0]);
+
     printf("\nÂîçâğàò èç ôóíêöèè: lexical_analyzer\n");
 }
 
