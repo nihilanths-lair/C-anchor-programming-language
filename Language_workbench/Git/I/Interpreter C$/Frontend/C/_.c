@@ -13,7 +13,7 @@ int main()
 
     char file_input[0xFF];
     size_t len = fread(file_input, 1, sizeof (file_input)-1, file_descriptor);
-    file_input[len] = '\n';
+    file_input[len] = '\0';
 
     fclose(file_descriptor);
 
@@ -24,6 +24,10 @@ int main()
     {
         switch (file_input[i])
         {
+            case '\0':
+                printf("[%d] = '\\0'\n", i);
+                break;
+            
             case '\n':
                 printf("[%d] = '\\n'\n", i);
                 break;
@@ -33,19 +37,24 @@ int main()
         }
         
     }
-    while (file_input[i++] != '\n');
+    while (file_input[i++] != '\0');
 
     char console_input[0xFF];
     while (1)
     {
         printf("\n>>> ");
         fgets(console_input, sizeof (console_input), stdin);
+        console_input[strcspn(console_input, "\n")] = '\0';
         putchar('\n');
         int i = 0;
         do
         {
             switch (console_input[i])
             {
+                case '\0':
+                    printf("[%d] = '\\0'\n", i);
+                    break;
+            
                 case '\n':
                     printf("[%d] = '\\n'\n", i);
                     break;
@@ -55,8 +64,7 @@ int main()
             }
             
         }
-        while (console_input[i++] != '\n');
-        //console_input[strcspn(console_input, "\n")] = '\0';
+        while (console_input[i++] != '\0');
     }
 
     return 0;
