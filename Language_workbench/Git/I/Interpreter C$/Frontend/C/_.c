@@ -28,14 +28,21 @@ int main()
                 printf("[%d] = '\\0'\n", i);
                 break;
             
+            case '\t':
+                printf("[%d] = '\\t'\n", i);
+                break;
+            
             case '\n':
                 printf("[%d] = '\\n'\n", i);
+                break;
+            
+            case '\r':
+                printf("[%d] = '\\r'\n", i);
                 break;
             
             default:
                 printf("[%d] = '%c'\n", i, file_input[i]);
         }
-        
     }
     while (file_input[i++] != '\0');
 
@@ -54,15 +61,22 @@ int main()
                 case '\0':
                     printf("[%d] = '\\0'\n", i);
                     break;
-            
+                
+                case '\t':
+                    printf("[%d] = '\\t'\n", i);
+                    break;
+                
                 case '\n':
                     printf("[%d] = '\\n'\n", i);
+                    break;
+
+                case '\r':
+                    printf("[%d] = '\\r'\n", i);
                     break;
                 
                 default:
                     printf("[%d] = '%c'\n", i, console_input[i]);
             }
-            
         }
         while (console_input[i++] != '\0');
     }
