@@ -52,17 +52,17 @@ void InitLexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
 //typedef struct LexicalSynthesizer LexicalSynthesizer;
 struct LexicalSynthesizer
 {
-    int token_id[MAX_TOKENS];
+    int token_id/*[MAX_TOKENS]*/;
 
-    int token_row_position[MAX_TOKENS];
-    int token_column_position[MAX_TOKENS];
-    int token_binary_position[MAX_TOKENS];
+    int token_row_position/*[MAX_TOKENS]*/;
+    int token_column_position/*[MAX_TOKENS]*/;
+    int token_binary_position/*[MAX_TOKENS]*/;
 
-    unsigned char token_type[MAX_TOKENS];
+    unsigned char token_type/*[MAX_TOKENS]*/;
     //char token_name[MAX_TOKENS][40+1];
-    char token_value[MAX_TOKENS][40+1];
+    char token_value/*[MAX_TOKENS]*/[40+1];
 }
-this__lexical_synthesizer;
+this__lexical_synthesizer[MAX_TOKENS];
 void InitLexicalSynthesizer(struct LexicalSynthesizer *lexical_synthesizer)
 {
     //struct LexicalSynthesizer LexicalSynthesizer;
@@ -93,8 +93,8 @@ void LexicalAnalyzer(const char *input)
             {
                 printf("[%d] = '\\0'\n", token_starting_position);
 
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
 
                 loop = 0;
 
@@ -110,14 +110,15 @@ void LexicalAnalyzer(const char *input)
             }
             case ' ':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_INDENTATION;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_INDENTATION;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -125,14 +126,15 @@ void LexicalAnalyzer(const char *input)
             }
             case '*':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_OP_MUL;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_MUL;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -140,14 +142,15 @@ void LexicalAnalyzer(const char *input)
             }
             case '+':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_OP_ADD;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_ADD;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -155,14 +158,15 @@ void LexicalAnalyzer(const char *input)
             }
             case '-':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_OP_SUB;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_SUB;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -170,14 +174,15 @@ void LexicalAnalyzer(const char *input)
             }
             case '/':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_OP_DIV;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_DIV;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -185,14 +190,15 @@ void LexicalAnalyzer(const char *input)
             }
             case '=':
             {
-                this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_ASSIGNMENT;
-                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_ASSIGNMENT;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
 
                 token_starting_position = 0;
 
@@ -202,11 +208,11 @@ void LexicalAnalyzer(const char *input)
             {
                 if (*input >= '0' && *input <= '9')
                 {
-                    this__lexical_synthesizer.token_row_position[number_of_tokens] = this__lexical_analyzer.row_position;
-                    this__lexical_synthesizer.token_column_position[number_of_tokens] = ++this__lexical_analyzer.column_position;
-                    this__lexical_synthesizer.token_binary_position[number_of_tokens] = ++this__lexical_analyzer.binary_position;
+                    this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                    this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                    this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
 
-                    this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
 
                     while (loop)
                     {
@@ -216,8 +222,8 @@ void LexicalAnalyzer(const char *input)
                             {
                                 printf("[%d] = '\\0'\n", token_starting_position);
 
-                                this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens;
-                                this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
+                                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
+                                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
 
                                 loop = 0;
                                 break;
@@ -228,15 +234,15 @@ void LexicalAnalyzer(const char *input)
                                 {
                                     this__lexical_analyzer.column_position++;
 
-                                    this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
+                                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
                                 }
                                 else
                                 {
                                     this__lexical_analyzer.column_position++;
 
-                                    this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                                    this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_NUMBER;
-                                    this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+                                    this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_NUMBER;
+                                    this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
                                     
                                     token_starting_position = 0;
                                     loop = 0;
@@ -244,15 +250,18 @@ void LexicalAnalyzer(const char *input)
                             }
                         }
                     }
+                    // äîáàâèòü òîêåí òóò
                     loop = 1;
+                    // äîáàâèòü òîêåí òóò
                 }
                 else
                 {
                     printf("Pik..");
-                    this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position++] = *input++;
-                    this__lexical_synthesizer.token_value[number_of_tokens][token_starting_position] = '\0';
-                    this__lexical_synthesizer.token_type[number_of_tokens] = TOKEN_UNKNOWN;
-                    this__lexical_synthesizer.token_id[number_of_tokens] = number_of_tokens++;
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                    this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_UNKNOWN;
+                    this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
                 }
             }
         }
@@ -327,14 +336,14 @@ int main()
     // Ïå÷àòü ñòğóêòóğû òîêåíîâ
     for (int i = 0; i < number_of_tokens; i++)
     {
-        printf("\nÈäåíòèôèêàòîğ òîêåíà: %d", this__lexical_synthesizer.token_id[i]);
+        printf("\nÈäåíòèôèêàòîğ òîêåíà: %d", this__lexical_synthesizer[i].token_id);
         printf("\nÏîçèöèÿ òîêåíà: [ñòğîêà: %d, ñòîëáåö: %d, áèíàğíî: %d]",
-            this__lexical_synthesizer.token_row_position[i],
-            this__lexical_synthesizer.token_column_position[i],
-            this__lexical_synthesizer.token_binary_position[i]
+            this__lexical_synthesizer[i].token_row_position,
+            this__lexical_synthesizer[i].token_column_position,
+            this__lexical_synthesizer[i].token_binary_position
         );
-        printf("\nÒèï òîêåíà: %s", token_name_table[this__lexical_synthesizer.token_type[i]]);
-        printf("\nÇíà÷åíèå òîêåíà: %s\n", this__lexical_synthesizer.token_value[i]);
+        printf("\nÒèï òîêåíà: %s", token_name_table[this__lexical_synthesizer[i].token_type]);
+        printf("\nÇíà÷åíèå òîêåíà: %s\n", this__lexical_synthesizer[i].token_value);
     }
 
     //printf("Ôàéëîâîé ââîä: %s.", file_input);
