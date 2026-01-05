@@ -275,6 +275,7 @@ struct SyntaxAnalyzer
 {
 
 };
+// Синтаксический анализатор
 void SyntaxAnalyzer()
 {
     printf("\nВызов функции: SyntaxAnalyzer()\n\n");
@@ -286,6 +287,7 @@ struct SyntaxSynthesizer
 {
 
 };
+// Синтаксический синтезатор
 void SyntaxSynthesizer()
 {
     printf("\nВызов функции: SyntaxSynthesizer()\n\n");
