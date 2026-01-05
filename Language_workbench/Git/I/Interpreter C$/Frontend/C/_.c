@@ -314,6 +314,14 @@ int main()
     InitLexicalSynthesizer(&lexical_synthesizer);
     LexicalSynthesizer(file_input);
 
+    struct SyntaxAnalyzer syntax_analyzer;
+    //InitSyntaxAnalizator(&syntax_analyzer);
+    SyntaxAnalyzer(file_input);
+
+    struct SyntaxSynthesizer syntax_synthesizer;
+    //InitSyntaxSynthesizer(&syntax_synthesizer);
+    SyntaxSynthesizer(file_input);
+
     // Печать структуры токенов
     for (int i = 0; i < number_of_tokens; i++)
     {
