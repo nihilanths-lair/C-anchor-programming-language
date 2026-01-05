@@ -270,6 +270,29 @@ void LexicalSynthesizer()
     printf("\nВозврат из функции: LexicalSynthesizer\n");
 }
 
+//typedef struct SyntaxAnalyzer SyntaxAnalyzer;
+struct SyntaxAnalyzer
+{
+
+};
+void SyntaxAnalyzer()
+{
+    printf("\nВызов функции: SyntaxAnalyzer()\n\n");
+
+    printf("\nВозврат из функции: SyntaxAnalyzer\n");
+}
+//typedef struct SyntaxSynthesizer SyntaxSynthesizer;
+struct SyntaxSynthesizer
+{
+
+};
+void SyntaxSynthesizer()
+{
+    printf("\nВызов функции: SyntaxSynthesizer()\n\n");
+
+    printf("\nВозврат из функции: SyntaxSynthesizer\n");
+}
+
 int main()
 {
     setlocale(0, "");
