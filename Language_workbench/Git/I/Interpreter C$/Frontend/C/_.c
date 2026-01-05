@@ -272,9 +272,194 @@ void LexicalAnalyzer(const char *input)
     printf("\nÂîçâğàò èç ôóíêöèè: LexicalAnalyzer\n");
 }
 // Ëåêñè÷åñêèé ñèíòåçàòîğ
-void LexicalSynthesizer()
+void LexicalSynthesizer(const char *input)
 {
     printf("\nÂûçîâ ôóíêöèè: LexicalSynthesizer()\n\n");
+
+    unsigned char loop = 1;
+    while (loop)
+    {
+        switch (*input)
+        {
+            case '\0':
+            {
+                printf("[%d] = '\\0'\n", token_starting_position);
+
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                loop = 0;
+
+                break;
+            }
+            case '\n':
+            {
+                this__lexical_analyzer.row_position++;
+                this__lexical_analyzer.column_position = 0;
+                this__lexical_analyzer.binary_position++;
+
+                break;
+            }
+            case ' ':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_INDENTATION;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            case '*':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_MUL;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            case '+':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_ADD;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            case '-':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_SUB;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            case '/':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_OP_DIV;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            case '=':
+            {
+                this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_ASSIGNMENT;
+                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+
+                token_starting_position = 0;
+
+                break;
+            }
+            default:
+            {
+                if (*input >= '0' && *input <= '9')
+                {
+                    this__lexical_synthesizer[number_of_tokens].token_row_position = this__lexical_analyzer.row_position;
+                    this__lexical_synthesizer[number_of_tokens].token_column_position = ++this__lexical_analyzer.column_position;
+                    this__lexical_synthesizer[number_of_tokens].token_binary_position = ++this__lexical_analyzer.binary_position;
+
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+
+                    while (loop)
+                    {
+                        switch (*input)
+                        {
+                            case '\0':
+                            {
+                                printf("[%d] = '\\0'\n", token_starting_position);
+
+                                this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
+                                this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                                loop = 0;
+                                break;
+                            }
+                            default:
+                            {
+                                if (*input >= '0' && *input <= '9')
+                                {
+                                    this__lexical_analyzer.column_position++;
+
+                                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                                }
+                                else
+                                {
+                                    this__lexical_analyzer.column_position++;
+
+                                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+                                    this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_NUMBER;
+                                    this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+                                    
+                                    token_starting_position = 0;
+                                    loop = 0;
+                                }
+                            }
+                        }
+                    }
+                    // äîáàâèòü òîêåí òóò
+                    loop = 1;
+                    // äîáàâèòü òîêåí òóò
+                }
+                else
+                {
+                    printf("Pik..");
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
+                    this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
+
+                    this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_UNKNOWN;
+                    this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens++;
+                }
+            }
+        }
+        printf("[%d] = '\\0'\n", token_starting_position);
+        input++;
+    }
 
     printf("\nÂîçâğàò èç ôóíêöèè: LexicalSynthesizer\n");
 }
