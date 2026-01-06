@@ -26,8 +26,10 @@ enum
 
     TOKEN_NUMBER,
     TOKEN_OP_MUL, TOKEN_OP_ADD, TOKEN_OP_SUB, TOKEN_OP_DIV,
+    //LEFT_ROUND_BRACKET, RIGHT_ROUND_BRACKET, // () , приоритетность
+    OPENING_ROUND_BRACKET, CLOSING_ROUND_BRACKET, // () , приоритетность
     TOKEN_INDENTATION,
-    TOKEN_ASSIGNMENT,
+    TOKEN_ASSIGNMENT, // = , присваивание
 
     TOKEN_ABSENT
 };
@@ -37,8 +39,10 @@ const char token_name_table[][40+1] =
 
     "NUMBER",
     "OP_MUL", "OP_ADD", "OP_SUB", "OP_DIV",
+    //"LEFT_ROUND_BRACKET", "RIGHT_ROUND_BRACKET", // () , приоритетность
+    "OPENING_ROUND_BRACKET", "CLOSING_ROUND_BRACKET", // () , приоритетность
     "INDENTATION",
-    "ASSIGNMENT"//Присваивание
+    "ASSIGNMENT", // = , присваивание
 
     "ABSENT"
 };
@@ -116,13 +120,13 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
     {
         switch (*input)
         {
-            case '\0':
+            case '\0'://0
             {
                 loop = 0;
 
                 break;
             }
-            case '\n':
+            case '\n'://10
             {
                 printf("\nНовая строка << '\\n'",
                     this__lexical_analyzer.row_position,
@@ -136,42 +140,56 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
 
                 break;
             }
-            case ' ':
+            case ' '://32
             {
                 printf("\nОтступ << '%c'", *input);
 
                 break;
             }
-            case '*':
+            case '('://40
+            {
+                printf("\nОткрывающая круглая скобка << '%c'", *input);
+
+                break;
+            }
+            case ')'://41
+            {
+                printf("\nЗакрывающая круглая скобка << '%c'", *input);
+
+                break;
+            }
+            case '*'://42
             {
                 printf("\nЗнак << '%c'", *input);
 
                 break;
             }
-            case '+':
+            case '+'://43
             {
                 printf("\nЗнак << '%c'", *input);
 
                 break;
             }
-            case '-':
+            case '-'://45
             {
                 printf("\nЗнак << '%c'", *input);
 
                 break;
             }
-            case '/':
+            case '/'://47
             {
                 printf("\nЗнак << '%c'", *input);
 
                 break;
             }
-            case '=':
+            /*
+            case '='://61
             {
-
+                printf("\nЗнак << '%c'", *input);
 
                 break;
             }
+            */
             default:
             {
                 // Допустима цифра в диапазоне от 0 до 9
@@ -198,7 +216,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                     #if defined DEBUG
                     *__bank = '\0';
                     printf("\nЧисло << \"%s\"", bank);
-                    __bank = bank;
+                    //__bank = bank;
                     #endif
                     // = TOKEN_NUMBER;
                     input--;
