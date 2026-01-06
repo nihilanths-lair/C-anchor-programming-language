@@ -2,6 +2,24 @@
 #include <locale.h>
 #include <string.h>
 
+#define DEBUG
+#if defined DEBUG
+char bank[0xFF];
+char *__bank = bank;
+char stack[0xFF];
+char *ptr_stack = stack;
+void push(char symbol)
+{
+    *stack = symbol;
+    ptr_stack++;
+}
+void pop()
+{
+    *stack = '\0';
+    ptr_stack--;
+}
+#endif
+
 enum
 {
     TOKEN_UNKNOWN,
@@ -88,10 +106,11 @@ unsigned char number_of_tokens = 0;
 unsigned char token_starting_position = 0;
 
 // Лексический анализатор
-void LexicalAnalyzer(const char *input)
+void LexicalAnalyzer(const char *input/*, int ptr__input*/)
 {
     printf("\nВызов функции: LexicalAnalyzer(\"%s\")\n\n", input);
 
+    int inp_pos = 0;
     unsigned char loop = 1;
     while (loop)
     {
@@ -158,16 +177,30 @@ void LexicalAnalyzer(const char *input)
                 // Допустима цифра в диапазоне от 0 до 9
                 if (*input >= '0' && *input <= '9')
                 {
+                    #if defined DEBUG
+                    *__bank++ = *input;
                     printf("\nЦифра << '%c'", *input);
+                    #endif
+                    //input[++inp_pos]; // перейти к след. символу
                     input++; // перейти к след. символу
                     //this__lexical_analyzer.remember_position = this__lexical_analyzer.binary_position;
                     // Допустима цифра в диапазоне от 0 до 9
                     while (*input >= '0' && *input <= '9')
                     {
+                        #if defined DEBUG
+                        *__bank++ = *input;
                         printf("\nЦифра << '%c'", *input);
+                        #endif
                         input++; // перейти к след. символу
                     }
-                    if (*input < '0' || *input > '9') printf("\nЧисло << Цифра+");
+                    /*if (*input < '0' || *input > '9')*/
+                    #if defined DEBUG
+                    *__bank = '\0';
+                    printf("\nЧисло << \"%s\"", bank);
+                    __bank = bank;
+                    #endif
+                    // = TOKEN_NUMBER;
+                    input--;
                 }
                 else
                 { // Нераспознанная лексема
