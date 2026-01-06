@@ -5,7 +5,7 @@
 #define DEBUG
 #if defined DEBUG
 char bank[0xFF];
-char *__bank = bank;
+
 char stack[0xFF];
 char *ptr_stack = stack;
 void push(char symbol)
@@ -124,11 +124,11 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
             }
             case '\n':
             {
-                /*printf("\nНовая строка << '\\n'",
+                printf("\nНовая строка << '\\n'",
                     this__lexical_analyzer.row_position,
                     this__lexical_analyzer.column_position,
                     this__lexical_analyzer.binary_position
-                );*/
+                );
                 this__lexical_analyzer.row_position += 1;
                 this__lexical_analyzer.column_position = 0;
                 this__lexical_analyzer.binary_position += 1;
@@ -178,8 +178,9 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                 if (*input >= '0' && *input <= '9')
                 {
                     #if defined DEBUG
+                    char *__bank = bank;
                     *__bank++ = *input;
-                    printf("\nЦифра << '%c'", *input);
+                    //printf("\nЦифра << '%c'", *input);
                     #endif
                     //input[++inp_pos]; // перейти к след. символу
                     input++; // перейти к след. символу
@@ -189,7 +190,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                     {
                         #if defined DEBUG
                         *__bank++ = *input;
-                        printf("\nЦифра << '%c'", *input);
+                        //printf("\nЦифра << '%c'", *input);
                         #endif
                         input++; // перейти к след. символу
                     }
@@ -202,6 +203,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                     // = TOKEN_NUMBER;
                     input--;
                 }
+                else if (*input >= 'A' && *input <= 'Z' || *input == '_' || *input >= 'a' && *input <= 'z') {} // ^IDENT позже
                 else
                 { // Нераспознанная лексема
                     printf("\nLexical analysis error/Ошибка лексического анализа: row/строка - %d, column/столбец - %d, binary/бинарная - %d.",
