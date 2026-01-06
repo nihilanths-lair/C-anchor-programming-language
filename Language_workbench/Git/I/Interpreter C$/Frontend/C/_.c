@@ -203,7 +203,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                     // = TOKEN_NUMBER;
                     input--;
                 }
-                else if (*input >= 'A' && *input <= 'Z' || *input == '_' || *input >= 'a' && *input <= 'z') {} // ^IDENT ïîçæå
+                //else if (*input >= 'A' && *input <= 'Z' || *input == '_' || *input >= 'a' && *input <= 'z') {} // ^IDENT ïîçæå
                 else
                 { // Íåğàñïîçíàííàÿ ëåêñåìà
                     printf("\nLexical analysis error/Îøèáêà ëåêñè÷åñêîãî àíàëèçà: row/ñòğîêà - %d, column/ñòîëáåö - %d, binary/áèíàğíàÿ - %d.",
