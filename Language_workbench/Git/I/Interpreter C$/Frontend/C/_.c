@@ -33,20 +33,18 @@ struct LexicalAnalyzer
     int binary_position;
 }
 this__lexical_analyzer;
-void InitLexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
+void Constructor__LexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
 {
     //struct LexicalAnalyzer LexicalAnalyzer;
-
-    // Глобальная переменная структуры
-    this__lexical_analyzer.row_position = 1;
-    this__lexical_analyzer.column_position = 1;
-    this__lexical_analyzer.binary_position = 1;
-    
-    // Локальная переменная структуры (чище и безопаснее)
-    lexical_analyzer->row_position = 1;
-    lexical_analyzer->column_position = 1;
-    lexical_analyzer->binary_position = 1;
+    /*// Глобальная переменная структуры */
+    this__lexical_analyzer.row_position = lexical_analyzer->row_position;
+    this__lexical_analyzer.column_position = lexical_analyzer->column_position;
+    this__lexical_analyzer.binary_position = lexical_analyzer->binary_position;
+    /*// Локальная переменная структуры (чище и безопаснее) */
 }
+
+//-@-/ >>> Markup-1 >>> /-@-//
+//-@-/ <<< Markup-1 <<< /-@-//
 
 #define MAX_TOKENS 0xFF
 //typedef struct LexicalSynthesizer LexicalSynthesizer;
@@ -401,7 +399,10 @@ int main()
     file_input[len] = '\0';
 
     struct LexicalAnalyzer lexical_analyzer;
-    InitLexicalAnalyzer(&lexical_analyzer);
+    lexical_analyzer.row_position = 1;
+    lexical_analyzer.column_position = 1;
+    lexical_analyzer.binary_position = 1;
+    Constructor__LexicalAnalyzer(&lexical_analyzer);
     LexicalAnalyzer(file_input);
 
     struct LexicalSynthesizer lexical_synthesizer;
