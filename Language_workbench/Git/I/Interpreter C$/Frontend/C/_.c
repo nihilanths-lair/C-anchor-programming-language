@@ -31,6 +31,7 @@ struct LexicalAnalyzer
     int row_position;
     int column_position;
     int binary_position;
+    int remember_position;
 }
 this__lexical_analyzer;
 void Constructor__LexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
@@ -40,11 +41,20 @@ void Constructor__LexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
     this__lexical_analyzer.row_position = lexical_analyzer->row_position;
     this__lexical_analyzer.column_position = lexical_analyzer->column_position;
     this__lexical_analyzer.binary_position = lexical_analyzer->binary_position;
+    this__lexical_analyzer.remember_position = lexical_analyzer->remember_position;
     /*// Локальная переменная структуры (чище и безопаснее) */
 }
 
-//-@-/ >>> Markup-1 >>> /-@-//
-//-@-/ <<< Markup-1 <<< /-@-//
+// -[@]- >>> Markup-1 {{ -[@]- //
+static inline char GetNextCharacter()
+{
+
+}
+static inline char GetPreviousCharacter()
+{
+
+}
+// -[@]- }} Markup-1 <<< -[@]- //
 
 #define MAX_TOKENS 0xFF
 //typedef struct LexicalSynthesizer LexicalSynthesizer;
@@ -145,18 +155,29 @@ void LexicalAnalyzer(const char *input)
             }
             default:
             {
-                // Допустимы цифры в диапазоне от 0 до 9
+                // Допустима цифра в диапазоне от 0 до 9
                 if (*input >= '0' && *input <= '9')
                 {
                     printf("\nЦифра << '%c'", *input);
+                    input++; // перейти к след. символу
+                    //this__lexical_analyzer.remember_position = this__lexical_analyzer.binary_position;
+                    // Допустима цифра в диапазоне от 0 до 9
+                    while (*input >= '0' && *input <= '9')
+                    {
+                        printf("\nЦифра << '%c'", *input);
+                        input++; // перейти к след. символу
+                    }
+                    if (*input < '0' || *input > '9') printf("\nЧисло << Цифра+");
                 }
-                else { // Нераспознанная лексема
-                    printf("\nError/Ошибка лексического анализа: row/строка - %d, column/столбец - %d, binary/бинарная - %d.\nSymbol/Символ: %c\n               ^",
+                else
+                { // Нераспознанная лексема
+                    printf("\nLexical analysis error/Ошибка лексического анализа: row/строка - %d, column/столбец - %d, binary/бинарная - %d.",
                         this__lexical_analyzer.row_position,
                         this__lexical_analyzer.column_position,
-                        this__lexical_analyzer.binary_position,
-                        *input
+                        this__lexical_analyzer.binary_position
                     );
+                    printf("\nInvalid symbol/Недопустимый символ: %c.", *input);
+                    printf("\n                                    ^");
                 }
             }
         }
@@ -402,6 +423,7 @@ int main()
     lexical_analyzer.row_position = 1;
     lexical_analyzer.column_position = 1;
     lexical_analyzer.binary_position = 1;
+    lexical_analyzer.remember_position = 0;
     Constructor__LexicalAnalyzer(&lexical_analyzer);
     LexicalAnalyzer(file_input);
 
