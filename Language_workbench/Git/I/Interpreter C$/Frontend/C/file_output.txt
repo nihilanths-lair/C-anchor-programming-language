@@ -1,0 +1,136 @@
+
+Вызов функции: LexicalAnalysisWithSynthesis("* 23166
+12 + (345 - 6780) / fs65")
+
+<До> this__lexical_synthesizer[0].token_start = 0
+<До> this__lexical_synthesizer[0].token_type = "ABSENT"
+<До> this__lexical_synthesizer[0].token_value = ""
+<До> this__lexical_synthesizer[0].token_end = 0
+
+<После> this__lexical_synthesizer[0].token_start = 0
+<После> this__lexical_synthesizer[0].token_type = "STAR_SIGN"
+<После> this__lexical_synthesizer[0].token_value = "*"
+<После> this__lexical_synthesizer[0].token_end = 1
+
+Знак << ' '
+
+<До> this__lexical_synthesizer[1].token_type = ABSENT
+<До> this__lexical_synthesizer[1].token_end = 0
+
+<После> this__lexical_synthesizer[1].token_type = INDENT
+<После> this__lexical_synthesizer[1].token_end = 1
+
+Число << "23166"
+
+<До> this__lexical_synthesizer[2].token_type = ABSENT
+<До> this__lexical_synthesizer[2].token_end = 0
+
+<После> this__lexical_synthesizer[2].token_type = NUMBER
+<После> this__lexical_synthesizer[2].token_end = 7
+
+Число << "12"
+
+<До> this__lexical_synthesizer[3].token_type = ABSENT
+<До> this__lexical_synthesizer[3].token_end = 0
+
+<После> this__lexical_synthesizer[3].token_type = NUMBER
+<После> this__lexical_synthesizer[3].token_end = 10
+
+Знак << '+'
+
+<До> this__lexical_synthesizer[4].token_type = ABSENT
+<До> this__lexical_synthesizer[4].token_end = 0
+
+<После> this__lexical_synthesizer[4].token_type = PLUS_SIGN
+
+<После> this__lexical_synthesizer[4].token_end = 11
+
+Знак << ' '
+
+<До> this__lexical_synthesizer[5].token_type = ABSENT
+<До> this__lexical_synthesizer[5].token_end = 0
+
+<После> this__lexical_synthesizer[5].token_type = INDENT
+<После> this__lexical_synthesizer[5].token_end = 12
+
+Открывающая круглая скобка << '('
+
+<До> this__lexical_synthesizer[6].token_type = ABSENT
+<До> this__lexical_synthesizer[6].token_end = 0
+
+<После> this__lexical_synthesizer[6].token_type = OPENING_ROUND_BRACKET
+
+<После> this__lexical_synthesizer[6].token_end = 13
+
+Число << "345"
+
+<До> this__lexical_synthesizer[7].token_type = ABSENT
+<До> this__lexical_synthesizer[7].token_end = 0
+
+<После> this__lexical_synthesizer[7].token_type = NUMBER
+<После> this__lexical_synthesizer[7].token_end = 17
+
+Знак << '-'
+
+<До> this__lexical_synthesizer[8].token_type = ABSENT
+<До> this__lexical_synthesizer[8].token_end = 0
+
+<После> this__lexical_synthesizer[8].token_type = MINUS_SIGN
+
+<После> this__lexical_synthesizer[8].token_end = 18
+
+Знак << ' '
+
+<До> this__lexical_synthesizer[9].token_type = ABSENT
+<До> this__lexical_synthesizer[9].token_end = 0
+
+<После> this__lexical_synthesizer[9].token_type = INDENT
+<После> this__lexical_synthesizer[9].token_end = 19
+
+Число << "6780"
+
+<До> this__lexical_synthesizer[10].token_type = ABSENT
+<До> this__lexical_synthesizer[10].token_end = 0
+
+<После> this__lexical_synthesizer[10].token_type = NUMBER
+<После> this__lexical_synthesizer[10].token_end = 24
+
+Знак << ' '
+
+<До> this__lexical_synthesizer[11].token_type = ABSENT
+<До> this__lexical_synthesizer[11].token_end = 0
+
+<После> this__lexical_synthesizer[11].token_type = INDENT
+<После> this__lexical_synthesizer[11].token_end = 25
+
+Знак << '/'
+
+<До> this__lexical_synthesizer[12].token_type = ABSENT
+<До> this__lexical_synthesizer[12].token_end = 0
+
+<После> this__lexical_synthesizer[12].token_type = SLASH_SIGN
+<После> this__lexical_synthesizer[12].token_end = 26
+
+Знак << ' '
+
+<До> this__lexical_synthesizer[13].token_type = ABSENT
+<До> this__lexical_synthesizer[13].token_end = 0
+
+<После> this__lexical_synthesizer[13].token_type = INDENT
+<После> this__lexical_synthesizer[13].token_end = 27
+                        
+Lexical analysis error/Ошибка лексического анализа: row/строка - 1, column/столбец - 29, binary/бинарная - 28.
+Invalid symbol/Недопустимый символ: f.
+                                    ^                        
+Lexical analysis error/Ошибка лексического анализа: row/строка - 1, column/столбец - 30, binary/бинарная - 29.
+Invalid symbol/Недопустимый символ: s.
+                                    ^
+Число << "65"
+
+<До> this__lexical_synthesizer[14].token_type = ABSENT
+<До> this__lexical_synthesizer[14].token_end = 0
+
+<После> this__lexical_synthesizer[14].token_type = NUMBER
+<После> this__lexical_synthesizer[14].token_end = 32
+
+Возврат из функции: LexicalAnalysisWithSynthesis
