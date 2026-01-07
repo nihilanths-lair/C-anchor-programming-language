@@ -5,8 +5,7 @@
 #define DEBUG
 #if defined DEBUG
 char bank[0xFF];
-
-char stack[0xFF];
+/*char stack[0xFF];
 char *ptr_stack = stack;
 void push(char symbol)
 {
@@ -17,7 +16,7 @@ void pop()
 {
     *stack = '\0';
     ptr_stack--;
-}
+}*/
 #endif
 
 enum
@@ -58,7 +57,7 @@ struct LexicalAnalyzer
 this__lexical_analyzer;
 void Constructor__LexicalAnalyzer(struct LexicalAnalyzer *lexical_analyzer)
 {
-    //struct LexicalAnalyzer LexicalAnalyzer;
+    //struct LexicalAnalyzer lexical_analyzer;
     /*// Глобальная переменная структуры */
     this__lexical_analyzer.row_position = lexical_analyzer->row_position;
     this__lexical_analyzer.column_position = lexical_analyzer->column_position;
@@ -93,17 +92,12 @@ struct LexicalSynthesizer
     char token_value/*[MAX_TOKENS]*/[40+1];
 }
 this__lexical_synthesizer[MAX_TOKENS];
-void InitLexicalSynthesizer(struct LexicalSynthesizer *lexical_synthesizer)
+void Constructor__LexicalSynthesizer(struct LexicalSynthesizer *lexical_synthesizer)
 {
-    //struct LexicalSynthesizer LexicalSynthesizer;
-
-    // Глобальная переменная структуры
-    /*
-    this__lexical_synthesizer.? = 1;
-    
-    // Локальная переменная структуры (чище и безопаснее)
-    lexical_synthesizer->? = 1;
-    */
+    //struct LexicalSynthesizer lexical_synthesizer;
+    /*// Глобальная переменная структуры */
+    this__lexical_synthesizer[0].token_type = lexical_synthesizer[0].token_type;
+    /*// Локальная переменная структуры (чище и безопаснее) */
 }
 
 unsigned char number_of_tokens = 0;
@@ -433,6 +427,141 @@ void LexicalSynthesizer(const char *input)
 
     printf("\nВозврат из функции: LexicalSynthesizer\n");
 }
+// Лексический анализ с синтезом
+void LexicalAnalysisWithSynthesis(const char *input)
+{
+    printf("\nВызов функции: LexicalAnalysisWithSynthesis(\"%s\")\n\n", input);
+
+    int inp_pos = 0;
+    unsigned char loop = 1;
+    while (loop)
+    {
+        switch (*input)
+        {
+            case '\0'://0
+            {
+                loop = 0;
+
+                break;
+            }
+            case '\n'://10
+            {
+                printf("\nНовая строка << '\\n'",
+                    this__lexical_analyzer.row_position,
+                    this__lexical_analyzer.column_position,
+                    this__lexical_analyzer.binary_position
+                );
+                this__lexical_analyzer.row_position += 1;
+                this__lexical_analyzer.column_position = 0;
+                this__lexical_analyzer.binary_position += 1;
+                //loop = 0;
+
+                break;
+            }
+            case ' '://32
+            {
+                printf("\nОтступ << '%c'", *input);
+
+                break;
+            }
+            case '('://40
+            {
+                printf("\nОткрывающая круглая скобка << '%c'", *input);
+
+                break;
+            }
+            case ')'://41
+            {
+                printf("\nЗакрывающая круглая скобка << '%c'", *input);
+
+                break;
+            }
+            case '*'://42
+            {
+                printf("\nЗнак << '%c'", *input);
+
+                break;
+            }
+            case '+'://43
+            {
+                printf("\nЗнак << '%c'", *input);
+
+                break;
+            }
+            case '-'://45
+            {
+                printf("\nЗнак << '%c'", *input);
+
+                break;
+            }
+            case '/'://47
+            {
+                printf("\nЗнак << '%c'", *input);
+
+                break;
+            }
+            /*
+            case '='://61
+            {
+                printf("\nЗнак << '%c'", *input);
+
+                break;
+            }
+            */
+            default:
+            {
+                // Допустима цифра в диапазоне от 0 до 9
+                if (*input >= '0' && *input <= '9')
+                {
+                    #if defined DEBUG
+                    char *__bank = bank;
+                    *__bank++ = *input;
+                    //printf("\nЦифра << '%c'", *input);
+                    #endif
+                    //input[++inp_pos]; // перейти к след. символу
+                    input++; // перейти к след. символу
+                    //this__lexical_analyzer.remember_position = this__lexical_analyzer.binary_position;
+                    // Допустима цифра в диапазоне от 0 до 9
+                    while (*input >= '0' && *input <= '9')
+                    {
+                        #if defined DEBUG
+                        *__bank++ = *input;
+                        //printf("\nЦифра << '%c'", *input);
+                        #endif
+                        input++; // перейти к след. символу
+                    }
+                    /*if (*input < '0' || *input > '9')*/
+                    #if defined DEBUG
+                    *__bank = '\0';
+                    printf("\nЧисло << \"%s\"", bank);
+                    //__bank = bank;
+                    #endif
+                    printf("<До> this__lexical_synthesizer[number_of_tokens].token_type = %d", this__lexical_synthesizer[number_of_tokens].token_type);
+                    this__lexical_synthesizer[number_of_tokens].token_type = TOKEN_NUMBER;
+                    printf("<После> this__lexical_synthesizer[number_of_tokens].token_type = %d", this__lexical_synthesizer[number_of_tokens].token_type);
+                    number_of_tokens ++;
+                    input--;
+                }
+                //else if (*input >= 'A' && *input <= 'Z' || *input == '_' || *input >= 'a' && *input <= 'z') {} // ^IDENT позже
+                else
+                { // Нераспознанная лексема
+                    printf("\nLexical analysis error/Ошибка лексического анализа: row/строка - %d, column/столбец - %d, binary/бинарная - %d.",
+                        this__lexical_analyzer.row_position,
+                        this__lexical_analyzer.column_position,
+                        this__lexical_analyzer.binary_position
+                    );
+                    printf("\nInvalid symbol/Недопустимый символ: %c.", *input);
+                    printf("\n                                    ^");
+                }
+            }
+        }
+        this__lexical_analyzer.column_position += 1;
+        this__lexical_analyzer.binary_position += 1;
+        input++;
+    }
+
+    printf("\nВозврат из функции: LexicalAnalysisWithSynthesis\n");
+}
 
 //typedef struct SyntaxAnalyzer SyntaxAnalyzer;
 struct SyntaxAnalyzer
@@ -479,11 +608,14 @@ int main()
     lexical_analyzer.remember_position = 0;
     Constructor__LexicalAnalyzer(&lexical_analyzer);
     LexicalAnalyzer(file_input);
-
-    struct LexicalSynthesizer lexical_synthesizer;
-    InitLexicalSynthesizer(&lexical_synthesizer);
+    
+    struct LexicalSynthesizer lexical_synthesizer[MAX_TOKENS];
+    lexical_synthesizer[0].token_type = 0;
+    Constructor__LexicalSynthesizer(&lexical_synthesizer);
     LexicalSynthesizer(file_input);
 
+    //LexicalAnalysisWithSynthesis(file_input);
+    
     struct SyntaxAnalyzer syntax_analyzer;
     //InitSyntaxAnalizator(&syntax_analyzer);
     SyntaxAnalyzer(file_input);
