@@ -106,7 +106,7 @@ unsigned char token_starting_position = 0;
 // Лексический анализатор
 void LexicalAnalyzer(const char *input/*, int ptr__input*/)
 {
-    printf("\nВызов функции: LexicalAnalyzer(\"%s\")\n\n", input);
+    printf("\nВызов функции: LexicalAnalyzer(\"%s\")\n", input);
 
     int inp_pos = 0;
     unsigned char loop = 1;
@@ -209,7 +209,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
                     /*if (*input < '0' || *input > '9')*/
                     #if defined DEBUG
                     *__bank = '\0';
-                    printf("\nЧисло << \"%s\"", bank);
+                    printf("\nЧисло << \"%s\"\n", bank);
                     //__bank = bank;
                     #endif
                     // = TOKEN_NUMBER;
@@ -238,7 +238,7 @@ void LexicalAnalyzer(const char *input/*, int ptr__input*/)
 // Лексический синтезатор
 void LexicalSynthesizer(const char *input)
 {
-    printf("\nВызов функции: LexicalSynthesizer()\n\n");
+    printf("\nВызов функции: LexicalSynthesizer()");
 
     unsigned char loop = 1;
     while (loop)
@@ -247,8 +247,6 @@ void LexicalSynthesizer(const char *input)
         {
             case '\0':
             {
-                printf("[%d] = '\\0'\n", token_starting_position);
-
                 this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
                 this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
 
@@ -376,8 +374,6 @@ void LexicalSynthesizer(const char *input)
                         {
                             case '\0':
                             {
-                                printf("[%d] = '\\0'\n", token_starting_position);
-
                                 this__lexical_synthesizer[number_of_tokens].token_id = number_of_tokens;
                                 this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
 
@@ -412,7 +408,6 @@ void LexicalSynthesizer(const char *input)
                 }
                 else
                 {
-                    printf("Pik..");
                     this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position++] = *input++;
                     this__lexical_synthesizer[number_of_tokens].token_value[token_starting_position] = '\0';
 
@@ -421,11 +416,10 @@ void LexicalSynthesizer(const char *input)
                 }
             }
         }
-        printf("[%d] = '\\0'\n", token_starting_position);
         input++;
     }
 
-    printf("\nВозврат из функции: LexicalSynthesizer\n");
+    printf("\nВозврат из функции: LexicalSynthesizer");
 }
 // Лексический анализ с синтезом
 void LexicalAnalysisWithSynthesis(const char *input)
@@ -571,9 +565,9 @@ struct SyntaxAnalyzer
 // Синтаксический анализатор
 void SyntaxAnalyzer()
 {
-    printf("\nВызов функции: SyntaxAnalyzer()\n\n");
+    printf("\nВызов функции: SyntaxAnalyzer()");
 
-    printf("\nВозврат из функции: SyntaxAnalyzer\n");
+    printf("\nВозврат из функции: SyntaxAnalyzer");
 }
 //typedef struct SyntaxSynthesizer SyntaxSynthesizer;
 struct SyntaxSynthesizer
@@ -583,9 +577,9 @@ struct SyntaxSynthesizer
 // Синтаксический синтезатор
 void SyntaxSynthesizer()
 {
-    printf("\nВызов функции: SyntaxSynthesizer()\n\n");
+    printf("\nВызов функции: SyntaxSynthesizer()");
 
-    printf("\nВозврат из функции: SyntaxSynthesizer\n");
+    printf("\nВозврат из функции: SyntaxSynthesizer");
 }
 
 int main()
@@ -611,18 +605,24 @@ int main()
     
     struct LexicalSynthesizer lexical_synthesizer[MAX_TOKENS];
     lexical_synthesizer[0].token_type = 0;
-    Constructor__LexicalSynthesizer(&lexical_synthesizer);
+    Constructor__LexicalSynthesizer(&lexical_synthesizer[0]);
     LexicalSynthesizer(file_input);
 
     //LexicalAnalysisWithSynthesis(file_input);
     
+    putchar('\n');
+
     struct SyntaxAnalyzer syntax_analyzer;
     //InitSyntaxAnalizator(&syntax_analyzer);
     SyntaxAnalyzer(file_input);
 
+    putchar('\n');
+
     struct SyntaxSynthesizer syntax_synthesizer;
     //InitSyntaxSynthesizer(&syntax_synthesizer);
     SyntaxSynthesizer(file_input);
+
+    putchar('\n');
 
     // Печать структуры токенов
     for (int i = 0; i < number_of_tokens; i++)
