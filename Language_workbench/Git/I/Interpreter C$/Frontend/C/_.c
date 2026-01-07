@@ -21,7 +21,7 @@ enum
 };
 const char token_name_table[][40+1] =
 {
-    "ABSENT",                // 00
+    "",                      // 00 ABSENT
     "NUMBER",                // 01
     "STAR_SIGN",             // 02
     "PLUS_SIGN",             // 03
@@ -128,14 +128,13 @@ unsigned char token_starting_position = 0;
 // Отладка
 void Debug(FILE *descriptor, const char *interval)
 {
-    fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_start = %d", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_start);
+    //fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_start = %d", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_start);
     fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_type = \"%s\"", interval,
         number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]
     );
-    fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_value = \"%s\"", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_value);
-    fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_end = %d\n", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+    fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_value = \"%s\"\n", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_value);
+    //fprintf(descriptor, "\n<%s> this__lexical_synthesizer[%d].token_end = %d\n", interval, number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
 }
-char bank[0xFF];
 #endif
 
 // Лексический анализ с синтезом
@@ -159,87 +158,71 @@ void LexicalAnalysisWithSynthesis(const char *input)
             }
             case '\n'://10
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nНовая строка << '\\n'\n",
-                    this__lexical_analyzer.row_position,
-                    this__lexical_analyzer.column_position,
-                    this__lexical_analyzer.binary_position
-                );
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__NEW_LINE;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "\n");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s\n", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.row_position ++;
                 this__lexical_analyzer.column_position = 0;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case ' '://32
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nЗнак << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__INDENT;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, " ");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case '('://40
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nОткрывающая круглая скобка << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__OPENING_ROUND_BRACKET;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "(");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s\n", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case ')'://41
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nЗакрывающая круглая скобка << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__CLOSING_ROUND_BRACKET;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, ")");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case '*'://42
@@ -261,62 +244,53 @@ void LexicalAnalysisWithSynthesis(const char *input)
             }
             case '+'://43
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nЗнак << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__PLUS_SIGN;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "+");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s\n", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case '-'://45
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nЗнак << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__MINUS_SIGN;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "-");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s\n", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             case '/'://47
             {
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\nЗнак << '%c'\n", *input);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "До");
                 #endif
+                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
                 this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__SLASH_SIGN;
-                this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
+                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "/");
+                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
                 #if defined DEBUG
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                 Debug(descriptor, "После");
                 #endif
                 number_of_tokens ++;
                 input ++;
                 this__lexical_analyzer.column_position ++;
-                this__lexical_analyzer.binary_position ++;
                 break;
             }
             /*
@@ -333,40 +307,28 @@ void LexicalAnalysisWithSynthesis(const char *input)
                 if (*input >= '0' && *input <= '9')
                 {
                     this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                    #if defined DEBUG
-                    char *__bank = bank;
-                    *__bank++ = *input;
-                    //printf("\nЦифра << '%c'", *input);
-                    #endif
-                    //input[++inp_pos]; // перейти к след. символу
+                    this__lexical_synthesizer[number_of_tokens].token_value[0] = *input;
                     input ++;
                     this__lexical_analyzer.column_position ++;
                     this__lexical_analyzer.binary_position ++;
-                    //this__lexical_analyzer.remember_position = this__lexical_analyzer.binary_position;
                     // Допустима цифра в диапазоне от 0 до 9
+                    static unsigned char i;
+                    i = 1;
                     while (*input >= '0' && *input <= '9')
                     {
-                        #if defined DEBUG
-                        *__bank++ = *input;
-                        //printf("\nЦифра << '%c'", *input);
-                        #endif
+                        this__lexical_synthesizer[number_of_tokens].token_value[i++] = *input;
                         input ++;
                         this__lexical_analyzer.column_position ++;
                         this__lexical_analyzer.binary_position ++;
                     }
-                    /*if (*input < '0' || *input > '9')*/
+                    this__lexical_synthesizer[number_of_tokens].token_value[i] = '\0';
                     #if defined DEBUG
-                    *__bank = '\0';
-                    fprintf(descriptor, "\nЧисло << \"%s\"\n", bank);
-                    //__bank = bank;
-                    fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                    fprintf(descriptor, "\n<До> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                     Debug(descriptor, "До");
                     #endif
                     this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__NUMBER;
                     this__lexical_synthesizer[number_of_tokens].token_end = this__lexical_analyzer.binary_position;
                     #if defined DEBUG
-                    fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_type = %s", number_of_tokens, token_name_table[this__lexical_synthesizer[number_of_tokens].token_type]);
-                    fprintf(descriptor, "\n<После> this__lexical_synthesizer[%d].token_end = %d\n", number_of_tokens, this__lexical_synthesizer[number_of_tokens].token_end);
+                     Debug(descriptor, "После");
                     #endif
                     number_of_tokens ++;
                     /*
@@ -397,7 +359,6 @@ void LexicalAnalysisWithSynthesis(const char *input)
                 this__lexical_analyzer.binary_position ++;
             }
         }
-        //input++;
     }
     #if defined DEBUG
     fprintf(descriptor, "\nВозврат из функции: LexicalAnalysisWithSynthesis");
