@@ -1,5 +1,5 @@
 
-Вызов функции: LexicalAnalysisWithSynthesis("* 23166
+Вызов функции: LexicalAnalysisWithSynthesis("* 23166
 12 + (345 - 6780) / fs65")
 
 <До> this__lexical_synthesizer[0].token_type = ""
@@ -15,87 +15,91 @@
 <После> this__lexical_synthesizer[1].token_value = " "
 
 <До> this__lexical_synthesizer[2].token_type = ""
-<До> this__lexical_synthesizer[2].token_value = "23166"
+<До> this__lexical_synthesizer[2].token_value = ""
 
 <После> this__lexical_synthesizer[2].token_type = "NUMBER"
 <После> this__lexical_synthesizer[2].token_value = "23166"
 
 <До> this__lexical_synthesizer[3].token_type = ""
-<До> this__lexical_synthesizer[3].token_value = "12"
+<До> this__lexical_synthesizer[3].token_value = ""
 
-<После> this__lexical_synthesizer[3].token_type = "NUMBER"
-<После> this__lexical_synthesizer[3].token_value = "12"
+<После> this__lexical_synthesizer[3].token_type = "NEW_LINE"
+<После> this__lexical_synthesizer[3].token_value = "
+"
 
 <До> this__lexical_synthesizer[4].token_type = ""
 <До> this__lexical_synthesizer[4].token_value = ""
 
-<После> this__lexical_synthesizer[4].token_type = "PLUS_SIGN"
-<После> this__lexical_synthesizer[4].token_value = "+"
+<После> this__lexical_synthesizer[4].token_type = "NUMBER"
+<После> this__lexical_synthesizer[4].token_value = "12"
 
 <До> this__lexical_synthesizer[5].token_type = ""
 <До> this__lexical_synthesizer[5].token_value = ""
 
-<После> this__lexical_synthesizer[5].token_type = "INDENT"
-<После> this__lexical_synthesizer[5].token_value = " "
+<После> this__lexical_synthesizer[5].token_type = "PLUS_SIGN"
+<После> this__lexical_synthesizer[5].token_value = "+"
 
 <До> this__lexical_synthesizer[6].token_type = ""
 <До> this__lexical_synthesizer[6].token_value = ""
 
-<После> this__lexical_synthesizer[6].token_type = "OPENING_ROUND_BRACKET"
-<После> this__lexical_synthesizer[6].token_value = "("
+<После> this__lexical_synthesizer[6].token_type = "INDENT"
+<После> this__lexical_synthesizer[6].token_value = " "
 
 <До> this__lexical_synthesizer[7].token_type = ""
-<До> this__lexical_synthesizer[7].token_value = "345"
+<До> this__lexical_synthesizer[7].token_value = ""
 
-<После> this__lexical_synthesizer[7].token_type = "NUMBER"
-<После> this__lexical_synthesizer[7].token_value = "345"
+<После> this__lexical_synthesizer[7].token_type = "OPENING_ROUND_BRACKET"
+<После> this__lexical_synthesizer[7].token_value = "("
 
 <До> this__lexical_synthesizer[8].token_type = ""
 <До> this__lexical_synthesizer[8].token_value = ""
 
-<После> this__lexical_synthesizer[8].token_type = "MINUS_SIGN"
-<После> this__lexical_synthesizer[8].token_value = "-"
+<После> this__lexical_synthesizer[8].token_type = "NUMBER"
+<После> this__lexical_synthesizer[8].token_value = "345"
 
 <До> this__lexical_synthesizer[9].token_type = ""
 <До> this__lexical_synthesizer[9].token_value = ""
 
-<После> this__lexical_synthesizer[9].token_type = "INDENT"
-<После> this__lexical_synthesizer[9].token_value = " "
+<После> this__lexical_synthesizer[9].token_type = "MINUS_SIGN"
+<После> this__lexical_synthesizer[9].token_value = "-"
 
 <До> this__lexical_synthesizer[10].token_type = ""
-<До> this__lexical_synthesizer[10].token_value = "6780"
+<До> this__lexical_synthesizer[10].token_value = ""
 
-<После> this__lexical_synthesizer[10].token_type = "NUMBER"
-<После> this__lexical_synthesizer[10].token_value = "6780"
+<После> this__lexical_synthesizer[10].token_type = "INDENT"
+<После> this__lexical_synthesizer[10].token_value = " "
 
 <До> this__lexical_synthesizer[11].token_type = ""
 <До> this__lexical_synthesizer[11].token_value = ""
 
-<После> this__lexical_synthesizer[11].token_type = "INDENT"
-<После> this__lexical_synthesizer[11].token_value = " "
+<После> this__lexical_synthesizer[11].token_type = "NUMBER"
+<После> this__lexical_synthesizer[11].token_value = "6780"
 
 <До> this__lexical_synthesizer[12].token_type = ""
 <До> this__lexical_synthesizer[12].token_value = ""
 
-<После> this__lexical_synthesizer[12].token_type = "SLASH_SIGN"
-<После> this__lexical_synthesizer[12].token_value = "/"
+<После> this__lexical_synthesizer[12].token_type = "INDENT"
+<После> this__lexical_synthesizer[12].token_value = " "
 
 <До> this__lexical_synthesizer[13].token_type = ""
 <До> this__lexical_synthesizer[13].token_value = ""
 
-<После> this__lexical_synthesizer[13].token_type = "INDENT"
-<После> this__lexical_synthesizer[13].token_value = " "
-                        
-Lexical analysis error/Ошибка лексического анализа: row/строка - 1, column/столбец - 29, binary/бинарная - 28.
-Invalid symbol/Недопустимый символ: f.
-                                    ^                        
-Lexical analysis error/Ошибка лексического анализа: row/строка - 1, column/столбец - 30, binary/бинарная - 29.
-Invalid symbol/Недопустимый символ: s.
-                                    ^
-<До> this__lexical_synthesizer[14].token_type = ""
-<До> this__lexical_synthesizer[14].token_value = "65"
+<После> this__lexical_synthesizer[13].token_type = "SLASH_SIGN"
+<После> this__lexical_synthesizer[13].token_value = "/"
 
-<После> this__lexical_synthesizer[14].token_type = "NUMBER"
-<После> this__lexical_synthesizer[14].token_value = "65"
+<До> this__lexical_synthesizer[14].token_type = ""
+<До> this__lexical_synthesizer[14].token_value = ""
+
+<После> this__lexical_synthesizer[14].token_type = "INDENT"
+<После> this__lexical_synthesizer[14].token_value = " "
+                    
+Lexical analysis error/Ошибка лексического анализа: row/строка - 2, column/столбец - 20, binary/бинарная - 29.
+Invalid symbol/Недопустимый символ: f.
+                                    ^
+<До> this__lexical_synthesizer[15].token_type = ""
+<До> this__lexical_synthesizer[15].token_value = ""
+
+<После> this__lexical_synthesizer[15].token_type = "NUMBER"
+<После> this__lexical_synthesizer[15].token_value = "65"
 
 Возврат из функции: LexicalAnalysisWithSynthesis
