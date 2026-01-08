@@ -2,7 +2,7 @@
 #include <locale.h>
 #include <string.h>
 
-enum
+enum TokenType
 {
     TOKEN__ABSENT,
     TOKEN__NUMBER,
@@ -19,6 +19,7 @@ enum
     TOKEN__OPENING_ROUND_BRACKET = 40, // '('
     TOKEN__CLOSING_ROUND_BRACKET     , // ')'
 };
+//this__token_type;
 const char token_name_table[][40+1] =
 {
     "",                      // 00 ABSENT
@@ -108,6 +109,7 @@ struct LexicalSynthesizer
 }
 this__lexical_synthesizer[MAX_TOKENS];
 
+/*
 struct Lexer
 {
     struct Analyzer
@@ -122,11 +124,10 @@ struct Lexer
     this__synthesizer;
 }
 this__lexer;
+*/
 
-void AddNewToken(){}
-
-unsigned char token_starting_position = 0;
 FILE *file_descriptor;
+
 #define DEBUG
 #if defined DEBUG
 // Отладка
@@ -174,6 +175,13 @@ static inline void Number()
     this__lexical_analyzer.binary_position ++;
     this__lexical_analyzer.ptr__stream ++;
 }
+static inline void GenerateToken(enum TokenType token_type, const char *value)
+{
+    this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
+    this__lexical_synthesizer[number_of_tokens].token_type = token_type;
+    strcpy(this__lexical_synthesizer[number_of_tokens].token_value, value);
+    this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+}
 // Лексический анализ с синтезом
 void LexicalAnalysisWithSynthesis()
 {
@@ -200,10 +208,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__NEW_LINE;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "\n");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__NEW_LINE, "\n");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -231,10 +236,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__INDENT;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, " ");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__INDENT, " ");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -248,10 +250,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__OPENING_ROUND_BRACKET;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "(");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__OPENING_ROUND_BRACKET, "(");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -265,10 +264,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__CLOSING_ROUND_BRACKET;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, ")");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__CLOSING_ROUND_BRACKET, ")");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -282,10 +278,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__STAR_SIGN;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "*");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__STAR_SIGN, "*");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -299,10 +292,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__PLUS_SIGN;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "+");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__PLUS_SIGN, "+");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -316,10 +306,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__MINUS_SIGN;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "-");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__MINUS_SIGN, "-");
                 #if defined DEBUG
                  Debug("После");
                 #endif
@@ -333,10 +320,7 @@ void LexicalAnalysisWithSynthesis()
                 #if defined DEBUG
                  Debug("До");
                 #endif
-                this__lexical_synthesizer[number_of_tokens].token_start = this__lexical_analyzer.binary_position;
-                this__lexical_synthesizer[number_of_tokens].token_type = TOKEN__SLASH_SIGN;
-                strcpy(this__lexical_synthesizer[number_of_tokens].token_value, "/");
-                this__lexical_synthesizer[number_of_tokens].token_end = ++this__lexical_analyzer.binary_position;
+                GenerateToken(TOKEN__SLASH_SIGN, "/");
                 #if defined DEBUG
                  Debug("После");
                 #endif
