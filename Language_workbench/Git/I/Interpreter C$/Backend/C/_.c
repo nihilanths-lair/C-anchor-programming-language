@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
             short i = -1;
             _loop: switch (argv[1][++i]){
-                case '\0': printf("\n'\\0'"); break;
+                case '\0': /*printf("\n'\\0'");*/break;
                 case '.': 
                 {
                     //printf("\n'.'");
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
             */
         }
     }
-
     unsigned char loop = 1;
     while (loop)
     {
