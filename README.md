@@ -172,6 +172,8 @@ POP/pop | Вытолкнуть со стека
 RET/ret | Вернуться из процедуры
 LOOP/loop | Повторить действия
 CMP/cmp | Сравнение
-JZ/jz | Прыгни если ноль   // Jump if Zero / if (!cmp('$', '$')){} / if (1){}
-JE/je | Прыгни если равно  // Jump if Equal / if (!cmp('$', '$')){} / if (1){}
+JZ/jz | Прыгни если ноль     //      Jump if zero / if (!cmp('$', '$')){} / if (1){}
+JE/je | Прыгни если равно    //     Jump if equal / if (!cmp('$', '$')){} / if (1){}
+JNZ/jnz | Прыгни если не ноль   //  Jump if not zero / if (!cmp('$', '$')){} / if (0){}
+JNE/jne | Прыгни если не равно  // Jump if not equal / if (!cmp('$', '$')){} / if (0){}
 ```
