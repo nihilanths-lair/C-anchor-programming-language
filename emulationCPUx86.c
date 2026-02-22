@@ -3,84 +3,60 @@
 //#include <stdbool.h>
 //#define bool _Bool
 
+short cs = 0x0000; // code segment
+short ds = 0x0000; // data segment
+short ss = 0x0000; // stack segment
+short es = 0x0000; // extended segment
+
+short bp = 0x0000; // base pointer
+short sp = 0x0000; // stack pointer
+short ip = 0x0000; // instruction pointer
+
+short si = 0x0000; // source index
+short di = 0x0000; // destination index
+
+short ax = 0x0000; // accumulator
+short bx = 0x0000; // base
+short cx = 0x0000; // counter
+short dx = 0x0000; // data
+
+// FLAGS
+_Bool c, z, s, o, p, a, i, d = 0; // carry, zero, sign, overflow, parity, auxiliary, interupt, direction
+
 void ShowPanelFor16bitMode()
 {
-    printf("\
-    CS [%02X%02X]\n\
-    DS [%02X%02X]\n\
-    SS [%02X%02X]\n\
-    ES [%02X%02X]\n\
-\n\
-    BP [%02X%02X]\n\
-    SP [%02X%02X]\n\
-    IP [%02X%02X]\n\
-\n\
-    SI [%02X%02X]\n\
-    DI [%02X%02X]\n\
-\n\
-    AX [%02X][%02X]\n\
-    BX [%02X][%02X]\n\
-    CX [%02X][%02X]\n\
-    DX [%02X][%02X]\
-\n\n\
-    FLAGS: C  Z  S  O  P  A  I  D\n\
-          [%d][%d][%d][%d][%d][%d][%d][%d]\
-    ",
-    5, 2,
-    15, 5,
-    7, 28,
-    3, 1,
-
-    0, 0,
-    0, 0,
-    0, 0,
-
-    6, 0,
-    0, 4,
-
-    0, 0,
-    0, 0,
-    0, 0,
-    0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
-    );
+    printf("CS [%02X.%02X]\n", cs >> 8, cs & 0xFF);
+    printf("DS [%02X.%02X]\n", ds >> 8, ds & 0xFF);
+    printf("SS [%02X.%02X]\n", ss >> 8, ss & 0xFF);
+    printf("ES [%02X.%02X]\n", es >> 8, es & 0xFF);
+    putchar('\n');
+    printf("BP [%02X.%02X]\n", bp >> 8, bp & 0xFF);
+    printf("SP [%02X.%02X]\n", sp >> 8, sp & 0xFF);
+    printf("IP [%02X.%02X]\n", ip >> 8, ip & 0xFF);
+    putchar('\n');
+    printf("SI [%02X.%02X]\n", si >> 8, si & 0xFF);
+    printf("DI [%02X.%02X]\n", di >> 8, di & 0xFF);
+    putchar('\n');
+    printf("AX [%02X][%02X]\n", ax >> 8, ax & 0xFF);
+    printf("BX [%02X][%02X]\n", bx >> 8, bx & 0xFF);
+    printf("CX [%02X][%02X]\n", cx >> 8, cx & 0xFF);
+    printf("DX [%02X][%02X]\n", dx >> 8, dx & 0xFF);
+    
+    printf("FLAGS: C  Z  S  O  P  A  I  D\n");
+    printf("      [%d][%d][%d][%d][%d][%d][%d][%d]", c, z, s, o, p, a, i, d);
 }
 
 void StartingProcessorIn16bitMode()
 {
-    short cs; // code segment
-    short ds; // data segment
-    short ss; // stack segment
-    short es; // extended segment
-
-    short bp; // base pointer
-    short sp; // stack pointer
-    short ip; // instruction pointer
-
-    short si; // source index
-    short di; // destination index
-
-    short ax; // accumulator
-    short bx; // base
-    short cx; // counter
-    short dx; // data
-
-    // FLAGS
-    _Bool c; // carry
-    _Bool z; // zero
-    _Bool s; // sign
-    _Bool o; // overflow
-    _Bool p; // parity
-    _Bool a; // auxiliary
-    _Bool i; // interupt
-    _Bool d; // direction
+    
 }
 
 int main()
 {
     setlocale(0, "");
-
+    putchar('\n');
     StartingProcessorIn16bitMode();
     ShowPanelFor16bitMode();
+    putchar('\n');
     return 0;
 }
