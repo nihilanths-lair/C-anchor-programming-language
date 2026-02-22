@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <locale.h>
-//#include <stdbool.h>
-//#define bool _Bool
+#include <stdbool.h>
 #include <stdint.h>
+
+// Для удобства можно определить макросы или inline-функции:
+//#define AX (RAX & 0xFFFF)
+//#define AH ((RAX >> 8) & 0xFF)
+//#define AL (RAX & 0xFF)
+//#define EAX (RAX & 0xFFFFFFFF)
+// аналогично для других регистров
 
 // REGISTERS //
 
@@ -20,13 +26,11 @@ uint32_t EBP = 0, ESP = 0, EIP = 0;
 uint64_t RBP = 0, RSP = 0, RIP = 0;
 
 // source index, destination index
-uint16_t  SI = 0,  DI = 0;
-uint32_t ESI = 0, EDI = 0;
-uint64_t RSI = 0, RDI = 0;
+uint64_t SI = 0, DI = 0;
 
 // FLAGS //
 // carry, zero, sign, overflow, parity, auxiliary, interupt, direction
-_Bool CF, ZF, SF, OF, PF, AF, IF, DF = 0;
+bool CF = 0, ZF = 0, SF = 0, OF = 0, PF = 0, AF = 0, IF = 0, DF = 0;
 
 void ShowPanelFor16BitMode()
 {
@@ -68,8 +72,8 @@ void ShowPanelFor32BitMode()
     printf("ESP [%02X.%02X.%02X.%02X]  \n",ESP>>24,(ESP>>16)&0xFF,(ESP>>8)&0xFF,ESP&0xFF);
     printf("EIP [%02X.%02X.%02X.%02X]\n\n",EIP>>24,(EIP>>16)&0xFF,(EIP>>8)&0xFF,EIP&0xFF);
 
-    printf("ESI [%02X.%02X.%02X.%02X]  \n",ESI>>24,(ESI>>16)&0xFF,(ESI>>8)&0xFF,ESI&0xFF);
-    printf("EDI [%02X.%02X.%02X.%02X]\n\n",EDI>>24,(EDI>>16)&0xFF,(EDI>>8)&0xFF,EDI&0xFF);
+    printf("ESI [%02X.%02X.%02X.%02X]  \n",SI>>24,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
+    printf("EDI [%02X.%02X.%02X.%02X]\n\n",DI>>24,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
 
     printf("EAX [%02X][%02X][%02X][%02X]  \n",EAX>>24,(EAX>>16)&0xFF,(EAX>>8)&0xFF,EAX&0xFF);
     printf("EBX [%02X][%02X][%02X][%02X]  \n",EBX>>24,(EBX>>16)&0xFF,(EBX>>8)&0xFF,EBX&0xFF);
@@ -94,8 +98,8 @@ void ShowPanelFor64BitMode()
     printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",RSP>>56,(RSP>>48)&0xFF,(RSP>>40)&0xFF,(RSP>>32)&0xFF,(RSP>>24)&0xFF,(RSP>>16)&0xFF,(RSP>>8)&0xFF,RSP&0xFF);
     printf("RIP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",RIP>>56,(RIP>>48)&0xFF,(RIP>>40)&0xFF,(RIP>>32)&0xFF,(RIP>>24)&0xFF,(RIP>>16)&0xFF,(RIP>>8)&0xFF,RIP&0xFF);
 
-    printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",RSI>>56,(RSI>>48)&0xFF,(RSI>>40)&0xFF,(RSI>>32)&0xFF,(RSI>>24)&0xFF,(RSI>>16)&0xFF,(RSI>>8)&0xFF,RSI&0xFF);
-    printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",RDI>>56,(RDI>>48)&0xFF,(RDI>>40)&0xFF,(RDI>>32)&0xFF,(RDI>>24)&0xFF,(RDI>>16)&0xFF,(RDI>>8)&0xFF,RDI&0xFF);
+    printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",SI>>56,(SI>>48)&0xFF,(SI>>40)&0xFF,(SI>>32)&0xFF,(SI>>24)&0xFF,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
+    printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",DI>>56,(DI>>48)&0xFF,(DI>>40)&0xFF,(DI>>32)&0xFF,(DI>>24)&0xFF,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
 
     printf("RAX [%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]  \n",RAX>>56,(RAX>>48)&0xFF,(RAX>>40)&0xFF,(RAX>>32)&0xFF,(RAX>>24)&0xFF,(RAX>>16)&0xFF,(RAX>>8)&0xFF,RAX&0xFF);
     printf("RBX [%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]  \n",RBX>>56,(RBX>>48)&0xFF,(RBX>>40)&0xFF,(RBX>>32)&0xFF,(RBX>>24)&0xFF,(RBX>>16)&0xFF,(RBX>>8)&0xFF,RBX&0xFF);
