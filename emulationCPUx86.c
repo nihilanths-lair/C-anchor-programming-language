@@ -32,22 +32,22 @@ void ShowPanelFor16BitMode()
 {
     printf("\n16-bit's mode\n");
     putchar('\n');
-    printf("CS [%02X.%02X]\n"  , CS >> 8, CS & 0xFF);
-    printf("DS [%02X.%02X]\n"  , DS >> 8, DS & 0xFF);
-    printf("SS [%02X.%02X]\n"  , SS >> 8, SS & 0xFF);
-    printf("ES [%02X.%02X]\n\n", ES >> 8, ES & 0xFF);
+    printf("CS [%02X.%02X]\n"  ,CS>>8,CS&0xFF);
+    printf("DS [%02X.%02X]\n"  ,DS>>8,DS&0xFF);
+    printf("SS [%02X.%02X]\n"  ,SS>>8,SS&0xFF);
+    printf("ES [%02X.%02X]\n\n",ES>>8,ES&0xFF);
 
-    printf("BP [%02X.%02X]\n"  , BP >> 8, BP & 0xFF);
-    printf("SP [%02X.%02X]\n"  , SP >> 8, SP & 0xFF);
-    printf("IP [%02X.%02X]\n\n", IP >> 8, IP & 0xFF);
+    printf("BP [%02X.%02X]\n"  ,BP>>8,BP&0xFF);
+    printf("SP [%02X.%02X]\n"  ,SP>>8,SP&0xFF);
+    printf("IP [%02X.%02X]\n\n",IP>>8,IP&0xFF);
 
-    printf("SI [%02X.%02X]\n"  , SI >> 8, SI & 0xFF);
-    printf("DI [%02X.%02X]\n\n", DI >> 8, DI & 0xFF);
+    printf("SI [%02X.%02X]\n"  ,SI>>8,SI&0xFF);
+    printf("DI [%02X.%02X]\n\n",DI>>8,DI&0xFF);
 
-    printf("AX [%02X][%02X]\n"  , AX >> 8, AX & 0xFF);
-    printf("BX [%02X][%02X]\n"  , BX >> 8, BX & 0xFF);
-    printf("CX [%02X][%02X]\n"  , CX >> 8, CX & 0xFF);
-    printf("DX [%02X][%02X]\n\n", DX >> 8, DX & 0xFF);
+    printf("AX [%02X][%02X]\n"  ,AX>>8,AX&0xFF);
+    printf("BX [%02X][%02X]\n"  ,BX>>8,BX&0xFF);
+    printf("CX [%02X][%02X]\n"  ,CX>>8,CX&0xFF);
+    printf("DX [%02X][%02X]\n\n",DX>>8,DX&0xFF);
 
     printf("FLAGS: C  Z  S  O  P  A  I  D\n");
     printf("      [%d][%d][%d][%d][%d][%d][%d][%d]", CF, ZF, SF, OF, PF, AF, IF, DF);
