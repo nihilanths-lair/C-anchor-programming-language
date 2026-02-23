@@ -139,14 +139,23 @@ void SwitchingTo64BitMode() { current_mode = MODE_64; }
 void EmulateBIOS()
 {
     SwitchingTo16BitMode();
+
+    // Инициализируем
+    /// ...
 }
 void EmulateMS_DOS()
 {
     SwitchingTo16BitMode();
+
+    // Инициализируем
+    /// ...
 }
 void EmulateUEFI()
 {
     SwitchingTo64BitMode();
+
+    // Инициализируем
+    /// ...
 }
 
 int main()
