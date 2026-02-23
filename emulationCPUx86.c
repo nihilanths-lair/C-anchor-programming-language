@@ -136,21 +136,29 @@ void SwitchingTo16BitMode() { current_mode = MODE_16; }
 void SwitchingTo32BitMode() { current_mode = MODE_32; }
 void SwitchingTo64BitMode() { current_mode = MODE_64; }
 
-void EmulateBIOS()
+void Emulate_BIOS()
 {
     SwitchingTo16BitMode();
 
     // Инициализируем
     /// ...
 }
-void EmulateMS_DOS()
+void Emulate_MS_DOS()
 {
     SwitchingTo16BitMode();
 
     // Инициализируем
     /// ...
 }
-void EmulateUEFI()
+void Emulate_UEFI()
+{
+    SwitchingTo64BitMode();
+
+    // Инициализируем
+    /// ...
+}
+
+void Emulate_OS_Windows()
 {
     SwitchingTo64BitMode();
 
@@ -163,21 +171,26 @@ int main()
     setlocale(0, "");
 
     // Задайте режим какой интерфейс эмулировать
-    unsigned char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI
+    unsigned char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI, 4 - OS Windows
 
     if (emulate == 1)
     {
-        EmulateBIOS();
+        Emulate_BIOS();
         ShowPanelFor16BitMode();
     }
     else if (emulate == 2)
     {
-        EmulateMS_DOS();
+        Emulate_MS_DOS();
         ShowPanelFor16BitMode(); // MS-DOS тоже 16-битный
     }
     else if (emulate == 3)
     {
-        EmulateUEFI();
+        Emulate_UEFI();
+        ShowPanelFor64BitMode();
+    }
+    else if (emulate == 4)
+    {
+        Emulate_OS_Windows();
         ShowPanelFor64BitMode();
     }
     /*
