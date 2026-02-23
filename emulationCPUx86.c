@@ -130,18 +130,42 @@ void ShowPanelFor64BitMode()
     printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
-void StartingIn16BitMode(){}
+//void StartingIn16BitMode(){}
+void SwitchingTo16BitMode(){}
 void SwitchingTo32BitMode(){}
 void SwitchingTo64BitMode(){}
+
+void EmulateBIOS()
+{
+    SwitchingTo16BitMode();
+}
+void EmulateMS_DOS()
+{
+    SwitchingTo16BitMode();
+}
+void EmulateUEFI()
+{
+    SwitchingTo64BitMode();
+}
 
 int main()
 {
     setlocale(0, "");
 
+    // Задайте режим какой интерфейс эмулировать
+    char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI
+
+    if (emulate == 1) EmulateBIOS();
+    else if (emulate == 2) EmulateMS_DOS();
+    else if (emulate == 3) EmulateUEFI();
+    
+    /*
     ShowPanelFor16BitMode();
     putchar('\n');
     ShowPanelFor32BitMode();
     putchar('\n');
     ShowPanelFor64BitMode();
+    putchar('\n');
+    */
     return 0;
 }
