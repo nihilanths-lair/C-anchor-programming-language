@@ -47,17 +47,17 @@ void ShowPanelFor16BitMode()
 {
     printf("\n16-bit's mode\n\n");
 
-    printf("CS [%02X.%02X]  \n",CS>>8,CS&0xFF);
-    printf("DS [%02X.%02X]  \n",DS>>8,DS&0xFF);
-    printf("SS [%02X.%02X]  \n",SS>>8,SS&0xFF);
-    printf("ES [%02X.%02X]\n\n",ES>>8,ES&0xFF);
+    printf("CS [%02X.%02X]  \n", CS>>8, CS&0xFF);
+    printf("DS [%02X.%02X]  \n", DS>>8, DS&0xFF);
+    printf("SS [%02X.%02X]  \n", SS>>8, SS&0xFF);
+    printf("ES [%02X.%02X]\n\n", ES>>8, ES&0xFF);
 
-    printf("BP [%02X.%02X]  \n",BP>>8,BP&0xFF);
-    printf("SP [%02X.%02X]  \n",SP>>8,SP&0xFF);
-    printf("IP [%02X.%02X]\n\n",IP>>8,IP&0xFF);
+    printf("BP [%02X.%02X]  \n", BP>>8, BP&0xFF);
+    printf("SP [%02X.%02X]  \n", SP>>8, SP&0xFF);
+    printf("IP [%02X.%02X]\n\n", IP>>8, IP&0xFF);
 
-    printf("SI [%02X.%02X]  \n",SI>>8,SI&0xFF);
-    printf("DI [%02X.%02X]\n\n",DI>>8,DI&0xFF);
+    printf("SI [%02X.%02X]  \n", SI>>8, SI&0xFF);
+    printf("DI [%02X.%02X]\n\n", DI>>8, DI&0xFF);
 
     printf(" R^X>-----------------------<\n");
     printf("    |        E^X>-----------<\n");
@@ -83,12 +83,12 @@ void ShowPanelFor32BitMode()
     printf("ES [00.00]\n");
     */
 
-    printf("EBP [%02X.%02X.%02X.%02X]  \n",BP>>24,(BP>>16)&0xFF,(BP>>8)&0xFF,BP&0xFF);
-    printf("ESP [%02X.%02X.%02X.%02X]  \n",SP>>24,(SP>>16)&0xFF,(SP>>8)&0xFF,SP&0xFF);
-    printf("EIP [%02X.%02X.%02X.%02X]\n\n",IP>>24,(IP>>16)&0xFF,(IP>>8)&0xFF,IP&0xFF);
+    printf("EBP [%02X.%02X.%02X.%02X]  \n", BP>>24, (BP>>16)&0xFF, (BP>>8)&0xFF, BP&0xFF);
+    printf("ESP [%02X.%02X.%02X.%02X]  \n", SP>>24, (SP>>16)&0xFF, (SP>>8)&0xFF, SP&0xFF);
+    printf("EIP [%02X.%02X.%02X.%02X]\n\n", IP>>24, (IP>>16)&0xFF, (IP>>8)&0xFF, IP&0xFF);
 
-    printf("ESI [%02X.%02X.%02X.%02X]  \n",SI>>24,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
-    printf("EDI [%02X.%02X.%02X.%02X]\n\n",DI>>24,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
+    printf("ESI [%02X.%02X.%02X.%02X]  \n", SI>>24, (SI>>16)&0xFF, (SI>>8)&0xFF, SI&0xFF);
+    printf("EDI [%02X.%02X.%02X.%02X]\n\n", DI>>24, (DI>>16)&0xFF, (DI>>8)&0xFF, DI&0xFF);
 
     printf(" R^X>-----------------------<\n");
     printf("    |        E^X>-----------<\n");
@@ -114,12 +114,12 @@ void ShowPanelFor64BitMode()
     printf("ES [00.00]\n"); // Игнорируется (можно не эмулировать)
     */
 
-    printf("RBP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",BP>>56,(BP>>48)&0xFF,(BP>>40)&0xFF,(BP>>32)&0xFF,(BP>>24)&0xFF,(BP>>16)&0xFF,(BP>>8)&0xFF,BP&0xFF);
-    printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",SP>>56,(SP>>48)&0xFF,(SP>>40)&0xFF,(SP>>32)&0xFF,(SP>>24)&0xFF,(SP>>16)&0xFF,(SP>>8)&0xFF,SP&0xFF);
-    printf("RIP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",IP>>56,(IP>>48)&0xFF,(IP>>40)&0xFF,(IP>>32)&0xFF,(IP>>24)&0xFF,(IP>>16)&0xFF,(IP>>8)&0xFF,IP&0xFF);
+    printf("RBP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", BP>>56, (BP>>48)&0xFF, (BP>>40)&0xFF, (BP>>32)&0xFF, (BP>>24)&0xFF, (BP>>16)&0xFF, (BP>>8)&0xFF, BP&0xFF);
+    printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", SP>>56, (SP>>48)&0xFF, (SP>>40)&0xFF, (SP>>32)&0xFF, (SP>>24)&0xFF, (SP>>16)&0xFF, (SP>>8)&0xFF, SP&0xFF);
+    printf("RIP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n", IP>>56, (IP>>48)&0xFF, (IP>>40)&0xFF, (IP>>32)&0xFF, (IP>>24)&0xFF, (IP>>16)&0xFF, (IP>>8)&0xFF, IP&0xFF);
 
-    printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",SI>>56,(SI>>48)&0xFF,(SI>>40)&0xFF,(SI>>32)&0xFF,(SI>>24)&0xFF,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
-    printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",DI>>56,(DI>>48)&0xFF,(DI>>40)&0xFF,(DI>>32)&0xFF,(DI>>24)&0xFF,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
+    printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", SI>>56, (SI>>48)&0xFF, (SI>>40)&0xFF, (SI>>32)&0xFF, (SI>>24)&0xFF, (SI>>16)&0xFF, (SI>>8)&0xFF, SI&0xFF);
+    printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n", DI>>56, (DI>>48)&0xFF, (DI>>40)&0xFF, (DI>>32)&0xFF, (DI>>24)&0xFF, (DI>>16)&0xFF, (DI>>8)&0xFF, DI&0xFF);
 
     printf(" R^X>-----------------------<\n");
     printf("    |        E^X>-----------<\n");
