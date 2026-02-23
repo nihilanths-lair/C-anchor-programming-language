@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum Mode { MODE_16, MODE_32, MODE_64 } current_mode = MODE_16;
+
 // REGISTERS //
 // code segment, data segment, stack segment, extended segment
 uint16_t CS = 0, DS = 0, SS = 0, ES = 0; // сегментные регистры (всегда 16 бит)
@@ -130,10 +132,9 @@ void ShowPanelFor64BitMode()
     printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
-//void StartingIn16BitMode(){}
-void SwitchingTo16BitMode(){}
-void SwitchingTo32BitMode(){}
-void SwitchingTo64BitMode(){}
+void SwitchingTo16BitMode() { current_mode = MODE_16; }
+void SwitchingTo32BitMode() { current_mode = MODE_32; }
+void SwitchingTo64BitMode() { current_mode = MODE_64; }
 
 void EmulateBIOS()
 {
@@ -155,10 +156,21 @@ int main()
     // Задайте режим какой интерфейс эмулировать
     unsigned char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI
 
-    if (emulate == 1) EmulateBIOS();
-    else if (emulate == 2) EmulateMS_DOS();
-    else if (emulate == 3) EmulateUEFI();
-    
+    if (emulate == 1)
+    {
+        EmulateBIOS();
+        ShowPanelFor16BitMode();
+    }
+    else if (emulate == 2)
+    {
+        EmulateMS_DOS();
+        ShowPanelFor16BitMode(); // MS-DOS тоже 16-битный
+    }
+    else if (emulate == 3)
+    {
+        EmulateUEFI();
+        ShowPanelFor64BitMode();
+    }
     /*
     ShowPanelFor16BitMode();
     putchar('\n');
