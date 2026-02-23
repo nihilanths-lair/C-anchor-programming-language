@@ -153,7 +153,7 @@ int main()
     setlocale(0, "");
 
     // Задайте режим какой интерфейс эмулировать
-    char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI
+    unsigned char emulate = 1; // 1 - BIOS, 2 - MS-DOS, 3 - UEFI
 
     if (emulate == 1) EmulateBIOS();
     else if (emulate == 2) EmulateMS_DOS();
