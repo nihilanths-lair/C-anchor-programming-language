@@ -47,10 +47,10 @@ void ShowPanelFor16BitMode()
 {
     printf("\n16-bit's mode\n\n");
 
-    printf("CS [%02X.%02X]  \n", CS>>8, CS&0xFF);
-    printf("DS [%02X.%02X]  \n", DS>>8, DS&0xFF);
-    printf("SS [%02X.%02X]  \n", SS>>8, SS&0xFF);
-    printf("ES [%02X.%02X]\n\n", ES>>8, ES&0xFF);
+    printf("CS [%02X.%02X]  \n", CS>>8, CS&0xFF);// Используется
+    printf("DS [%02X.%02X]  \n", DS>>8, DS&0xFF);// Используется
+    printf("SS [%02X.%02X]  \n", SS>>8, SS&0xFF);// Используется
+    printf("ES [%02X.%02X]\n\n", ES>>8, ES&0xFF);// Используется
 
     printf("BP [%02X.%02X]  \n", BP>>8, BP&0xFF);
     printf("SP [%02X.%02X]  \n", SP>>8, SP&0xFF);
@@ -76,12 +76,10 @@ void ShowPanelFor32BitMode()
 {
     printf("\n32-bit's mode\n\n");
 
-    /*
-    printf("CS [00.00]\n");
-    printf("DS [00.00]\n");
-    printf("SS [00.00]\n");
-    printf("ES [00.00]\n");
-    */
+    printf("CS [%02X.%02X]  \n", CS>>8, CS&0xFF);//?
+    printf("DS [%02X.%02X]  \n", DS>>8, DS&0xFF);//?
+    printf("SS [%02X.%02X]  \n", SS>>8, SS&0xFF);//?
+    printf("ES [%02X.%02X]\n\n", ES>>8, ES&0xFF);//?
 
     printf("EBP [%02X.%02X.%02X.%02X]  \n", BP>>24, (BP>>16)&0xFF, (BP>>8)&0xFF, BP&0xFF);
     printf("ESP [%02X.%02X.%02X.%02X]  \n", SP>>24, (SP>>16)&0xFF, (SP>>8)&0xFF, SP&0xFF);
@@ -107,12 +105,10 @@ void ShowPanelFor64BitMode()
 {
     printf("\n64-bit's mode\n\n");
 
-    printf(" CS [%02X.%02X]\n\n", CS>>8, CS&0xFF); // всегда 16 битный регистр?!
-    /*
-    printf("DS [00.00]\n"); // Игнорируется (можно не эмулировать)
-    printf("SS [00.00]\n"); // Игнорируется (можно не эмулировать)
-    printf("ES [00.00]\n"); // Игнорируется (можно не эмулировать)
-    */
+    printf("CS [%02X.%02X]  \n", CS>>8, CS&0xFF);// Используется
+    printf("DS [%02X.%02X]  \n", DS>>8, DS&0xFF);// Игнорируется (можно не эмулировать)
+    printf("SS [%02X.%02X]  \n", SS>>8, SS&0xFF);// Игнорируется (можно не эмулировать)
+    printf("ES [%02X.%02X]\n\n", ES>>8, ES&0xFF);// Игнорируется (можно не эмулировать)
 
     printf("RBP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", BP>>56, (BP>>48)&0xFF, (BP>>40)&0xFF, (BP>>32)&0xFF, (BP>>24)&0xFF, (BP>>16)&0xFF, (BP>>8)&0xFF, BP&0xFF);
     printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", SP>>56, (SP>>48)&0xFF, (SP>>40)&0xFF, (SP>>32)&0xFF, (SP>>24)&0xFF, (SP>>16)&0xFF, (SP>>8)&0xFF, SP&0xFF);
