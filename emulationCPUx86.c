@@ -58,7 +58,7 @@ void ShowPanelFor16BitMode()
 
     printf("SI [%02X.%02X]  \n",SI>>8,SI&0xFF);
     printf("DI [%02X.%02X]\n\n",DI>>8,DI&0xFF);
-    
+
     printf(" R^X>-----------------------<\n");
     printf("    |        E^X>-----------<\n");
     printf("    |           |   ^X>-----<\n");
@@ -76,11 +76,11 @@ void ShowPanelFor32BitMode()
 {
     printf("\n32-bit's mode\n\n");
 
-    //printf("CS [%02X.%02X]\n\n", CS >> 8, CS & 0xFF); // 16 или 32 битный регистр?
     /*
-    printf("DS [00.00.00.00]\n");
-    printf("SS [00.00.00.00]\n");
-    printf("ES [00.00.00.00]\n");
+    printf("CS [00.00]\n");
+    printf("DS [00.00]\n");
+    printf("SS [00.00]\n");
+    printf("ES [00.00]\n");
     */
 
     printf("EBP [%02X.%02X.%02X.%02X]  \n",BP>>24,(BP>>16)&0xFF,(BP>>8)&0xFF,BP&0xFF);
@@ -107,12 +107,13 @@ void ShowPanelFor64BitMode()
 {
     printf("\n64-bit's mode\n\n");
 
-    printf(" CS [%02X.%02X]\n\n",CS>>8,CS&0xFF); // 16 или 64 битный регистр?
+    printf(" CS [%02X.%02X]\n\n", CS>>8, CS&0xFF); // всегда 16 битный регистр?!
     /*
-    printf("DS [00.00.00.00.00.00.00.00]\n"); // Игнорируется (можно не эмулировать)
-    printf("SS [00.00.00.00.00.00.00.00]\n"); // Игнорируется (можно не эмулировать)
-    printf("ES [00.00.00.00.00.00.00.00]\n"); // Игнорируется (можно не эмулировать)
+    printf("DS [00.00]\n"); // Игнорируется (можно не эмулировать)
+    printf("SS [00.00]\n"); // Игнорируется (можно не эмулировать)
+    printf("ES [00.00]\n"); // Игнорируется (можно не эмулировать)
     */
+
     printf("RBP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",BP>>56,(BP>>48)&0xFF,(BP>>40)&0xFF,(BP>>32)&0xFF,(BP>>24)&0xFF,(BP>>16)&0xFF,(BP>>8)&0xFF,BP&0xFF);
     printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",SP>>56,(SP>>48)&0xFF,(SP>>40)&0xFF,(SP>>32)&0xFF,(SP>>24)&0xFF,(SP>>16)&0xFF,(SP>>8)&0xFF,SP&0xFF);
     printf("RIP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",IP>>56,(IP>>48)&0xFF,(IP>>40)&0xFF,(IP>>32)&0xFF,(IP>>24)&0xFF,(IP>>16)&0xFF,(IP>>8)&0xFF,IP&0xFF);
