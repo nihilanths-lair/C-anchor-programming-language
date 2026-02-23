@@ -26,17 +26,17 @@ uint64_t SI = 0, DI = 0;                 // индексные регистры
 #define EBX (B & 0xFFFFFFFF)
 #define RBX (B & 0xFFFFFFFFFFFFFFFF)
 
-#define  CL (B & 0xFF)
-#define  CH ((B >> 8) & 0xFF)
-#define  CX (B & 0xFFFF)
-#define ECX (B & 0xFFFFFFFF)
-#define RCX (B & 0xFFFFFFFFFFFFFFFF)
+#define  CL (C & 0xFF)
+#define  CH ((C >> 8) & 0xFF)
+#define  CX (C & 0xFFFF)
+#define ECX (C & 0xFFFFFFFF)
+#define RCX (C & 0xFFFFFFFFFFFFFFFF)
 
-#define  DL (B & 0xFF)
-#define  DH ((B >> 8) & 0xFF)
-#define  DX (B & 0xFFFF)
-#define EDX (B & 0xFFFFFFFF)
-#define RDX (B & 0xFFFFFFFFFFFFFFFF)
+#define  DL (D & 0xFF)
+#define  DH ((D >> 8) & 0xFF)
+#define  DX (D & 0xFFFF)
+#define EDX (D & 0xFFFFFFFF)
+#define RDX (D & 0xFFFFFFFFFFFFFFFF)
 // аналогично для других регистров
 
 // FLAGS //
