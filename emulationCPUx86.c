@@ -64,8 +64,8 @@ void ShowPanelFor16BitMode()
     printf("CX [%02X][%02X]  \n", CH, CL);
     printf("DX [%02X][%02X]\n\n", DH, DL);
 
-    printf("FLAGS: C  Z  S  O  P  A  I  D\n");
-    printf("      [%d][%d][%d][%d][%d][%d][%d][%d]", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf("FLAGS: C Z S O P A I D\n");
+    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void ShowPanelFor32BitMode()
@@ -85,15 +85,18 @@ void ShowPanelFor32BitMode()
 
     printf("ESI [%02X.%02X.%02X.%02X]  \n",SI>>24,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
     printf("EDI [%02X.%02X.%02X.%02X]\n\n",DI>>24,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
-    printf("             AH  AL\n");
-    printf("         AX [%02X][%02X]  \n",EAX>>24,(EAX>>16)&0xFF,(EAX>>8)&0xFF,EAX&0xFF);
-    printf("EAX [%02X][%02X][%02X][%02X]  \n",EAX>>24,(EAX>>16)&0xFF,(EAX>>8)&0xFF,EAX&0xFF);
-    printf("EBX [%02X][%02X][%02X][%02X]  \n",EBX>>24,(EBX>>16)&0xFF,(EBX>>8)&0xFF,EBX&0xFF);
-    printf("ECX [%02X][%02X][%02X][%02X]  \n",ECX>>24,(ECX>>16)&0xFF,(ECX>>8)&0xFF,ECX&0xFF);
-    printf("EDX [%02X][%02X][%02X][%02X]\n\n",EDX>>24,(EDX>>16)&0xFF,(EDX>>8)&0xFF,EDX&0xFF);
 
-    printf("FLAGS: C  Z  S  O  P  A  I  D\n");
-    printf("      [%d][%d][%d][%d][%d][%d][%d][%d]", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf(" R^X>-----------------------<\n");
+    printf("    |        E^X>-----------<\n");
+    printf("    |           |   ^X>-----<\n");
+    printf("    |           |     |^H-^L|\n");
+    printf("  A [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , A>>56, (A>>48)&0xFF, (A>>40)&0xFF, (A>>32)&0xFF, (A>>24)&0xFF, (A>>16)&0xFF, (A>>8)&0xFF, A&0xFF);
+    printf("  B [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , B>>56, (B>>48)&0xFF, (B>>40)&0xFF, (B>>32)&0xFF, (B>>24)&0xFF, (B>>16)&0xFF, (B>>8)&0xFF, B&0xFF);
+    printf("  C [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , C>>56, (C>>48)&0xFF, (C>>40)&0xFF, (C>>32)&0xFF, (C>>24)&0xFF, (C>>16)&0xFF, (C>>8)&0xFF, C&0xFF);
+    printf("  D [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n\n", D>>56, (D>>48)&0xFF, (D>>40)&0xFF, (D>>32)&0xFF, (D>>24)&0xFF, (D>>16)&0xFF, (D>>8)&0xFF, D&0xFF);
+
+    printf("FLAGS: C Z S O P A I D\n");
+    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void ShowPanelFor64BitMode()
@@ -113,32 +116,17 @@ void ShowPanelFor64BitMode()
     printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n",SI>>56,(SI>>48)&0xFF,(SI>>40)&0xFF,(SI>>32)&0xFF,(SI>>24)&0xFF,(SI>>16)&0xFF,(SI>>8)&0xFF,SI&0xFF);
     printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n",DI>>56,(DI>>48)&0xFF,(DI>>40)&0xFF,(DI>>32)&0xFF,(DI>>24)&0xFF,(DI>>16)&0xFF,(DI>>8)&0xFF,DI&0xFF);
 
-    printf("RAX /--------------------------------\\\n");
-    printf("    |           EAX /----------------|\n");
-    printf("    |               |    AX /--------|\n");
-    printf("    |               |       | AH  AL |\n");
-    printf("    |[%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]|\n",RAX>>56,(RAX>>48)&0xFF,(RAX>>40)&0xFF,(RAX>>32)&0xFF,(RAX>>24)&0xFF,(RAX>>16)&0xFF,(RAX>>8)&0xFF,RAX&0xFF);
-    printf("    \\--------------------------------/\n");
-    printf("RBX /--------------------------------\\\n");
-    printf("    |           EBX /----------------|\n");
-    printf("    |               |    BX /--------|\n");
-    printf("    |               |       | BH  BL |\n");
-    printf("    |[%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]|\n",RBX>>56,(RBX>>48)&0xFF,(RBX>>40)&0xFF,(RBX>>32)&0xFF,(RBX>>24)&0xFF,(RBX>>16)&0xFF,(RBX>>8)&0xFF,RBX&0xFF);
-    printf("    \\--------------------------------/\n");
-    printf("RCX /--------------------------------\\\n");
-    printf("    |           ECX /----------------|\n");
-    printf("    |               |    CX /--------|\n");
-    printf("    |               |       | CH  CL |\n");
-    printf("    |[%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]|\n",RCX>>56,(RCX>>48)&0xFF,(RCX>>40)&0xFF,(RCX>>32)&0xFF,(RCX>>24)&0xFF,(RCX>>16)&0xFF,(RCX>>8)&0xFF,RCX&0xFF);
-    printf("    \\--------------------------------/\n");
-    printf("RDX /--------------------------------\\\n");
-    printf("    |           EDX /----------------|\n");
-    printf("    |               |    DX /--------|\n");
-    printf("    |               |       | DH  DL |\n");
-    printf("    |[%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]|\n",RDX>>56,(RDX>>48)&0xFF,(RDX>>40)&0xFF,(RDX>>32)&0xFF,(RDX>>24)&0xFF,(RDX>>16)&0xFF,(RDX>>8)&0xFF,RDX&0xFF);
-    printf("    \\--------------------------------/\n");
-    printf("FLAGS: C  Z  S  O  P  A  I  D\n");
-    printf("      [%d][%d][%d][%d][%d][%d][%d][%d]", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf(" R^X>-----------------------<\n");
+    printf("    |        E^X>-----------<\n");
+    printf("    |           |   ^X>-----<\n");
+    printf("    |           |     |^H-^L|\n");
+    printf("  A [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , A>>56, (A>>48)&0xFF, (A>>40)&0xFF, (A>>32)&0xFF, (A>>24)&0xFF, (A>>16)&0xFF, (A>>8)&0xFF, A&0xFF);
+    printf("  B [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , B>>56, (B>>48)&0xFF, (B>>40)&0xFF, (B>>32)&0xFF, (B>>24)&0xFF, (B>>16)&0xFF, (B>>8)&0xFF, B&0xFF);
+    printf("  C [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , C>>56, (C>>48)&0xFF, (C>>40)&0xFF, (C>>32)&0xFF, (C>>24)&0xFF, (C>>16)&0xFF, (C>>8)&0xFF, C&0xFF);
+    printf("  D [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n\n", D>>56, (D>>48)&0xFF, (D>>40)&0xFF, (D>>32)&0xFF, (D>>24)&0xFF, (D>>16)&0xFF, (D>>8)&0xFF, D&0xFF);
+
+    printf("FLAGS: C Z S O P A I D\n");
+    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void StartingIn16BitMode(){}
@@ -150,7 +138,9 @@ int main()
     setlocale(0, "");
 
     ShowPanelFor16BitMode();
+    putchar('\n');
     ShowPanelFor32BitMode();
+    putchar('\n');
     ShowPanelFor64BitMode();
     return 0;
 }
