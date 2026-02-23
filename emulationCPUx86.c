@@ -58,11 +58,15 @@ void ShowPanelFor16BitMode()
 
     printf("SI [%02X.%02X]  \n",SI>>8,SI&0xFF);
     printf("DI [%02X.%02X]\n\n",DI>>8,DI&0xFF);
-    printf("    AH  AL\n");
-    printf("AX [%02X][%02X]  \n", AH, AL);
-    printf("BX [%02X][%02X]  \n", BH, BL);
-    printf("CX [%02X][%02X]  \n", CH, CL);
-    printf("DX [%02X][%02X]\n\n", DH, DL);
+    
+    printf(" R^X>-----------------------<\n");
+    printf("    |        E^X>-----------<\n");
+    printf("    |           |   ^X>-----<\n");
+    printf("    |           |     |^H-^L|\n");
+    printf("  A [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , A>>56, (A>>48)&0xFF, (A>>40)&0xFF, (A>>32)&0xFF, (A>>24)&0xFF, (A>>16)&0xFF, (A>>8)&0xFF, A&0xFF);
+    printf("  B [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , B>>56, (B>>48)&0xFF, (B>>40)&0xFF, (B>>32)&0xFF, (B>>24)&0xFF, (B>>16)&0xFF, (B>>8)&0xFF, B&0xFF);
+    printf("  C [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , C>>56, (C>>48)&0xFF, (C>>40)&0xFF, (C>>32)&0xFF, (C>>24)&0xFF, (C>>16)&0xFF, (C>>8)&0xFF, C&0xFF);
+    printf("  D [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n\n", D>>56, (D>>48)&0xFF, (D>>40)&0xFF, (D>>32)&0xFF, (D>>24)&0xFF, (D>>16)&0xFF, (D>>8)&0xFF, D&0xFF);
 
     printf("FLAGS: C Z S O P A I D\n");
     printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
