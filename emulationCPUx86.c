@@ -56,8 +56,7 @@ void ShowPanelFor16BitMode()
     printf("SP [%02X%02X]  \n", SP>>8, SP&0xFF);
     printf("IP [%02X%02X]\n\n", IP>>8, IP&0xFF);
 
-    printf("SI [%02X%02X]  \n", SI>>8, SI&0xFF);
-    printf("DI [%02X%02X]\n\n", DI>>8, DI&0xFF);
+    printf("SI [%02X%02X]\tDI [%02X%02X]\n\n", SI>>8, SI&0xFF, DI>>8, DI&0xFF);
 
     printf(" R^X-----------E^X----^X\n");
     printf("  A [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n", A>>56, (A>>48)&0xFF, (A>>40)&0xFF, (A>>32)&0xFF, (A>>24)&0xFF, (A>>16)&0xFF, (A>>8)&0xFF, A&0xFF);
@@ -101,10 +100,8 @@ void ShowPanelFor64BitMode()
 {
     printf("\n64-bit's mode\n\n");
 
-    printf("CS [%02X|%02X]  \n", CS>>8, CS&0xFF);// Используется
-    printf("DS [%02X|%02X]  \n", DS>>8, DS&0xFF);// Игнорируется (можно не эмулировать)
-    printf("SS [%02X|%02X]  \n", SS>>8, SS&0xFF);// Игнорируется (можно не эмулировать)
-    printf("ES [%02X|%02X]\n\n", ES>>8, ES&0xFF);// Игнорируется (можно не эмулировать)
+    printf("CS [%02X|%02X]\n", CS>>8, CS&0xFF); // Используется
+    printf("DS [%02X|%02X]\tSS [%02X|%02X]\tES [%02X|%02X]\n", DS>>8, DS&0xFF, SS>>8, SS&0xFF, ES>>8, ES&0xFF); // Игнорируется (можно не эмулировать)
 
     printf("RBP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", BP>>56, (BP>>48)&0xFF, (BP>>40)&0xFF, (BP>>32)&0xFF, (BP>>24)&0xFF, (BP>>16)&0xFF, (BP>>8)&0xFF, BP&0xFF);
     printf("RSP [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", SP>>56, (SP>>48)&0xFF, (SP>>40)&0xFF, (SP>>32)&0xFF, (SP>>24)&0xFF, (SP>>16)&0xFF, (SP>>8)&0xFF, SP&0xFF);
@@ -113,14 +110,12 @@ void ShowPanelFor64BitMode()
     printf("RSI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]  \n", SI>>56, (SI>>48)&0xFF, (SI>>40)&0xFF, (SI>>32)&0xFF, (SI>>24)&0xFF, (SI>>16)&0xFF, (SI>>8)&0xFF, SI&0xFF);
     printf("RDI [%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X]\n\n", DI>>56, (DI>>48)&0xFF, (DI>>40)&0xFF, (DI>>32)&0xFF, (DI>>24)&0xFF, (DI>>16)&0xFF, (DI>>8)&0xFF, DI&0xFF);
 
-    printf(" R^X>-----------------------<\n");
-    printf("    |        E^X>-----------<\n");
-    printf("    |           |   ^X>-----<\n");
-    printf("    |           |     |^H-^L|\n");
+    printf(" R^X-----------E^X----^X\n");
     printf("  A [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , A>>56, (A>>48)&0xFF, (A>>40)&0xFF, (A>>32)&0xFF, (A>>24)&0xFF, (A>>16)&0xFF, (A>>8)&0xFF, A&0xFF);
     printf("  B [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , B>>56, (B>>48)&0xFF, (B>>40)&0xFF, (B>>32)&0xFF, (B>>24)&0xFF, (B>>16)&0xFF, (B>>8)&0xFF, B&0xFF);
     printf("  C [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n"  , C>>56, (C>>48)&0xFF, (C>>40)&0xFF, (C>>32)&0xFF, (C>>24)&0xFF, (C>>16)&0xFF, (C>>8)&0xFF, C&0xFF);
     printf("  D [%02X.%02X.%02X.%02X|%02X.%02X|%02X|%02X]\n\n", D>>56, (D>>48)&0xFF, (D>>40)&0xFF, (D>>32)&0xFF, (D>>24)&0xFF, (D>>16)&0xFF, (D>>8)&0xFF, D&0xFF);
+    printf("                       ^H-^L\n");
 
     printf("FLAGS: C Z S O P A I D\n");
     printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
