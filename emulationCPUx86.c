@@ -16,6 +16,9 @@ uint64_t BP = 0, SP = 0, IP = 0;         // регистры указатели
 // source index, destination index
 uint64_t SI = 0, DI = 0;                 // индексные регистры
 
+uint16_t memory16bit[0xFFFF]; // для 16-ти битного эмулирования
+//uint32_t memory32bit[0xFFFFFFFF]; // для 32-х битного эмулирования
+
 // Для удобства можно определить макросы или inline-функции:
 #define  AL (A & 0xFF)
 #define  AH ((A >> 8) & 0xFF)
@@ -66,7 +69,7 @@ void ShowPanelFor16BitMode()
     printf("                       ^H-^L\n");
 
     printf("FLAGS: C Z S O P A I D\n");
-    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf("       %d %d %d %d %d %d %d %d\n", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void ShowPanelFor32BitMode()
@@ -92,7 +95,7 @@ void ShowPanelFor32BitMode()
     printf("                       ^H-^L\n");
 
     printf("FLAGS: C Z S O P A I D\n");
-    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf("       %d %d %d %d %d %d %d %d\n", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void ShowPanelFor64BitMode()
@@ -119,7 +122,7 @@ void ShowPanelFor64BitMode()
     printf("                       ^H-^L\n");
 
     printf("FLAGS: C Z S O P A I D\n");
-    printf("       %d %d %d %d %d %d %d %d", CF, ZF, SF, OF, PF, AF, IF, DF);
+    printf("       %d %d %d %d %d %d %d %d\n", CF, ZF, SF, OF, PF, AF, IF, DF);
 }
 
 void SwitchingTo16BitMode() { current_mode = MODE_16; }
