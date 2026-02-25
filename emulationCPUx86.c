@@ -191,36 +191,38 @@ int main()
 // 8-bit's 
 // mnemonic op1, op2 ; op2 - imm8
 /*
-          Opcode (16|010)  ;  Assembly
-04 00       | 004 000      ;  ADD|add AL|al, 0
-80 C1|c1 00 | 128 193 000  ;  ADD|add CL|cl, 0
-80 C2|c2 00 | 128 194 000  ;  ADD|add DL|dl, 0
-80 C3|c3 00 | 128 195 000  ;  ADD|add BL|bl, 0
+       Opcode (16|010)  ;  Assembly
+;; Двухбайтовые
+04 00    | 004 000      ;  ADD|add AL|al, 0
+;; Трёхбайтовые
+80 C1 00 | 128 193 000  ;  ADD|add CL|cl, 0
+80 C2 00 | 128 194 000  ;  ADD|add DL|dl, 0
+80 C3 00 | 128 195 000  ;  ADD|add BL|bl, 0
 
-80 C4|c4 00 | 128 196 000  ;  ADD|add AH|ah, 0
-80 C5|c5 00 | 128 197 000  ;  ADD|add CH|ch, 0
-80 C6|c6 00 | 128 198 000  ;  ADD|add DH|dh, 0
-80 C7|c7 00 | 128 199 000  ;  ADD|add BH|bh, 0
+80 C4 00 | 128 196 000  ;  ADD|add AH|ah, 0
+80 C5 00 | 128 197 000  ;  ADD|add CH|ch, 0
+80 C6 00 | 128 198 000  ;  ADD|add DH|dh, 0
+80 C7 00 | 128 199 000  ;  ADD|add BH|bh, 0
 
-05 00 00    | 005 000 000  ;  ADD|add AX|ax, 0
-83 C1|c1 00 | 131 193 000  ;  ADD|add CX|cx, 0
-83 C2|c2 00 | 131 194 000  ;  ADD|add DX|dx, 0
-83 C3|c3 00 | 131 195 000  ;  ADD|add BX|bx, 0
+05 00 00 | 005 000 000  ;  ADD|add AX|ax, 0
+83 C1 00 | 131 193 000  ;  ADD|add CX|cx, 0
+83 C2 00 | 131 194 000  ;  ADD|add DX|dx, 0
+83 C3 00 | 131 195 000  ;  ADD|add BX|bx, 0
 
 ;; Двухбайтовые
-B0|b0 00    | 176 000      ;  MOV|mov AL|al, 0
-B1|b1 00    | 177 000      ;  MOV|mov CL|cl, 0
-B2|b2 00    | 178 000      ;  MOV|mov DL|dl, 0
-B3|b3 00    | 179 000      ;  MOV|mov BL|bl, 0
-B4|b4 00    | 180 000      ;  MOV|mov AH|ah, 0
-B5|b5 00    | 181 000      ;  MOV|mov CH|ch, 0
-B6|b6 00    | 182 000      ;  MOV|mov DH|dh, 0
-B7|b7 00    | 183 000      ;  MOV|mov BH|bh, 0
+B0 00    | 176 000      ;  MOV|mov AL|al, 0
+B1 00    | 177 000      ;  MOV|mov CL|cl, 0
+B2 00    | 178 000      ;  MOV|mov DL|dl, 0
+B3 00    | 179 000      ;  MOV|mov BL|bl, 0
+B4 00    | 180 000      ;  MOV|mov AH|ah, 0
+B5 00    | 181 000      ;  MOV|mov CH|ch, 0
+B6 00    | 182 000      ;  MOV|mov DH|dh, 0
+B7 00    | 183 000      ;  MOV|mov BH|bh, 0
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
-B8|b8 00 00 | 184 000 000  ; MOV|mov AX|ax, 0
-B9|b9 00 00 | 185 000 000  ; MOV|mov CX|cx, 0
-BA|ba 00 00 | 186 000 000  ; MOV|mov DX|dx, 0
-BB|bb 00 00 | 187 000 000  ; MOV|mov BX|bx, 0
+B8 00 00 | 184 000 000  ;  MOV|mov AX|ax, 0
+B9 00 00 | 185 000 000  ;  MOV|mov CX|cx, 0
+BA 00 00 | 186 000 000  ;  MOV|mov DX|dx, 0
+BB 00 00 | 187 000 000  ;  MOV|mov BX|bx, 0
 */
