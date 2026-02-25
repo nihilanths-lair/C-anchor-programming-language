@@ -16,8 +16,7 @@ uint64_t BP = 0, SP = 0, IP = 0;         // регистры указатели
 // source index, destination index
 uint64_t SI = 0, DI = 0;                 // индексные регистры
 
-uint16_t memory16bit[0xFFFF]; // для 16-ти битного эмулирования
-//uint32_t memory32bit[0xFFFFFFFF]; // для 32-х битного эмулирования
+uint8_t mem[1 << 20]; // 1 МБ для реального режима (20 бит адреса)
 
 // Для удобства можно определить макросы или inline-функции:
 #define  AL (A & 0xFF)
@@ -208,6 +207,11 @@ int main()
 83 C1 00 | 131 193 000  ;  ADD|add CX|cx, 0
 83 C2 00 | 131 194 000  ;  ADD|add DX|dx, 0
 83 C3 00 | 131 195 000  ;  ADD|add BX|bx, 0
+
+2D 00 00 | 045 000 000  ;  SUB|sub AX|ax, 0
+83 E9 00 | 131 233 000  ;  SUB|sub CX|cx, 0
+83 EA 00 | 131 234 000  ;  SUB|sub DX|dx, 0
+83 EB 00 | 131 235 000  ;  SUB|sub BX|bx, 0
 
 ;; Двухбайтовые
 B0 00    | 176 000      ;  MOV|mov AL|al, 0
