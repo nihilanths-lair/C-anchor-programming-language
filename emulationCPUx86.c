@@ -191,7 +191,7 @@ int main()
 // 8-bit's 
 // mnemonic op1, op2 ; op2 - imm8
 /*
-       Opcode (16|010)  ;  Assembly
+       Opcode (16|010)  ;  Assembly (Intel)
 ;; Двухбайтовые
 04 00    | 004 000      ;  ADD|add AL|al, 0
 ;; Трёхбайтовые
