@@ -202,6 +202,11 @@ int main()
 80 C6|c6 00 | 128 198 000  ;  ADD|add DH|dh, 0
 80 C7|c7 00 | 128 199 000  ;  ADD|add BH|bh, 0
 
+05 00 00    | 005 000 000  ;  ADD|add AX|ax, 0
+83 C1|c1 00 | 131 193 000  ;  ADD|add CX|cx, 0
+83 C2|c2 00 | 131 194 000  ;  ADD|add DX|dx, 0
+83 C3|c3 00 | 131 195 000  ;  ADD|add BX|bx, 0
+
 ;; Двухбайтовые
 B0|b0 00    | 176 000      ;  MOV|mov AL|al, 0
 B1|b1 00    | 177 000      ;  MOV|mov CL|cl, 0
