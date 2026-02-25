@@ -188,18 +188,29 @@ int main()
     return 0;
 }
 /// Инструкции ; Оп-код (СС16) ; Оп-код (СС10)
-// 8-bit's
+// 8-bit's 
 // mnemonic op1, op2 ; op2 - imm8
 /*
-MOV AL, 0 | mov al, 0 ; B0 00 | b0 00 ; 176 000
-MOV CL, 0 | mov cl, 0 ; B1 00 | b1 00 ; 177 000
-MOV DL, 0 | mov dl, 0 ; B2 00 | b2 00 ; 178 000
-MOV BL, 0 | mov bl, 0 ; B3 00 | b3 00 ; 179 000
+          Opcode (16|010)  ;  Assembly
+04 00       | 004 000      ;  ADD|add AL|al, 0
+80 C1|c1 00 | 128 193 000  ;  ADD|add CL|cl, 0
+80 C2|c2 00 | 128 194 000  ;  ADD|add DL|dl, 0
+80 C3|c3 00 | 128 195 000  ;  ADD|add BL|bl, 0
 
-MOV AH, 0 | mov ah, 0 ; B4 00 | b4 00 ; 180 000
-MOV CH, 0 | mov ch, 0 ; B5 00 | b5 00 ; 181 000
-MOV DH, 0 | mov dh, 0 ; B6 00 | b6 00 ; 182 000
-MOV BH, 0 | mov bh, 0 ; B7 00 | b7 00 ; 183 000
+80 C4|c4 00 | 128 196 000  ;  ADD|add AH|ah, 0
+80 C5|c5 00 | 128 197 000  ;  ADD|add CH|ch, 0
+80 C6|c6 00 | 128 198 000  ;  ADD|add DH|dh, 0
+80 C7|c7 00 | 128 199 000  ;  ADD|add BH|bh, 0
+
+;; Двухбайтовые
+B0|b0 00    | 176 000      ;  MOV|mov AL|al, 0
+B1|b1 00    | 177 000      ;  MOV|mov CL|cl, 0
+B2|b2 00    | 178 000      ;  MOV|mov DL|dl, 0
+B3|b3 00    | 179 000      ;  MOV|mov BL|bl, 0
+B4|b4 00    | 180 000      ;  MOV|mov AH|ah, 0
+B5|b5 00    | 181 000      ;  MOV|mov CH|ch, 0
+B6|b6 00    | 182 000      ;  MOV|mov DH|dh, 0
+B7|b7 00    | 183 000      ;  MOV|mov BH|bh, 0
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
