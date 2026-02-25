@@ -214,8 +214,8 @@ B7|b7 00    | 183 000      ;  MOV|mov BH|bh, 0
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
-MOV AX, 0 | mov ax, 0 ; B8 00 00 | b8 00 00 ; 184 000 000
-MOV CX, 0 | mov cx, 0 ; B9 00 00 | b9 00 00 ; 185 000 000
-MOV DX, 0 | mov dx, 0 ; BA 00 00 | ba 00 00 ; 186 000 000
-MOV BX, 0 | mov bx, 0 ; BB 00 00 | bb 00 00 ; 187 000 000
+B8|b8 00 00 | 184 000 000  ; MOV|mov AX|ax, 0
+B9|b9 00 00 | 185 000 000  ; MOV|mov CX|cx, 0
+BA|ba 00 00 | 186 000 000  ; MOV|mov DX|dx, 0
+BB|bb 00 00 | 187 000 000  ; MOV|mov BX|bx, 0
 */
