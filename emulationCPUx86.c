@@ -187,3 +187,24 @@ int main()
     }
     return 0;
 }
+/// Инструкции ; Оп-код (СС16) ; Оп-код (СС10)
+// 8-bit's
+// mnemonic op1, op2 ; op2 - imm8
+/*
+MOV AL, 0 | mov al, 0 ; B0 00 | b0 00 ; 176 000
+MOV CL, 0 | mov cl, 0 ; B1 00 | b1 00 ; 177 000
+MOV DL, 0 | mov dl, 0 ; B2 00 | b2 00 ; 178 000
+MOV BL, 0 | mov bl, 0 ; B3 00 | b3 00 ; 179 000
+
+MOV AH, 0 | mov ah, 0 ; B4 00 | b4 00 ; 180 000
+MOV CH, 0 | mov ch, 0 ; B5 00 | b5 00 ; 181 000
+MOV DH, 0 | mov dh, 0 ; B6 00 | b6 00 ; 182 000
+MOV BH, 0 | mov bh, 0 ; B7 00 | b7 00 ; 183 000
+
+// 16-bit's
+// mnemonic op1, op2 ; op2 - imm16
+MOV AX, 0 | mov ax, 0 ; B8 00 00 | b8 00 00 ; 184 000 000
+MOV CX, 0 | mov cx, 0 ; B9 00 00 | b9 00 00 ; 185 000 000
+MOV DX, 0 | mov dx, 0 ; BA 00 00 | ba 00 00 ; 186 000 000
+MOV BX, 0 | mov bx, 0 ; BB 00 00 | bb 00 00 ; 187 000 000
+*/
