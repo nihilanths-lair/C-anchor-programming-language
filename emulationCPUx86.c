@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 enum Mode { MODE_16, MODE_32, MODE_64 } current_mode = MODE_16;
-enum { BIOS, DOS, UEFI, WINDOWS };
+enum { BIOS = 1, DOS, UEFI, WINDOWS, vCPU };
 
 // REGISTERS //
 // code segment, data segment, stack segment, extended segment
@@ -17,6 +17,9 @@ uint64_t BP = 0, SP = 0, IP = 0;         // регистры указатели
 uint64_t SI = 0, DI = 0;                 // индексные регистры
 
 uint8_t mem[1 << 20]; // 1 МБ для реального режима (20 бит адреса)
+
+/// для интерпретатора
+uint8_t vIP = 0;
 
 // Для удобства можно определить макросы или inline-функции:
 #define  AL (A & 0xFF)
@@ -128,6 +131,18 @@ void SwitchingTo16BitMode() { current_mode = MODE_16; }
 void SwitchingTo32BitMode() { current_mode = MODE_32; }
 void SwitchingTo64BitMode() { current_mode = MODE_64; }
 
+void Emulate_vCPU()
+{
+    vIP = 0x00;
+}
+
+void Emulate_MS_DOS()
+{
+    SwitchingTo16BitMode();
+    CS = 0x0100, DS = 0x0100, SS = 0x0100, ES = 0x0100;
+    SP = 0xFFFE;
+}
+
 void Emulate_BIOS()
 {
     SwitchingTo16BitMode();
@@ -135,12 +150,7 @@ void Emulate_BIOS()
     // Инициализируем
     /// ...
 }
-void Emulate_MS_DOS()
-{
-    SwitchingTo16BitMode();
-    CS = 0x0100, DS = 0x0100, SS = 0x0100, ES = 0x0100;
-    SP = 0xFFFE;
-}
+
 void Emulate_UEFI()
 {
     SwitchingTo64BitMode();
@@ -149,7 +159,7 @@ void Emulate_UEFI()
     /// ...
 }
 
-void Emulate_OS_Windows()
+void Emulate_Windows()
 {
     SwitchingTo64BitMode();
 
@@ -162,7 +172,7 @@ int main()
     setlocale(0, "");
 
     // Задайте режим какой интерфейс эмулировать
-    unsigned char emulate = DOS; // 1 - BIOS, 2 - DOS, 3 - UEFI, 4 - Windows
+    unsigned char emulate = 5; // 1 - BIOS, 2 - DOS, 3 - UEFI, 4 - Windows, 5 - vCPU
 
     if (emulate == BIOS)
     {
@@ -181,8 +191,53 @@ int main()
     }
     else if (emulate == WINDOWS)
     {
-        Emulate_OS_Windows();
+        Emulate_Windows();
         ShowPanelFor64BitMode();
+    }
+    else if (emulate == vCPU) // для интерпретатора
+    {
+        Emulate_vCPU(); // 8 bit's
+        // 8-ми битная адресация | 255 ячеек памяти (байт)
+        // 16-ти битная адресация | 65'535 ячеек памяти (байт) или 65 Kb.
+        // 32-х битная адресация | 4'294'967'295 ячеек памяти (байт) или 4 Gb.
+        printf("    HEX   DEC\n");
+        printf("IP [%02X]  [%03d]", vIP, vIP);
+        //printf("%u", 0xFFFFFFFF);
+        // Таблица оп-кодов
+        // 01 ??  |  001 ???  -  JMP  |  jmp
+        // 02 ??  |  002 ???  -  CALL  | call
+        // 03 ??  |  003 ???  -  INT  |  int
+
+        // host-functions
+
+        unsigned char data[0xFF] = "";
+        unsigned char ptr_data = 0xFF;
+        FILE *desc;
+        // Считываем с файла
+        desc = fopen("_.asm", "rb");
+        if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
+        fseek(desc, 0, SEEK_END);
+        long file_size = ftell(desc);
+        printf("\nРазмер файла: %ld.\n", file_size);
+        long copy_file_size = file_size;
+        fseek(desc, 0, SEEK_SET);
+        while (file_size--) data[++ptr_data] = fgetc(desc);
+        fclose(desc);
+        data[++ptr_data] = '\0';
+
+        printf("\ndata = \"%s\"\n", data);
+        file_size = copy_file_size;
+
+        // Записываем в файл
+        desc = fopen("_.bin", "wb");
+        if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
+        ptr_data = 0xFF;
+        while (file_size--) fputc(data[++ptr_data], desc);
+        fclose(desc);
+
+        unsigned char bytecode[] = "\
+        01\
+        ";
     }
     return 0;
 }
@@ -194,41 +249,42 @@ int main()
 ;; Двухбайтовые
 04 00    | 004 000      ;  ADD|add AL|al, 0
 ;; Трёхбайтовые
-80 C1 00 | 128 193 000  ;  ADD|add CL|cl, 0
-80 C2 00 | 128 194 000  ;  ADD|add DL|dl, 0
-80 C3 00 | 128 195 000  ;  ADD|add BL|bl, 0
-
-80 C4 00 | 128 196 000  ;  ADD|add AH|ah, 0
-80 C5 00 | 128 197 000  ;  ADD|add CH|ch, 0
-80 C6 00 | 128 198 000  ;  ADD|add DH|dh, 0
-80 C7 00 | 128 199 000  ;  ADD|add BH|bh, 0
+80 C1 00 | 128 193 000  ;  ADD|add CL|cl, 0  :: reg8 <- imm8
+80 C2 00 | 128 194 000  ;  ADD|add DL|dl, 0  :: reg8 <- imm8
+80 C3 00 | 128 195 000  ;  ADD|add BL|bl, 0  :: reg8 <- imm8
+80 C4 00 | 128 196 000  ;  ADD|add AH|ah, 0  :: reg8 <- imm8
+80 C5 00 | 128 197 000  ;  ADD|add CH|ch, 0  :: reg8 <- imm8
+80 C6 00 | 128 198 000  ;  ADD|add DH|dh, 0  :: reg8 <- imm8
+80 C7 00 | 128 199 000  ;  ADD|add BH|bh, 0  :: reg8 <- imm8
 
 05 00 00 | 005 000 000  ;  ADD|add AX|ax, 0
+
 83 C1 00 | 131 193 000  ;  ADD|add CX|cx, 0
 83 C2 00 | 131 194 000  ;  ADD|add DX|dx, 0
 83 C3 00 | 131 195 000  ;  ADD|add BX|bx, 0
 
 2D 00 00 | 045 000 000  ;  SUB|sub AX|ax, 0
+
 83 E9 00 | 131 233 000  ;  SUB|sub CX|cx, 0
 83 EA 00 | 131 234 000  ;  SUB|sub DX|dx, 0
 83 EB 00 | 131 235 000  ;  SUB|sub BX|bx, 0
 
 ;; Двухбайтовые
-B0 00    | 176 000      ;  MOV|mov AL|al, 0
-B1 00    | 177 000      ;  MOV|mov CL|cl, 0
-B2 00    | 178 000      ;  MOV|mov DL|dl, 0
-B3 00    | 179 000      ;  MOV|mov BL|bl, 0
-B4 00    | 180 000      ;  MOV|mov AH|ah, 0
-B5 00    | 181 000      ;  MOV|mov CH|ch, 0
-B6 00    | 182 000      ;  MOV|mov DH|dh, 0
-B7 00    | 183 000      ;  MOV|mov BH|bh, 0
+B0 00    | 176 000      ;  MOV|mov AL|al, 0  :: reg8 <- imm8
+B1 00    | 177 000      ;  MOV|mov CL|cl, 0  :: reg8 <- imm8
+B2 00    | 178 000      ;  MOV|mov DL|dl, 0  :: reg8 <- imm8
+B3 00    | 179 000      ;  MOV|mov BL|bl, 0  :: reg8 <- imm8
+B4 00    | 180 000      ;  MOV|mov AH|ah, 0  :: reg8 <- imm8
+B5 00    | 181 000      ;  MOV|mov CH|ch, 0  :: reg8 <- imm8
+B6 00    | 182 000      ;  MOV|mov DH|dh, 0  :: reg8 <- imm8
+B7 00    | 183 000      ;  MOV|mov BH|bh, 0  :: reg8 <- imm8
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
-B8 00 00 | 184 000 000  ;  MOV|mov AX|ax, 0
-B9 00 00 | 185 000 000  ;  MOV|mov CX|cx, 0
-BA 00 00 | 186 000 000  ;  MOV|mov DX|dx, 0
-BB 00 00 | 187 000 000  ;  MOV|mov BX|bx, 0
+B8 00 00 | 184 000 000  ;  MOV|mov AX|ax, 0  :: reg16 <- imm16
+B9 00 00 | 185 000 000  ;  MOV|mov CX|cx, 0  :: reg16 <- imm16
+BA 00 00 | 186 000 000  ;  MOV|mov DX|dx, 0  :: reg16 <- imm16
+BB 00 00 | 187 000 000  ;  MOV|mov BX|bx, 0  :: reg16 <- imm16
 
 ??    | ???      ;  JMP/jmp ?
 */
