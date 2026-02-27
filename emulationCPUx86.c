@@ -273,11 +273,15 @@ FE CC    | 254 204      ;  DEC AH / dec ah   ;  orn ord-1:r8
 FE CD    | 254 205      ;  DEC CH / dec ch   ;  orn ord-1:r8
 FE CE    | 254 206      ;  DEC DH / dec dh   ;  orn ord-1:r8
 FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
-
+*
 # # #
-
+*
 04 00    | 004 000      ;  ADD|add AL|al, 0
+*
 ;; Трёхбайтовые
+------------
+# Сложение #
+------------
 80 C1 00 | 128 193 000  ;  ADD|add CL|cl, 0  :: reg8 <- imm8
 80 C2 00 | 128 194 000  ;  ADD|add DL|dl, 0  :: reg8 <- imm8
 80 C3 00 | 128 195 000  ;  ADD|add BL|bl, 0  :: reg8 <- imm8
@@ -285,18 +289,10 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 80 C5 00 | 128 197 000  ;  ADD|add CH|ch, 0  :: reg8 <- imm8
 80 C6 00 | 128 198 000  ;  ADD|add DH|dh, 0  :: reg8 <- imm8
 80 C7 00 | 128 199 000  ;  ADD|add BH|bh, 0  :: reg8 <- imm8
+-------------
+# Вычитание #
+-------------
 
-05 00 00 | 005 000 000  ;  ADD|add AX|ax, 0
-
-83 C1 00 | 131 193 000  ;  ADD|add CX|cx, 0
-83 C2 00 | 131 194 000  ;  ADD|add DX|dx, 0
-83 C3 00 | 131 195 000  ;  ADD|add BX|bx, 0
-
-2D 00 00 | 045 000 000  ;  SUB|sub AX|ax, 0
-
-83 E9 00 | 131 233 000  ;  SUB|sub CX|cx, 0
-83 EA 00 | 131 234 000  ;  SUB|sub DX|dx, 0
-83 EB 00 | 131 235 000  ;  SUB|sub BX|bx, 0
 
 ;; Двухбайтовые
 B0 00    | 176 000      ;  MOV|mov AL|al, 0  :: reg8 <- imm8
@@ -310,6 +306,19 @@ B7 00    | 183 000      ;  MOV|mov BH|bh, 0  :: reg8 <- imm8
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
+
+05 00 00 | 005 000 000  ;  ADD|add AX|ax, 0 // ModR/M?
+//83 C0 00 | 131 192 000  ;  ADD AX, 0 / add ax, 0 // можно так (вместо примера выше, как следуют примеры ниже)?
+83 C1 00 | 131 193 000  ;  ADD|add CX|cx, 0
+83 C2 00 | 131 194 000  ;  ADD|add DX|dx, 0
+83 C3 00 | 131 195 000  ;  ADD|add BX|bx, 0
+
+2D 00 00 | 045 000 000  ;  SUB|sub AX|ax, 0 // ModR/M?
+//83 E8 00 | 131 232 000  ;  SUB AX, 0 / sub ax, 0 // можно так (вместо примера выше, как следуют примеры ниже)?
+83 E9 00 | 131 233 000  ;  SUB|sub CX|cx, 0
+83 EA 00 | 131 234 000  ;  SUB|sub DX|dx, 0
+83 EB 00 | 131 235 000  ;  SUB|sub BX|bx, 0
+
 B8 00 00 | 184 000 000  ;  MOV|mov AX|ax, 0  :: reg16 <- imm16
 B9 00 00 | 185 000 000  ;  MOV|mov CX|cx, 0  :: reg16 <- imm16
 BA 00 00 | 186 000 000  ;  MOV|mov DX|dx, 0  :: reg16 <- imm16
