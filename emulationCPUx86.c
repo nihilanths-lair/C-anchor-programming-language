@@ -282,13 +282,13 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 ------------
 # Сложение #
 ------------
-80 C1 00 | 128 193 000  ;  ADD|add CL|cl, 0  :: reg8 <- imm8
-80 C2 00 | 128 194 000  ;  ADD|add DL|dl, 0  :: reg8 <- imm8
-80 C3 00 | 128 195 000  ;  ADD|add BL|bl, 0  :: reg8 <- imm8
-80 C4 00 | 128 196 000  ;  ADD|add AH|ah, 0  :: reg8 <- imm8
-80 C5 00 | 128 197 000  ;  ADD|add CH|ch, 0  :: reg8 <- imm8
-80 C6 00 | 128 198 000  ;  ADD|add DH|dh, 0  :: reg8 <- imm8
-80 C7 00 | 128 199 000  ;  ADD|add BH|bh, 0  :: reg8 <- imm8
+80 C1 00 | 128 193 000  ;  ADD CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C2 00 | 128 194 000  ;  ADD DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C3 00 | 128 195 000  ;  ADD BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C4 00 | 128 196 000  ;  ADD AH, 0 / add ah, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C5 00 | 128 197 000  ;  ADD CH, 0 / add ch, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C6 00 | 128 198 000  ;  ADD DH, 0 / add dh, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C7 00 | 128 199 000  ;  ADD BH, 0 / add bh, 0  ;  orn ord-1:r8 <- ord-2:imm8
 -------------
 # Вычитание #
 -------------
