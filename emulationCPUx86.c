@@ -285,6 +285,7 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 80 C1 00 | 128 193 000  ;  ADD CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:imm8
 80 C2 00 | 128 194 000  ;  ADD DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:imm8
 80 C3 00 | 128 195 000  ;  ADD BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+
 80 C4 00 | 128 196 000  ;  ADD AH, 0 / add ah, 0  ;  orn ord-1:r8 <- ord-2:imm8
 80 C5 00 | 128 197 000  ;  ADD CH, 0 / add ch, 0  ;  orn ord-1:r8 <- ord-2:imm8
 80 C6 00 | 128 198 000  ;  ADD DH, 0 / add dh, 0  ;  orn ord-1:r8 <- ord-2:imm8
@@ -292,17 +293,18 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 -------------
 # Вычитание #
 -------------
-
-
+----------------
+# Присваивание #
+----------------
 ;; Двухбайтовые
-B0 00    | 176 000      ;  MOV|mov AL|al, 0  :: reg8 <- imm8
-B1 00    | 177 000      ;  MOV|mov CL|cl, 0  :: reg8 <- imm8
-B2 00    | 178 000      ;  MOV|mov DL|dl, 0  :: reg8 <- imm8
-B3 00    | 179 000      ;  MOV|mov BL|bl, 0  :: reg8 <- imm8
-B4 00    | 180 000      ;  MOV|mov AH|ah, 0  :: reg8 <- imm8
-B5 00    | 181 000      ;  MOV|mov CH|ch, 0  :: reg8 <- imm8
-B6 00    | 182 000      ;  MOV|mov DH|dh, 0  :: reg8 <- imm8
-B7 00    | 183 000      ;  MOV|mov BH|bh, 0  :: reg8 <- imm8
+B0 00    | 176 000      ;  MOV AL, 0 / mov al, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B1 00    | 177 000      ;  MOV CL, 0 / mov cl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B2 00    | 178 000      ;  MOV DL, 0 / mov dl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B3 00    | 179 000      ;  MOV BL, 0 / mov bl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B4 00    | 180 000      ;  MOV AH, 0 / mov ah, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B5 00    | 181 000      ;  MOV CH, 0 / mov ch, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B6 00    | 182 000      ;  MOV DH, 0 / mov dh, 0  ;  orn ord-1:r8 <- ord-2:imm8
+B7 00    | 183 000      ;  MOV BH, 0 / mov bh, 0  ;  orn ord-1:r8 <- ord-2:imm8
 
 // 16-bit's
 // mnemonic op1, op2 ; op2 - imm16
