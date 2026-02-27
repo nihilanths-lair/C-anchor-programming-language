@@ -245,10 +245,12 @@ int main()
 // 8-bit's 
 // mnemonic operand-1:register8
 /*
-       Opcode (16|010)  ;  Assembly (Intel)  ;  Обозначение
-
+* Opcode (16|010)  ;  Assembly (Intel)  ;  Обозначение
+*
 ;; Двухбайтовые
-
+-------------
+# Инкремент #
+-------------
 FE C0    | 254 192      ;  INC AL / inc al   ;  mnc ord-1:r8
 FE C1    | 254 193      ;  INC CL / inc cl   ;  mnc ord-1:r8
 FE C2    | 254 194      ;  INC DL / inc dl   ;  mnc ord-1:r8
@@ -258,7 +260,9 @@ FE C4    | 254 196      ;  INC AH / inc ah   ;  mnc ord-1:r8
 FE C5    | 254 197      ;  INC CH / inc ch   ;  mnc ord-1:r8
 FE C6    | 254 198      ;  INC DH / inc dh   ;  mnc ord-1:r8
 FE C7    | 254 199      ;  INC BH / inc bh   ;  mnc ord-1:r8
-
+-------------
+# Декремент #
+-------------
 FE C8    | 254 200      ;  DEC AL / dec al   ;  mnc ord-1:r8
 FE C9    | 254 201      ;  DEC CL / dec cl   ;  mnc ord-1:r8
 FE CA    | 254 202      ;  DEC DL / dec dl   ;  mnc ord-1:r8
@@ -268,6 +272,8 @@ FE CC    | 254 204      ;  DEC AH / dec ah   ;  mnc ord-1:r8
 FE CD    | 254 205      ;  DEC CH / dec ch   ;  mnc ord-1:r8
 FE CE    | 254 206      ;  DEC DH / dec dh   ;  mnc ord-1:r8
 FE CF    | 254 207      ;  DEC BH / dec bh   ;  mnc ord-1:r8
+
+
 
 04 00    | 004 000      ;  ADD|add AL|al, 0
 ;; Трёхбайтовые
