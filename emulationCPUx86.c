@@ -246,8 +246,11 @@ int main()
 // operation operand-1:register8
 // операция операнд-1:регистр8
 /*
-* Opcode (16|010)  ;  Assembly (Intel)  ;  Обозначение
+* Opcode (16|010)       ;  Assembly (Intel)  ;  Обозначение
 *
+;; Однобайтовые
+90       | 144          ; NOP / nop          ;  orn
+
 ;; Двухбайтовые
 -------------
 # Инкремент #
