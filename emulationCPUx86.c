@@ -290,14 +290,15 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 ------------
 # Сложение #
 ------------
-80 C1 00 | 128 193 000  ;  ADD CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:imm8
-80 C2 00 | 128 194 000  ;  ADD DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:imm8
-80 C3 00 | 128 195 000  ;  ADD BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 С0 00 | 128 192 000  ;  ADD AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // можно ли так? действительно?
+80 C1 00 | 128 193 000  ;  ADD CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 C2 00 | 128 194 000  ;  ADD DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 C3 00 | 128 195 000  ;  ADD BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:i8
 
-80 C4 00 | 128 196 000  ;  ADD AH, 0 / add ah, 0  ;  orn ord-1:r8 <- ord-2:imm8
-80 C5 00 | 128 197 000  ;  ADD CH, 0 / add ch, 0  ;  orn ord-1:r8 <- ord-2:imm8
-80 C6 00 | 128 198 000  ;  ADD DH, 0 / add dh, 0  ;  orn ord-1:r8 <- ord-2:imm8
-80 C7 00 | 128 199 000  ;  ADD BH, 0 / add bh, 0  ;  orn ord-1:r8 <- ord-2:imm8
+80 C4 00 | 128 196 000  ;  ADD AH, 0 / add ah, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 C5 00 | 128 197 000  ;  ADD CH, 0 / add ch, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 C6 00 | 128 198 000  ;  ADD DH, 0 / add dh, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 C7 00 | 128 199 000  ;  ADD BH, 0 / add bh, 0  ;  orn ord-1:r8 <- ord-2:i8
 -------------
 # Вычитание #
 -------------
@@ -335,4 +336,10 @@ BA 00 00 | 186 000 000  ;  MOV|mov DX|dx, 0  :: reg16 <- imm16
 BB 00 00 | 187 000 000  ;  MOV|mov BX|bx, 0  :: reg16 <- imm16
 
 ??    | ???      ;  JMP/jmp ?
+
+//////
+</ vCPU />
+01 ?? | 001 ???  ;  JMP|jmp ?  :: orn ord-1:i8/m8
+
+EOF
 */
