@@ -1,3 +1,4 @@
+// <!-- Encoding: Windows-1251 -->
 #include <stdint.h>
 #include <locale.h>
 #include <stdio.h>
