@@ -47,23 +47,21 @@ void ShowDashboard()
     switch (op){
     case 0:
     {
-        printf("MEMORY (HEX | DEC)\n    ");
+        printf("\nMEMORY (HEX | DEC | ASCII)\n    ");
         for (int i = 0; i < 0x0F + 1; i++) printf("[%02X]", i);
         printf("        ");
         for (int i = 0; i < 0x0F + 1; i++) printf("[%03d]", i);
+        //printf("        ");
+        //for (int i = 0; i < 0x0F + 1; i++) printf("[%c]", i);
         for (int j = 0; j < 0x0F + 1; j++)
         {
             printf("\n[%02X]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++)
-            {
-                printf(" %02X ", vMEMORY[i]);
-            }
+            for (int i = 0; i < 0x0F + 1; i++) printf(" %02X ", vMEMORY[i]);
             printf("   ");
             printf("[%03d]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++)
-            {
-                printf(" %03d ", vMEMORY[i]);
-            }
+            for (int i = 0; i < 0x0F + 1; i++) printf(" %03d ", vMEMORY[i]);
+            printf("   ");
+            for (int i = 0; i < 0x0F + 1; i++) printf("%c", ProcAsciiChr(vMEMORY[i]));
         }
     }
     break;
