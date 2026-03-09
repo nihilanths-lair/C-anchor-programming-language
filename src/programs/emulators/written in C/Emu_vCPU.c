@@ -147,7 +147,7 @@ int main()
     //vSI = 0x00;
     //ShowDashboard();
 
-    // Syntax Intel
+    // Syntax AT&T / Intel
     char opcode[] =
     {
         MOV, 0, 'Г', // MOV 0, 'Г' | 01 00 C3 | 001 000 195 | ··Г
@@ -161,14 +161,21 @@ int main()
     LoadingProgramIntoMemory(opcode, EOF);
     ShowDashboard();
     vIP = 0; // Инициализация
-    for (int i = 0; i < 1; i++)
+    //printf("vIP = %d", vIP);
+    for (int i = 0; i < 6; i++)
     {
         switch (opcode[vIP]){
         case MOV:
         {
-            vMEMORY[vIP-=1] = opcode[vIP+=2];
-            //ShowDashboard();
+            // Intel (помещение данных в произвольную ячейку памяти)
+            vMEMORY[opcode[vIP-=1]] = opcode[vIP+=2];
+            vIP += 2;
+            // AT&T (помещение данных в произвольную ячейку памяти)
+            //vMEMORY[opcode[++vIP]] = opcode[++vIP];
+            //++vIP;
+            ShowDashboard();
         } break; }
+        //vIP++;
     }
     char * ptr_op_code = opcode;
     while (false)
@@ -206,3 +213,6 @@ int main()
 }
 /// Текущая ячейка / Произвольная ячейка
 /// ...-> Выборка -> Декодирование -> Исполнение -> Смещение IP на след. инструкцию (автоматически) ->...
+
+// Инструкции и данные находятся в одной секции или разделены?
+// Инструкции кодируются как в x86 первые два байта - одним или каждый по раздельности?
