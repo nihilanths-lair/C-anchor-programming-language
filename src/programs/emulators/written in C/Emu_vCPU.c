@@ -114,6 +114,7 @@ enum UppercaseLetters // Заглавные буквы
 {
     MOV = 1,
     INC, DEC,
+    ADD, SUB, MUL, DIV,
     JMP,
     PUSH,
     INT,
@@ -122,6 +123,7 @@ enum LowercaseLetters // Строчные буквы
 {
     mov = 1,
     inc, dec,
+    add, sub, mul, div,
     jmp,
     push,
     _int,
@@ -152,8 +154,9 @@ int main()
     //ShowDashboard();
 
     // Syntax AT&T / Intel
-    char opcode[] =
+    unsigned char opcode[] =
     {
+        /*
         MOV, 0, 'Г', // MOV 0, 'Г' | 01 00 C3 | 001 000 195 | ··Г
         MOV, 1, 'л', // MOV 1, 'л' | 01 01 EB | 001 001 235 | ··л
         MOV, 2, 'е', // MOV 2, 'е' | 01 02 E5 | 001 002 229 | ··е
@@ -161,12 +164,20 @@ int main()
         MOV, 4, '.', // MOV 4, '.' | 01 04 2E | 001 004 046 | ··.
         INC, 4,      // INC 4      | 02 04    | 002 004     | ··
         DEC, 4,      // DEC 4      | 03 04    | 003 004     | ··
+        MOV, 255, 5, // MOV 255, 5 | 01 FF 05 | 001 255 005 | ·я·
+        */
+        MOV, 254,  2, // MOV 254, 2 | 01 FE 02 | 001 254 002 | ·ю·
+        //MOV, 255, 3,// MOV 255, 3 | 01 FF 03 | 001 255 003 | ·я·
+        ADD, 254,  3, // ADD 254, 3 | 04 FE 03 | 004 254 003 | ·ю·
+
+        MOV, 255, 11, // MOV 255, 11 | 01 FF 0B | 001 255 011 | ·я·
+        SUB, 255,  4, // SUB 255, 4  | 05 FF 04 | 005 255 004 | ·я·
         EOF
     };
     LoadingProgramIntoMemory(opcode, EOF);
     vIP = 0; // Инициализация
     //printf("vIP = %d", vIP);
-    for (int i = 0; i < 7; i++){
+    for (int i = 0; i < 4; i++){
         switch (opcode[vIP]){
         case MOV: {
             // Intel (помещение данных в произвольную ячейку памяти)
@@ -184,6 +195,19 @@ int main()
             vMEMORY[opcode[++vIP]]--;
             vIP++;
         } break;
+        case ADD: {
+            // Intel (сложение данных в произвольной ячейки памяти)
+            vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
+            vIP += 2;
+            // AT&T (сложение данных в произвольной ячейки памяти)
+            //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
+            //vIP += 2;
+        } break;
+        case SUB: {
+            // Intel (вычитание данных в произвольной ячейки памяти)
+            vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
+            vIP += 2;
+        } break;
         case JMP: vIP = opcode[++vIP]; break; }
         ShowDashboard();
     }
@@ -195,12 +219,7 @@ int main()
         {
             vMEMORY[vIP+1] = opcode[vIP+2];
         } break;
-        case PUSH:
-        {
-            //ShowDashboard();
-            vSTACK[vSP--] = opcode[++vIP];
-            //ShowDashboard();
-        }
+        case PUSH: vSTACK[vSP--] = opcode[++vIP];
         return 0;
         break;
         case INT:
