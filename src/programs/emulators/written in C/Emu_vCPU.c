@@ -113,12 +113,16 @@ void StepForward(){}
 enum UppercaseLetters // Заглавные буквы
 {
     MOV = 1,
+    INC, DEC,
+    JMP,
     PUSH,
     INT,
 };
 enum LowercaseLetters // Строчные буквы
 {
     mov = 1,
+    inc, dec,
+    jmp,
     push,
     _int,
 };
@@ -155,27 +159,33 @@ int main()
         MOV, 2, 'е', // MOV 2, 'е' | 01 02 E5 | 001 002 229 | ··е
         MOV, 3, 'б', // MOV 3, 'б' | 01 03 E1 | 001 003 225 | ··б
         MOV, 4, '.', // MOV 4, '.' | 01 04 2E | 001 004 046 | ··.
+        INC, 4,      // INC 4      | 02 04    | 002 004     | ··
+        DEC, 4,      // DEC 4      | 03 04    | 003 004     | ··
         EOF
     };
-    ShowDashboard();
     LoadingProgramIntoMemory(opcode, EOF);
-    ShowDashboard();
     vIP = 0; // Инициализация
     //printf("vIP = %d", vIP);
-    for (int i = 0; i < 6; i++)
-    {
+    for (int i = 0; i < 7; i++){
         switch (opcode[vIP]){
-        case MOV:
-        {
+        case MOV: {
             // Intel (помещение данных в произвольную ячейку памяти)
-            vMEMORY[opcode[vIP-=1]] = opcode[vIP+=2];
+            vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
             vIP += 2;
             // AT&T (помещение данных в произвольную ячейку памяти)
             //vMEMORY[opcode[++vIP]] = opcode[++vIP];
             //++vIP;
-            ShowDashboard();
-        } break; }
-        //vIP++;
+        } break;
+        case INC: {
+            vMEMORY[opcode[++vIP]]++;
+            vIP++;
+        } break;
+        case DEC: {
+            vMEMORY[opcode[++vIP]]--;
+            vIP++;
+        } break;
+        case JMP: vIP = opcode[++vIP]; break; }
+        ShowDashboard();
     }
     char * ptr_op_code = opcode;
     while (false)
