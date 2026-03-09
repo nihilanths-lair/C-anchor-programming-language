@@ -208,7 +208,19 @@ int main()
             vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
             vIP += 2;
         } break;
-        case JMP: vIP = opcode[++vIP]; break; }
+        case MUL: {
+            // Intel (вычитание данных в произвольной €чейки пам€ти)
+            vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
+            vIP += 2;
+        } break;
+        case DIV: {
+            // Intel (вычитание данных в произвольной €чейки пам€ти)
+            vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
+            vIP += 2;
+        } break;
+        case JMP: {
+            vIP = opcode[++vIP];
+        }}
         ShowDashboard();
     }
     char * ptr_op_code = opcode;
