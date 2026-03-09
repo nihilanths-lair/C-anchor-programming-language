@@ -1,8 +1,9 @@
 // <!-- Encoding: Windows-1251 -->
 #include <stdint.h>
 #include <locale.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
 
 char ProcAsciiChr(unsigned char chr)
 {
@@ -114,6 +115,15 @@ enum IVT {
 int main()
 {
     setlocale(0, "");
+
+    char cmd[128+1];
+    while (false)
+    {
+        printf("CMD> ");
+
+        fgets(cmd, sizeof (cmd), stdin); // fgets считывает строку включая пробелы и '\n'
+        cmd[strcspn(cmd, "\n")] = '\0';  // Удаляем символ переноса строки '\n', если он есть
+    }
 
     ShowDashboard();
     vIP = 0x00;
