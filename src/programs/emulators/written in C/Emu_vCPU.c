@@ -39,7 +39,7 @@ void ShowDashboard()
 {
     printf("    HEX   DEC    ASCII\n");
     //for (int i = 0; i < 256; i++)
-    printf("IP  [%02X]  [%03d]  [%c]\n", vIP, vIP, ProcAsciiChr(vIP));
+    printf("\nIP  [%02X]  [%03d]  [%c]\n", vIP, vIP, ProcAsciiChr(vIP));
     printf("SP  [%02X]  [%03d]  [%c]\n", vSP, vSP, ProcAsciiChr(vSP));
     //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
     //printf("SI  [%02X]  [%03d]  [%c]\n", vSI, vSI, ProcAsciiChr(vSI));
@@ -160,3 +160,4 @@ int main()
 
     return 0;
 }
+/// Текущая ячейка / Произвольная ячейка
