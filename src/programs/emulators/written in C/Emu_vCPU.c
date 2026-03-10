@@ -38,10 +38,163 @@ uint8_t vSI;
 uint8_t vMEMORY[0xFF];
 uint8_t vSTACK[0xFF];
 
-void Compile(const char * text) // size_t len
+char _data_1[0xFF];
+//char _data_2[0xFF];
+
+void Preprocessing(const unsigned char * text)
+{
+    puts("\n>> Preprocessing()");
+    printf("%s", text);
+    int i = 0;
+    _loop_run:
+    switch (text[i]){
+    // 0-9 | 48-57
+    case (unsigned char)'0': {} break;
+    case (unsigned char)'1': {} break;
+    case (unsigned char)'2': {} break;
+    case (unsigned char)'3': {} break;
+    case (unsigned char)'4': {} break;
+    case (unsigned char)'5': {} break;
+    case (unsigned char)'6': {} break;
+    case (unsigned char)'7': {} break;
+    case (unsigned char)'8': {} break;
+    case (unsigned char)'9': {} break;
+    // A-Z | 65-90
+    case (unsigned char)'A': {} break;
+    case (unsigned char)'B': {} break;
+    case (unsigned char)'C': {} break;
+    case (unsigned char)'D': {} break;
+    case (unsigned char)'E': {} break;
+    case (unsigned char)'F': {} break;
+    case (unsigned char)'G': {} break;
+    case (unsigned char)'H': {} break;
+    case (unsigned char)'I': {} break;
+    case (unsigned char)'J': {} break;
+    case (unsigned char)'K': {} break;
+    case (unsigned char)'L': {} break;
+    case (unsigned char)'M': {} break;
+    case (unsigned char)'N': {} break;
+    case (unsigned char)'O': {} break;
+    case (unsigned char)'P': {} break;
+    case (unsigned char)'Q': {} break;
+    case (unsigned char)'R': {} break;
+    case (unsigned char)'S': {} break;
+    case (unsigned char)'T': {} break;
+    case (unsigned char)'U': {} break;
+    case (unsigned char)'V': {} break;
+    case (unsigned char)'W': {} break;
+    case (unsigned char)'X': {} break;
+    case (unsigned char)'Y': {} break;
+    case (unsigned char)'Z': {} break;
+    // a-z | 97-122
+    case (unsigned char)'a': {} break;
+    case (unsigned char)'b': {} break;
+    case (unsigned char)'c': {} break;
+    case (unsigned char)'d': {} break;
+    case (unsigned char)'e': {} break;
+    case (unsigned char)'f': {} break;
+    case (unsigned char)'g': {} break;
+    case (unsigned char)'h': {} break;
+    case (unsigned char)'i': {} break;
+    case (unsigned char)'j': {} break;
+    case (unsigned char)'k': {} break;
+    case (unsigned char)'l': {} break;
+    case (unsigned char)'m': {} break;
+    case (unsigned char)'n': {} break;
+    case (unsigned char)'o': {} break;
+    case (unsigned char)'p': {} break;
+    case (unsigned char)'q': {} break;
+    case (unsigned char)'r': {} break;
+    case (unsigned char)'s': {} break;
+    case (unsigned char)'t': {} break;
+    case (unsigned char)'u': {} break;
+    case (unsigned char)'v': {} break;
+    case (unsigned char)'w': {} break;
+    case (unsigned char)'x': {} break;
+    case (unsigned char)'y': {} break;
+    case (unsigned char)'z': {} break;
+    // А-я | 192-255
+    case (unsigned char)'А': {} break;
+    case (unsigned char)'Б': {} break;
+    case (unsigned char)'В': {} break;
+    case (unsigned char)'Г': {} break;
+    case (unsigned char)'Д': {} break;
+    case (unsigned char)'Е': {} break;
+    case (unsigned char)'Ж': {} break;
+    case (unsigned char)'З': {} break;
+    case (unsigned char)'И': {} break;
+    case (unsigned char)'Й': {} break;
+    case (unsigned char)'К': {} break;
+    case (unsigned char)'Л': {} break;
+    case (unsigned char)'М': {} break;
+    case (unsigned char)'Н': {} break;
+    case (unsigned char)'О': {} break;
+    case (unsigned char)'П': {} break;
+    case (unsigned char)'Р': {} break;
+    case (unsigned char)'С': {} break;
+    case (unsigned char)'Т': {} break;
+    case (unsigned char)'У': {} break;
+    case (unsigned char)'Ф': {} break;
+    case (unsigned char)'Х': {} break;
+    case (unsigned char)'Ц': {} break;
+    case (unsigned char)'Ч': {} break;
+    case (unsigned char)'Ш': {} break;
+    case (unsigned char)'Щ': {} break;
+    case (unsigned char)'Ъ': {} break;
+    case (unsigned char)'Ы': {} break;
+    case (unsigned char)'Ь': {} break;
+    case (unsigned char)'Э': {} break;
+    case (unsigned char)'Ю': {} break;
+    case (unsigned char)'Я': {} break;
+    case (unsigned char)'а': {} break;
+    case (unsigned char)'б': {} break;
+    case (unsigned char)'в': {} break;
+    case (unsigned char)'г': {} break;
+    case (unsigned char)'д': {} break;
+    case (unsigned char)'е': {} break;
+    case (unsigned char)'ж': {} break;
+    case (unsigned char)'з': {} break;
+    case (unsigned char)'и': {} break;
+    case (unsigned char)'й': {} break;
+    case (unsigned char)'к': {} break;
+    case (unsigned char)'л': {} break;
+    case (unsigned char)'м': {} break;
+    case (unsigned char)'н': {} break;
+    case (unsigned char)'о': {} break;
+    case (unsigned char)'п': {} break;
+    case (unsigned char)'р': {} break;
+    case (unsigned char)'с': {} break;
+    case (unsigned char)'т': {} break;
+    case (unsigned char)'у': {} break;
+    case (unsigned char)'ф': {} break;
+    case (unsigned char)'х': {} break;
+    case (unsigned char)'ц': {} break;
+    case (unsigned char)'ч': {} break;
+    case (unsigned char)'ш': {} break;
+    case (unsigned char)'щ': {} break;
+    case (unsigned char)'ъ': {} break;
+    case (unsigned char)'ы': {} break;
+    case (unsigned char)'ь': {} break;
+    case (unsigned char)'э': {} break;
+    case (unsigned char)'ю': {} break;
+    case (unsigned char)'я': {} break;
+    }
+    // Generator 'case'
+    putchar('\n');
+    //0-9 | 48-57
+    //for (int i = 48; i <= 57; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //A-Z | 65-90
+    //for (int i = 65; i <= 90; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //a-z | 97-122
+    //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //А-я | 192-255
+    //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+}
+
+void Compile(const unsigned char * text) // size_t len
 {
     puts("\n>> Compile()");
-    printf("%s", text);
+    Preprocessing(text);
 }
 
 void LoadingProgramIntoMemory(const char * opcode)
@@ -176,7 +329,7 @@ int main()
     fclose(desc);
     data[++ptr_data] = '\0';
 
-    printf("\n[file: _.asm]\"\n\n%s\"\n", data);
+    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
     /*
     file_size = copy_file_size;
 
@@ -187,7 +340,8 @@ int main()
     while (file_size--) fputc(data[++ptr_data], desc);
     fclose(desc);
     */
-
+    Compile(data);
+    /*
     Compile(
         "JMP _\n"
         ""
@@ -199,7 +353,18 @@ int main()
         "-;\n"
         "MOV 3, 'б'"
     );
-
+    ///
+    /*
+    >> Compile()
+    JMP _
+    _: ; точка входа в программу
+    MOV 0, 'Г'
+    ;-
+    MOV 1, 'л'
+    MOV 2, 'е'
+    -;
+    MOV 3, 'б'
+    */
     // Syntax AT&T / Intel
     unsigned char opcode[] =
     {
