@@ -118,15 +118,16 @@ void Preprocessing(const char * text)
     } break;
     // Однострочный комментарий
     case ';'/*3B*/: {
-        printf( "№%d: %c\n", i, text[i]); break;
-        _loop_2_run:
+        printf( "№%d: %c\n", i, text[i]);
         switch (text[++i]){
-        case '\0': goto _loop_1_end; break;
-        case '\n': goto _loop_2_end; break;
+        case '\0': {
+            goto _loop_1_end;
+        } break;
+        case '\n': {
+            
+        } break;
         default: _data_1[j] = text[i];
         }
-        goto _loop_2_run;
-        _loop_2_end:
     } break;
     default: {
         _data_1[j] = text[i];
