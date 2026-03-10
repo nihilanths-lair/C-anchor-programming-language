@@ -181,14 +181,16 @@ void Preprocessing(const unsigned char * text)
     }
     // Generator 'case'
     putchar('\n');
-    //0-9 | 48-57
+    /*
+    //puts("0-9 | 48-57");
     //for (int i = 48; i <= 57; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //A-Z | 65-90
+    //puts("A-Z | 65-90");
     //for (int i = 65; i <= 90; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //a-z | 97-122
+    //puts("a-z | 97-122");
     //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //À-ÿ | 192-255
+    //puts("À-ÿ | 192-255");
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    */
 }
 
 void Compile(const unsigned char * text) // size_t len
