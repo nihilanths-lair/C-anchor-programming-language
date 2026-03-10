@@ -284,13 +284,12 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 *
 # # #
 *
-04 00    | 004 000      ;  ADD|add AL|al, 0
-*
-;; Трёхбайтовые
+;; Двух и трёхбайтовые
 ------------
 # Сложение #
 ------------
-80 С0 00 | 128 192 000  ;  ADD AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // можно ли так? действительно?
+80 С0 00 | 128 192 000  ;  ADD AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // 1-й вариант [X] неэффективно
+   04 00 |     004 000  ;  ADD AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // 2-й вариант [V] оптимально
 80 C1 00 | 128 193 000  ;  ADD CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:i8
 80 C2 00 | 128 194 000  ;  ADD DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:i8
 80 C3 00 | 128 195 000  ;  ADD BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:i8
@@ -302,6 +301,16 @@ FE CF    | 254 207      ;  DEC BH / dec bh   ;  orn ord-1:r8
 -------------
 # Вычитание #
 -------------
+80 E8 00 | 128 232 000  ;  SUB AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // 1-й вариант [X] неэффективно
+   2C 00 |     044 000  ;  SUB AL, 0 / add al, 0  ;  orn ord-1:r8 <- ord-2:i8 // 2-й вариант [V] оптимально
+80 E9 00 | 128 233 000  ;  SUB CL, 0 / add cl, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 EA 00 | 128 234 000  ;  SUB DL, 0 / add dl, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 EB 00 | 128 235 000  ;  SUB BL, 0 / add bl, 0  ;  orn ord-1:r8 <- ord-2:i8
+
+80 EC 00 | 128 236 000  ;  SUB AH, 0 / add ah, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 ED 00 | 128 237 000  ;  SUB CH, 0 / add ch, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 EE 00 | 128 238 000  ;  SUB DH, 0 / add dh, 0  ;  orn ord-1:r8 <- ord-2:i8
+80 EF 00 | 128 239 000  ;  SUB BH, 0 / add bh, 0  ;  orn ord-1:r8 <- ord-2:i8
 ----------------
 # Присваивание #
 ----------------

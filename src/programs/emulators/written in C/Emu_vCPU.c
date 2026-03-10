@@ -5,6 +5,9 @@
 #include <string.h>
 #include <stdio.h>
 
+//#define opening_block {
+//#define closing_block }
+
 char ProcAsciiChr(unsigned char chr)
 {
     switch (chr) {
@@ -35,11 +38,16 @@ uint8_t vSI;
 uint8_t vMEMORY[0xFF];
 uint8_t vSTACK[0xFF];
 
-void LoadingProgramIntoMemory(const char * opcode, size_t len)
+void Compile(const char * text) // size_t len
+{
+    puts("\n>> Compile()");
+    printf("%s", text);
+}
+
+void LoadingProgramIntoMemory(const char * opcode)
 {
     puts("\n>> LoadingProgramIntoMemory()");
-    int i;
-    for (i = 0; opcode[i] != -1; i++) vMEMORY[i] = opcode[i];
+    for (int i = 0; opcode[i] != -1; i++) vMEMORY[i] = opcode[i];
     //for ( ; opcode[i] != '\0'; i++) vMEMORY[i] = '\0';
     //printf("opcode >> %lld", len);
     //for (int i = 0; i < len; i++) vMEMORY[i] = opcode[i];
@@ -153,6 +161,16 @@ int main()
     //vSI = 0x00;
     //ShowDashboard();
 
+    Compile(
+        "JMP main\n"
+        ""
+        "main: ; точка входа в программу\n"
+        "MOV 0, 'Г'\n"
+        "MOV 1, 'л'\n"
+        "MOV 2, 'е'\n"
+        "MOV 3, 'б'"
+    );
+
     // Syntax AT&T / Intel
     unsigned char opcode[] =
     {
@@ -174,7 +192,7 @@ int main()
         SUB, 255,  4, // SUB 255, 4  | 05 FF 04 | 005 255 004 | ·я·
         EOF
     };
-    LoadingProgramIntoMemory(opcode, EOF);
+    LoadingProgramIntoMemory(opcode);
     vIP = 0; // Инициализация
     //printf("vIP = %d", vIP);
     for (int i = 0; i < 4; i++){
