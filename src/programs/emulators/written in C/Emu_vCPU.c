@@ -39,11 +39,24 @@ char _data_1[0xFF];
 char * _ptr_data_1 = _data_1;
 //char _data_2[0xFF];
 
+// Строгий стиль - синтаксис жёстко зафиксирован и компилятор будет ругаться если ставить отступы в разных местах не по стандартам
+void StrictStyle()
+{
+
+}
+
+// Свободный стиль - компилятор на разное количество отступов в разных местах не ругается
+void FreeStyle()
+{
+
+}
+
 void Preprocessing(const unsigned char * text)
 {
     puts("\n>> Preprocessing()");
     printf("%s\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
+    char filter[0xFF]; filter[0] = '\0';
     int i = 0-1;
     int j = 0-1;
     _loop_1_run:
