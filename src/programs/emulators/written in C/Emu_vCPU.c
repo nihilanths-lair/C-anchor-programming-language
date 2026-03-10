@@ -5,9 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 
-//#define opening_block {
-//#define closing_block }
-
 char ProcAsciiChr(unsigned char chr)
 {
     switch (chr) {
