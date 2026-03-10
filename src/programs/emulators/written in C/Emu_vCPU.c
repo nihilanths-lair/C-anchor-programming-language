@@ -39,17 +39,20 @@ char _data_1[0xFF];
 char * _ptr_data_1 = _data_1;
 //char _data_2[0xFF];
 
+/// ... ///
+enum { FREE_STYLE, STRICT_STYLE };
+bool syntax_style = STRICT_STYLE; // Стиль синтаксиса
 // Строгий стиль - синтаксис жёстко зафиксирован и компилятор будет ругаться если ставить отступы в разных местах не по стандартам
 void StrictStyle()
 {
 
 }
-
 // Свободный стиль - компилятор на разное количество отступов в разных местах не ругается
 void FreeStyle()
 {
 
 }
+/// ... ///
 
 void Preprocessing(const unsigned char * text)
 {
