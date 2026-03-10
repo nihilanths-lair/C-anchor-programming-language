@@ -162,9 +162,9 @@ int main()
     //ShowDashboard();
 
     Compile(
-        "JMP main\n"
+        "JMP _\n"
         ""
-        "main: ; точка входа в программу\n"
+        "_: ; точка входа в программу\n"
         "MOV 0, 'Г'\n"
         ";-"
         "MOV 1, 'л'\n"
