@@ -134,8 +134,7 @@ void ShowDashboard()
             printf("\n[%03d]", j * (0x0F + 1));
             for (int i = 0; i < 0x0F + 1; i++) printf(" %03d ", vMEMORY[i]);
         }
-    }
-    break;
+    } break;
     case 16:
     {
         printf("MEMORY (HEX)\n    ");
@@ -145,9 +144,7 @@ void ShowDashboard()
             printf("\n[%02X]", j * (0x0F + 1));
             for (int i = 0; i < 0x0F + 1; i++) printf(" %02X ", vMEMORY[i]);
         }
-    }
-    break;
-    }
+    }}
 }
 
 // Ўаг вперЄд
