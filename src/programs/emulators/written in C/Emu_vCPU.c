@@ -161,15 +161,42 @@ int main()
     //vSI = 0x00;
     //ShowDashboard();
 
+    unsigned char data[0xFF] = "";
+    unsigned char ptr_data = 0xFF;
+    FILE *desc;
+    // Считываем с файла
+    desc = fopen("_.asm", "rb");
+    if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
+    fseek(desc, 0, SEEK_END);
+    long file_size = ftell(desc);
+    printf("\nРазмер файла: %ld.\n", file_size);
+    long copy_file_size = file_size;
+    fseek(desc, 0, SEEK_SET);
+    while (file_size--) data[++ptr_data] = fgetc(desc);
+    fclose(desc);
+    data[++ptr_data] = '\0';
+
+    printf("\n[file: _.asm]\"\n\n%s\"\n", data);
+    /*
+    file_size = copy_file_size;
+
+    // Записываем в файл
+    desc = fopen("_.bin", "wb");
+    if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
+    ptr_data = 0xFF;
+    while (file_size--) fputc(data[++ptr_data], desc);
+    fclose(desc);
+    */
+
     Compile(
         "JMP _\n"
         ""
         "_: ; точка входа в программу\n"
         "MOV 0, 'Г'\n"
-        ";-"
+        ";-\n"
         "MOV 1, 'л'\n"
         "MOV 2, 'е'\n"
-        "-;"
+        "-;\n"
         "MOV 3, 'б'"
     );
 
