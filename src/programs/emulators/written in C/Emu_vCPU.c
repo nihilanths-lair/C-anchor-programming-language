@@ -40,33 +40,85 @@ char * _ptr_data_1 = _data_1;
 //char _data_2[0xFF];
 
 /// ... ///
+/// метка: оператор операнд-1 операнд-2
+// Метка является необязательным параметром, оператор может иметь два, один или вообще не иметь операндов
 enum { FREE_STYLE, STRICT_STYLE };
 bool syntax_style = STRICT_STYLE; // Стиль синтаксиса
 // Свободный стиль - компилятор на разное количество отступов в разных местах не ругается
-void FreeStyle()
+void FreeStyle(const char * text)
 {
-
+    puts("\n>> FreeStyle()");
+    char filter[0xFF]; //filter[0] = '\0';
 }
 // Строгий стиль - синтаксис жёстко зафиксирован и компилятор будет ругаться если ставить отступы в разных местах не по стандартам
-void StrictStyle()
+void StrictStyle(const char * text)
 {
-
+    puts("\n>> StrictStyle()");
+    char filter[0xFF]; //filter[0] = '\0';
 }
 /// ... ///
 
-void Preprocessing(const unsigned char * text)
+bool strcmpex(const char * str1, const char * str2){}
+void scaner(){}
+
+//Assembly(){}
+//Disassembly(){}
+
+void Preprocessing(const char * text)
 {
     puts("\n>> Preprocessing()");
     printf("%s\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
-    char filter[0xFF]; filter[0] = '\0';
+
+    switch (syntax_style){
+    case FREE_STYLE: {
+        FreeStyle(text);
+    } break;
+    case STRICT_STYLE: {
+        StrictStyle(text);
+    }}
+    /*
+    JMP <?>
+    ...
+    <?>:
+    / /
+    <?>:
+    ...
+    JMP <?>
+    */
+    char filter[0xFF]; //filter[0] = '\0';
+
     int i = 0-1;
     int j = 0-1;
     _loop_1_run:
     switch (text[++i]){
-    case '\0': goto _loop_1_end; break;
+    case '\0': {
+        goto _loop_1_end;
+    } break;
+    case 'J'/*4A*/: {
+        printf(" №%d: %c\n", i, text[i]);
+        switch (text[++i]){
+        case '\0': {
+            goto _loop_1_end;
+        } break;
+        case 'M'/*4D*/: {
+            printf(" №%d: %c\n", i, text[i]);
+            switch (text[++i]){
+            case '\0': {
+                goto _loop_1_end;
+            } break;
+            case 'P'/*50*/: {
+                printf(" №%d: %c\n", i, text[i]);
+            }}
+        }}
+        goto _loop_1_run;
+    } break;
+    case 'j'/*6A*/: {
+        printf( "№%d: %c\n", i, text[i]);
+    } break;
     // Однострочный комментарий
-    case ';': {
+    case ';'/*3B*/: {
+        printf( "№%d: %c\n", i, text[i]); break;
         _loop_2_run:
         switch (text[++i]){
         case '\0': goto _loop_1_end; break;
@@ -97,7 +149,7 @@ void Preprocessing(const unsigned char * text)
     */
 }
 
-void Compile(const unsigned char * text) // size_t len
+void Compile(const char * text)
 {
     puts("\n>> Compile()");
     Preprocessing(text);
@@ -114,17 +166,17 @@ void LoadingProgramIntoMemory(const char * opcode)
 
 void ShowDashboard()
 {
-    printf("\n    HEX   DEC    ASCII\n");
+    printf("\n    HEX | DEC | ASCII\n");
     //for (int i = 0; i < 256; i++)
-    printf("IP  [%02X]  [%03d]  [%c]\n", vIP, vIP, ProcAsciiChr(vIP));
-    printf("SP  [%02X]  [%03d]  [%c]\n", vSP, vSP, ProcAsciiChr(vSP));
+    printf(" IP: %02X | %03d | %c\n", vIP, vIP, ProcAsciiChr(vIP));
+    printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
     //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
     //printf("SI  [%02X]  [%03d]  [%c]\n", vSI, vSI, ProcAsciiChr(vSI));
     char op = 0;
     switch (op){
     case 0:
     {
-        printf("\nMEMORY (HEX | DEC | ASCII)\n    ");
+        printf("\n MEMORY (HEX | DEC | ASCII)\n    ");
         for (int i = 0; i < 0x0F+1; i++) printf("[%02X]", i);
         printf("        ");
         for (int i = 0; i < 0x0F+1; i++) printf("[%03d]", i);
@@ -185,6 +237,14 @@ enum LowercaseLetters // Строчные буквы
     jmp,
     push,
     _int,
+};
+struct TableOpcode {
+    unsigned char identifier;
+    char symbolic_name[0xF+1];
+    unsigned char opcode;
+} table_opcode[0xFF] = {
+    1, "JMP", JMP,
+    2, "jmp", jmp
 };
 enum IVT {
     PUTCHAR = 1,
