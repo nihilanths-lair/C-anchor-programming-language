@@ -132,10 +132,7 @@ void ShowDashboard()
         for (int j = 0; j < 0x0F + 1; j++)
         {
             printf("\n[%03d]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++)
-            {
-                printf(" %03d ", vMEMORY[i]);
-            }
+            for (int i = 0; i < 0x0F + 1; i++) printf(" %03d ", vMEMORY[i]);
         }
     }
     break;
@@ -146,10 +143,7 @@ void ShowDashboard()
         for (int j = 0; j < 0x0F + 1; j++)
         {
             printf("\n[%02X]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++)
-            {
-                printf(" %02X ", vMEMORY[i]);
-            }
+            for (int i = 0; i < 0x0F + 1; i++) printf(" %02X ", vMEMORY[i]);
         }
     }
     break;
