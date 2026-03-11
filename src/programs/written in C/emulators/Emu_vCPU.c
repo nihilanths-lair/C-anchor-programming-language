@@ -98,13 +98,17 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
         unsigned char idx__text = 0-1;
 
         _1_run: switch (text[++idx__text]){
-        case '\0': goto _1_end;
+        case '\0':
+            processed_text[++idx__processed_text] = '\0';
+            goto _1_end;
         case ';'/*3B*/:
             //goto _1_run;
             //++idx__text;
             // Однострочный комментарий
             _2_run: switch (text[++idx__text]){
-            case '\0': goto _1_end;
+            case '\0':
+                processed_text[++idx__processed_text] = '\0';
+                goto _1_end;
             case '\n':
                 processed_text[++idx__processed_text] = text[idx__text];
                 goto _1_run;
@@ -126,10 +130,10 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     }}
 
     printf("\n<После>\n%s\n", processed_text);
-    for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
+    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
 
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
-    fwrite(processed_text, idx__processed_text+1, sizeof (char), desc);
+    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
     fclose(desc);
 
     /*
