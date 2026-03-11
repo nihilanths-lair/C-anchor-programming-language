@@ -86,16 +86,24 @@ void Preprocessing(char * text, unsigned char preprocessing_type) // режим
         // Только удаление комментариев
         idx__processed_text = 0-1;
         unsigned char idx__text = 0-1;
+
         _1_run: switch (text[++idx__text]){
         case '\0': goto _1_end;
-        case ';'/*3B*/: {
-            // Однострочный комментарий?
-            
-        } goto _1_run;
-        default: {
+        case ';'/*3B*/:
+            goto _1_run;
+            // Однострочный комментарий
+            _2_run: switch (++idx__text){
+            case '\0': goto _1_end;
+            case '\n':
+                //processed_text[++idx__processed_text] = text[idx__text];
+                goto _1_run;
+            default: goto _2_run;
+            }_2_end:
+            goto _1_run;
+        default:
             processed_text[++idx__processed_text] = text[idx__text];
-        } goto _1_run;
-        _1_end:}
+            goto _1_run;
+        }_1_end:
     } break;
     case 2: {
         // Только развёртка макросов
