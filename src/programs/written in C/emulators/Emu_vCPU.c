@@ -66,9 +66,27 @@ void scaner(){}
 
 void Preprocessing(const char * text, char preprocessing_type) // режим
 {
-    puts("\n>> Preprocessing()");
+    printf("\n>> Preprocessing(<?>, %d)", preprocessing_type);
     printf("%s\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
+
+    // cdlr -E 1 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев)
+    // cdlr -E 2 file_name.cdlr > file_name.cdlr (будет получен файл с развёрнутыми макросами)
+    // cdlr -E 3 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев и с развёрнутыми макросами)
+
+    // Для отладочной информации можно выбрать либо только замена макросов (их развёртка) с сохранением комментариев, либо удаление только комментариев с сохранением макросов
+    // Для релизного выходного файла используется вариант с заменой макросов (их развёрткой) и удалением комментариев
+
+    switch (preprocessing_type){
+    case 1: {
+        // Только удаление комментариев
+    } break;
+    case 2: {
+        // Только развёртка макросов
+    } break;
+    case 3: {
+        // Удаление комментариев и развёртка макросов
+    }}
 
     switch (syntax_style){
     case FREE_STYLE: {
@@ -153,27 +171,7 @@ void Preprocessing(const char * text, char preprocessing_type) // режим
 void Compile(const char * text)
 {
     puts("\n>> Compile()");
-
-    // cdlr -E 1 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев)
-    // cdlr -E 2 file_name.cdlr > file_name.cdlr (будет получен файл с развёрнутыми макросами)
-    // cdlr -E 3 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев и с развёрнутыми макросами)
-
-    // Для отладочной информации можно выбрать либо только замена макросов (их развёртка) с сохранением комментариев, либо удаление только комментариев с сохранением макросов
-    // Для релизного выходного файла используется вариант с заменой макросов (их развёрткой) и удалением комментариев
-
-    switch (1){
-    case 1: {
-        // Только удаление комментариев
-        Preprocessing(text, 1);
-    } break;
-    case 2: {
-        // Только развёртка макросов
-        Preprocessing(text, 2);
-    } break;
-    case 3: {
-        // Удаление комментариев и развёртка макросов
-        Preprocessing(text, 3);
-    }}
+    Preprocessing(text, 1);
 }
 
 void LoadingProgramIntoMemory(const char * opcode)
