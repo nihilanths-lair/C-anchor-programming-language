@@ -90,9 +90,9 @@ void Preprocessing(char * text, unsigned char preprocessing_type) // режим
         _1_run: switch (text[++idx__text]){
         case '\0': goto _1_end;
         case ';'/*3B*/:
-            goto _1_run;
+            //goto _1_run;
             // Однострочный комментарий
-            _2_run: switch (++idx__text){
+            _2_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
             case '\n':
                 //processed_text[++idx__processed_text] = text[idx__text];
