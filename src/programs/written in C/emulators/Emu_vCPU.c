@@ -126,7 +126,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
 
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
-    fwrite(processed_text, strlen(processed_text), 1, desc);
+    fwrite(processed_text, idx__processed_text+1, sizeof (char), desc);
     fclose(desc);
 
     /*
