@@ -101,13 +101,16 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
         case '\0': goto _1_end;
         case ';'/*3B*/:
             //goto _1_run;
+            //++idx__text;
             // Однострочный комментарий
             _2_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
             case '\n':
                 processed_text[++idx__processed_text] = text[idx__text];
                 goto _1_run;
-            default: goto _2_run;
+            default:
+                //++idx__text;
+                goto _2_run;
             }_2_end:
             goto _1_run;
         default:
