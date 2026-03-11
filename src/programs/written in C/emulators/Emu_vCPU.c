@@ -64,7 +64,7 @@ void scaner(){}
 //Assembly(){}
 //Disassembly(){}
 
-void Preprocessing(const char * text, char preprocessing_type) // режим
+void Preprocessing(const char * text, unsigned char preprocessing_type) // режим
 {
     printf("\n>> Preprocessing(<?>, %d)", preprocessing_type);
     printf("%s\n", text);
