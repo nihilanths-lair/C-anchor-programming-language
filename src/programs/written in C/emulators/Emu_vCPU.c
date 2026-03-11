@@ -222,7 +222,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
 void Compile(char * text, size_t file_size)
 {
-    puts("\n>> Compile()");
+    printf("\n>> Compile()");
     Preprocessing(text, 1, file_size);
 }
 
