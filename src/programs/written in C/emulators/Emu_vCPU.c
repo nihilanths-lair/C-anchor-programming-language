@@ -95,7 +95,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type) // режим
             _2_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
             case '\n':
-                //processed_text[++idx__processed_text] = text[idx__text];
+                processed_text[++idx__processed_text] = text[idx__text];
                 goto _1_run;
             default: goto _2_run;
             }_2_end:
