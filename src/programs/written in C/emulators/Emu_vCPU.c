@@ -162,50 +162,11 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
 /*
 //char sample[2+sizeof(char)];
-
-        //if (!strcmp(sample, ";-")){}
-        //else if (!strcmp(sample, ";")){}
-        //else if (!strcmp(sample, "-;")){}
-
-        while (true){
-            switch (text[idx__text]){
-            case '\0': break;
-            case '-':
-                
-            case ';':
-                switch (text[++idx__text]){
-                case '\0': break;
-                case '-': // Начало многострочного комментария
-                    while (true)
-                    {
-                        switch (text[++idx__text]){
-                        case '\0': break;
-                        default: break;
-                        }
-                    }
-                    break;
-
-                default: // Начало однострочного комментария
-                    while (true)
-                    {
-                        switch (text[++idx__text]){
-                        case '\0': break;
-                        case '\r': // Конец однострочного комментария
-                            processed_text[++idx__processed_text] = text[idx__text];
-                            switch (text[++idx__text]){
-                            case '\n': // Конец однострочного комментария
-                            processed_text[++idx__processed_text] = text[idx__text];
-                            break;
-                        default: // Пропускаем однострочный комментарий
-                        }
-                    }
-            }
-            break;
-        }
-        processed_text[++idx__processed_text] = '\0';
+//if (!strcmp(sample, ";-")){}
+//else if (!strcmp(sample, ";")){}
+//else if (!strcmp(sample, "-;")){}
 */
-
-    /*
+/*
     switch (syntax_style){
     case FREE_STYLE: {
         FreeStyle(text);
