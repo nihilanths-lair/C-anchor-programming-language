@@ -5,6 +5,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#define _rb_ {
+#define _eb_ }
+
 char ProcAsciiChr(unsigned char chr)
 {
     switch (chr) {
@@ -83,6 +86,97 @@ void _fwrite(size_t len)
     fclose(desc);
 }
 */
+
+// Удаление комментариев и развёртка макросов
+void DeletingCommentsAndDeployingMacros(const char * text)
+{
+    printf("\n>> DeletingCommentsAndDeployingMacros()\n");
+}
+
+// Только развёртка макросов
+void DeployingMacros(const char * text)
+{
+    printf("\n>> DeployingMacros()\n");
+}
+
+// Только удаление комментариев
+void DeletingComments(const char * text)
+{
+    printf("\n>> DeletingComments()\n");
+
+    idx__processed_text = 0-1;
+    unsigned char idx__text = 0-1;
+
+    //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
+    //int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
+
+    _1_run: switch (text[++idx__text]){
+    case '\0': goto _1_end;
+    case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
+        _4_run: switch (text[++idx__text]){
+        case '\0': goto _1_end;
+        case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
+            printf("\nError: Missing opening multi-line comment!");
+            goto _1_end;
+        default: goto _1_end; // Это не комментарий
+        }
+    case ';': // Начало однострочного или многострочного комментария?
+        switch (text[++idx__text]){
+        case '\0': goto _1_end;
+        case '-': // Начало многострочного комментария
+            printf("\n';-' - №%d №%d", idx__text-1, idx__text);
+            _2_run: switch (text[++idx__text]){
+            case '\0': // Выдать ошибку на этапе препроцессинга об отсутствии закрывающего многострочного комментария.
+                printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
+                goto _1_end;
+            case '-': 
+                switch (text[++idx__text]){
+                case '\0':
+                    //printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
+                    goto _1_end;
+                case ';': // Конец многострочного комментария
+                    printf("\n'-;' - №%d №%d", idx__text-1, idx__text);
+                    switch (text[++idx__text]){
+                    case '\0': goto _1_end;
+                    case '\r':
+                        printf("\n'\\r' - №%d", idx__text);
+                        switch (text[++idx__text]){
+                        case '\0': goto _1_end;
+                        case '\n':
+                            printf("\n'\\n' - №%d", idx__text);
+                            goto _1_run;
+                        default: goto _1_run;
+                        }
+                    default: goto _1_run; // Конец многострочного комментария
+                    }
+                default: goto _2_run; // Пропускаем многострочный комментарий
+                }
+            default: goto _2_run; // Пропускаем многострочный комментарий
+            }
+        default: // Начало однострочного комментария
+            printf("\n';' - №%d", idx__text);
+            _3_run: switch (text[++idx__text]){
+            case '\0': goto _1_end;
+            case '\r': // Конец однострочного комментария?
+                processed_text[++idx__processed_text] = text[idx__text];
+                switch (text[++idx__text]){
+                case '\0': goto _1_end;
+                case '\n': // Конец однострочного комментария
+                    processed_text[++idx__processed_text] = text[idx__text];
+                    goto _1_run;
+                default: goto _3_run; // Не конец однострочного комментария
+                }
+            default: goto _3_run; // Пропускаем однострочный комментарий
+            }
+        }
+        goto _1_run;
+    default: // Не комментарий
+        processed_text[++idx__processed_text] = text[idx__text];
+        goto _1_run;
+    }_1_end:
+    processed_text[++idx__processed_text] = '\0';
+}
+
 void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
 {
     printf("\n>> Preprocessing(<?>, %d)\n", preprocessing_type);
@@ -97,85 +191,18 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
 
-    switch (preprocessing_type){
+    switch (preprocessing_type)
+    _rb_
     case 1: // Только удаление комментариев
-        idx__processed_text = 0-1;
-        unsigned char idx__text = 0-1;
-
-        //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
-        //int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
-
-        _1_run: switch (text[++idx__text]){
-        case '\0': goto _1_end;
-        case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
-            _4_run: switch (text[++idx__text]){
-            case '\0': goto _1_end;
-            case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
-                printf("\nError: Missing opening multi-line comment!");
-                goto _1_end;
-            default: goto _1_end; // Это не комментарий
-            }
-        case ';': // Начало однострочного или многострочного комментария?
-            switch (text[++idx__text]){
-            case '\0': goto _1_end;
-            case '-': // Начало многострочного комментария
-                printf("\n';-' - №%d №%d", idx__text-1, idx__text);
-                _2_run: switch (text[++idx__text]){
-                case '\0': // Выдать ошибку на этапе препроцессинга об отсутствии закрывающего многострочного комментария.
-                    printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
-                    goto _1_end;
-                case '-': 
-                    switch (text[++idx__text]){
-                    case '\0':
-                        //printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
-                        goto _1_end;
-                    case ';': // Конец многострочного комментария
-                        printf("\n'-;' - №%d №%d", idx__text-1, idx__text);
-                        switch (text[++idx__text]){
-                        case '\0': goto _1_end;
-                        case '\r':
-                            printf("\n'\\r' - №%d", idx__text);
-                            switch (text[++idx__text]){
-                            case '\0': goto _1_end;
-                            case '\n':
-                                printf("\n'\\n' - №%d", idx__text);
-                                goto _1_run;
-                            default: goto _1_run;
-                            }
-                        default: goto _1_run; // Конец многострочного комментария
-                        }
-                    default: goto _2_run; // Пропускаем многострочный комментарий
-                    }
-                default: goto _2_run; // Пропускаем многострочный комментарий
-                }
-            default: // Начало однострочного комментария
-                printf("\n';' - №%d", idx__text);
-                _3_run: switch (text[++idx__text]){
-                case '\0': goto _1_end;
-                case '\r': // Конец однострочного комментария?
-                    processed_text[++idx__processed_text] = text[idx__text];
-                    switch (text[++idx__text]){
-                    case '\0': goto _1_end;
-                    case '\n': // Конец однострочного комментария
-                        processed_text[++idx__processed_text] = text[idx__text];
-                        goto _1_run;
-                    default: goto _3_run; // Не конец однострочного комментария
-                    }
-                default: goto _3_run; // Пропускаем однострочный комментарий
-                }
-            }
-            goto _1_run;
-        default: // Не комментарий
-            processed_text[++idx__processed_text] = text[idx__text];
-            goto _1_run;
-        }_1_end:
-        processed_text[++idx__processed_text] = '\0';
-        goto _0_end;
+        DeletingComments(text);
+        break;
     case 2: // Только развёртка макросов
-        goto _0_end;
+        DeployingMacros(text);
+        break;
     case 3: // Удаление комментариев и развёртка макросов
-        goto _0_end;//?
-    }_0_end:
+        DeletingCommentsAndDeployingMacros(text);
+        break;
+    _eb_
 
     printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
     for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
