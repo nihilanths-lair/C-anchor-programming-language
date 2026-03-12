@@ -102,33 +102,35 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
         idx__processed_text = 0-1;
         unsigned char idx__text = 0-1;
 
-        int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
-        int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
+        //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
+        //int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
 
         _1_run: switch (text[++idx__text]){
         case '\0': goto _1_end;
-        /*
-        /// Если требуется проверять на наличие ошибок на этапе препроцессорной обработки! (Позже)
-        case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария
-            _2_run: switch (text[++idx__text]){
+        case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
+            _4_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
-            case ';': // Ошибка: Отсутствует открывающий многострочный комментарий.
-                printf("\nError: Missing opening multi-line comment.");
+            case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
+                printf("\nError: Missing opening multi-line comment!");
                 goto _1_end;
+            default: goto _1_end; // Это не комментарий
             }
-        */
-        case ';'/*3B*/: // Начало однострочного или многострочного комментария?
+        case ';': // Начало однострочного или многострочного комментария?
             switch (text[++idx__text]){
             case '\0': goto _1_end;
             case '-': // Начало многострочного комментария
-                printf("\n';-' - №%d", idx__text);
+                printf("\n';-' - №%d №%d", idx__text-1, idx__text);
                 _2_run: switch (text[++idx__text]){
-                case '\0': goto _1_end;
+                case '\0': // Выдать ошибку на этапе препроцессинга об отсутствии закрывающего многострочного комментария.
+                    printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
+                    goto _1_end;
                 case '-': 
                     switch (text[++idx__text]){
-                    case '\0': goto _1_end;
+                    case '\0':
+                        //printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
+                        goto _1_end;
                     case ';': // Конец многострочного комментария
-                        printf("\n'-;' - №%d", idx__text);
+                        printf("\n'-;' - №%d №%d", idx__text-1, idx__text);
                         switch (text[++idx__text]){
                         case '\0': goto _1_end;
                         case '\r':
@@ -202,61 +204,13 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     JMP <?>
     ...
     <?>:
-    / /
+    /--/
     <?>:
     ...
     JMP <?>
     */
     /*
     char filter[0xFF]; //filter[0] = '\0';
-
-    int i = 0-1;
-    int j = 0-1;
-    _loop_1_run:
-    switch (text[++i]){
-    case '\0': {
-        goto _loop_1_end;
-    } break;
-    case 'J'//4A/: {
-        printf(" №%d: %c\n", i, text[i]);
-        switch (text[++i]){
-        case '\0': {
-            goto _loop_1_end;
-        } break;
-        case 'M'//4D/: {
-            printf(" №%d: %c\n", i, text[i]);
-            switch (text[++i]){
-            case '\0': {
-                goto _loop_1_end;
-            } break;
-            case 'P'//50/: {
-                printf(" №%d: %c\n", i, text[i]);
-            }}
-        }}
-        goto _loop_1_run;
-    } break;
-    case 'j'//6A/: {
-        printf( "№%d: %c\n", i, text[i]);
-    } break;
-    // Однострочный комментарий
-    case ';'//3B/: {
-        printf( "№%d: %c\n", i, text[i]);
-        switch (text[++i]){
-        case '\0': {
-            goto _loop_1_end;
-        } break;
-        case '\n': {
-
-        } break;
-        default: _data_1[j] = text[i];
-        }
-    } break;
-    default: {
-        _data_1[j] = text[i];
-    }}
-    goto _loop_1_run;
-    _loop_1_end:
-    */
     //printf("\n%s\n", _data_1);
     //for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_data_1[i]));
     // Generator 'case'
