@@ -61,8 +61,14 @@ void StrictStyle(const char * text)
 }
 /// ... ///
 
-bool strcmpex(const char * str1, const char * str2){}
-void scaner(){}
+bool strcmpex(const char * str1, const char * str2)
+{
+    return false;
+}
+bool scaner(const char * str1, const char * str2)
+{
+    return false;
+}
 
 //Assembly(){}
 //Disassembly(){}
@@ -95,35 +101,48 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     case 1: // Только удаление комментариев
         idx__processed_text = 0-1;
         unsigned char idx__text = 0-1;
+
+        int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
+        int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
+
         _1_run: switch (text[++idx__text]){
         case '\0': goto _1_end;
-        case ';'/*3B*/:
-            //goto _1_run;
-            //++idx__text;
-            // Однострочный комментарий
+        /* /// Если требуется проверять на наличие ошибок на этапе препроцессорной обработки! (Позже)
+        case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария
             _2_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
-            case '\n': // Конец комментария
-                processed_text[++idx__processed_text] = text[idx__text];
-                goto _1_run;
-            case '\r':
-                processed_text[++idx__processed_text] = text[idx__text];
-                switch (text[++idx__text]){
+            case ';': // Ошибка: Отсутствует открывающий многострочный комментарий.
+                printf("\nError: Missing opening multi-line comment.");
+                goto _1_end;
+            }
+        */
+        case ';'/*3B*/: // Начало однострочного или многострочного комментария?
+            //goto _1_run;
+            //++idx__text;
+            _3_run: switch (text[++idx__text]){
+            case '\0': goto _1_end;
+            case '-': // Начало многострочного комментария
+                _6_run: switch (text[++idx__text]){
                 case '\0': goto _1_end;
-                case '\n':
+                case '-': goto _1_run; // Конец многострочного комментария?
+                default: goto _6_run; // Пропускаем многострочный комментарий
+                }_6_end:
+            default: // Начало однострочного комментария
+                _7_run: switch (text[++idx__text]){
+                case '\0': goto _1_end;
+                case '\r': // Конец однострочного комментария?
                     processed_text[++idx__processed_text] = text[idx__text];
-                    goto _2_end;
-                default: goto _2_run;
-                }
-                goto _2_run;
-            default: // Пропускаем комментарий
-                //++idx__text;
-                goto _2_run;
-            }_2_end:
-            goto _1_run;
-        default: // Если не комментарий
-            processed_text[++idx__processed_text] = text[idx__text];
-            goto _1_run;
+                    _run: switch (text[++idx__text]){
+                    case '\0': goto _1_end;
+                    case '\n': // Конец однострочного комментария
+                        processed_text[++idx__processed_text] = text[idx__text];
+                        goto _1_run;
+                    default: goto _7_run; // Не конец однострочного комментария
+                    }_end:
+                default: goto _7_run; // Пропускаем однострочный комментарий
+                }_7_end:
+            }_3_end:
+        default: goto _1_run;
         }_1_end:
         processed_text[++idx__processed_text] = '\0';
         goto _0_end;
@@ -140,6 +159,51 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
     fwrite(processed_text, idx__processed_text, sizeof (char), desc);
     fclose(desc);
+
+/*
+//char sample[2+sizeof(char)];
+
+        //if (!strcmp(sample, ";-")){}
+        //else if (!strcmp(sample, ";")){}
+        //else if (!strcmp(sample, "-;")){}
+
+        while (true){
+            switch (text[idx__text]){
+            case '\0': break;
+            case '-':
+                
+            case ';':
+                switch (text[++idx__text]){
+                case '\0': break;
+                case '-': // Начало многострочного комментария
+                    while (true)
+                    {
+                        switch (text[++idx__text]){
+                        case '\0': break;
+                        default: break;
+                        }
+                    }
+                    break;
+
+                default: // Начало однострочного комментария
+                    while (true)
+                    {
+                        switch (text[++idx__text]){
+                        case '\0': break;
+                        case '\r': // Конец однострочного комментария
+                            processed_text[++idx__processed_text] = text[idx__text];
+                            switch (text[++idx__text]){
+                            case '\n': // Конец однострочного комментария
+                            processed_text[++idx__processed_text] = text[idx__text];
+                            break;
+                        default: // Пропускаем однострочный комментарий
+                        }
+                    }
+            }
+            break;
+        }
+        processed_text[++idx__processed_text] = '\0';
+*/
 
     /*
     switch (syntax_style){
