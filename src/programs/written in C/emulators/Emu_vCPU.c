@@ -107,7 +107,8 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
         _1_run: switch (text[++idx__text]){
         case '\0': goto _1_end;
-        /* /// Если требуется проверять на наличие ошибок на этапе препроцессорной обработки! (Позже)
+        /*
+        /// Если требуется проверять на наличие ошибок на этапе препроцессорной обработки! (Позже)
         case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария
             _2_run: switch (text[++idx__text]){
             case '\0': goto _1_end;
@@ -117,32 +118,42 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
             }
         */
         case ';'/*3B*/: // Начало однострочного или многострочного комментария?
-            //goto _1_run;
-            //++idx__text;
-            _3_run: switch (text[++idx__text]){
+            switch (text[++idx__text]){
             case '\0': goto _1_end;
             case '-': // Начало многострочного комментария
+                printf("\n';-' - №%d", idx__text);
                 _6_run: switch (text[++idx__text]){
                 case '\0': goto _1_end;
-                case '-': goto _1_run; // Конец многострочного комментария?
+                case '-': 
+                    switch (text[++idx__text]){
+                    case '\0': goto _1_end;
+                    case ';':
+                        printf("\n'-;' - №%d", idx__text);
+                        goto _1_run; // Конец многострочного комментария
+                    default: goto _6_run; // Пропускаем многострочный комментарий
+                    }
+                    goto _1_run; // Конец многострочного комментария?
                 default: goto _6_run; // Пропускаем многострочный комментарий
-                }_6_end:
+                }
             default: // Начало однострочного комментария
+                printf("\n';' - №%d", idx__text);
                 _7_run: switch (text[++idx__text]){
                 case '\0': goto _1_end;
                 case '\r': // Конец однострочного комментария?
                     processed_text[++idx__processed_text] = text[idx__text];
-                    _run: switch (text[++idx__text]){
+                    switch (text[++idx__text]){
                     case '\0': goto _1_end;
                     case '\n': // Конец однострочного комментария
                         processed_text[++idx__processed_text] = text[idx__text];
                         goto _1_run;
                     default: goto _7_run; // Не конец однострочного комментария
-                    }_end:
+                    }
                 default: goto _7_run; // Пропускаем однострочный комментарий
-                }_7_end:
-            }_3_end:
-        default: goto _1_run;
+                }
+            }
+        default: // Не комментарий
+            processed_text[++idx__processed_text] = text[idx__text];
+            goto _1_run;
         }_1_end:
         processed_text[++idx__processed_text] = '\0';
         goto _0_end;
