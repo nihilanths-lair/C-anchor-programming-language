@@ -118,7 +118,9 @@ void DeletingComments(const char * text)
         case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
             printf("\nError: Missing opening multi-line comment!");
             goto _1_end;
-        default: goto _1_end; // Это не комментарий
+        default: // Это не комментарий
+            processed_text[++idx__processed_text] = text[--idx__text];
+            goto _1_run;
         }
     case ';': // Начало однострочного или многострочного комментария?
         switch (text[++idx__text]){

@@ -2,4 +2,6 @@ JMP _
 
 _: 
 MOV 0, 'C'
+MOV 1, '$'
+MOV 2, '-'
 MOV 3, '!'
