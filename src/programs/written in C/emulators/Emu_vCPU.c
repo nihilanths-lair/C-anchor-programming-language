@@ -127,12 +127,23 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
                 case '-': 
                     switch (text[++idx__text]){
                     case '\0': goto _1_end;
-                    case ';':
+                    case ';': // Конец многострочного комментария
                         printf("\n'-;' - №%d", idx__text);
-                        goto _1_run; // Конец многострочного комментария
+                        switch (text[++idx__text]){
+                        case '\0': goto _1_end;
+                        case '\r':
+                            printf("\n'\\r' - №%d", idx__text);
+                            switch (text[++idx__text]){
+                            case '\0': goto _1_end;
+                            case '\n':
+                                printf("\n'\\n' - №%d", idx__text);
+                                goto _1_run;
+                            default: goto _1_run;
+                            }
+                        default: goto _1_run; // Конец многострочного комментария
+                        }
                     default: goto _2_run; // Пропускаем многострочный комментарий
                     }
-                    goto _1_run; // Конец многострочного комментария?
                 default: goto _2_run; // Пропускаем многострочный комментарий
                 }
             default: // Начало однострочного комментария
