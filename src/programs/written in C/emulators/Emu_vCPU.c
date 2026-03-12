@@ -122,7 +122,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
             case '\0': goto _1_end;
             case '-': // Начало многострочного комментария
                 printf("\n';-' - №%d", idx__text);
-                _6_run: switch (text[++idx__text]){
+                _2_run: switch (text[++idx__text]){
                 case '\0': goto _1_end;
                 case '-': 
                     switch (text[++idx__text]){
@@ -130,14 +130,14 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
                     case ';':
                         printf("\n'-;' - №%d", idx__text);
                         goto _1_run; // Конец многострочного комментария
-                    default: goto _6_run; // Пропускаем многострочный комментарий
+                    default: goto _2_run; // Пропускаем многострочный комментарий
                     }
                     goto _1_run; // Конец многострочного комментария?
-                default: goto _6_run; // Пропускаем многострочный комментарий
+                default: goto _2_run; // Пропускаем многострочный комментарий
                 }
             default: // Начало однострочного комментария
                 printf("\n';' - №%d", idx__text);
-                _7_run: switch (text[++idx__text]){
+                _3_run: switch (text[++idx__text]){
                 case '\0': goto _1_end;
                 case '\r': // Конец однострочного комментария?
                     processed_text[++idx__processed_text] = text[idx__text];
@@ -146,9 +146,9 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
                     case '\n': // Конец однострочного комментария
                         processed_text[++idx__processed_text] = text[idx__text];
                         goto _1_run;
-                    default: goto _7_run; // Не конец однострочного комментария
+                    default: goto _3_run; // Не конец однострочного комментария
                     }
-                default: goto _7_run; // Пропускаем однострочный комментарий
+                default: goto _3_run; // Пропускаем однострочный комментарий
                 }
             }
         default: // Не комментарий
