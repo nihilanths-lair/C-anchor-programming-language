@@ -151,6 +151,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
                 default: goto _3_run; // Пропускаем однострочный комментарий
                 }
             }
+            goto _1_run;
         default: // Не комментарий
             processed_text[++idx__processed_text] = text[idx__text];
             goto _1_run;
