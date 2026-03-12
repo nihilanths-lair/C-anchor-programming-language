@@ -88,49 +88,54 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     // Для отладочной информации можно выбрать либо только замена макросов (их развёртка) с сохранением комментариев, либо удаление только комментариев с сохранением макросов
     // Для релизного выходного файла используется вариант с заменой макросов (их развёрткой) и удалением комментариев
 
-    printf("<До>\n%s\n", text);
+    printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
 
     switch (preprocessing_type){
-    case 1: {
-        // Только удаление комментариев
+    case 1: // Только удаление комментариев
         idx__processed_text = 0-1;
         unsigned char idx__text = 0-1;
-
         _1_run: switch (text[++idx__text]){
-        case '\0':
-            processed_text[++idx__processed_text] = '\0';
-            goto _1_end;
+        case '\0': goto _1_end;
         case ';'/*3B*/:
             //goto _1_run;
             //++idx__text;
             // Однострочный комментарий
             _2_run: switch (text[++idx__text]){
-            case '\0':
-                processed_text[++idx__processed_text] = '\0';
-                goto _1_end;
-            case '\n':
+            case '\0': goto _1_end;
+            case '\n': // Конец комментария
                 processed_text[++idx__processed_text] = text[idx__text];
                 goto _1_run;
-            default:
+            case '\r':
+                processed_text[++idx__processed_text] = text[idx__text];
+                switch (text[++idx__text]){
+                case '\0': goto _1_end;
+                case '\n':
+                    processed_text[++idx__processed_text] = text[idx__text];
+                    goto _2_end;
+                default: goto _2_run;
+                }
+                goto _2_run;
+            default: // Пропускаем комментарий
                 //++idx__text;
                 goto _2_run;
             }_2_end:
             goto _1_run;
-        default:
+        default: // Если не комментарий
             processed_text[++idx__processed_text] = text[idx__text];
             goto _1_run;
         }_1_end:
-    } break;
-    case 2: {
-        // Только развёртка макросов
-    } break;
-    case 3: {
-        // Удаление комментариев и развёртка макросов
-    }}
+        processed_text[++idx__processed_text] = '\0';
+        goto _0_end;
+    case 2: // Только развёртка макросов
+        goto _0_end;
+    case 3: // Удаление комментариев и развёртка макросов
+        goto _0_end;//?
+    }_0_end:
 
-    printf("\n<После>\n%s\n", processed_text);
+    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
     for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
+    putchar('\n');
 
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
     fwrite(processed_text, idx__processed_text, sizeof (char), desc);
