@@ -183,15 +183,13 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 {
     printf("\n>> Preprocessing(<?>, %d)\n", preprocessing_type);
 
-    // cdlr -E 1 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев)
-    // cdlr -E 2 file_name.cdlr > file_name.cdlr (будет получен файл с развёрнутыми макросами)
-    // cdlr -E 3 file_name.cdlr > file_name.cdlr (будет получен файл без комментариев и с развёрнутыми макросами)
-
-    // Для отладочной информации можно выбрать либо только замена макросов (их развёртка) с сохранением комментариев, либо удаление только комментариев с сохранением макросов
-    // Для релизного выходного файла используется вариант с заменой макросов (их развёрткой) и удалением комментариев
+    // cdlr -E -M file_name.cdlr > file_name.cdlr (будет получен файл без комментариев, макросы при этом остаются нераскрытыми)
+    // cdlr -E -C file_name.cdlr > file_name.cdlr (будет получен файл с развёрнутыми макросами, комментарии при этом остаются)
+    // cdlr -E file_name.cdlr > file_name.cdlr (будет получен файл без комментариев и с развёрнутыми макросами)
 
     printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
+    putchar('\n');
 
     switch (preprocessing_type)
     _rb_
@@ -259,7 +257,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 void Compile(char * text, size_t file_size)
 {
     printf("\n>> Compile()");
-    Preprocessing(text, 1, file_size);
+    Preprocessing(text, 2, file_size);
 }
 
 void LoadingProgramIntoMemory(const char * opcode)
