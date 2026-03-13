@@ -432,13 +432,25 @@ int main()
         puts("-----------------------------------------------");
         printf(" Нажмите соответствующую клавишу...");
         unsigned char ch = _getch();
-        printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
         switch (ch)
         _rb_
         case 0:
+            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
             printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             break;
+        case '<':
+            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            break;
+        case '=':
+            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            break;
+        case '>':
+            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            break;
+        default:
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        // 0D | 013 | ·  <ENTER>
         // 1B | 027 | ·  <ESC>
         // E0 | 224 | а  <F11-F12>
         _eb_
