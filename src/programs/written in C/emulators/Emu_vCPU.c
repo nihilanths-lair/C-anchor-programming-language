@@ -74,12 +74,15 @@ char ProcAsciiChr(unsigned char chr)
     case 0x03: return '·'; // ··3
     case 0x04: return '·'; // ··4
     case 0x05: return '·'; // ··5
+    case 0x06: return '·'; // ··6
     case 0x07: return '·'; // ··7
     case 0x08: return '·'; // ··8
     case 0x09: return '·'; // ··9
     case '\n': return '·'; // ·10
     case 0x0B: return '·'; // ·11
+    case 0x0C: return '·'; // ·12
     case '\r': return '·'; // ·13
+    case 0x0F: return '·'; // ·15
     case 0x1B: return '·'; // ·27
     case 0x95: return '·'; // 149
     // 30-39 или 048-057: 0-9
@@ -482,44 +485,55 @@ int main()
 
     char cmd[128+sizeof(char)];
     //puts("\nДля отображения списка команд введите: /cmdlist");
-    while (true)
+    _0: while (true)
     {
         puts("\n-----------------------------------------------");
         puts(" F2\t<\tСделать 1 шаг с заходом назад");
         puts(" F3\t=\tВыполнить все шаги");
         puts(" F4\t>\tСделать 1 шаг с заходом вперёд");
         puts("-----------------------------------------------");
-        printf(" Нажмите соответствующую клавишу...");
+        printf(" Нажмите соответствующую клавишу...\n");
         unsigned char ch = _getch();
         switch (ch)
         _rb_
         case 0:
-            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
             switch (ch)
             _rb_
             case '>':
-                printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+                //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
                 Execute(ch); // Launch
+                ShowDashboard();
                 break;
+
             default:
                 printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             _eb_
             break;
+
+        case 27: // 1B | 027 | ·  <ESC>
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            return 0;
+
         case '<':
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             break;
+
         case '=':
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             break;
+
         case '>':
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             Execute(ch); // Launch
+            ShowDashboard();
             break;
+
         default:
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            puts("\n Такая клавиша не определена.");
+            break;
         // 0D | 013 | ·  <ENTER>
-        // 1B | 027 | ·  <ESC>
         // E0 | 224 | а  <F11-F12>
         _eb_
         goto _0;
@@ -557,7 +571,7 @@ int main()
         else if (!strcmp(cmd, "/execute")) Execute(0); // Launch
         else printf("Неизвестная/неопознанная команда...");
     }
-    _0: return 0;
+    return 0;
 }
     /*char * ptr_op_code = opcode;
     switch (opcode[vIP])
