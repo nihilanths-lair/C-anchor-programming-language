@@ -425,7 +425,10 @@ int main()
             //file_size = copy_file_size;
             Compile(data, copy_file_size);
         }
-        else if (!strcmp(cmd, "/execute")) printf("2] /!\\");
+        else if (!strcmp(cmd, "/execute"))
+        {
+            Execute(); // Launch
+        }
         else printf("Неизвестная/неопознанная команда...");
     }
 
@@ -435,32 +438,6 @@ int main()
     //vDI = 0x00;
     //vSI = 0x00;
     //ShowDashboard();
-
-    Execute(opcode); // Launch
-    /*
-    Compile(
-        "JMP _\n"
-        ""
-        "_: ; точка входа в программу\n"
-        "MOV 0, 'Г'\n"
-        ";-\n"
-        "MOV 1, 'л'\n"
-        "MOV 2, 'е'\n"
-        "-;\n"
-        "MOV 3, 'б'"
-    );
-    ///
-    /*
-    >> Compile()
-    JMP _
-    _: ; точка входа в программу
-    MOV 0, 'Г'
-    ;-
-    MOV 1, 'л'
-    MOV 2, 'е'
-    -;
-    MOV 3, 'б'
-    */
     ////////////////////
     LoadingProgramIntoMemory(opcode);
     vIP = 0; // Инициализация
