@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <conio.h>
 
 #define _rb_ {
 #define _eb_ }
@@ -401,6 +402,7 @@ void LoadingProgramIntoMemory()
     //for (int i = 0; i < sizeof (opcode); i++) printf("%c", ProcAsciiChr(opcode[i]));
 
     for (int i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
+    puts("\n Программа загружена в память.");
 
     #if defined DEBUG
      puts("\n EXIT: LoadingProgramIntoMemory");
@@ -414,25 +416,42 @@ int main()
     // Инициализация vCPU
     vIP = 0;
 
-    // Загрузка кода в память
+    // Загрузка программы в память
     LoadingProgramIntoMemory();
 
     ShowDashboard();
 
     char cmd[128+1];
-    puts("\nДля отображения списка команд введите: /cmdlist");
+    //puts("\nДля отображения списка команд введите: /cmdlist");
     while (true)
     {
-        printf("\nx~> ");
+        puts("\n-----------------------------------------------");
+        puts(" F2\t<\tСделать 1 шаг с заходом назад");
+        puts(" F3\t=\tВыполнить все шаги");
+        puts(" F4\t>\tСделать 1 шаг с заходом вперёд");
+        puts("-----------------------------------------------");
+        printf(" Нажмите соответствующую клавишу...");
+        unsigned char ch = _getch();
+        printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        switch (ch)
+        _rb_
+        case 0:
+            ch = _getch();
+            printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            break;
+        // 1B | 027 | ·  <ESC>
+        // E0 | 224 | а  <F11-F12>
+        _eb_
+        goto _0;
 
         fgets(cmd, sizeof (cmd), stdin); // fgets считывает строку включая пробелы и '\n'
         cmd[strcspn(cmd, "\n")] = '\0';  // Удаляем символ переноса строки '\n', если он есть
 
         if (!strcmp(cmd, "/cmdlist"))
         {
-            printf("\nСписок команд:");
-            printf("\n1] /compile");
-            printf("\n2] /execute");
+            puts("\nСписок команд:");
+            printf("\n2] /compile");
+            printf("\n3] /execute");
             putchar('\n');
         }
         else if (!strcmp(cmd, "/compile"))
@@ -527,6 +546,7 @@ int main()
             } break; }
         } break; }
     }
+    _0:
     return 0;
 }
 /// Текущая ячейка / Произвольная ячейка
