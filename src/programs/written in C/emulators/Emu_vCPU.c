@@ -402,10 +402,6 @@ void LoadingProgramIntoMemory()
 
     for (int i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
 
-    //for ( ; opcode[i] != '\0'; i++) vMEMORY[i] = '\0';
-    //printf("opcode >> %lld", len);
-    //for (int i = 0; i < len; i++) vMEMORY[i] = opcode[i];
-
     #if defined DEBUG
      puts("\n EXIT: LoadingProgramIntoMemory");
     #endif
