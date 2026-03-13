@@ -305,6 +305,51 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 void Execute() // Launch
 {
     puts("\n>> Execute()");
+
+    switch (opcode[vIP])
+    _rb_
+    case MOV: {
+        // Intel (помещение данных в произвольную ячейку памяти)
+        vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
+        vIP += 2;
+        // AT&T (помещение данных в произвольную ячейку памяти)
+        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
+        //++vIP;
+    } break;
+    case INC: {
+        vMEMORY[opcode[++vIP]]++;
+        vIP++;
+    } break;
+    case DEC: {
+        vMEMORY[opcode[++vIP]]--;
+        vIP++;
+    } break;
+    case ADD: {
+        // Intel (сложение данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
+        vIP += 2;
+        // AT&T (сложение данных в произвольной ячейки памяти)
+        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
+        //vIP += 2;
+    } break;
+    case SUB: {
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
+        vIP += 2;
+    } break;
+    case MUL: {
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
+        vIP += 2;
+    } break;
+    case DIV: {
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
+        vIP += 2;
+    } break;
+    case JMP: {
+        vIP = opcode[++vIP];
+    }_eb_
 }
 
 void Compile(char * text, size_t file_size)
@@ -318,10 +363,11 @@ void ShowDashboard()
     #if defined DEBUG
      puts("\n ENTRANCE: ShowDashboard");
     #endif
-    //
-    printf("\n    HEX | DEC | ASCII\n");
+
+    puts("\n    [address]:value");
+    puts("     HEX(16) |  DEC(10)  | ASCII");
     //for (int i = 0; i < 256; i++)
-    printf(" IP: %02X | %03d | %c\n", vIP, vIP, ProcAsciiChr(vIP));
+    printf(" IP: [%02X]:%02X | [%03d]:%03d | [%c]:%c\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
     //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
     //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
     //printf("SI  [%02X]  [%03d]  [%c]\n", vSI, vSI, ProcAsciiChr(vSI));
@@ -421,7 +467,7 @@ int main()
 
     ShowDashboard();
 
-    char cmd[128+1];
+    char cmd[128+sizeof(char)];
     //puts("\nДля отображения списка команд введите: /cmdlist");
     while (true)
     {
@@ -489,78 +535,28 @@ int main()
         else if (!strcmp(cmd, "/execute")) Execute(); // Launch
         else printf("Неизвестная/неопознанная команда...");
     }
-
-    for (int i = 4; i < 4; i++)
-    {
-        switch (opcode[vIP])
-        _rb_
-        case MOV: {
-            // Intel (помещение данных в произвольную ячейку памяти)
-            vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
-            vIP += 2;
-            // AT&T (помещение данных в произвольную ячейку памяти)
-            //vMEMORY[opcode[++vIP]] = opcode[++vIP];
-            //++vIP;
-        } break;
-        case INC: {
-            vMEMORY[opcode[++vIP]]++;
-            vIP++;
-        } break;
-        case DEC: {
-            vMEMORY[opcode[++vIP]]--;
-            vIP++;
-        } break;
-        case ADD: {
-            // Intel (сложение данных в произвольной ячейки памяти)
-            vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
-            vIP += 2;
-            // AT&T (сложение данных в произвольной ячейки памяти)
-            //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
-            //vIP += 2;
-        } break;
-        case SUB: {
-            // Intel (вычитание данных в произвольной ячейки памяти)
-            vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
-            vIP += 2;
-        } break;
-        case MUL: {
-            // Intel (вычитание данных в произвольной ячейки памяти)
-            vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
-            vIP += 2;
-        } break;
-        case DIV: {
-            // Intel (вычитание данных в произвольной ячейки памяти)
-            vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
-            vIP += 2;
-        } break;
-        case JMP: {
-            vIP = opcode[++vIP];
-        }_eb_
-        ShowDashboard();
-    }
-    char * ptr_op_code = opcode;
-    while (false)
-    {
-        switch (opcode[vIP]){
-        case PUSH: vSTACK[vSP--] = opcode[++vIP]; break;
-        case INT:
-        {
-            vIP++; // сдвигаем указатель на след. инструкцию
-            switch (*++ptr_op_code){
-            case PUTCHAR:
-            {
-                vIP++; // сдвигаем указатель на след. инструкцию
-                putchar(opcode[vIP]);
-            } break;
-            case PRINTF:
-            {
-                //printf("", );
-            } break; }
-        } break; }
-    }
-    _0:
-    return 0;
+    _0: return 0;
 }
+    /*char * ptr_op_code = opcode;
+    switch (opcode[vIP])
+    _rb_
+    case PUSH:
+        vSTACK[vSP--] = opcode[++vIP];
+        break;
+
+    case INT:
+        vIP++; // сдвигаем указатель на след. инструкцию
+        switch (*++ptr_op_code)
+        _rb_
+        case PUTCHAR:
+            vIP++; // сдвигаем указатель на след. инструкцию
+            putchar(opcode[vIP]);
+            break;
+            
+        case PRINTF:
+            break;
+        _eb_
+    _eb_*/
 /// Текущая ячейка / Произвольная ячейка
 /// ...-> Выборка -> Декодирование -> Исполнение -> Смещение IP на след. инструкцию (автоматически) ->...
 
