@@ -305,10 +305,11 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     */
 }
 
-void Execute(unsigned char ch) // Launch
+// Шаг назад
+void StepBack()
 {
-    #if defined DEBUG
-     puts("\n ENTRANCE: Execute");
+    #if !defined DEBUG
+     puts("\n ENTRANCE: StepBack");
     #endif
 
     switch (opcode[vIP])
@@ -361,6 +362,92 @@ void Execute(unsigned char ch) // Launch
 
     case JMP:
         vIP = opcode[++vIP];
+    _eb_
+
+    #if !defined DEBUG
+     puts("\n EXIT: StepBack");
+    #endif
+}
+
+// Шаг вперёд
+void StepForward()
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: StepForward");
+    #endif
+
+    switch (opcode[vIP])
+    _rb_
+    case MOV:
+        // Intel (помещение данных в произвольную ячейку памяти)
+        vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
+        vIP += 2;
+        // AT&T (помещение данных в произвольную ячейку памяти)
+        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
+        //++vIP;
+        break;
+
+    case INC:
+        vMEMORY[opcode[++vIP]]++;
+        vIP++;
+        break;
+
+    case DEC:
+        vMEMORY[opcode[++vIP]]--;
+        vIP++;
+        break;
+
+    case ADD:
+        // Intel (сложение данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
+        vIP += 2;
+        // AT&T (сложение данных в произвольной ячейки памяти)
+        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
+        //vIP += 2;
+        break;
+
+    case SUB:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case MUL:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case DIV:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case JMP:
+        vIP = opcode[++vIP];
+    _eb_
+
+    #if !defined DEBUG
+     puts("\n EXIT: StepForward");
+    #endif
+}
+
+void Execute(unsigned char ch) // Launch
+{
+    #if defined DEBUG
+     puts("\n ENTRANCE: Execute");
+    #endif
+
+    switch (ch)
+    _rb_
+    case '<':
+        StepBack();
+        break;
+
+    case '>':
+        StepForward();
+        break;
     _eb_
 
     #if defined DEBUG
@@ -435,11 +522,6 @@ void ShowDashboard()
     #endif
 }
 
-// Шаг вперёд
-void StepForward(){}
-// Шаг назад
-//void StepBack(){}
-
 struct TableOpcode {
     unsigned char identifier;
     char symbolic_name[0xF+1];
@@ -501,9 +583,15 @@ int main()
             ch = _getch();
             switch (ch)
             _rb_
-            case '>':
+            case '<': // Шаг назад
                 //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-                Execute(ch); // Launch
+                Execute('<'); // Launch
+                ShowDashboard();
+                break;
+
+            case '>': // Шаг вперёд
+                //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+                Execute('>'); // Launch
                 ShowDashboard();
                 break;
 
@@ -516,16 +604,16 @@ int main()
             //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             return 0;
 
-        case '<':
-            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        case '<': puts("\n Такая клавиша не определена.");
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             break;
 
-        case '=':
-            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        case '=': puts("\n Такая клавиша не определена.");
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             break;
 
-        case '>':
-            printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+        case '>': puts("\n Такая клавиша не определена.");
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             Execute(ch); // Launch
             ShowDashboard();
             break;
