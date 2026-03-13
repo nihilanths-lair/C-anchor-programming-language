@@ -295,28 +295,19 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
 void Execute() // Launch
 {
-    printf("\n>> Execute()\n");
-
-    
+    puts("\n>> Execute()");
 }
 
 void Compile(char * text, size_t file_size)
 {
-    printf("\n>> Compile()\n");
+    puts("\n>> Compile()");
     Preprocessing(text, 2, file_size);
-}
-
-void LoadingProgramIntoMemory(const char * opcode)
-{
-    puts("\n>> LoadingProgramIntoMemory()\n");
-    for (int i = 0; opcode[i] != -1; i++) vMEMORY[i] = opcode[i];
-    //for ( ; opcode[i] != '\0'; i++) vMEMORY[i] = '\0';
-    //printf("opcode >> %lld", len);
-    //for (int i = 0; i < len; i++) vMEMORY[i] = opcode[i];
 }
 
 void ShowDashboard()
 {
+    puts("\n>> ShowDashboard()");
+
     printf("\n    HEX | DEC | ASCII\n");
     //for (int i = 0; i < 256; i++)
     printf(" IP: %02X | %03d | %c\n", vIP, vIP, ProcAsciiChr(vIP));
@@ -385,9 +376,31 @@ enum IVT {
     PRINTF
 };
 
+void LoadingProgramIntoMemory()
+{
+    puts("\n>> LoadingProgramIntoMemory()");
+    //for (int i = 0; opcode[i] != EOF; i++) vMEMORY[i] = opcode[i];
+    
+    //printf("%s", opcode);
+    for (int i = 0; opcode[i] != EOF; i++) printf("%c", opcode[i]);
+
+    //for ( ; opcode[i] != '\0'; i++) vMEMORY[i] = '\0';
+    //printf("opcode >> %lld", len);
+    //for (int i = 0; i < len; i++) vMEMORY[i] = opcode[i];
+    puts("\n<< LoadingProgramIntoMemory()");
+}
+
 int main()
 {
     setlocale(0, "");
+
+    // Инициализация vCPU
+    vIP = 0;
+
+    // Загрузка кода в память
+    LoadingProgramIntoMemory();
+
+    ShowDashboard();
 
     char cmd[128+1];
     puts("\nДля отображения списка команд введите: /cmdlist");
@@ -425,25 +438,14 @@ int main()
             //file_size = copy_file_size;
             Compile(data, copy_file_size);
         }
-        else if (!strcmp(cmd, "/execute"))
-        {
-            Execute(); // Launch
-        }
+        else if (!strcmp(cmd, "/execute")) Execute(); // Launch
         else printf("Неизвестная/неопознанная команда...");
     }
 
-    //ShowDashboard();
-    //vIP = 0x00;
-    vSP = 0xFE;
-    //vDI = 0x00;
-    //vSI = 0x00;
-    //ShowDashboard();
-    ////////////////////
-    LoadingProgramIntoMemory(opcode);
-    vIP = 0; // Инициализация
-    //printf("vIP = %d", vIP);
-    for (int i = 0; i < 4; i++){
-        switch (opcode[vIP]){
+    for (int i = 4; i < 4; i++)
+    {
+        switch (opcode[vIP])
+        _rb_
         case MOV: {
             // Intel (помещение данных в произвольную ячейку памяти)
             vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
@@ -485,20 +487,14 @@ int main()
         } break;
         case JMP: {
             vIP = opcode[++vIP];
-        }}
+        }_eb_
         ShowDashboard();
     }
     char * ptr_op_code = opcode;
     while (false)
     {
         switch (opcode[vIP]){
-        case MOV:
-        {
-            vMEMORY[vIP+1] = opcode[vIP+2];
-        } break;
-        case PUSH: vSTACK[vSP--] = opcode[++vIP];
-        return 0;
-        break;
+        case PUSH: vSTACK[vSP--] = opcode[++vIP]; break;
         case INT:
         {
             vIP++; // сдвигаем указатель на след. инструкцию
@@ -514,7 +510,6 @@ int main()
             } break; }
         } break; }
     }
-
     return 0;
 }
 /// Текущая ячейка / Произвольная ячейка
