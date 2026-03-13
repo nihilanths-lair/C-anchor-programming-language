@@ -302,7 +302,7 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     */
 }
 
-void Execute() // Launch
+void Execute(unsigned char ch) // Launch
 {
     #if defined DEBUG
      puts("\n ENTRANCE: Execute");
@@ -310,48 +310,55 @@ void Execute() // Launch
 
     switch (opcode[vIP])
     _rb_
-    case MOV: {
+    case MOV:
         // Intel (помещение данных в произвольную ячейку памяти)
         vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
         vIP += 2;
         // AT&T (помещение данных в произвольную ячейку памяти)
         //vMEMORY[opcode[++vIP]] = opcode[++vIP];
         //++vIP;
-    } break;
-    case INC: {
+        break;
+
+    case INC:
         vMEMORY[opcode[++vIP]]++;
         vIP++;
-    } break;
-    case DEC: {
+        break;
+
+    case DEC:
         vMEMORY[opcode[++vIP]]--;
         vIP++;
-    } break;
-    case ADD: {
+        break;
+
+    case ADD:
         // Intel (сложение данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
         vIP += 2;
         // AT&T (сложение данных в произвольной ячейки памяти)
         //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
         //vIP += 2;
-    } break;
-    case SUB: {
+        break;
+
+    case SUB:
         // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
         vIP += 2;
-    } break;
-    case MUL: {
+        break;
+
+    case MUL:
         // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
         vIP += 2;
-    } break;
-    case DIV: {
+        break;
+
+    case DIV:
         // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
         vIP += 2;
-    } break;
-    case JMP: {
+        break;
+
+    case JMP:
         vIP = opcode[++vIP];
-    }_eb_
+    _eb_
 
     #if defined DEBUG
      puts("\n EXIT: Execute");
@@ -547,7 +554,7 @@ int main()
             //file_size = copy_file_size;
             Compile(data, copy_file_size);
         }
-        else if (!strcmp(cmd, "/execute")) Execute(); // Launch
+        else if (!strcmp(cmd, "/execute")) Execute(0); // Launch
         else printf("Неизвестная/неопознанная команда...");
     }
     _0: return 0;
