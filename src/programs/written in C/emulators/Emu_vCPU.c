@@ -183,9 +183,9 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 {
     printf("\n>> Preprocessing(<?>, %d)\n", preprocessing_type);
 
-    // cdlr -E -M file_name.cdlr > file_name.cdlr (будет получен файл без комментариев, макросы при этом остаются нераскрытыми)
-    // cdlr -E -C file_name.cdlr > file_name.cdlr (будет получен файл с развёрнутыми макросами, комментарии при этом остаются)
-    // cdlr -E file_name.cdlr > file_name.cdlr (будет получен файл без комментариев и с развёрнутыми макросами)
+    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
+    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
+    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
 
     printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
