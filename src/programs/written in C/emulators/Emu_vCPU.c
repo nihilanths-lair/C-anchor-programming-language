@@ -393,12 +393,18 @@ int main()
     puts("\nДля отображения списка команд введите: /cmdlist");
     while (true)
     {
-        printf("\n>~@~> ");
+        printf("\nx~> ");
 
         fgets(cmd, sizeof (cmd), stdin); // fgets считывает строку включая пробелы и '\n'
         cmd[strcspn(cmd, "\n")] = '\0';  // Удаляем символ переноса строки '\n', если он есть
 
-        if (!strcmp(cmd, "/cmdlist")) printf("1] /compile\n2] /execute");
+        if (!strcmp(cmd, "/cmdlist"))
+        {
+            printf("\nСписок команд:");
+            printf("\n1] /compile");
+            printf("\n2] /execute");
+            putchar('\n');
+        }
         else if (!strcmp(cmd, "/compile"))
         {
             unsigned char data[0xFF] = "";
