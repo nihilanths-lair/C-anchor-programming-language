@@ -40,6 +40,7 @@ enum LowercaseLetters // Строчные буквы
     _int,
 };
 
+#define HLT 0xFF
 // Syntax AT&T / Intel
 unsigned char opcode[] =
 {
@@ -59,20 +60,27 @@ unsigned char opcode[] =
 
     MOV, 255, 11, // MOV 255, 11 | 01 FF 0B | 001 255 011 | ·я·
     SUB, 255,  4, // SUB 255, 4  | 05 FF 04 | 005 255 004 | ·я·
-    EOF
+    //HLT
 };
 
 char ProcAsciiChr(unsigned char chr)
 {
-    switch (chr)_rb_
-    case '\0'/*000*/: return '·';
-    case 0x07/*007*/: return '·';
-    case 0x08/*008*/: return '·';
-    case 0x09/*009*/: return '·';
-    case '\n'/*010*/: return '·';
-    case '\r'/*013*/: return '·';
-    case 0x1B/*027*/: return '·';
-    case 0x95/*149*/: return '·';
+    switch (chr)
+    _rb_
+    case '\0': return '·'; // ··0
+    case 0x01: return '·'; // ··1
+    case 0x02: return '·'; // ··2
+    case 0x03: return '·'; // ··3
+    case 0x04: return '·'; // ··4
+    case 0x05: return '·'; // ··5
+    case 0x07: return '·'; // ··7
+    case 0x08: return '·'; // ··8
+    case 0x09: return '·'; // ··9
+    case '\n': return '·'; // ·10
+    case 0x0B: return '·'; // ·11
+    case '\r': return '·'; // ·13
+    case 0x1B: return '·'; // ·27
+    case 0x95: return '·'; // 149
     // 30-39 или 048-057: 0-9
     // 41-5A или 065-090: A-Z
     // 61-7A или 097-122: a-z
@@ -306,8 +314,10 @@ void Compile(char * text, size_t file_size)
 
 void ShowDashboard()
 {
-    puts("\n>> ShowDashboard()");
-
+    #if defined DEBUG
+     puts("\n ENTRANCE: ShowDashboard");
+    #endif
+    //
     printf("\n    HEX | DEC | ASCII\n");
     //for (int i = 0; i < 256; i++)
     printf(" IP: %02X | %03d | %c\n", vIP, vIP, ProcAsciiChr(vIP));
@@ -356,6 +366,10 @@ void ShowDashboard()
         }
     }_eb_
     putchar('\n');
+    //
+    #if defined DEBUG
+     puts("\n EXIT: ShowDashboard");
+    #endif
 }
 
 // Шаг вперёд
@@ -378,18 +392,25 @@ enum IVT {
 
 void LoadingProgramIntoMemory()
 {
-    puts("\n>> LoadingProgramIntoMemory()");
-    //for (int i = 0; opcode[i] != EOF; i++) vMEMORY[i] = opcode[i];
-    
+    #if defined DEBUG
+     puts("\n ENTRANCE: LoadingProgramIntoMemory");
+    #endif
+
     //printf("%s", opcode);
-    for (int i = 0; opcode[i] != EOF; i++) printf("%c", opcode[i]);
+    //printf(":: %d :: ", sizeof (opcode));
+    //for (int i = 0; i < sizeof (opcode); i++) printf("%c", ProcAsciiChr(opcode[i]));
+
+    for (int i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
 
     //for ( ; opcode[i] != '\0'; i++) vMEMORY[i] = '\0';
     //printf("opcode >> %lld", len);
     //for (int i = 0; i < len; i++) vMEMORY[i] = opcode[i];
-    puts("\n<< LoadingProgramIntoMemory()");
-}
 
+    #if defined DEBUG
+     puts("\n EXIT: LoadingProgramIntoMemory");
+    #endif
+}
+// 1 parent b20f142 commit 3b5d72d
 int main()
 {
     setlocale(0, "");
