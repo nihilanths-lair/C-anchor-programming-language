@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <conio.h>
+#include <windows.h>
 
 #define _rb_ {
 #define _eb_ }
@@ -29,16 +30,16 @@ enum UppercaseLetters // Заглавные буквы
     ADD, SUB, MUL, DIV,
     JMP,
     PUSH,
-    INT,
+    _INT
 };
 enum LowercaseLetters // Строчные буквы
 {
     mov = 1,
     inc, dec,
-    add, sub, mul, div,
+    add, sub, mul, _div,
     jmp,
     push,
-    _int,
+    _int
 };
 
 #define HLT 0xFF
@@ -305,11 +306,11 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     */
 }
 
-// Шаг назад
-void StepBack()
+// Релиз: полный цикл
+void FullCycle()
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: StepBack");
+     puts("\n ENTRANCE: FullCycle");
     #endif
 
     switch (opcode[vIP])
@@ -365,11 +366,75 @@ void StepBack()
     _eb_
 
     #if !defined DEBUG
+     puts("\n EXIT: FullCycle");
+    #endif
+}
+
+// Отладка: шаг назад
+void StepBack()
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: StepBack");
+    #endif
+
+    switch (opcode[vIP])
+    _rb_
+    case MOV:
+        // Intel (помещение данных в произвольную ячейку памяти)
+        vMEMORY[opcode[--vIP]] = opcode[vIP-=2];
+        vIP -= 2;
+        // AT&T (помещение данных в произвольную ячейку памяти)
+        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
+        //++vIP;
+        break;
+
+    case INC:
+        vMEMORY[opcode[++vIP]]++;
+        vIP++;
+        break;
+
+    case DEC:
+        vMEMORY[opcode[++vIP]]--;
+        vIP++;
+        break;
+
+    case ADD:
+        // Intel (сложение данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
+        vIP += 2;
+        // AT&T (сложение данных в произвольной ячейки памяти)
+        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
+        //vIP += 2;
+        break;
+
+    case SUB:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case MUL:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case DIV:
+        // Intel (вычитание данных в произвольной ячейки памяти)
+        vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
+        vIP += 2;
+        break;
+
+    case JMP:
+        vIP = opcode[++vIP];
+    _eb_
+
+    #if !defined DEBUG
      puts("\n EXIT: StepBack");
     #endif
 }
 
-// Шаг вперёд
+// Отладка: шаг вперёд
 void StepForward()
 {
     #if !defined DEBUG
@@ -443,6 +508,10 @@ void Execute(unsigned char ch) // Launch
     _rb_
     case '<':
         StepBack();
+        break;
+
+    case '=':
+        FullCycle();
         break;
 
     case '>':
@@ -569,28 +638,52 @@ int main()
     //puts("\nДля отображения списка команд введите: /cmdlist");
     _0: while (true)
     {
+        printf(
+            "\n---------------------------------------------------------------------"
+            "\n Клавиша\tОписание"
+            "\n"
+            "\n ESC\t\tЗавершить эмуляцию"
+            "\n F2\t\tПродвинуться на 1 шаг назад"
+            "\n F3\t\tВыполнить все шаги (скорость каждого шага - 2,5 сек.)"
+            "\n F4\t\tПродвинуться на 1 шаг вперёд"
+            "\n----------------------------------------------------------------------"
+            "\n Нажмите соответствующую клавишу...\n"
+        );
+        /*
         puts("\n-----------------------------------------------");
-        puts(" F2\t<\tСделать 1 шаг с заходом назад");
-        puts(" F3\t=\tВыполнить все шаги");
-        puts(" F4\t>\tСделать 1 шаг с заходом вперёд");
+        puts(" Клавиша\tОписание");
+        putchar('\n');
+        puts(" ESC\t\tЗавершить эмуляцию");
+        puts(" F2\t\tСделать 1 шаг с заходом назад");
+        puts(" F3\t\tВыполнить все шаги");
+        puts(" F4\t\tСделать 1 шаг с заходом вперёд");
         puts("-----------------------------------------------");
         printf(" Нажмите соответствующую клавишу...\n");
+        */
         unsigned char ch = _getch();
         switch (ch)
         _rb_
         case 0:
             //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
+            //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             switch (ch)
             _rb_
             case '<': // Шаг назад
-                //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
                 Execute('<'); // Launch
                 ShowDashboard();
                 break;
 
+            case '=': // Полный цикл
+                for (int i = 0; i < sizeof (opcode); i++)
+                {
+                    Execute('=');
+                    ShowDashboard();
+                    Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+                }
+                break;
+
             case '>': // Шаг вперёд
-                //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
                 Execute('>'); // Launch
                 ShowDashboard();
                 break;
@@ -661,6 +754,16 @@ int main()
     }
     return 0;
 }
+/*
+// Формат: printf("\033[<цвет>m<символ>\033[0m");
+// \033[0m - сброс цвета обратно на стандартный
+
+printf("\033[31m@\033[0m - Красный символ\n");  // Красный
+printf("\033[32m#\033[0m - Зеленый символ\n");  // Зеленый
+printf("\033[33m$\033[0m - Желтый символ\n");  // Желтый
+printf("\033[34m&\033[0m - Синий символ\n");    // Синий
+printf("\033[1;35m*\033[0m - Жирный пурпурный\n"); // Жирный + цвет
+*/
     /*char * ptr_op_code = opcode;
     switch (opcode[vIP])
     _rb_
