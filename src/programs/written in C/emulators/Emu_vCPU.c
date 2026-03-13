@@ -304,7 +304,9 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
 void Execute() // Launch
 {
-    puts("\n>> Execute()");
+    #if defined DEBUG
+     puts("\n ENTRANCE: Execute");
+    #endif
 
     switch (opcode[vIP])
     _rb_
@@ -350,6 +352,10 @@ void Execute() // Launch
     case JMP: {
         vIP = opcode[++vIP];
     }_eb_
+
+    #if defined DEBUG
+     puts("\n EXIT: Execute");
+    #endif
 }
 
 void Compile(char * text, size_t file_size)
@@ -413,7 +419,7 @@ void ShowDashboard()
         }
     }_eb_
     putchar('\n');
-    //
+
     #if defined DEBUG
      puts("\n EXIT: ShowDashboard");
     #endif
@@ -483,7 +489,15 @@ int main()
         case 0:
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
-            printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            switch (ch)
+            _rb_
+            case '>':
+                printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+                Execute(ch); // Launch
+                break;
+            default:
+                printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            _eb_
             break;
         case '<':
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
@@ -492,7 +506,8 @@ int main()
             printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             break;
         case '>':
-            printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            Execute(ch); // Launch
             break;
         default:
             //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
