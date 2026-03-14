@@ -606,22 +606,25 @@ int main()
         printf("----------------------------------------------<•>---------------------------");
         printf("\n Address: Opcode (HEX<=>DEC)                   ¦    Assembler vCPU (8-bit's)");
         printf("\n                                               ¦");
-        for (unsigned char i = 0; i < 10; i++)
+        for (uint8_t i = 0; i < 10; i++)
         {
             switch (vMEMORY[vIP])
             _rb_
 
-            case INC:
-                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[INC-1].symbolic_name, vMEMORY[vIP+1]);
-                vMEMORY[vMEMORY[++vIP]]++;
-                vIP++;
-                break;
+            case INC: // Syntax: Intel
+                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[INC-1].symbolic_name, vMEMORY[vIP+1]);
+                vMEMORY[vMEMORY[++vIP]]++; vIP++;
+            break;
 
-            case DEC:
-                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DEC-1].symbolic_name, vMEMORY[vIP+1]);
-                vMEMORY[vMEMORY[++vIP]]--;
-                vIP++;
-                break;
+            case DEC: // Syntax: Intel
+                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[DEC-1].symbolic_name, vMEMORY[vIP+1]);
+                vMEMORY[vMEMORY[++vIP]]--; vIP++;
+            break;
+
+            case JMP: // Syntax: Intel
+                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[JMP-1].symbolic_name, vMEMORY[vIP+1]);
+                vIP = vMEMORY[++vIP];
+            break;
 
             case MOV:
                 printf("\n      %02X: %02X %02X %02X   <=>   %03d: %03d %03d %03d    ¦    %s %d, %d\t¦ ··%c",
@@ -635,7 +638,7 @@ int main()
                 //Syntax: AT&T
                 //vMEMORY[vMEMORY[++vIP]] = vMEMORY[++vIP];
                 //++vIP;
-                break;
+            break;
 
             case ADD:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
@@ -645,28 +648,25 @@ int main()
                 //Syntax: AT&T
                 //vMEMORY[vMEMORY[--vIP]] = vMEMORY[--vIP] + vMEMORY[vIP+=2];
                 //vIP += 2;
-                break;
+            break;
 
             case SUB:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
                 // Syntax: Intel
-                vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2; break;
+                vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2;
+            break;
 
             case MUL:
-                //printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
                 // Syntax: Intel
-                vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2; break;
+                vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2;
+            break;
 
             case DIV:
-                //printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
                 // Syntax: Intel
-                vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2; break;
-
-            case JMP:
-                //printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[JMP-1].symbolic_name, vMEMORY[vIP+1]);
-                // Syntax: Intel
-                vIP = vMEMORY[++vIP];
-                //break;
+                vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2;
+            //break;
 
             _eb_
         }
