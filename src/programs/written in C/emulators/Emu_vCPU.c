@@ -320,55 +320,14 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
 void DebuggingInformation(uint8_t vIP) //Disassembly
 {
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n ENTRANCE: DebuggingInformation");
     #endif
 
-    ///
+    // ... //
 
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n EXIT: DebuggingInformation");
-    #endif
-}
-
-// Релиз: полный цикл
-void FullCycle()
-{
-    #if defined DEBUG
-     puts("\n ENTRANCE: FullCycle");
-    #endif
-
-    switch (opcode[vIP])
-    _rb_
-
-    case INC: vMEMORY[opcode[++vIP]]++; vIP++;
-    break;
-
-    case DEC: vMEMORY[opcode[++vIP]]--; vIP++;
-    break;
-
-    case JMP: vIP = opcode[++vIP];
-    break;
-
-    case MOV: vMEMORY[opcode[--vIP]] = opcode[vIP+=2]; vIP += 2;
-    break;
-
-    case ADD: vMEMORY[opcode[--vIP]] += opcode[vIP+=2]; vIP += 2;
-    break;
-
-    case SUB: vMEMORY[opcode[--vIP]] -= opcode[vIP+=2]; vIP += 2;
-    break;
-
-    case MUL: vMEMORY[opcode[--vIP]] *= opcode[vIP+=2]; vIP += 2;
-    break;
-
-    case DIV: vMEMORY[opcode[--vIP]] /= opcode[vIP+=2]; vIP += 2;
-    //break;
-
-    _eb_
-
-    #if defined DEBUG
-     puts("\n EXIT: FullCycle");
     #endif
 }
 
@@ -383,6 +342,20 @@ void StepBack()
 
     #if defined DEBUG
      puts("\n EXIT: StepBack");
+    #endif
+}
+
+// Релиз: полный цикл
+void FullCycle()
+{
+    #if defined DEBUG
+     puts("\n ENTRANCE: FullCycle");
+    #endif
+
+    // ... //
+
+    #if defined DEBUG
+     puts("\n EXIT: FullCycle");
     #endif
 }
 
