@@ -13,20 +13,19 @@
 #define _rb_ {
 #define _eb_ }
 
-char format[0xFF];
+//uint8_t str_format[0xFF];
 
 uint8_t vIP;
 uint8_t vSP;
 uint8_t vDI, vSI;
 
 uint8_t vMEMORY[0xFF];
-uint8_t vSTACK[0xFF];
+//uint8_t vSTACK[0xFF];
 
 char _data_1[0xFF];
-char * _ptr_data_1 = _data_1;
 
 char processed_text[0xFF];
-unsigned char idx__processed_text;
+uint8_t idx__processed_text;
 
 enum UppercaseLetters // Заглавные буквы
 {
@@ -101,6 +100,7 @@ char ProcAsciiChr(uint8_t chr)
     case 0x0B: return '·'; // ·11
     case 0x0C: return '·'; // ·12
     case '\r': return '·'; // ·13
+    //case 0x0E: return '·'; // ·14
     case 0x0F: return '·'; // ·15
     case 0x10: return '·'; // ·16
     case 0x11: return '·'; // ·17
@@ -139,12 +139,10 @@ void StrictStyle(const char * text)
 }
 /// ... ///
 
-bool strcmpex(const char * str1, const char * str2)
-{
+bool strcmpex(const char * str1, const char * str2){
     return false;
 }
-bool scaner(const char * str1, const char * str2)
-{
+bool scaner(const char * str1, const char * str2){
     return false;
 }
 
@@ -303,15 +301,6 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     }}
     */
     /*
-    JMP <?>
-    ...
-    <?>:
-    /--/
-    <?>:
-    ...
-    JMP <?>
-    */
-    /*
     char filter[0xFF]; //filter[0] = '\0';
     //printf("\n%s\n", _data_1);
     //for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_data_1[i]));
@@ -351,13 +340,10 @@ void FullCycle()
 
     switch (opcode[vIP])
     _rb_
+
     case MOV:
-        // Intel (помещение данных в произвольную ячейку памяти)
         vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
         vIP += 2;
-        // AT&T (помещение данных в произвольную ячейку памяти)
-        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
-        //++vIP;
         break;
 
     case INC:
@@ -371,28 +357,21 @@ void FullCycle()
         break;
 
     case ADD:
-        // Intel (сложение данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
         vIP += 2;
-        // AT&T (сложение данных в произвольной ячейки памяти)
-        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
-        //vIP += 2;
         break;
 
     case SUB:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
         vIP += 2;
         break;
 
     case MUL:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
         vIP += 2;
         break;
 
     case DIV:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
         vIP += 2;
         break;
@@ -409,63 +388,13 @@ void FullCycle()
 // Отладка: шаг назад
 void StepBack()
 {
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n ENTRANCE: StepBack");
     #endif
 
-    switch (opcode[vIP])
-    _rb_
-    case MOV:
-        // Intel (помещение данных в произвольную ячейку памяти)
-        vMEMORY[opcode[--vIP]] = opcode[vIP-=2];
-        vIP -= 2;
-        // AT&T (помещение данных в произвольную ячейку памяти)
-        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
-        //++vIP;
-        break;
+    // ... //
 
-    case INC:
-        vMEMORY[opcode[++vIP]]++;
-        vIP++;
-        break;
-
-    case DEC:
-        vMEMORY[opcode[++vIP]]--;
-        vIP++;
-        break;
-
-    case ADD:
-        // Intel (сложение данных в произвольной ячейки памяти)
-        vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
-        vIP += 2;
-        // AT&T (сложение данных в произвольной ячейки памяти)
-        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
-        //vIP += 2;
-        break;
-
-    case SUB:
-        // Intel (вычитание данных в произвольной ячейки памяти)
-        vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
-        vIP += 2;
-        break;
-
-    case MUL:
-        // Intel (вычитание данных в произвольной ячейки памяти)
-        vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
-        vIP += 2;
-        break;
-
-    case DIV:
-        // Intel (вычитание данных в произвольной ячейки памяти)
-        vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
-        vIP += 2;
-        break;
-
-    case JMP:
-        vIP = opcode[++vIP];
-    _eb_
-
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n EXIT: StepBack");
     #endif
 }
@@ -710,21 +639,27 @@ int main()
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
                     table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
                 );
-                // Syntax: Intel (помещение данных в произвольную ячейку памяти) //
+                // Syntax: Intel (помещение данных в произвольную ячейку памяти)
                 vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
                 vIP += 2;
+                //Syntax: AT&T (помещение данных в произвольную ячейку памяти)
+                //vMEMORY[vMEMORY[++vIP]] = vMEMORY[++vIP];
+                //++vIP;
                 break;
 
             case ADD:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-                // Syntax: Intel (сложение данных в произвольной ячейки памяти) //
+                // Syntax: Intel (сложение данных в произвольной ячейки памяти)
                 vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
                 vIP += 2;
+                //Syntax: AT&T (сложение данных в произвольной ячейки памяти)
+                //vMEMORY[vMEMORY[--vIP]] = vMEMORY[--vIP] + vMEMORY[vIP+=2];
+                //vIP += 2;
                 break;
 
             case SUB:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-                // Syntax: Intel (вычитание данных в произвольной ячейки памяти) //
+                // Syntax: Intel (вычитание данных в произвольной ячейки памяти)
                 vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
                 vIP += 2;
                 break;
