@@ -30,8 +30,8 @@ unsigned char idx__processed_text;
 
 enum UppercaseLetters // Заглавные буквы
 {
-    MOV = 1,
-    INC, DEC,
+    INC = 1, DEC,
+    MOV,
     ADD, SUB, MUL, DIV,
     JMP,
     PUSH,
@@ -39,12 +39,30 @@ enum UppercaseLetters // Заглавные буквы
 };
 enum LowercaseLetters // Строчные буквы
 {
-    mov = 1,
-    inc, dec,
+    inc = 1, dec,
+    mov,
     add, sub, mul, _div,
     jmp,
     push,
     _int
+};
+
+struct TableOpcode {
+    //unsigned char identifier;
+    unsigned char opcode;
+    char symbolic_name[0x0F+1];
+    
+} table_opcode[0xFF] = {
+    //1,
+    INC, "INC",
+    //2,
+    DEC, "DEC",
+    //3,
+    MOV, "MOV",
+    //4,
+    ADD, "ADD",
+    //5,
+    SUB, "SUB"
 };
 
 unsigned char step = 0;
@@ -53,19 +71,22 @@ unsigned char step = 0;
 // Syntax AT&T / Intel
 unsigned char opcode[] =
 {
-    /*
-    MOV, 0, 'Г', // MOV 0, 'Г' | 01 00 C3 | 001 000 195 | ··Г
-    MOV, 1, 'л', // MOV 1, 'л' | 01 01 EB | 001 001 235 | ··л
-    MOV, 2, 'е', // MOV 2, 'е' | 01 02 E5 | 001 002 229 | ··е
-    MOV, 3, 'б', // MOV 3, 'б' | 01 03 E1 | 001 003 225 | ··б
-    MOV, 4, '.', // MOV 4, '.' | 01 04 2E | 001 004 046 | ··.
-    INC, 4,      // INC 4      | 02 04    | 002 004     | ··
-    DEC, 4,      // DEC 4      | 03 04    | 003 004     | ··
-    MOV, 255, 5, // MOV 255, 5 | 01 FF 05 | 001 255 005 | ·я·
-    */
-    MOV, 254,  2, // MOV 254, 2 | 01 FE 02 | 001 254 002 | ·ю·
-    //MOV, 255, 3,// MOV 255, 3 | 01 FF 03 | 001 255 003 | ·я·
-    ADD, 254,  3, // ADD 254, 3 | 04 FE 03 | 004 254 003 | ·ю·
+    MOV, 16, 'C', // MOV 16, 'C' | 03 10 43 | 003 016 067 | ··C
+    MOV, 17, '$', // MOV 17, '$' | 03 11 24 | 003 017 036 | ··$
+    MOV, 18, ' ', // MOV 18, ' ' | 03 12 20 | 003 018 032 | ··
+    MOV, 19, 'r', // MOV 19, 'r' | 03 13 72 | 003 019 114 | ··r
+    MOV, 20, 'u', // MOV 20, 'u' | 03 14 75 | 003 020 117 | ··u
+    MOV, 21, 'l', // MOV 21, 'l' | 03 15 33 | 003 021 046 | ··l
+    MOV, 22, 'i', // MOV 22, 'i' | 03 16 2E | 003 022 046 | ··i
+    MOV, 23, 't', // MOV 23, 't' | 03 17 2E | 003 023 046 | ··t
+    MOV, 24, '!', // MOV 24, '!' | 03 18 2E | 003 024 046 | ··!
+
+    INC, 4,       // INC 4       | 02 04    | 002 004     | ··
+    DEC, 4,       // DEC 4       | 03 04    | 003 004     | ··
+    MOV, 255, 5,  // MOV 255, 5  | 01 FF 05 | 001 255 005 | ·я·
+    MOV, 254, 2,  // MOV 254, 2  | 01 FE 02 | 001 254 002 | ·ю·
+    MOV, 255, 3,  // MOV 255, 3  | 01 FF 03 | 001 255 003 | ·я·
+    ADD, 254, 3,  // ADD 254, 3  | 04 FE 03 | 004 254 003 | ·ю·
 
     MOV, 255, 11, // MOV 255, 11 | 01 FF 0B | 001 255 011 | ·я·
     SUB, 255,  4, // SUB 255, 4  | 05 FF 04 | 005 255 004 | ·я·
@@ -312,18 +333,6 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
     */
 }
-
-struct TableOpcode {
-    unsigned char identifier;
-    unsigned char opcode;
-    char symbolic_name[0x0F+1];
-    
-} table_opcode[0xFF] = {
-    1, MOV, "MOV",
-    2, INC, "INC",
-    3, DEC, "DEC",
-    4, ADD, "ADD"
-};
 
 void DebuggingInformation(uint8_t vIP) //Disassembly
 {
@@ -678,13 +687,27 @@ int main()
         printf("---------------------<•>---------------------------");
         printf("\n Address: Opcode      ¦    Assembler vCPU (8-bit's)");
         printf("\n                      ¦");
-        for (unsigned char i = 0; i < 3; i++)
+        for (unsigned char i = 0; i < 10; i++)
         {
             switch (vMEMORY[vIP])
             _rb_
 
+            case INC:
+                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[INC-1].symbolic_name, vMEMORY[vIP+1]);
+                vMEMORY[vMEMORY[++vIP]]++;
+                vIP++;
+                break;
+
+            case DEC:
+                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DEC-1].symbolic_name, vMEMORY[vIP+1]);
+                vMEMORY[vMEMORY[++vIP]]--;
+                vIP++;
+                break;
+
             case MOV:
-                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d\t¦ ··%c",
+                    vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
+                );
                 // Syntax: Intel (помещение данных в произвольную ячейку памяти) //
                 vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
                 vIP += 2;
@@ -694,6 +717,13 @@ int main()
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
                 // Syntax: Intel (сложение данных в произвольной ячейки памяти) //
                 vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
+                vIP += 2;
+                break;
+
+            case SUB:
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                // Syntax: Intel (вычитание данных в произвольной ячейки памяти) //
+                vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
                 vIP += 2;
                 break;
 
