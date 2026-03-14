@@ -81,6 +81,7 @@ uint8_t opcode[] =
     MOV, 42, 'i', // MOV 22, 'i' | 03 16 69 | 003 042     | ··i
     MOV, 43, 't', // MOV 23, 't' | 03 17 74 | 003 043     | ··t
     MOV, 44, '!', // MOV 24, '!' | 03 18 21 | 003 044     | ··!
+    JMP, 0,
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP,
     HLT
 };
@@ -582,7 +583,12 @@ int main()
             break;
 
             case JMP: // Syntax: Intel
-                printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[JMP].symbolic_name, vMEMORY[vIP+1]);
+                printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t¦ %c%c",
+                    vIP, vMEMORY[vIP], vMEMORY[vIP+1],
+                    vIP, vMEMORY[vIP], vMEMORY[vIP+1],
+                    table_opcode[JMP].symbolic_name, vMEMORY[vIP+1],
+                    ProcAsciiChr(vMEMORY[vIP]), ProcAsciiChr(vMEMORY[vIP+1])
+                );
                 vIP = vMEMORY[++vIP];
             break;
 
