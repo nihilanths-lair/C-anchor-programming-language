@@ -69,31 +69,21 @@ unsigned char step = 0;
 
 #define HLT 0xFF
 // Syntax AT&T / Intel
-unsigned char opcode[] =
+uint8_t opcode[] =
 {
-    MOV, 16, 'C', // MOV 16, 'C' | 03 10 43 | 003 016 067 | ··C
-    MOV, 17, '$', // MOV 17, '$' | 03 11 24 | 003 017 036 | ··$
-    MOV, 18, ' ', // MOV 18, ' ' | 03 12 20 | 003 018 032 | ··
-    MOV, 19, 'r', // MOV 19, 'r' | 03 13 72 | 003 019 114 | ··r
-    MOV, 20, 'u', // MOV 20, 'u' | 03 14 75 | 003 020 117 | ··u
-    MOV, 21, 'l', // MOV 21, 'l' | 03 15 33 | 003 021 046 | ··l
-    MOV, 22, 'i', // MOV 22, 'i' | 03 16 2E | 003 022 046 | ··i
-    MOV, 23, 't', // MOV 23, 't' | 03 17 2E | 003 023 046 | ··t
-    MOV, 24, '!', // MOV 24, '!' | 03 18 2E | 003 024 046 | ··!
-
-    INC, 4,       // INC 4       | 02 04    | 002 004     | ··
-    DEC, 4,       // DEC 4       | 03 04    | 003 004     | ··
-    MOV, 255, 5,  // MOV 255, 5  | 01 FF 05 | 001 255 005 | ·я·
-    MOV, 254, 2,  // MOV 254, 2  | 01 FE 02 | 001 254 002 | ·ю·
-    MOV, 255, 3,  // MOV 255, 3  | 01 FF 03 | 001 255 003 | ·я·
-    ADD, 254, 3,  // ADD 254, 3  | 04 FE 03 | 004 254 003 | ·ю·
-
-    MOV, 255, 11, // MOV 255, 11 | 01 FF 0B | 001 255 011 | ·я·
-    SUB, 255,  4, // SUB 255, 4  | 05 FF 04 | 005 255 004 | ·я·
+    MOV, 36, 'C', // MOV 16, 'C' | 03 10 43 | 003 036 067 | ··C
+    MOV, 37, '$', // MOV 17, '$' | 03 11 24 | 003 037 036 | ··$
+    MOV, 38, ' ', // MOV 18, ' ' | 03 12 20 | 003 038 032 | ··
+    MOV, 39, 'r', // MOV 19, 'r' | 03 13 72 | 003 039 114 | ··r
+    MOV, 40, 'u', // MOV 20, 'u' | 03 14 75 | 003 040 117 | ··u
+    MOV, 41, 'l', // MOV 21, 'l' | 03 15 6C | 003 041     | ··l
+    MOV, 42, 'i', // MOV 22, 'i' | 03 16 69 | 003 042     | ··i
+    MOV, 43, 't', // MOV 23, 't' | 03 17 74 | 003 043     | ··t
+    MOV, 44, '!', // MOV 24, '!' | 03 18 21 | 003 044     | ··!
     //HLT
 };
 
-char ProcAsciiChr(unsigned char chr)
+char ProcAsciiChr(uint8_t chr)
 {
     switch (chr)
     _rb_
@@ -112,11 +102,16 @@ char ProcAsciiChr(unsigned char chr)
     case 0x0C: return '·'; // ·12
     case '\r': return '·'; // ·13
     case 0x0F: return '·'; // ·15
+    case 0x10: return '·'; // ·16
+    case 0x11: return '·'; // ·17
+    case 0x12: return '·'; // ·18
+    case 0x13: return '·'; // ·19
+    case 0x14: return '·'; // ·20
     case 0x1B: return '·'; // ·27
-    case 0x95: return '·'; // 149
     // 30-39 или 048-057: 0-9
     // 41-5A или 065-090: A-Z
     // 61-7A или 097-122: a-z
+    case 0x95: return '·'; // 149
     //    A8 или     168: Ё
     //    B8 или     184: ё
     // C0-DF или 192-223: А-Я
@@ -647,7 +642,12 @@ void LoadingProgramIntoMemory()
     //printf(":: %d :: ", sizeof (opcode));
     //for (int i = 0; i < sizeof (opcode); i++) printf("%c", ProcAsciiChr(opcode[i]));
 
-    for (int i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
+    for (uint8_t i = 0; i < sizeof (opcode); i+=3){
+        printf("%d - %02X %02X %02X\n", i, opcode[i], opcode[i+1], opcode[i+2]);
+        vMEMORY[i] = opcode[i];
+        vMEMORY[i+1] = opcode[i+1];
+        vMEMORY[i+2] = opcode[i+2];
+    }
     puts("\n Программа загружена в память.");
 
     #if defined DEBUG
@@ -684,9 +684,9 @@ int main()
         //for (int i = 0; i < 256; i++)
         printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
 
-        printf("---------------------<•>---------------------------");
-        printf("\n Address: Opcode      ¦    Assembler vCPU (8-bit's)");
-        printf("\n                      ¦");
+        printf("----------------------------------------------<•>---------------------------");
+        printf("\n Address: Opcode (HEX<=>DEC)                   ¦    Assembler vCPU (8-bit's)");
+        printf("\n                                               ¦");
         for (unsigned char i = 0; i < 10; i++)
         {
             switch (vMEMORY[vIP])
@@ -705,8 +705,10 @@ int main()
                 break;
 
             case MOV:
-                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d\t¦ ··%c",
-                    vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
+                printf("\n      %02X: %02X %02X %02X   <=>   %03d: %03d %03d %03d    ¦    %s %d, %d\t¦ ··%c",
+                    vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
+                    vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
+                    table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
                 );
                 // Syntax: Intel (помещение данных в произвольную ячейку памяти) //
                 vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
@@ -729,7 +731,8 @@ int main()
 
             _eb_
         }
-        printf("\n---------------------<•>---------------------------");
+        //printf("\n      0F: %02X %02X %02X [DEBUG] 015: %03d %03d %03d\t\t\t  %c%c%c", vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17]);
+        printf("\n----------------------------------------------<•>---------------------------");
 
         putchar('\n');
         //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
