@@ -402,19 +402,16 @@ void StepBack()
 // Отладка: шаг вперёд
 void StepNext()
 {
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n ENTRANCE: StepNext");
     #endif
 
     switch (opcode[vIP])
     _rb_
+
     case MOV:
-        // Intel (помещение данных в произвольную ячейку памяти)
         vMEMORY[opcode[--vIP]] = opcode[vIP+=2];
         vIP += 2;
-        // AT&T (помещение данных в произвольную ячейку памяти)
-        //vMEMORY[opcode[++vIP]] = opcode[++vIP];
-        //++vIP;
         break;
 
     case INC:
@@ -428,38 +425,31 @@ void StepNext()
         break;
 
     case ADD:
-        // Intel (сложение данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] += opcode[vIP+=2];
         vIP += 2;
-        // AT&T (сложение данных в произвольной ячейки памяти)
-        //vMEMORY[opcode[--vIP]] = opcode[--vIP] + opcode[vIP+=2];
-        //vIP += 2;
         break;
 
     case SUB:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] -= opcode[vIP+=2];
         vIP += 2;
         break;
 
     case MUL:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] *= opcode[vIP+=2];
         vIP += 2;
         break;
 
     case DIV:
-        // Intel (вычитание данных в произвольной ячейки памяти)
         vMEMORY[opcode[--vIP]] /= opcode[vIP+=2];
         vIP += 2;
         break;
 
-    case JMP:
-        vIP = opcode[++vIP];
+    case JMP: vIP = opcode[++vIP];
+
     _eb_
     step++;
 
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n EXIT: StepNext");
     #endif
 }
@@ -639,30 +629,44 @@ int main()
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
                     table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
                 );
-                // Syntax: Intel (помещение данных в произвольную ячейку памяти)
+                // Syntax: Intel
                 vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
                 vIP += 2;
-                //Syntax: AT&T (помещение данных в произвольную ячейку памяти)
+                //Syntax: AT&T
                 //vMEMORY[vMEMORY[++vIP]] = vMEMORY[++vIP];
                 //++vIP;
                 break;
 
             case ADD:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-                // Syntax: Intel (сложение данных в произвольной ячейки памяти)
+                // Syntax: Intel
                 vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
                 vIP += 2;
-                //Syntax: AT&T (сложение данных в произвольной ячейки памяти)
+                //Syntax: AT&T
                 //vMEMORY[vMEMORY[--vIP]] = vMEMORY[--vIP] + vMEMORY[vIP+=2];
                 //vIP += 2;
                 break;
 
             case SUB:
                 printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-                // Syntax: Intel (вычитание данных в произвольной ячейки памяти)
-                vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
-                vIP += 2;
-                break;
+                // Syntax: Intel
+                vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2; break;
+
+            case MUL:
+                //printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                // Syntax: Intel
+                vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2; break;
+
+            case DIV:
+                //printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                // Syntax: Intel
+                vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2; break;
+
+            case JMP:
+                //printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[JMP-1].symbolic_name, vMEMORY[vIP+1]);
+                // Syntax: Intel
+                vIP = vMEMORY[++vIP];
+                //break;
 
             _eb_
         }
