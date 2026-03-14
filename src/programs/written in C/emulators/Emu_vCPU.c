@@ -5,10 +5,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <conio.h>
+
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #define _rb_ {
 #define _eb_ }
+
+char format[0xFF];
 
 uint8_t vIP;
 uint8_t vSP;
@@ -41,6 +46,8 @@ enum LowercaseLetters // Строчные буквы
     push,
     _int
 };
+
+unsigned char step = 0;
 
 #define HLT 0xFF
 // Syntax AT&T / Intel
@@ -306,6 +313,31 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     */
 }
 
+struct TableOpcode {
+    unsigned char identifier;
+    unsigned char opcode;
+    char symbolic_name[0x0F+1];
+    
+} table_opcode[0xFF] = {
+    1, MOV, "MOV",
+    2, INC, "INC",
+    3, DEC, "DEC",
+    4, ADD, "ADD"
+};
+
+void DebuggingInformation(uint8_t vIP) //Disassembly
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: DebuggingInformation");
+    #endif
+
+    ///
+
+    #if !defined DEBUG
+     puts("\n EXIT: DebuggingInformation");
+    #endif
+}
+
 // Релиз: полный цикл
 void FullCycle()
 {
@@ -435,10 +467,10 @@ void StepBack()
 }
 
 // Отладка: шаг вперёд
-void StepForward()
+void StepNext()
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: StepForward");
+     puts("\n ENTRANCE: StepNext");
     #endif
 
     switch (opcode[vIP])
@@ -492,15 +524,16 @@ void StepForward()
     case JMP:
         vIP = opcode[++vIP];
     _eb_
+    step++;
 
     #if !defined DEBUG
-     puts("\n EXIT: StepForward");
+     puts("\n EXIT: StepNext");
     #endif
 }
 
 void Execute(unsigned char ch) // Launch
 {
-    #if defined DEBUG
+    #if !defined DEBUG
      puts("\n ENTRANCE: Execute");
     #endif
 
@@ -515,19 +548,26 @@ void Execute(unsigned char ch) // Launch
         break;
 
     case '>':
-        StepForward();
+        StepNext();
         break;
     _eb_
 
-    #if defined DEBUG
+    #if !defined DEBUG
      puts("\n EXIT: Execute");
     #endif
 }
 
 void Compile(char * text, size_t file_size)
 {
-    puts("\n>> Compile()");
+    #if defined DEBUG
+     puts("\n ENTRANCE: Compile");
+    #endif
+
     Preprocessing(text, 2, file_size);
+
+    #if defined DEBUG
+     puts("\n EXIT: Compile");
+    #endif
 }
 
 void ShowDashboard()
@@ -536,14 +576,6 @@ void ShowDashboard()
      puts("\n ENTRANCE: ShowDashboard");
     #endif
 
-    puts("\n    [address]:value");
-    puts("     HEX(16) |  DEC(10)  | ASCII");
-    //for (int i = 0; i < 256; i++)
-    printf(" IP: [%02X]:%02X | [%03d]:%03d | [%c]:%c\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
-    //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
-    //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
-    //printf("SI  [%02X]  [%03d]  [%c]\n", vSI, vSI, ProcAsciiChr(vSI));
-    //char op = 0;
     switch (0)_rb_
     case 0:
     {
@@ -591,14 +623,6 @@ void ShowDashboard()
     #endif
 }
 
-struct TableOpcode {
-    unsigned char identifier;
-    char symbolic_name[0xF+1];
-    unsigned char opcode;
-} table_opcode[0xFF] = {
-    1, "JMP", JMP,
-    2, "jmp", jmp
-};
 enum IVT {
     PUTCHAR = 1,
     PRINTF
@@ -625,41 +649,75 @@ void LoadingProgramIntoMemory()
 int main()
 {
     setlocale(0, "");
+    /*
+    // 1. Устанавливаем кодировку Windows-1251 для кириллицы
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
 
+    // 2. Включаем поддержку ANSI-последовательностей (цветов)
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    */
     // Инициализация vCPU
     vIP = 0;
 
     // Загрузка программы в память
     LoadingProgramIntoMemory();
 
-    ShowDashboard();
-
     char cmd[128+sizeof(char)];
     //puts("\nДля отображения списка команд введите: /cmdlist");
     _0: while (true)
     {
-        printf(
-            "\n---------------------------------------------------------------------"
-            "\n Клавиша\tОписание"
-            "\n"
-            "\n ESC\t\tЗавершить эмуляцию"
-            "\n F2\t\tПродвинуться на 1 шаг назад"
-            "\n F3\t\tВыполнить все шаги (скорость каждого шага - 2,5 сек.)"
-            "\n F4\t\tПродвинуться на 1 шаг вперёд"
-            "\n----------------------------------------------------------------------"
-            "\n Нажмите соответствующую клавишу...\n"
-        );
-        /*
-        puts("\n-----------------------------------------------");
-        puts(" Клавиша\tОписание");
+        printf("\n Шаг: %d\n", step);
+        puts("     HEX(16) |  DEC(10)  | ASCII");
+        //for (int i = 0; i < 256; i++)
+        printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
+
+        printf("---------------------<•>---------------------------");
+        printf("\n Address: Opcode      ¦    Assembler vCPU (8-bit's)");
+        printf("\n                      ¦");
+        for (unsigned char i = 0; i < 3; i++)
+        {
+            switch (vMEMORY[vIP])
+            _rb_
+
+            case MOV:
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MOV-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                // Syntax: Intel (помещение данных в произвольную ячейку памяти) //
+                vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
+                vIP += 2;
+                break;
+
+            case ADD:
+                printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD-1].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+                // Syntax: Intel (сложение данных в произвольной ячейки памяти) //
+                vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
+                vIP += 2;
+                break;
+
+            _eb_
+        }
+        printf("\n---------------------<•>---------------------------");
+
         putchar('\n');
-        puts(" ESC\t\tЗавершить эмуляцию");
-        puts(" F2\t\tСделать 1 шаг с заходом назад");
-        puts(" F3\t\tВыполнить все шаги");
-        puts(" F4\t\tСделать 1 шаг с заходом вперёд");
-        puts("-----------------------------------------------");
-        printf(" Нажмите соответствующую клавишу...\n");
-        */
+        //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
+        //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
+        //printf("SI  [%02X]  [%03d]  [%c]\n", vSI, vSI, ProcAsciiChr(vSI));
+        //char op = 0;
+        ShowDashboard();
+        printf(
+         "\n---------------------------------------------------------------------"
+         "\n Клавиша\tОписание"
+         "\n"
+         "\n ESC\t\tЗавершить эмуляцию"
+         "\n F2\t\tПродвинуться на 1 шаг назад"
+         "\n F3\t\tВыполнить все шаги (скорость каждого шага - 2,5 сек.)"
+         "\n F4\t\tПродвинуться на 1 шаг вперёд"
+         "\n----------------------------------------------------------------------"
+         "\n Нажмите соответствующую клавишу..."
+        );
         unsigned char ch = _getch();
         switch (ch)
         _rb_
@@ -685,7 +743,7 @@ int main()
 
             case '>': // Шаг вперёд
                 Execute('>'); // Launch
-                ShowDashboard();
+                //ShowDashboard();
                 break;
 
             default:
