@@ -30,58 +30,77 @@ uint8_t idx__processed_text;
 enum UppercaseLetters // Заглавные буквы
 {
     HLT,
-    NOP,
-    INC, DEC,
+    NOP = 0x90,//144
+    INC = 2, DEC,
+    //
+    // Безусловный переход
     JMP,
+    //
     MOV,
+    // Арифметические операции
     ADD, SUB, MUL, DIV,
-    PUSH,
-    _INT
+    //
+    // Условный переход
+    JE
+    //
+    //PUSH, _INT
 };
 enum LowercaseLetters // Строчные буквы
 {
     hlt,
-    nop,
-    inc, dec,
+    nop = 0x90,//144
+    inc = 2, dec,
+    //
+    // Безусловный переход
     jmp,
+    //
     mov,
+    //
+    // Арифметические операции
     add, sub, mul, _div,
-    push,
-    _int
+    //
+    // Условный переход
+    je
+    //
+    //push, _int
 };
 
 struct TableOpcode {
     //unsigned char identifier;
-    unsigned char opcode;
+    uint8_t opcode;
     char symbolic_name[0x0F+1];
     
 } table_opcode[0xFF] =
 {
     HLT, "HLT",
-    NOP, "NOP",
+    1, "",
     INC, "INC",
     DEC, "DEC",
+    //
+    // Безусловный переход
     JMP, "JMP",
+    //
     MOV, "MOV",
-    ADD, "ADD",
-    SUB, "SUB"
+    //
+    // Арифметические операции
+    ADD, "ADD", SUB, "SUB", MUL, "MUL", DIV, "DIV",
+    //
+    // Условный переход
+    JE, "JE" // JZ
+    //
 };
 
-unsigned char step = 0;
+uint8_t step = 0;
 
 // Syntax AT&T / Intel
 uint8_t opcode[] =
 {
-    MOV, 36, 'C', // MOV 16, 'C' | 03 10 43 | 003 036 067 | ··C
-    MOV, 37, '$', // MOV 17, '$' | 03 11 24 | 003 037 036 | ··$
-    MOV, 38, ' ', // MOV 18, ' ' | 03 12 20 | 003 038 032 | ··
-    MOV, 39, 'r', // MOV 19, 'r' | 03 13 72 | 003 039 114 | ··r
-    MOV, 40, 'u', // MOV 20, 'u' | 03 14 75 | 003 040 117 | ··u
-    MOV, 41, 'l', // MOV 21, 'l' | 03 15 6C | 003 041     | ··l
-    MOV, 42, 'i', // MOV 22, 'i' | 03 16 69 | 003 042     | ··i
-    MOV, 43, 't', // MOV 23, 't' | 03 17 74 | 003 043     | ··t
-    MOV, 44, '!', // MOV 24, '!' | 03 18 21 | 003 044     | ··!
-    JMP, 0,
+    MOV, 1,
+    'C', '$',
+    HLT,
+    ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '!', '!',
+    //" C$ is awesome!!!",
+    //JMP, 0,
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP,
     HLT
 };
@@ -115,6 +134,7 @@ char ProcAsciiChr(uint8_t chr)
     // 30-39 или 048-057: 0-9
     // 41-5A или 065-090: A-Z
     // 61-7A или 097-122: a-z
+    case 0x90: return '·'; // 144
     case 0x95: return '·'; // 149
     //    A8 или     168: Ё
     //    B8 или     184: ё
@@ -558,7 +578,9 @@ int main()
         printf("\n                                            ¦           Disassembly: vCPU (8-bit's)");
         printf("\n Address: Opcode (HEX<=>DEC)                ¦     Low-level assembler ¦ High-level assembler");
         printf("\n-------------------------------------------<•>-----------------------<•>---------------------");
-        for (uint8_t i = 0; i < 0x0F+1; i++)
+        table_opcode[NOP].opcode = 0x90; // .. = 144
+        strcpy(table_opcode[NOP].symbolic_name, "NOP");
+        for (uint8_t i = 0; i < 0x0F+5; i++)
         {
             switch (vMEMORY[vIP])
             _rb_
@@ -569,7 +591,7 @@ int main()
             //break;
 
             case NOP: // Syntax: Intel / AT&T
-                printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s\t\t¦ %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
+                printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
                 vIP++;
             break;
 
@@ -584,7 +606,7 @@ int main()
             break;
 
             case JMP: // Syntax: Intel
-                printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t¦ %c%c  ¦",
+                printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d            |…| %c%c  ¦",
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1],
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1],
                     table_opcode[JMP].symbolic_name, vMEMORY[vIP+1],
@@ -597,10 +619,10 @@ int main()
             break;
 
             case MOV:
-                printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d\t¦ ··%c ¦",
+                printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c",
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
-                    table_opcode[MOV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
+                    table_opcode[MOV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], ProcAsciiChr(vMEMORY[vIP+2])
                 );
                 // Syntax: Intel
                 vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
