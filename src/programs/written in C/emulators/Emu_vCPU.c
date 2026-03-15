@@ -322,16 +322,16 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     */
 }
 
-void DebuggingInformation(uint8_t vIP) //Disassembly
+void Disassembly() //DebuggingInformation
 {
     #if defined DEBUG
-     puts("\n ENTRANCE: DebuggingInformation");
+     puts("\n ENTRANCE: Disassembly");
     #endif
 
     // ... //
 
     #if defined DEBUG
-     puts("\n EXIT: DebuggingInformation");
+     puts("\n EXIT: Disassembly");
     #endif
 }
 
@@ -554,9 +554,10 @@ int main()
         //for (int i = 0; i < 256; i++)
         printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
 
-        printf("-------------------------------------------<•>---------------------------");
-        printf("\n Address: Opcode (HEX<=>DEC)                ¦    Assembler vCPU (8-bit's)");
-        printf("\n                                            ¦");
+        printf("-------------------------------------------<•>-----------------------------------------------");
+        printf("\n                                            ¦           Disassembly: vCPU (8-bit's)");
+        printf("\n Address: Opcode (HEX<=>DEC)                ¦     Low-level assembler ¦ High-level assembler");
+        printf("\n-------------------------------------------<•>-----------------------<•>---------------------");
         for (uint8_t i = 0; i < 0x0F+1; i++)
         {
             switch (vMEMORY[vIP])
@@ -568,7 +569,7 @@ int main()
             //break;
 
             case NOP: // Syntax: Intel / AT&T
-                printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s\t\t¦ %c", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
+                printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s\t\t¦ %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
                 vIP++;
             break;
 
@@ -583,17 +584,20 @@ int main()
             break;
 
             case JMP: // Syntax: Intel
-                printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t¦ %c%c",
+                printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t¦ %c%c  ¦",
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1],
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1],
                     table_opcode[JMP].symbolic_name, vMEMORY[vIP+1],
                     ProcAsciiChr(vMEMORY[vIP]), ProcAsciiChr(vMEMORY[vIP+1])
                 );
-                vIP = vMEMORY[++vIP];
+                // Для дизассемблирования
+                vIP+=2;
+                // Для интерпретации
+                //vIP = vMEMORY[++vIP];
             break;
 
             case MOV:
-                printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d\t¦ ··%c",
+                printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d\t¦ ··%c ¦",
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
                     vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
                     table_opcode[MOV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], vMEMORY[vIP+2]
@@ -637,7 +641,7 @@ int main()
             _eb_
         }
         //printf("\n      0F: %02X %02X %02X [DEBUG] 015: %03d %03d %03d\t\t\t  %c%c%c", vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17]);
-        printf("\n-------------------------------------------<•>---------------------------");
+        printf("\n-------------------------------------------<•>-----------------------<•>---------------------");
 
         putchar('\n');
         //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
