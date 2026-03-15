@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <conio.h>
 
-#ifdef _WIN32
+#ifndef _WIN32
 #include <windows.h>
 #endif
 
@@ -15,7 +15,7 @@
 
 //uint8_t str_format[0xFF];
 
-uint8_t vIP;
+uint8_t vIP; uint16_t vEIP;
 uint8_t vSP;
 uint8_t vDI, vSI;
 
@@ -41,9 +41,10 @@ enum UppercaseLetters // Заглавные буквы
     ADD, SUB, MUL, DIV,
     //
     // Условный переход
-    JE
+    JE,
     //
-    //PUSH, _INT
+    _INT
+    //PUSH
 };
 enum LowercaseLetters // Строчные буквы
 {
@@ -60,9 +61,10 @@ enum LowercaseLetters // Строчные буквы
     add, sub, mul, _div,
     //
     // Условный переход
-    je
+    je,
     //
-    //push, _int
+    _int,
+    //push
 };
 
 struct TableOpcode {
@@ -86,8 +88,9 @@ struct TableOpcode {
     ADD, "ADD", SUB, "SUB", MUL, "MUL", DIV, "DIV",
     //
     // Условный переход
-    JE, "JE" // JZ
+    JE, "JE", // JZ
     //
+    _INT
 };
 
 uint8_t step = 0;
@@ -425,28 +428,15 @@ void StepNext()
     #endif
 }
 
-void Execute(unsigned char ch) // Launch
+void Execute() // Launch
 {
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n ENTRANCE: Execute");
     #endif
 
-    switch (ch)
-    _rb_
-    case '<':
-        StepBack();
-        break;
+    // ... //
 
-    case '=':
-        FullCycle();
-        break;
-
-    case '>':
-        StepNext();
-        break;
-    _eb_
-
-    #if !defined DEBUG
+    #if defined DEBUG
      puts("\n EXIT: Execute");
     #endif
 }
@@ -563,7 +553,8 @@ int main()
     vIP = 0;
 
     // Загрузка программы в память
-    LoadingProgramIntoMemory();
+    //LoadingProgramIntoMemory();
+    for (uint8_t i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
 
     char cmd[128+sizeof(char)];
     //puts("\nДля отображения списка команд введите: /cmdlist");
@@ -574,10 +565,10 @@ int main()
         //for (int i = 0; i < 256; i++)
         printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
 
-        printf("-------------------------------------------<•>-----------------------------------------------");
+        printf("-------------------------------------------<+>-----------------------------------------------");
         printf("\n                                            ¦           Disassembly: vCPU (8-bit's)");
         printf("\n Address: Opcode (HEX<=>DEC)                ¦     Low-level assembler ¦ High-level assembler");
-        printf("\n-------------------------------------------<•>-----------------------<•>---------------------");
+        printf("\n-------------------------------------------<+>-----------------------<•>---------------------");
         table_opcode[NOP].opcode = 0x90; // .. = 144
         strcpy(table_opcode[NOP].symbolic_name, "NOP");
         for (uint8_t i = 0; i < 0x0F+5; i++)
@@ -663,7 +654,7 @@ int main()
             _eb_
         }
         //printf("\n      0F: %02X %02X %02X [DEBUG] 015: %03d %03d %03d\t\t\t  %c%c%c", vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17]);
-        printf("\n-------------------------------------------<•>-----------------------<•>---------------------");
+        printf("\n-------------------------------------------<+>-----------------------<•>---------------------");
 
         putchar('\n');
         //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
@@ -682,38 +673,30 @@ int main()
          "\n----------------------------------------------------------------------"
          "\n Нажмите соответствующую клавишу..."
         );
-        unsigned char ch = _getch();
+        uint8_t ch = _getch();
         switch (ch)
         _rb_
+
         case 0:
             //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
             //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             switch (ch)
             _rb_
-            case '<': // Шаг назад
-                Execute('<'); // Launch
-                ShowDashboard();
-                break;
 
-            case '=': // Полный цикл
-                for (int i = 0; i < sizeof (opcode); i++)
-                {
-                    Execute('=');
-                    ShowDashboard();
-                    Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
-                }
-                break;
-
-            case '>': // Шаг вперёд
-                Execute('>'); // Launch
-                //ShowDashboard();
-                break;
-
-            default:
-                printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-            _eb_
+            case '<': StepBack(); // Шаг назад
             break;
+
+            case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+            break;
+
+            case '>': StepNext(); // Шаг вперёд
+            break;
+
+            default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+
+            _eb_
+        break;
 
         case 27: // 1B | 027 | ·  <ESC>
             //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
