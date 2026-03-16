@@ -293,15 +293,19 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
 
     switch (preprocessing_type)
     _rb_
+
     case 1: // Только удаление комментариев
         DeletingComments(text);
-        break;
+    break;
+
     case 2: // Только развёртка макросов
         DeployingMacros(text);
-        break;
+    break;
+    
     case 3: // Удаление комментариев и развёртка макросов
         DeletingCommentsAndDeployingMacros(text);
-        break;
+    break;
+
     _eb_
 
     printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
@@ -393,31 +397,31 @@ void StepNext()
      puts("\n ENTRANCE: StepNext");
     #endif
 
-    switch (opcode[vIP])
+    switch (vMEMORY[vIP])
     _rb_
 
-    case INC: vMEMORY[opcode[++vIP]]++; vIP++;
+    case INC: vMEMORY[vMEMORY[++vIP]]++; vIP++;
     break;
 
-    case DEC: vMEMORY[opcode[++vIP]]--; vIP++;
+    case DEC: vMEMORY[vMEMORY[++vIP]]--; vIP++;
     break;
 
-    case JMP: vIP = opcode[++vIP];
+    case JMP: vIP = vMEMORY[++vIP];
     break;
 
-    case MOV: vMEMORY[opcode[--vIP]] = opcode[vIP+=2]; vIP += 2;
+    case MOV: vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2]; vIP += 2;
     break;
 
-    case ADD: vMEMORY[opcode[--vIP]] += opcode[vIP+=2]; vIP += 2;
+    case ADD: vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2]; vIP += 2;
     break;
 
-    case SUB: vMEMORY[opcode[--vIP]] -= opcode[vIP+=2]; vIP += 2;
+    case SUB: vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2;
     break;
 
-    case MUL: vMEMORY[opcode[--vIP]] *= opcode[vIP+=2]; vIP += 2;
+    case MUL: vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2;
     break;
 
-    case DIV: vMEMORY[opcode[--vIP]] /= opcode[vIP+=2]; vIP += 2;
+    case DIV: vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2;
     //break;
 
     _eb_
@@ -441,15 +445,36 @@ void Execute() // Launch
     #endif
 }
 
-void Compile(char * text, size_t file_size)
+char Compile()
 {
-    #if defined DEBUG
+    #if !defined DEBUG
      puts("\n ENTRANCE: Compile");
     #endif
 
-    Preprocessing(text, 2, file_size);
+    uint8_t data[0xFF] = "";
+    uint8_t ptr_data = 0xFF;
+    // Считываем с файла
+    FILE * desc = fopen("_.asm", "rb");
+    if (desc == NULL)
+    {
+        printf("Ошибка открытия файла.");
+        return -1;
+    }
+    fseek(desc, 0, SEEK_END);
+    size_t file_size = ftell(desc);
+    printf("\nРазмер файла: %ld.\n", file_size);
+    size_t copy_file_size = file_size;
+    fseek(desc, 0, SEEK_SET);
+    while (file_size--) data[++ptr_data] = fgetc(desc);
+    fclose(desc);
+    data[++ptr_data] = '\0';
 
-    #if defined DEBUG
+    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
+    //file_size = copy_file_size;
+
+    Preprocessing(data, 2, file_size);
+
+    #if !defined DEBUG
      puts("\n EXIT: Compile");
     #endif
 }
@@ -479,17 +504,19 @@ void ShowDashboard()
             printf("   ");
             for (int i = 0; i < 0x0F+1; i++) printf("%c", ProcAsciiChr(vMEMORY[j*0x10+i]));
         }
-    } break;
+    }
+    break;
     case 10:
     {
         printf("MEMORY (DEC)\n     ");
-        for (int i = 0; i < 0x0F + 1; i++) printf("[%03d]", i);
-        for (int j = 0; j < 0x0F + 1; j++)
+        for (int i = 0; i < 0x0F+1; i++) printf("[%03d]", i);
+        for (int j = 0; j < 0x0F+1; j++)
         {
             printf("\n[%03d]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++) printf(" %03d ", vMEMORY[i]);
+            for (int i = 0; i < 0x0F+1; i++) printf(" %03d ", vMEMORY[i]);
         }
-    } break;
+    }
+    break;
     case 16:
     {
         printf("MEMORY (HEX)\n    ");
@@ -497,7 +524,7 @@ void ShowDashboard()
         for (int j = 0; j < 0x0F + 1; j++)
         {
             printf("\n[%02X]", j * (0x0F + 1));
-            for (int i = 0; i < 0x0F + 1; i++) printf(" %02X ", vMEMORY[i]);
+            for (int i = 0; i < 0x0F+1; i++) printf(" %02X ", vMEMORY[i]);
         }
     }_eb_
     putchar('\n');
@@ -542,13 +569,13 @@ int main()
     // 1. Устанавливаем кодировку Windows-1251 для кириллицы
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-
-    // 2. Включаем поддержку ANSI-последовательностей (цветов)
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     */
+
+    Compile();
+    return 0;
+
+    char cmd[128+sizeof(char)];
+
     // Инициализация vCPU
     vIP = 0;
 
@@ -556,7 +583,6 @@ int main()
     //LoadingProgramIntoMemory();
     for (uint8_t i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
 
-    char cmd[128+sizeof(char)];
     //puts("\nДля отображения списка команд введите: /cmdlist");
     _0: while (true)
     {
@@ -734,26 +760,7 @@ int main()
             printf("\n3] /execute");
             putchar('\n');
         }
-        else if (!strcmp(cmd, "/compile"))
-        {
-            unsigned char data[0xFF] = "";
-            unsigned char ptr_data = 0xFF;
-            // Считываем с файла
-            FILE * desc = fopen("_.asm", "rb");
-            if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
-            fseek(desc, 0, SEEK_END);
-            size_t file_size = ftell(desc);
-            printf("\nРазмер файла: %ld.\n", file_size);
-            size_t copy_file_size = file_size;
-            fseek(desc, 0, SEEK_SET);
-            while (file_size--) data[++ptr_data] = fgetc(desc);
-            fclose(desc);
-            data[++ptr_data] = '\0';
-
-            printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
-            //file_size = copy_file_size;
-            Compile(data, copy_file_size);
-        }
+        else if (!strcmp(cmd, "/compile")) Compile();
         else if (!strcmp(cmd, "/execute")) Execute(0); // Launch
         else printf("Неизвестная/неопознанная команда...");
     }
