@@ -205,7 +205,7 @@ void DeletingComments(const char * text)
     printf("\n>> DeletingComments()\n");
 
     idx__processed_text = 0-1;
-    unsigned char idx__text = 0-1;
+    uint8_t idx__text = 0-1;
 
     //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
     //int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
