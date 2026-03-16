@@ -294,16 +294,13 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     switch (preprocessing_type)
     _rb_
 
-    case 1: // Только удаление комментариев
-        DeletingComments(text);
+    case 1: DeletingComments(text); // Только удаление комментариев
     break;
 
-    case 2: // Только развёртка макросов
-        DeployingMacros(text);
+    case 2: DeployingMacros(text); // Только развёртка макросов
     break;
     
-    case 3: // Удаление комментариев и развёртка макросов
-        DeletingCommentsAndDeployingMacros(text);
+    case 3: DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
     break;
 
     _eb_
