@@ -196,13 +196,23 @@ void DeletingCommentsAndDeployingMacros(const char * text)
 // Только развёртка макросов
 void DeployingMacros(const char * text)
 {
-    printf("\n>> DeployingMacros()\n");
+    #if !defined DEBUG
+     puts("\n ENTRANCE: DeployingMacros");
+    #endif
+
+    // ... //
+
+    #if !defined DEBUG
+     printf("\n EXIT: DeployingMacros");
+    #endif
 }
 
 // Только удаление комментариев
 void DeletingComments(const char * text)
 {
-    printf("\n>> DeletingComments()\n");
+    #if !defined DEBUG
+     puts("\n ENTRANCE: DeletingComments");
+    #endif
 
     idx__processed_text = 0-1;
     uint8_t idx__text = 0-1;
@@ -277,6 +287,10 @@ void DeletingComments(const char * text)
         goto _1_run;
     }_1_end:
     processed_text[++idx__processed_text] = '\0';
+
+    #if !defined DEBUG
+     printf("\n EXIT: DeletingComments");
+    #endif
 }
 
 void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
