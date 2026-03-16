@@ -281,11 +281,16 @@ void DeletingComments(const char * text)
 
 void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
 {
-    printf("\n>> Preprocessing(<?>, %d)\n", preprocessing_type);
+    #if defined DEBUG
+     puts("\n ENTRANCE: Preprocessing");
+    #endif
 
     // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
     // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
     // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
+
+    // Препроцессорная обработка начата...
+    printf(" Preprocessing started...\n");
 
     printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
@@ -312,6 +317,14 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
     fwrite(processed_text, idx__processed_text, sizeof (char), desc);
     fclose(desc);
+
+    // Препроцессорная обработка закончена!
+    printf("\n\n Preprocessing completed!\n");
+
+    #if defined DEBUG
+     printf("\n EXIT: Preprocessing");
+    #endif
+}
 
 /*
 //char sample[2+sizeof(char)];
@@ -344,7 +357,6 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     //puts("А-я | 192-255");
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
     */
-}
 
 void Disassembly() //DebuggingInformation
 {
