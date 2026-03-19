@@ -100,8 +100,7 @@ uint8_t opcode[] =
 
 char ProcAsciiChr(uint8_t chr)
 {
-    switch (chr)
-    _rb_
+    switch (chr)_rb_
     case '\0': return '·'; // ··0
     case 0x01: return '·'; // ··1
     case 0x02: return '·'; // ··2
@@ -683,13 +682,17 @@ int main()
             switch (vMEMORY[vIP])_rb_
 
             case HLT: // Syntax: Intel / AT&T
-             printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[HLT].symbolic_name);
-            return 0;
-            //break;
+             printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[HLT].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
+             // Для дизассемблирования
+             ++vIP;
+             // Для интерпретации
+             //return 0;
+             //break;
 
             case NOP: // Syntax: Intel / AT&T
              printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
-             vIP++;
+             // Для дизассемблирования
+             ++vIP;
             break;
 
             case INC: // Syntax: Intel
@@ -710,20 +713,23 @@ int main()
               ProcAsciiChr(vMEMORY[vIP]), ProcAsciiChr(vMEMORY[vIP+1])
              );
              // Для дизассемблирования
-             vIP+=2;
+             vIP += 2;
              // Для интерпретации
              //vIP = vMEMORY[++vIP];
             break;
 
             case MOV:
-             printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c",
+             printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c\t|…| %c   ¦",
               vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
               vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
               table_opcode[MOV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], ProcAsciiChr(vMEMORY[vIP+2])
              );
+             // Для дизассемблирования
+             vIP += 3;
+             // Для интерпретации
              // Syntax: Intel
-             vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
-             vIP += 2;
+             //vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
+             //vIP += 2;
              //Syntax: AT&T
              //vMEMORY[vMEMORY[++vIP]] = vMEMORY[++vIP];
              //++vIP;
@@ -742,19 +748,22 @@ int main()
             case SUB:
              printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
              // Syntax: Intel
-             vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2;
+             vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
+             vIP += 2;
             break;
 
             case MUL:
              printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
              // Syntax: Intel
-             vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2;
+             vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2];
+             vIP += 2;
             break;
 
             case DIV:
              printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
              // Syntax: Intel
-             vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2;
+             vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2];
+             vIP += 2;
             break;
 
             case CMP:
@@ -764,10 +773,13 @@ int main()
 
             case JE:
              switch (CF){
-              case 0: vIP = vMEMORY[vIP+=2]; break;
+              case 0: vIP = vMEMORY[vIP+=2];
+              break;
               case 1: vIP = vMEMORY[++vIP];
              }
-            //break;
+            break;
+
+            default: ++vIP;
 
             _eb_
         }
