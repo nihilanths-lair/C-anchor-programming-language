@@ -192,6 +192,10 @@ void DeployingMacros(const char * text)
      puts("\n ENTRANCE: DeployingMacros");
     #endif
 
+    // Однопроходная (сбор меток + подстановка адресов //
+    // ... //
+
+    // Двухпроходная (сначала сбор меток, затем подстановка адресов) //
     // ... //
 
     #if !defined DEBUG
