@@ -339,38 +339,6 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     #endif
 }
 
-/*
-//char sample[2+sizeof(char)];
-//if (!strcmp(sample, ";-")){}
-//else if (!strcmp(sample, ";")){}
-//else if (!strcmp(sample, "-;")){}
-*/
-/*
-    switch (syntax_style){
-    case FREE_STYLE: {
-        FreeStyle(text);
-    } break;
-    case STRICT_STYLE: {
-        StrictStyle(text);
-    }}
-    */
-    /*
-    char filter[0xFF]; //filter[0] = '\0';
-    //printf("\n%s\n", _data_1);
-    //for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_data_1[i]));
-    // Generator 'case'
-    //putchar('\n');
-    /*
-    //puts("0-9 | 48-57");
-    //for (int i = 48; i <= 57; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //puts("A-Z | 65-90");
-    //for (int i = 65; i <= 90; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //puts("a-z | 97-122");
-    //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //puts("А-я | 192-255");
-    //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    */
-
 void Disassembly() //DebuggingInformation
 {
     #if defined DEBUG
@@ -841,13 +809,16 @@ int main()
          //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
          switch (ch)_rb_
 
-         case '<': StepBack(); // Шаг назад
+         case '<':
+          StepBack(); // Шаг назад
          break;
 
-         case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+         case '=':
+          for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
          break;
 
-         case '>': StepNext(); // Шаг вперёд
+         case '>':
+          StepNext(); // Шаг вперёд
          break;
 
          default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
@@ -896,6 +867,37 @@ int main()
     }
     return 0;
 }
+/*
+//char sample[2+sizeof(char)];
+//if (!strcmp(sample, ";-")){}
+//else if (!strcmp(sample, ";")){}
+//else if (!strcmp(sample, "-;")){}
+*/
+/*
+    switch (syntax_style){
+    case FREE_STYLE: {
+        FreeStyle(text);
+    } break;
+    case STRICT_STYLE: {
+        StrictStyle(text);
+    }}
+    */
+    /*
+    char filter[0xFF]; //filter[0] = '\0';
+    //printf("\n%s\n", _data_1);
+    //for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_data_1[i]));
+    // Generator 'case'
+    //putchar('\n');
+    /*
+    //puts("0-9 | 48-57");
+    //for (int i = 48; i <= 57; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //puts("A-Z | 65-90");
+    //for (int i = 65; i <= 90; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //puts("a-z | 97-122");
+    //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    //puts("А-я | 192-255");
+    //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
+    */
 /*
 // Формат: printf("\033[<цвет>m<символ>\033[0m");
 // \033[0m - сброс цвета обратно на стандартный
