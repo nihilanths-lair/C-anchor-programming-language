@@ -19,6 +19,9 @@ uint8_t vIP; uint16_t vEIP;
 uint8_t vSP;
 uint8_t vDI, vSI;
 
+// comparison flag / флаг сравнения
+bool CF;
+
 uint8_t vMEMORY[0xFF];
 //uint8_t vSTACK[0xFF];
 
@@ -40,6 +43,9 @@ enum UppercaseLetters // Заглавные буквы
     // Арифметические операции
     ADD, SUB, MUL, DIV,
     //
+    // Операция сравнения
+    CMP,
+    //
     // Условный переход
     JE,
     //
@@ -59,6 +65,9 @@ enum LowercaseLetters // Строчные буквы
     //
     // Арифметические операции
     add, sub, mul, _div,
+    //
+    // Операция сравнения
+    cmp,
     //
     // Условный переход
     je,
@@ -86,6 +95,9 @@ struct TableOpcode {
     //
     // Арифметические операции
     ADD, "ADD", SUB, "SUB", MUL, "MUL", DIV, "DIV",
+    //
+    // Операция сравнения
+    CMP, "CMP",
     //
     // Условный переход
     JE, "JE", // JZ
@@ -313,13 +325,16 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     switch (preprocessing_type)
     _rb_
 
-    case 1: DeletingComments(text); // Только удаление комментариев
+    case 1:
+     DeletingComments(text); // Только удаление комментариев
     break;
 
-    case 2: DeployingMacros(text); // Только развёртка макросов
+    case 2:
+     DeployingMacros(text); // Только развёртка макросов
     break;
     
-    case 3: DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
+    case 3:
+     DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
     break;
 
     _eb_
@@ -423,28 +438,51 @@ void StepNext()
     switch (vMEMORY[vIP])
     _rb_
 
-    case INC: vMEMORY[vMEMORY[++vIP]]++; vIP++;
+    case INC:
+     vMEMORY[vMEMORY[++vIP]]++;
+     vIP++;
     break;
 
-    case DEC: vMEMORY[vMEMORY[++vIP]]--; vIP++;
+    case DEC:
+     vMEMORY[vMEMORY[++vIP]]--;
+     vIP++;
     break;
 
-    case JMP: vIP = vMEMORY[++vIP];
+    case JMP:
+     vIP = vMEMORY[++vIP];
     break;
 
-    case MOV: vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2]; vIP += 2;
+    case MOV:
+     vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
+     vIP += 2;
     break;
 
-    case ADD: vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2]; vIP += 2;
+    case ADD:
+     vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
+     vIP += 2;
     break;
 
-    case SUB: vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2]; vIP += 2;
+    case SUB:
+     vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
+     vIP += 2;
     break;
 
-    case MUL: vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2]; vIP += 2;
+    case MUL:
+     vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2];
+     vIP += 2;
     break;
 
-    case DIV: vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2]; vIP += 2;
+    case DIV:
+     vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2];
+     vIP += 2;
+    break;
+
+    case CMP:
+     CF = (vMEMORY[--vIP] == vMEMORY[vIP+=2]);
+     vIP += 2;
+    break;
+
+    case JE:
     //break;
 
     _eb_
@@ -594,8 +632,7 @@ int main()
     SetConsoleOutputCP(1251);
     */
 
-    Compile();
-    return 0;
+    //Compile(); return 0;
 
     char cmd[128+sizeof(char)];
 
