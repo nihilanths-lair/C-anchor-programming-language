@@ -91,6 +91,8 @@ uint8_t opcode[] =
 {
     MOV, 1,
     'C', '$',
+    CMP, 'C', '$',
+    JE, 0,
     HLT,
     ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '!', '!',
     //" C$ is awesome!!!",
@@ -371,55 +373,63 @@ void Disassembly() //DebuggingInformation
      puts("\n ENTRANCE: Disassembly");
     #endif
 
-    for (uint8_t i = 0; i < sizeof (opcode); i++)
+    printf("-------------------------------------------<+>-------------------------------------------------");
+    printf("\n                                            ¦            Disassembly: vCPU (8-bit's)");
+    printf("\n Address: Opcode (HEX<=>DEC)                ¦       Low-level assembler ¦ High-level assembler");
+    printf("\n-------------------------------------------<+>-------------------------<+>---------------------");
+    for (uint8_t i = 0; i < sizeof (opcode); )
     {
         switch (opcode[i])_rb_
 
         case HLT: // Syntax: Intel / AT&T
-         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[HLT].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
+         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[HLT].symbolic_name, ProcAsciiChr(opcode[i]));
          // Для дизассемблирования
-         ++vIP;
+         ++i;
          // Для интерпретации
          //return 0;
          //break;
 
         case NOP: // Syntax: Intel / AT&T
-         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], table_opcode[NOP].symbolic_name, ProcAsciiChr(vMEMORY[vIP]));
+         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[NOP].symbolic_name, ProcAsciiChr(opcode[i]));
          // Для дизассемблирования
-         ++vIP;
+         ++i;
         break;
 
         case INC: // Syntax: Intel
          printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[INC].symbolic_name, vMEMORY[vIP+1]);
-         vMEMORY[vMEMORY[++vIP]]++; vIP++;
+         // Для дизассемблирования
+         ++i;
+         //vMEMORY[vMEMORY[++vIP]]++;
+         //vIP++;
         break;
 
         case DEC: // Syntax: Intel
          printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[DEC].symbolic_name, vMEMORY[vIP+1]);
-         vMEMORY[vMEMORY[++vIP]]--; vIP++;
+         // Для дизассемблирования
+         ++i;
+         //vMEMORY[vMEMORY[++vIP]]--;
+         //vIP++;
         break;
 
         case JMP: // Syntax: Intel
          printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d            |…| %c%c  ¦",
-          vIP, vMEMORY[vIP], vMEMORY[vIP+1],
-          vIP, vMEMORY[vIP], vMEMORY[vIP+1],
-          table_opcode[JMP].symbolic_name, vMEMORY[vIP+1],
-          ProcAsciiChr(vMEMORY[vIP]), ProcAsciiChr(vMEMORY[vIP+1])
+          i, opcode[i], opcode[i+1], i, opcode[i], opcode[i+1], table_opcode[JMP].symbolic_name, opcode[i+1], ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1])
          );
          // Для дизассемблирования
-         vIP += 2;
+         i += 2;
          // Для интерпретации
          //vIP = vMEMORY[++vIP];
         break;
 
         case MOV:
-         printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c\t|…| %c   ¦",
-          vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
-          vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2],
-          table_opcode[MOV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2], ProcAsciiChr(vMEMORY[vIP+2])
+         printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c\t|…| %c%c%c ¦",
+          i, opcode[i], opcode[i+1], opcode[i+2],
+          i, opcode[i], opcode[i+1], opcode[i+2],
+          table_opcode[MOV].symbolic_name, opcode[i+1], opcode[i+2], ProcAsciiChr(opcode[i+2]),
+          ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1]), ProcAsciiChr(opcode[i+2])
          );
          // Для дизассемблирования
-         vIP += 3;
+         i += 3;
          // Для интерпретации
          // Syntax: Intel
          //vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
@@ -461,22 +471,43 @@ void Disassembly() //DebuggingInformation
         break;
 
         case CMP:
+         // Для дизассемблирования
+         printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d %d\t|…| %c%c%c ¦",
+          i, opcode[i], opcode[i+1], opcode[i+2],
+          i, opcode[i], opcode[i+1], opcode[i+2],
+          table_opcode[CMP].symbolic_name, opcode[i+1], opcode[i+2],
+          ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1]), ProcAsciiChr(opcode[i+2])
+         );
+         i += 3;
+         // Для интерпретации
+         /*
          CF = (vMEMORY[--vIP] == vMEMORY[vIP+=2]);
          vIP += 2;
+         */
         break;
 
         case JE:
+         // Для дизассемблирования
+         printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t|…| %c%c  ¦",
+          i, opcode[i], opcode[i+1], i, opcode[i], opcode[i+1], table_opcode[JE].symbolic_name, opcode[i+1], ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1])
+         );
+         i += 2;
+         // Для интерпретации
+         /*
          switch (CF){
           case 0: vIP = vMEMORY[vIP+=2];
           break;
           case 1: vIP = vMEMORY[++vIP];
          }
+         */
         break;
 
-        default: ++vIP;
-
+        default:
+         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s                 |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[opcode[i]].symbolic_name, ProcAsciiChr(opcode[i]));
+         ++i;
         _eb_
     }
+    printf("\n-------------------------------------------<+>-------------------------<+>---------------------");
 
     #if defined DEBUG
      puts("\n EXIT: Disassembly");
@@ -777,15 +808,8 @@ int main()
         puts("     HEX(16) |  DEC(10)  | ASCII");
         //for (int i = 0; i < 256; i++)
         printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
-
-        printf("-------------------------------------------<+>-----------------------------------------------");
-        printf("\n                                            ¦           Disassembly: vCPU (8-bit's)");
-        printf("\n Address: Opcode (HEX<=>DEC)                ¦     Low-level assembler ¦ High-level assembler");
-        printf("\n-------------------------------------------<+>-----------------------<•>---------------------");
         Disassembly();
         //printf("\n      0F: %02X %02X %02X [DEBUG] 015: %03d %03d %03d\t\t\t  %c%c%c", vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17], vMEMORY[15], vMEMORY[16], vMEMORY[17]);
-        printf("\n-------------------------------------------<+>-----------------------<•>---------------------");
-
         putchar('\n');
         //printf(" SP: %02X | %03d | %c\n", vSP, vSP, ProcAsciiChr(vSP));
         //printf("DI  [%02X]  [%03d]  [%c]\n", vDI, vDI, ProcAsciiChr(vDI));
@@ -808,47 +832,45 @@ int main()
         _rb_
 
         case 0:
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
-            ch = _getch();
-            //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-            switch (ch)
-            _rb_
+         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+         ch = _getch();
+         //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+         switch (ch)_rb_
 
-            case '<': StepBack(); // Шаг назад
-            break;
+         case '<': StepBack(); // Шаг назад
+         break;
 
-            case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
-            break;
+         case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+         break;
 
-            case '>': StepNext(); // Шаг вперёд
-            break;
+         case '>': StepNext(); // Шаг вперёд
+         break;
 
-            default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-
-            _eb_
+         default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+         _eb_
         break;
 
         case 27: // 1B | 027 | ·  <ESC>
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
-            return 0;
+         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+         return 0;
 
         case '<': puts("\n Такая клавиша не определена.");
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
-            break;
+         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        break;
 
         case '=': puts("\n Такая клавиша не определена.");
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
-            break;
+         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        break;
 
         case '>': puts("\n Такая клавиша не определена.");
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-            Execute(ch); // Launch
-            ShowDashboard();
-            break;
+         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+         Execute(ch); // Launch
+         ShowDashboard();
+        break;
 
         default:
-            puts("\n Такая клавиша не определена.");
-            break;
+         puts("\n Такая клавиша не определена.");
+        break;
         // 0D | 013 | ·  <ENTER>
         // E0 | 224 | а  <F11-F12>
         _eb_
