@@ -7,7 +7,7 @@
 //
 const char attic[] =
 "\
-// <!-- %s v.0.1 (Encoding: Windows-1251) -->\n\
+// <!-- %s (Encoding: Windows-1251) -->\n\
 \n\
 #include <locale.h>\n\
 #include <stdio.h>\n\
@@ -32,21 +32,25 @@ int main()
     setlocale(0, "");
     //
     file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\interpreter.c", "w");
-    fprintf(file, attic, "Interpreter C$");
+    fprintf(file, attic, "Interpreter C$ v.0.1");
     fprintf(file,
      "\tprintf(\"%%d\", argc);"
     );
     fprintf(file, basement);
     fclose(file);
     file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.c", "w"); // C-style
+    fprintf(file, attic, "C-style");
+    fprintf(file, basement);
     fclose(file);
     file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.py", "w"); // Python style
+    fprintf(file, "print(\"2 + 2 * 2 = \", 2 + 2 * 2)");
     fclose(file);
     file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.lua", "w"); // Lua style
+    fprintf(file, "print(\"2 + 2 * 2 = \", 2 + 2 * 2)");
     fclose(file);
 
     file = fopen("src\\programs\\written in C\\Compiler\\v.0.1\\compiler.c", "w");
-    fprintf(file, attic, "Compiler C$");
+    fprintf(file, attic, "Compiler C$ v.0.1");
     fprintf(file,
      "\tprintf(\"%%d\", argc);"
     );
@@ -54,7 +58,7 @@ int main()
     fclose(file);
 
     file = fopen("src\\programs\\written in C\\VM\\v.0.1\\vm.c", "w");
-    fprintf(file, attic, "Virtual Machine C$");
+    fprintf(file, attic, "Virtual Machine C$ v.0.1");
     fprintf(file,
      "\tprintf(\"%%d\", argc);"
     );
