@@ -712,8 +712,8 @@ void LoadingProgramIntoMemory()
      puts("\n EXIT: LoadingProgramIntoMemory");
     #endif
 }
-// 1 parent b20f142 commit 3b5d72d
-int main()
+
+int main(int argc, char *argv[])
 {
     setlocale(0, "");
     /*
