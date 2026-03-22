@@ -15,10 +15,12 @@ const char attic[] =
 int main(int argc, char *argv[])\n\
 {\n\
     setlocale(0, \"\");\n\
+    //\n\
 ";
 //
 const char basement[] =
-"\
+"\n\
+    //\n\
     return 0;\n\
 }\
 ";
@@ -31,19 +33,31 @@ int main()
     //
     file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\interpreter.c", "w");
     fprintf(file, attic, "Interpreter C$");
-    fprintf(file, "    // ... //\n");
+    fprintf(file,
+     "\tprintf(\"%%d\", argc);"
+    );
     fprintf(file, basement);
+    fclose(file);
+    file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.c", "w"); // C-style
+    fclose(file);
+    file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.py", "w"); // Python style
+    fclose(file);
+    file = fopen("src\\programs\\written in C\\Interpreter\\v.0.1\\_.lua", "w"); // Lua style
     fclose(file);
 
     file = fopen("src\\programs\\written in C\\Compiler\\v.0.1\\compiler.c", "w");
     fprintf(file, attic, "Compiler C$");
-    fprintf(file, "    // ... //\n");
+    fprintf(file,
+     "\tprintf(\"%%d\", argc);"
+    );
     fprintf(file, basement);
     fclose(file);
 
     file = fopen("src\\programs\\written in C\\VM\\v.0.1\\vm.c", "w");
     fprintf(file, attic, "Virtual Machine C$");
-    fprintf(file, "    // ... //\n");
+    fprintf(file,
+     "\tprintf(\"%%d\", argc);"
+    );
     fprintf(file, basement);
     fclose(file);
     //
