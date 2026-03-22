@@ -716,6 +716,9 @@ void LoadingProgramIntoMemory()
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
+
+    printf("argc = %d", argc);
+    for (int i = 0; i < argc; i++) printf("argv[%d] = %s", i, argv[i]);
     /*
     // 1. Устанавливаем кодировку Windows-1251 для кириллицы
     SetConsoleCP(1251);
