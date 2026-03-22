@@ -6,5 +6,6 @@
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
+    // ... //
     return 0;
 }
