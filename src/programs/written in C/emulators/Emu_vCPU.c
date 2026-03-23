@@ -175,6 +175,7 @@ void DeletingCommentsAndDeployingMacros(const char * text)
 }
 
 char labels[0xF][0xFF];
+uint8_t count_labels = 0xFF;
 // Только развёртка макросов
 void DeployingMacros(const char * text)
 {
@@ -187,40 +188,57 @@ void DeployingMacros(const char * text)
 
     // Однопроходная (сбор меток + подстановка адресов //
     _1_run: switch (text[idx__text])
-    _rb_
+    switch_run
     case '\0': goto _1_end;
     case 'J': // проверить следующие два символа, возможно JMP
     {
-        ++idx__text;
+        printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
+        processed_text[++idx__processed_text] = text[idx__text++];
+        //++idx__text;
         switch (text[idx__text])
         switch_run
         case '\0': goto _1_end;
         case 'M': // проверить следующий символ, возможно JMP
         {
-            ++idx__text;
+            printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
+            processed_text[++idx__processed_text] = text[idx__text++];
+            //++idx__text;
             switch (text[idx__text])
             switch_run
             case '\0': goto _1_end;
             case 'P': // проверить след. символ, необходим отступ/пробел
             {
-                ++idx__text;
+                printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
+                processed_text[++idx__processed_text] = text[idx__text++];
+                //++idx__text;
                 switch (text[idx__text])
                 switch_run
                 case '\0': goto _1_end;
                 case ' ':
-                    ++idx__text; // пока мы не знаем метка находится выше или ниже
+                    printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
+                    processed_text[++idx__processed_text] = text[idx__text++];
+                    printf("\n Обработанные данные: \"%s\"", processed_text);
+                    //++idx__text; // пока мы не знаем метка находится выше или ниже
                     // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
-                default: goto _1_run; // если не ' ' !
+                default:
+                {
+                    processed_text[++idx__processed_text] = text[idx__text++];
+                    goto _1_run; // если не ' ' !
+                }
                 switch_end
             }
             default:
             {
-                --idx__text;
+                processed_text[++idx__processed_text] = text[idx__text++];
                 goto _1_run; // если не 'P' !
             }
             switch_end
         }
-        default: goto _1_run; // если не 'M' !
+        default: // не макрос, записываем как есть!
+        {
+            processed_text[++idx__processed_text] = text[idx__text++];
+            goto _1_run; // если не 'M' !
+        }
         switch_end
     }
     case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
@@ -229,21 +247,20 @@ void DeployingMacros(const char * text)
         uint8_t addr_labels = idx__text; // запомним адрес конца метки
         uint8_t idx__labels = 0xFF;
         --idx__text;
-        // Первый цикл //
+        // идём обратным ходом, ... //
         _2_run: switch (text[idx__text])
         switch_run
         case '\0': goto _1_end;
-        case ' ': // идём обратным ходом, пока не будет обнаружен отступ/пробел означающий начало метки
+        case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
             labels[0][++idx__labels] = '\0';
             idx__labels = 0xFF;
-            printf("\n\tМЕТКА \"%s\" ПОЙМАНА!\n", labels[0]);
-            --idx__text;
+            printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
+            idx__text += addr_labels;
             goto _1_run;
         default: // идём по метке
-            labels[0][++idx__labels] = text[idx__text--];
+            labels[count_labels][++idx__labels] = text[idx__text--];
             goto _2_run;
         switch_end
-        return;
         goto _1_run;
     }
     default: // не макрос, записываем как есть!
@@ -251,7 +268,7 @@ void DeployingMacros(const char * text)
         processed_text[++idx__processed_text] = text[idx__text++];
         goto _1_run;
     }
-    _eb_ _1_end:
+    switch_end _1_end:
     processed_text[++idx__processed_text] = '\0';
 
     // Двухпроходная (сначала сбор меток, затем подстановка адресов) //
