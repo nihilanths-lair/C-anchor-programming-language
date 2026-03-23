@@ -13,6 +13,9 @@
 #define _rb_ {
 #define _eb_ }
 
+#define case_run {
+#define case_end }
+
 //uint8_t str_format[0xFF];
 
 uint8_t vIP; uint16_t vEIP;
@@ -54,25 +57,8 @@ enum UppercaseLetters // Заглавные буквы
 };
 enum LowercaseLetters // Строчные буквы
 {
-    hlt,
-    nop = 0x90,//144
-    inc = 2, dec,
-    //
-    // Безусловный переход
-    jmp,
-    //
-    mov,
-    //
-    // Арифметические операции
-    add, sub, mul, _div,
-    //
-    // Операция сравнения
-    cmp,
-    //
-    // Условный переход
-    je,
-    //
-    _int,
+    hlt, nop = 0x90,/*144*/inc = 2, dec, jmp, mov,
+    add, sub, mul, _div, cmp, je, _int,
     //push
 };
 
@@ -192,8 +178,39 @@ void DeployingMacros(const char * text)
      puts("\n ENTRANCE: DeployingMacros");
     #endif
 
+    //idx__processed_text = 0-1;
+    uint8_t idx__text = 0;
+
+    char labels[0xF][0xFF];
+
     // Однопроходная (сбор меток + подстановка адресов //
-    // ... //
+    _1_run: switch (text[idx__text])_rb_
+    case '\0': goto _1_end;
+    case 'J': // проверить следующие два символа, возможно JMP
+    {
+        ++idx__text;
+        switch (text[idx__text])_rb_
+        case '\0': goto _1_end;
+        case 'M': // проверить следующий символ, возможно JMP
+            ++idx__text;
+            switch (text[idx__text])_rb_
+            case '\0': goto _1_end;
+            case 'P': // проверить след. символ, необходим отступ/пробел
+                ++idx__text;
+                switch (text[idx__text])_rb_
+                case '\0': goto _1_end;
+                case ' ':
+                    ++idx__text; // пока мы не знаем метка находится выше или ниже
+                    // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
+                _eb_
+            _eb_
+        _eb_
+    }
+    case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
+    {
+
+    }
+    _eb_ _1_end:
 
     // Двухпроходная (сначала сбор меток, затем подстановка адресов) //
     // ... //
@@ -725,7 +742,8 @@ int main(int argc, char *argv[])
     SetConsoleOutputCP(1251);
     */
 
-    //Compile(); return 0;
+    //const char params[] = "-E";
+    Compile(); return 0;
 
     char cmd[128+sizeof(char)];
 
