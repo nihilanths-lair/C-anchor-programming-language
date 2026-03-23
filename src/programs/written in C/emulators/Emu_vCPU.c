@@ -13,6 +13,9 @@
 #define _rb_ {
 #define _eb_ }
 
+#define switch_run {
+#define switch_end }
+
 #define case_run {
 #define case_end }
 
@@ -89,7 +92,7 @@ uint8_t opcode[] =
 
 char ProcAsciiChr(uint8_t chr)
 {
-    switch (chr)_rb_
+    switch (chr) switch_run
     case '\0': return '·'; // ··0
     case 0x01: return '·'; // ··1
     case 0x02: return '·'; // ··2
@@ -122,7 +125,7 @@ char ProcAsciiChr(uint8_t chr)
     // C0-DF или 192-223: А-Я
     // E0-FF или 224-255: а-я
     default: return chr;
-    _eb_
+    switch_end
 }
 
 /// ... ///
@@ -171,6 +174,7 @@ void DeletingCommentsAndDeployingMacros(const char * text)
     printf("\n>> DeletingCommentsAndDeployingMacros()\n");
 }
 
+char labels[0xF][0xFF];
 // Только развёртка макросов
 void DeployingMacros(const char * text)
 {
@@ -178,39 +182,77 @@ void DeployingMacros(const char * text)
      puts("\n ENTRANCE: DeployingMacros");
     #endif
 
-    //idx__processed_text = 0-1;
+    idx__processed_text = 0-1;
     uint8_t idx__text = 0;
 
-    char labels[0xF][0xFF];
-
     // Однопроходная (сбор меток + подстановка адресов //
-    _1_run: switch (text[idx__text])_rb_
+    _1_run: switch (text[idx__text])
+    _rb_
     case '\0': goto _1_end;
     case 'J': // проверить следующие два символа, возможно JMP
     {
         ++idx__text;
-        switch (text[idx__text])_rb_
+        switch (text[idx__text])
+        switch_run
         case '\0': goto _1_end;
         case 'M': // проверить следующий символ, возможно JMP
+        {
             ++idx__text;
-            switch (text[idx__text])_rb_
+            switch (text[idx__text])
+            switch_run
             case '\0': goto _1_end;
             case 'P': // проверить след. символ, необходим отступ/пробел
+            {
                 ++idx__text;
-                switch (text[idx__text])_rb_
+                switch (text[idx__text])
+                switch_run
                 case '\0': goto _1_end;
                 case ' ':
                     ++idx__text; // пока мы не знаем метка находится выше или ниже
                     // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
-                _eb_
-            _eb_
-        _eb_
+                default: goto _1_run; // если не ' ' !
+                switch_end
+            }
+            default:
+            {
+                --idx__text;
+                goto _1_run; // если не 'P' !
+            }
+            switch_end
+        }
+        default: goto _1_run; // если не 'M' !
+        switch_end
     }
     case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
     {
-
+        printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx__text);
+        uint8_t addr_labels = idx__text; // запомним адрес конца метки
+        uint8_t idx__labels = 0xFF;
+        --idx__text;
+        // Первый цикл //
+        _2_run: switch (text[idx__text])
+        switch_run
+        case '\0': goto _1_end;
+        case ' ': // идём обратным ходом, пока не будет обнаружен отступ/пробел означающий начало метки
+            labels[0][++idx__labels] = '\0';
+            idx__labels = 0xFF;
+            printf("\n\tМЕТКА \"%s\" ПОЙМАНА!\n", labels[0]);
+            --idx__text;
+            goto _1_run;
+        default: // идём по метке
+            labels[0][++idx__labels] = text[idx__text--];
+            goto _2_run;
+        switch_end
+        return;
+        goto _1_run;
+    }
+    default: // не макрос, записываем как есть!
+    {
+        processed_text[++idx__processed_text] = text[idx__text++];
+        goto _1_run;
     }
     _eb_ _1_end:
+    processed_text[++idx__processed_text] = '\0';
 
     // Двухпроходная (сначала сбор меток, затем подстановка адресов) //
     // ... //
