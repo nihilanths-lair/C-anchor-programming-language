@@ -191,7 +191,8 @@ void DeployingMacros(const char * text)
     uint8_t idx__text = 0;
 
     // Однопроходная (сбор меток + подстановка адресов //
-    _1_run: switch (text[idx__text])
+    _1_run:
+    switch (text[idx__text])
     switch_open
     case '\0': goto _1_end;
     case 'J': // проверить следующие два символа, возможно JMP
@@ -252,18 +253,23 @@ void DeployingMacros(const char * text)
         uint8_t idx__labels = 0xFF;
         --idx__text;
         // идём обратным ходом, ... //
-        _2_run: switch (text[idx__text])
+        _2_run:
+        switch (text[idx__text])
         switch_open
         case '\0': goto _1_end;
         case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
+        {
             labels[0][++idx__labels] = '\0';
             idx__labels = 0xFF;
             printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
             idx__text += addr_labels;
             goto _1_run;
+        }
         default: // идём по метке
+        {
             labels[count_labels][++idx__labels] = text[idx__text--];
             goto _2_run;
+        }
         switch_close
         goto _1_run;
     }
@@ -301,6 +307,7 @@ void DeletingComments(const char * text)
     switch_open
     case '\0': goto _1_end;
     case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
+    {
         _4_run:
         switch (text[++idx__text])
         switch_open
@@ -316,6 +323,7 @@ void DeletingComments(const char * text)
             goto _1_run;
         }
         switch_close
+    }
     case ';': // Начало однострочного или многострочного комментария?
     {
         switch (text[++idx__text])
@@ -336,9 +344,7 @@ void DeletingComments(const char * text)
             { 
                 switch (text[++idx__text])
                 switch_open
-                case '\0':
-                    //printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
-                    goto _1_end;
+                case '\0': goto _1_end;
                 case ';': // Конец многострочного комментария
                 {
                     printf("\n'-;' - №%d №%d", idx__text-1, idx__text);
