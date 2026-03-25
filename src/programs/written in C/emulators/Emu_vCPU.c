@@ -62,9 +62,14 @@ enum LowercaseLetters // Строчные буквы
 struct TableOpcode {
     //unsigned char identifier;
     uint8_t opcode;
-    char symbolic_name[0x0F+1];
-    
+    char symbolic_name[0x0F+1]; 
 } table_opcode[0xFF];
+
+struct CompilationError {
+    uint8_t row_position;
+    uint8_t column_position;
+    uint8_t binary_position;
+} compilation_error = {1, 1, 0};
 
 //uint8_t slider = 0;
 uint8_t step = 0;
