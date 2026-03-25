@@ -874,6 +874,7 @@ int main(int argc, char *argv[])
     switch_close
 
     //Generator(); // не проверяет на наличие ошибок, просто делает обычную замену макросов или удаляет комментарии, либо делает и то, и другое - одновременно
+    //Converter(); // преобразователь
     //Transpilation();
     //Translator(); // переводчик
     //const char params[] = "-E";
@@ -904,24 +905,25 @@ int main(int argc, char *argv[])
         if (!strcmp(cmd, "!cmdlist"))
         {
             puts("\n Список команд:");
-            printf("\n1] !compile file_name");
+            printf("\n1] !compile input_file output_file");
             printf("\n2] !execute");
         }
         else if (!strcmp(cmd, "!compile"))
         {
-            char *filename = Strtok(input, &idx); // Чтобы получить 2-й аргумент (имя файла), вызываем Strtok еще раз!
-            if (filename != NULL)
+            char *input_file = Strtok(input, &idx); // 2-й аргумент: входной файл
+            if (input_file == NULL)
             {
-                // Получаем третий аргумент командной строки
-                char *output_file = Strtok(input, &idx); // выходной файл
-                if (output_file != NULL)
-                {
-                    printf("output_file = \"%s\"", output_file);
-                }
-                else printf(" Ошибка: Введите имя выходного файла!\n");
-                //printf("Компиляция файла: %s\n", filename);
+                printf(" Ошибка: Введите имя входного файла!\n");
+                continue;
             }
-            else printf(" Ошибка: Введите имя входного файла!\n");
+            char *output_file = Strtok(input, &idx); // 3-й аргумент: выходной файл
+            if (output_file == NULL)
+            {
+                printf(" Ошибка: Введите имя выходного файла!\n");
+                continue;
+            }
+            printf("output_file = \"%s\"", output_file);
+            //printf("Компиляция файла: %s\n", filename);
         }
         //else if (!strcmp(cmd, "/execute")){}
         else
