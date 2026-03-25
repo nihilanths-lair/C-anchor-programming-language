@@ -718,13 +718,14 @@ void Execute() // Launch
 uint8_t data[0xFF] = "";
 uint8_t ptr_data = 0xFF;
 //
-const char Compile()
+char Compile(const char *file_name, const char *params)
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: Compile");
+     printf("\n ENTRANCE: Compile(\"%s\")", file_name);
     #endif
 
-    FILE *desc = fopen("_.asm", "rb"); // Считываем с файла
+    /// Начало компиляции
+    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
     if (desc == NULL)
     {
         printf("Ошибка открытия файла.");
@@ -738,6 +739,7 @@ const char Compile()
     fclose(desc);
     printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
     Preprocessing(data, 2, file_size);
+    /// Конец компиляции
 
     #if !defined DEBUG
      puts("\n EXIT: Compile");
@@ -829,22 +831,105 @@ void LoadingProgramIntoMemory()
     #endif
 }
 
+// 1. Возвращаем указатель на char (char*), а не один символ (char)
+// 2. Вместо ссылки (&) используем указатель (*index)
+char *Strtok(const char *string, int *index)
+{
+    int length = strlen(string);
+    while ((*index < length) && (string[*index] <= ' ')) (*index)++;
+
+    int offset = *index;
+    static char result[128];
+    result[0] = '\0';
+
+    while ((*index < length) && (string[*index] > ' ') && ((*index - offset) < (sizeof (result) - 1)))
+    {
+        result[*index - offset] = string[*index];
+        (*index)++;
+    }
+    result[*index - offset] = '\0';
+
+    if (offset == *index) return NULL;
+    return result;
+}
+
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
-
-    printf("argc = %d", argc);
-    for (int i = 0; i < argc; i++) printf("argv[%d] = %s", i, argv[i]);
     /*
     // 1. Устанавливаем кодировку Windows-1251 для кириллицы
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     */
+    printf("argc = %d", argc);
+    for (int i = 0; i < argc; i++) printf("argv[%d] = %s", i, argv[i]);
 
+    bool taking_into_account_errors = true; // с учётом ошибок?
+    switch (taking_into_account_errors)
+    switch_open
+    case false:
+    { break; }
+    case true:
+    { break; }
+    switch_close
+
+    //Generator(); // не проверяет на наличие ошибок, просто делает обычную замену макросов или удаляет комментарии, либо делает и то, и другое - одновременно
+    //Transpilation();
+    //Translator(); // переводчик
     //const char params[] = "-E";
-    Compile(); return 0;
+    /** Варианты компиляции (сама по себе компиляция предполагает наличие проверок на ошибки[*, но можно отключить*^тогда скорее это будет уже не компиляция, а генерация]) */
+    // 1a. Из dec/hex или bin представления в машинный код, без проверок ошибок
+    // 1b. Из dec/hex или bin представления в машинный код, с проверкой ошибок
+    // 1. Из языка ассемблера в машинный код
+    //Compile("_.asm"); return 0;
 
-    char cmd[128+sizeof(char)];
+    char input[128];
+    char cmd[128];
+
+    //printf("\nДля отображения списка команд введите: !cmdlist");
+    while (true)
+    {
+        printf("\nДля отображения списка команд введите: !cmdlist");
+        printf("\n_"); // Приглашение к вводу
+        if (fgets(input, sizeof(input), stdin) == NULL) break;
+        input[strcspn(input, "\r\n")] = '\0'; // Удаляем перевод строки
+
+        int idx = 0; // Инициализируем индекс нуля для каждого ввода
+        char *cmd = Strtok(input, &idx); // Получаем первое слово (команду)
+        if (cmd == NULL) goto unknown_command; // Если ничего не ввели
+
+        // Копируем команду в отдельный буфер, если нужно сохранить
+        //strcpy(first_word, cmd);
+        /** background information :: справочная информация */
+        if (!strcmp(cmd, "!cmdlist"))
+        {
+            puts("\n Список команд:");
+            printf("\n1] !compile file_name");
+            printf("\n2] !execute");
+        }
+        else if (!strcmp(cmd, "!compile"))
+        {
+            char *filename = Strtok(input, &idx); // Чтобы получить 2-й аргумент (имя файла), вызываем Strtok еще раз!
+            if (filename != NULL)
+            {
+                // Получаем третий аргумент командной строки
+                char *output_file = Strtok(input, &idx); // выходной файл
+                if (output_file != NULL)
+                {
+                    printf("output_file = \"%s\"", output_file);
+                }
+                else printf(" Ошибка: Введите имя выходного файла!\n");
+                //printf("Компиляция файла: %s\n", filename);
+            }
+            else printf(" Ошибка: Введите имя входного файла!\n");
+        }
+        //else if (!strcmp(cmd, "/execute")){}
+        else
+        {
+            unknown_command:
+            printf("\nНеизвестная команда: \"%s\"", cmd);
+        }
+    }
 
     // Инициализация vCPU
     vIP = 0;
@@ -893,8 +978,7 @@ int main(int argc, char *argv[])
     table_opcode[NOP].opcode = 0x90; // .. = 144
     strcpy(table_opcode[NOP].symbolic_name, "NOP");
 
-    //puts("\nДля отображения списка команд введите: /cmdlist");
-    _0: while (true)
+    while (true)
     {
         printf("\n Шаг: %d\n", step);
         puts("     HEX(16) |  DEC(10)  | ASCII");
@@ -970,21 +1054,6 @@ int main(int argc, char *argv[])
         // 0D | 013 | ·  <ENTER>
         // E0 | 224 | а  <F11-F12>
         switch_close
-        goto _0;
-
-        fgets(cmd, sizeof (cmd), stdin); // fgets считывает строку включая пробелы и '\n'
-        cmd[strcspn(cmd, "\n")] = '\0';  // Удаляем символ переноса строки '\n', если он есть
-
-        if (!strcmp(cmd, "/cmdlist"))
-        {
-            puts("\nСписок команд:");
-            printf("\n2] /compile");
-            printf("\n3] /execute");
-            putchar('\n');
-        }
-        else if (!strcmp(cmd, "/compile")) Compile();
-        else if (!strcmp(cmd, "/execute")) Execute(0); // Launch
-        else printf("Неизвестная/неопознанная команда...");
     }
     return 0;
 }
