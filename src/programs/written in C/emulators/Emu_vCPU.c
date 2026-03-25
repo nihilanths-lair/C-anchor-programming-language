@@ -10,15 +10,6 @@
 #include <windows.h>
 #endif
 
-#define _rb_ {
-#define _eb_ }
-
-#define switch_run {
-#define switch_end }
-
-#define case_run {
-#define case_end }
-
 #define switch_open {
 #define switch_close }
 
