@@ -19,6 +19,9 @@
 #define case_run {
 #define case_end }
 
+#define switch_open {
+#define switch_close }
+
 //uint8_t str_format[0xFF];
 
 uint8_t vIP; uint16_t vEIP;
@@ -90,9 +93,10 @@ uint8_t opcode[] =
     HLT
 };
 
-char ProcAsciiChr(uint8_t chr)
+const char ProcAsciiChr(uint8_t chr)
 {
-    switch (chr) switch_run
+    switch (chr)
+    switch_open
     case '\0': return '·'; // ··0
     case 0x01: return '·'; // ··1
     case 0x02: return '·'; // ··2
@@ -125,7 +129,7 @@ char ProcAsciiChr(uint8_t chr)
     // C0-DF или 192-223: А-Я
     // E0-FF или 224-255: а-я
     default: return chr;
-    switch_end
+    switch_close
 }
 
 /// ... ///
@@ -188,7 +192,7 @@ void DeployingMacros(const char * text)
 
     // Однопроходная (сбор меток + подстановка адресов //
     _1_run: switch (text[idx__text])
-    switch_run
+    switch_open
     case '\0': goto _1_end;
     case 'J': // проверить следующие два символа, возможно JMP
     {
@@ -196,7 +200,7 @@ void DeployingMacros(const char * text)
         processed_text[++idx__processed_text] = text[idx__text++];
         //++idx__text;
         switch (text[idx__text])
-        switch_run
+        switch_open
         case '\0': goto _1_end;
         case 'M': // проверить следующий символ, возможно JMP
         {
@@ -204,7 +208,7 @@ void DeployingMacros(const char * text)
             processed_text[++idx__processed_text] = text[idx__text++];
             //++idx__text;
             switch (text[idx__text])
-            switch_run
+            switch_open
             case '\0': goto _1_end;
             case 'P': // проверить след. символ, необходим отступ/пробел
             {
@@ -212,7 +216,7 @@ void DeployingMacros(const char * text)
                 processed_text[++idx__processed_text] = text[idx__text++];
                 //++idx__text;
                 switch (text[idx__text])
-                switch_run
+                switch_open
                 case '\0': goto _1_end;
                 case ' ':
                     printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
@@ -225,21 +229,21 @@ void DeployingMacros(const char * text)
                     processed_text[++idx__processed_text] = text[idx__text++];
                     goto _1_run; // если не ' ' !
                 }
-                switch_end
+                switch_close
             }
             default:
             {
                 processed_text[++idx__processed_text] = text[idx__text++];
                 goto _1_run; // если не 'P' !
             }
-            switch_end
+            switch_close
         }
         default: // не макрос, записываем как есть!
         {
             processed_text[++idx__processed_text] = text[idx__text++];
             goto _1_run; // если не 'M' !
         }
-        switch_end
+        switch_close
     }
     case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
     {
@@ -249,7 +253,7 @@ void DeployingMacros(const char * text)
         --idx__text;
         // идём обратным ходом, ... //
         _2_run: switch (text[idx__text])
-        switch_run
+        switch_open
         case '\0': goto _1_end;
         case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
             labels[0][++idx__labels] = '\0';
@@ -260,7 +264,7 @@ void DeployingMacros(const char * text)
         default: // идём по метке
             labels[count_labels][++idx__labels] = text[idx__text--];
             goto _2_run;
-        switch_end
+        switch_close
         goto _1_run;
     }
     default: // не макрос, записываем как есть!
@@ -268,7 +272,7 @@ void DeployingMacros(const char * text)
         processed_text[++idx__processed_text] = text[idx__text++];
         goto _1_run;
     }
-    switch_end _1_end:
+    switch_close _1_end:
     processed_text[++idx__processed_text] = '\0';
 
     // Двухпроходная (сначала сбор меток, затем подстановка адресов) //
@@ -292,72 +296,112 @@ void DeletingComments(const char * text)
     //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
     //int number_of_opening_multiline_comments = 0;  // number_of_multiline_comments
 
-    _1_run: switch (text[++idx__text]){
+    _1_run:
+    switch (text[++idx__text])
+    switch_open
     case '\0': goto _1_end;
     case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
-        _4_run: switch (text[++idx__text]){
+        _4_run:
+        switch (text[++idx__text])
+        switch_open
         case '\0': goto _1_end;
         case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
+        {
             printf("\nError: Missing opening multi-line comment!");
             goto _1_end;
+        }
         default: // Это не комментарий
+        {
             processed_text[++idx__processed_text] = text[--idx__text];
             goto _1_run;
         }
+        switch_close
     case ';': // Начало однострочного или многострочного комментария?
-        switch (text[++idx__text]){
+    {
+        switch (text[++idx__text])
+        switch_open
         case '\0': goto _1_end;
         case '-': // Начало многострочного комментария
+        {
             printf("\n';-' - №%d №%d", idx__text-1, idx__text);
-            _2_run: switch (text[++idx__text]){
+            _2_run:
+            switch (text[++idx__text])
+            switch_open
             case '\0': // Выдать ошибку на этапе препроцессинга об отсутствии закрывающего многострочного комментария.
+            {
                 printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
                 goto _1_end;
-            case '-': 
-                switch (text[++idx__text]){
+            }
+            case '-':
+            { 
+                switch (text[++idx__text])
+                switch_open
                 case '\0':
                     //printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
                     goto _1_end;
                 case ';': // Конец многострочного комментария
+                {
                     printf("\n'-;' - №%d №%d", idx__text-1, idx__text);
-                    switch (text[++idx__text]){
+                    switch (text[++idx__text])
+                    switch_open
                     case '\0': goto _1_end;
                     case '\r':
+                    {
                         printf("\n'\\r' - №%d", idx__text);
-                        switch (text[++idx__text]){
+                        switch (text[++idx__text])
+                        switch_open
                         case '\0': goto _1_end;
                         case '\n':
+                        {
                             printf("\n'\\n' - №%d", idx__text);
                             goto _1_run;
-                        default: goto _1_run;
                         }
-                    default: goto _1_run; // Конец многострочного комментария
+                        default: goto _1_run;
+                        switch_close
                     }
-                default: goto _2_run; // Пропускаем многострочный комментарий
+                    default: goto _1_run; // Конец многострочного комментария
+                    switch_close
                 }
-            default: goto _2_run; // Пропускаем многострочный комментарий
+                default: goto _2_run; // Пропускаем многострочный комментарий
+                switch_close
             }
+            default: goto _2_run; // Пропускаем многострочный комментарий
+            switch_close
+        }
         default: // Начало однострочного комментария
+        {
             printf("\n';' - №%d", idx__text);
-            _3_run: switch (text[++idx__text]){
+            _3_run:
+            switch (text[++idx__text])
+            switch_open
             case '\0': goto _1_end;
             case '\r': // Конец однострочного комментария?
+            {
                 processed_text[++idx__processed_text] = text[idx__text];
-                switch (text[++idx__text]){
+                switch (text[++idx__text])
+                switch_open
                 case '\0': goto _1_end;
                 case '\n': // Конец однострочного комментария
+                {
                     processed_text[++idx__processed_text] = text[idx__text];
                     goto _1_run;
-                default: goto _3_run; // Не конец однострочного комментария
                 }
-            default: goto _3_run; // Пропускаем однострочный комментарий
+                default: goto _3_run; // Не конец однострочного комментария
+                switch_close
             }
+            default: goto _3_run; // Пропускаем однострочный комментарий
+            switch_close
         }
+        switch_close
         goto _1_run;
+    }
     default: // Не комментарий
+    {
         processed_text[++idx__processed_text] = text[idx__text];
         goto _1_run;
-    }_1_end:
+    }
+    switch_close
+    _1_end:
     processed_text[++idx__processed_text] = '\0';
 
     #if !defined DEBUG
@@ -383,21 +427,14 @@ void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_si
     putchar('\n');
 
     switch (preprocessing_type)
-    _rb_
-
-    case 1:
-     DeletingComments(text); // Только удаление комментариев
+    switch_open
+    case 1: DeletingComments(text); // Только удаление комментариев
     break;
-
-    case 2:
-     DeployingMacros(text); // Только развёртка макросов
+    case 2: DeployingMacros(text); // Только развёртка макросов
     break;
-    
-    case 3:
-     DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
+    case 3: DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
     break;
-
-    _eb_
+    switch_close
 
     printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
     for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
@@ -427,7 +464,8 @@ void Disassembly() //DebuggingInformation
     printf("\n-------------------------------------------<+>-------------------------<+>---------------------");
     for (uint8_t i = 0; i < sizeof (opcode); )
     {
-        switch (opcode[i])_rb_
+        switch (opcode[i])
+        switch_open
 
         case HLT: // Syntax: Intel / AT&T
          printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[HLT].symbolic_name, ProcAsciiChr(opcode[i]));
@@ -553,7 +591,8 @@ void Disassembly() //DebuggingInformation
         default:
          printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s                 |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[opcode[i]].symbolic_name, ProcAsciiChr(opcode[i]));
          ++i;
-        _eb_
+        
+        switch_close
     }
     printf("\n-------------------------------------------<+>-------------------------<+>---------------------");
 
@@ -598,7 +637,7 @@ void StepNext()
     #endif
 
     switch (vMEMORY[vIP])
-    _rb_
+    switch_open
 
     case INC:
      vMEMORY[vMEMORY[++vIP]]++;
@@ -651,7 +690,7 @@ void StepNext()
      }
     //break;
 
-    _eb_
+    switch_close
     step++;
 
     #if defined DEBUG
@@ -712,7 +751,8 @@ void ShowDashboard()
      puts("\n ENTRANCE: ShowDashboard");
     #endif
 
-    switch (0)_rb_
+    switch (0)
+    switch_open
     case 0:
     {
         printf("\n MEMORY (HEX | DEC | ASCII)\n    ");
@@ -731,8 +771,8 @@ void ShowDashboard()
             printf("   ");
             for (int i = 0; i < 0x0F+1; i++) printf("%c", ProcAsciiChr(vMEMORY[j*0x10+i]));
         }
+        break;
     }
-    break;
     case 10:
     {
         printf("MEMORY (DEC)\n     ");
@@ -742,8 +782,8 @@ void ShowDashboard()
             printf("\n[%03d]", j * (0x0F + 1));
             for (int i = 0; i < 0x0F+1; i++) printf(" %03d ", vMEMORY[i]);
         }
+        break;
     }
-    break;
     case 16:
     {
         printf("MEMORY (HEX)\n    ");
@@ -753,7 +793,8 @@ void ShowDashboard()
             printf("\n[%02X]", j * (0x0F + 1));
             for (int i = 0; i < 0x0F+1; i++) printf(" %02X ", vMEMORY[i]);
         }
-    }_eb_
+    }
+    switch_close
     putchar('\n');
 
     #if defined DEBUG
@@ -881,29 +922,28 @@ int main(int argc, char *argv[])
         );
         uint8_t ch = _getch();
         switch (ch)
-        _rb_
-
+        switch_open
         case 0:
-         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
-         ch = _getch();
-         //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-         switch (ch)_rb_
+        {
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            ch = _getch();
+            //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            switch (ch)
+            switch_open
 
-         case '<':
-          StepBack(); // Шаг назад
-         break;
+            case '<': StepBack(); // Шаг назад
+            break;
 
-         case '=':
-          for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
-         break;
+            case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+            break;
 
-         case '>':
-          StepNext(); // Шаг вперёд
-         break;
+            case '>': StepNext(); // Шаг вперёд
+            break;
 
-         default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-         _eb_
-        break;
+            default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            switch_close
+            break;
+        }
 
         case 27: // 1B | 027 | ·  <ESC>
          //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
@@ -917,18 +957,20 @@ int main(int argc, char *argv[])
          //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
         break;
 
-        case '>': puts("\n Такая клавиша не определена.");
-         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
-         Execute(ch); // Launch
-         ShowDashboard();
-        break;
+        case '>':
+        {
+            puts("\n Такая клавиша не определена.");
+            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            Execute(ch); // Launch
+            ShowDashboard();
+            break;
+        }
 
-        default:
-         puts("\n Такая клавиша не определена.");
-        break;
+        default: puts("\n Такая клавиша не определена.");
+        //break;
         // 0D | 013 | ·  <ENTER>
         // E0 | 224 | а  <F11-F12>
-        _eb_
+        switch_close
         goto _0;
 
         fgets(cmd, sizeof (cmd), stdin); // fgets считывает строку включая пробелы и '\n'
