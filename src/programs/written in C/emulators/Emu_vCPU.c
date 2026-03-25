@@ -263,10 +263,12 @@ void DeployingMacros(const char * text)
         }
         default: // идём по метке
         {
+            printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx__text);
             labels[count_labels][++idx__labels] = text[idx__text--];
             goto _2_run;
         }
         switch_close
+        printf("\n\t№%d, МЕТКА ОБРАБОТАНА!\n", idx__text);
         goto _1_run;
     }
     default: // не макрос, записываем как есть!
@@ -713,16 +715,16 @@ void Execute() // Launch
     #endif
 }
 
-char Compile()
+uint8_t data[0xFF] = "";
+uint8_t ptr_data = 0xFF;
+//
+const char Compile()
 {
     #if !defined DEBUG
      puts("\n ENTRANCE: Compile");
     #endif
 
-    uint8_t data[0xFF] = "";
-    uint8_t ptr_data = 0xFF;
-    // Считываем с файла
-    FILE * desc = fopen("_.asm", "rb");
+    FILE *desc = fopen("_.asm", "rb"); // Считываем с файла
     if (desc == NULL)
     {
         printf("Ошибка открытия файла.");
@@ -731,15 +733,10 @@ char Compile()
     fseek(desc, 0, SEEK_END);
     size_t file_size = ftell(desc);
     printf("\nРазмер файла: %ld.\n", file_size);
-    size_t copy_file_size = file_size;
     fseek(desc, 0, SEEK_SET);
-    while (file_size--) data[++ptr_data] = fgetc(desc);
+    fread(data, file_size, sizeof (char), desc);
     fclose(desc);
-    data[++ptr_data] = '\0';
-
     printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
-    //file_size = copy_file_size;
-
     Preprocessing(data, 2, file_size);
 
     #if !defined DEBUG
