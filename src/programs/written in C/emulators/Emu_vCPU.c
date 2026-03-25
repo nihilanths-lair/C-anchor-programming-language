@@ -861,8 +861,9 @@ int main(int argc, char *argv[])
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     */
-    printf("argc = %d", argc);
-    for (int i = 0; i < argc; i++) printf("argv[%d] = %s", i, argv[i]);
+    printf("\n argc = %d", argc);
+    for (int i = 0; i < argc; i++) printf("\n argv[%d] = %s", i, argv[i]);
+    putchar('\n');
 
     bool taking_into_account_errors = true; // с учётом ошибок?
     switch (taking_into_account_errors)
@@ -891,7 +892,7 @@ int main(int argc, char *argv[])
     while (true)
     {
         printf("\nДля отображения списка команд введите: !cmdlist");
-        printf("\n_"); // Приглашение к вводу
+        printf("\n:_");
         if (fgets(input, sizeof(input), stdin) == NULL) break;
         input[strcspn(input, "\r\n")] = '\0'; // Удаляем перевод строки
 
