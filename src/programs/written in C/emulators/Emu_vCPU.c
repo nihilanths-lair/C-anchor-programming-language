@@ -187,12 +187,13 @@ uint8_t count_labels = 0xFF;
 //////////////////////////////////////////
 // Однопроходное развертывание макросов //
 //////////////////////////////////////////
-void SinglepassMacroDeployment(const char *text, uint8_t idx__text)
+void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: SinglepassMacroDeployment()\n");
+     printf("\n ENTRANCE: SinglepassMacroDeployment(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
     #endif
 
+    uint8_t idx__text = 0;
     _1_run:
     switch (text[idx__text])
     switch_open
@@ -292,12 +293,13 @@ void SinglepassMacroDeployment(const char *text, uint8_t idx__text)
 //////////////////////////////////////////
 // Двухпроходное развертывание макросов //
 //////////////////////////////////////////
-void TwopassMacroDeployment(const char *text, uint8_t idx__text)
+void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: TwopassMacroDeployment()\n");
+     printf("\n ENTRANCE: TwopassMacroDeployment(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
     #endif
 
+    uint8_t idx__text = 0;
     _1_run:
     switch (text[idx__text])
     switch_open
@@ -406,8 +408,8 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
     idx__processed_text = 0-1;
 
     switch (2){ // Кол-во проходов
-    case 1: SinglepassMacroDeployment(text, 0); break; // Однопроходная (сбор меток + подстановка адресов
-    case 2: TwopassMacroDeployment(text, 0); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
+    case 1: SinglepassMacroDeployment(text, taking_into_account_errors); break; // Однопроходная (сбор меток + подстановка адресов
+    case 2: TwopassMacroDeployment(text, taking_into_account_errors); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
     }
 
     #if !defined DEBUG
