@@ -721,14 +721,14 @@ uint8_t ptr_data = 0xFF;
 char Compile(const char *file_name, const char *params)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: Compile(\"%s\")", file_name);
+     printf("\n ENTRANCE: Compile(\"%s\")\n", file_name);
     #endif
 
     /// Начало компиляции
     FILE *desc = fopen(file_name, "rb"); // Считываем с файла
     if (desc == NULL)
     {
-        printf("Ошибка открытия файла.");
+        printf("\n Ошибка открытия файла.");
         return -1;
     }
     fseek(desc, 0, SEEK_END);
@@ -894,7 +894,7 @@ int main(int argc, char *argv[])
     while (true)
     {
         printf("\nДля отображения списка команд введите: !cmdlist");
-        printf("\n:_");
+        printf("\n$: ");
         if (fgets(input, sizeof(input), stdin) == NULL) break;
         input[strcspn(input, "\r\n")] = '\0'; // Удаляем перевод строки
 
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
         {
             puts("\n Список команд:");
             printf("\n1] !compile input_file output_file");
-            printf("\n2] !execute");
+            //printf("\n2] !execute");
         }
         else if (!strcmp(cmd, "!compile"))
         {
@@ -919,14 +919,16 @@ int main(int argc, char *argv[])
                 printf(" Ошибка: Введите имя входного файла!\n");
                 continue;
             }
+            Compile(input_file, "");
             char *output_file = Strtok(input, &idx); // 3-й аргумент: выходной файл
             if (output_file == NULL)
             {
                 printf(" Ошибка: Введите имя выходного файла!\n");
+                //Compile(input_file, "");
                 continue;
             }
             printf("output_file = \"%s\"", output_file);
-            //printf("Компиляция файла: %s\n", filename);
+            Compile(input_file, output_file);
         }
         //else if (!strcmp(cmd, "/execute")){}
         else
