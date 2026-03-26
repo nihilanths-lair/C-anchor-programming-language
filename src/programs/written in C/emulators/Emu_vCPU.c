@@ -621,6 +621,20 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     #endif
 }
 
+///*-------------------------------------*/
+// Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
+void LexicalAnalysisAndSynthesis(){}
+
+// Синтаксический анализ и синтез (анализ синтаксиса и построение: CST [для отладки] / AST [для релиза])
+void SyntacticAnalysisAndSynthesis(){}
+
+// Семантический анализ и синтез (анализ семантики и построение промежуточного псевдокода [IR], либо без него и переход на след. этап: кодогенерация)
+void SemanticAnalysisAndSynthesis(){}
+
+// Генерация кода
+void CodeGeneration(){}
+/*-------------------------------------*///
+
 uint8_t data[0xFF] = "";
 uint8_t ptr_data = 0xFF;
 //
