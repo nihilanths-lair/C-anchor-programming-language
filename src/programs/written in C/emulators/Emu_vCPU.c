@@ -181,7 +181,7 @@ void DeletingCommentsAndDeployingMacros(const char * text)
      printf("\n EXIT: DeletingCommentsAndDeployingMacros");
     #endif
 }
-
+//////////////////////////////////////////
 char labels[0xF][0xFF];
 uint8_t count_labels = 0xFF;
 //////////////////////////////////////////
@@ -189,6 +189,10 @@ uint8_t count_labels = 0xFF;
 //////////////////////////////////////////
 void SinglepassMacroDeployment(const char *text, uint8_t idx__text)
 {
+    #if !defined DEBUG
+     printf("\n ENTRANCE: SinglepassMacroDeployment()\n");
+    #endif
+
     _1_run:
     switch (text[idx__text])
     switch_open
@@ -280,12 +284,20 @@ void SinglepassMacroDeployment(const char *text, uint8_t idx__text)
     }
     switch_close _1_end:
     processed_text[++idx__processed_text] = '\0';
+
+    #if !defined DEBUG
+     printf("\n EXIT: SinglepassMacroDeployment");
+    #endif
 }
 //////////////////////////////////////////
 // Двухпроходное развертывание макросов //
 //////////////////////////////////////////
 void TwopassMacroDeployment(const char *text, uint8_t idx__text)
 {
+    #if !defined DEBUG
+     printf("\n ENTRANCE: TwopassMacroDeployment()\n");
+    #endif
+
     _1_run:
     switch (text[idx__text])
     switch_open
@@ -377,7 +389,12 @@ void TwopassMacroDeployment(const char *text, uint8_t idx__text)
     }
     switch_close _1_end:
     processed_text[++idx__processed_text] = '\0';
+
+    #if !defined DEBUG
+     printf("\n EXIT: TwopassMacroDeployment");
+    #endif
 }
+//////////////////////////////////////////
 
 // Только развёртка макросов
 void DeployingMacros(const char *text, bool taking_into_account_errors)
@@ -387,11 +404,10 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
     #endif
 
     idx__processed_text = 0-1;
-    uint8_t idx__text = 0;
 
     switch (2){ // Кол-во проходов
-    case 1: SinglepassMacroDeployment(text, idx__text); break; // Однопроходная (сбор меток + подстановка адресов
-    case 2: TwopassMacroDeployment(text, idx__text); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
+    case 1: SinglepassMacroDeployment(text, 0); break; // Однопроходная (сбор меток + подстановка адресов
+    case 2: TwopassMacroDeployment(text, 0); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
     }
 
     #if !defined DEBUG
