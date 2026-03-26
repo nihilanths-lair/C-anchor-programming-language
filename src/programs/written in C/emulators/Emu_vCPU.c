@@ -632,7 +632,18 @@ void SyntacticAnalysisAndSynthesis(){}
 void SemanticAnalysisAndSynthesis(){}
 
 // Генерация кода
-void CodeGeneration(){}
+void CodeGeneration()
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: CodeGeneration()");
+    #endif
+
+    // ... //
+
+    #if !defined DEBUG
+     puts("\n EXIT: CodeGeneration");
+    #endif
+}
 /*-------------------------------------*///
 
 uint8_t data[0xFF] = "";
@@ -644,7 +655,7 @@ char Compile(const char *data, const char *params)
      printf("\n ENTRANCE: Compile(\"%s\")\n", data);
     #endif
 
-    // ... //
+    CodeGeneration();
 
     #if !defined DEBUG
      puts("\n EXIT: Compile");
