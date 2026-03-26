@@ -177,10 +177,10 @@ void DeletingCommentsAndDeployingMacros(const char * text)
 char labels[0xF][0xFF];
 uint8_t count_labels = 0xFF;
 // Только развёртка макросов
-void DeployingMacros(const char * text)
+void DeployingMacros(const char * text, bool taking_into_account_errors)
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: DeployingMacros");
+     printf("\n ENTRANCE: DeployingMacros(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
     #endif
 
     idx__processed_text = 0-1;
@@ -410,49 +410,6 @@ void DeletingComments(const char * text)
 
     #if !defined DEBUG
      printf("\n EXIT: DeletingComments");
-    #endif
-}
-
-void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
-{
-    #if defined DEBUG
-     puts("\n ENTRANCE: Preprocessing");
-    #endif
-
-    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
-    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
-    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
-
-    // Препроцессорная обработка начата...
-    printf(" Preprocessing started...\n");
-
-    printf("\n----\n<До>\n----\n%s\n\n", text);
-    for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
-    putchar('\n');
-
-    switch (preprocessing_type)
-    switch_open
-    case 1: DeletingComments(text); // Только удаление комментариев
-    break;
-    case 2: DeployingMacros(text); // Только развёртка макросов
-    break;
-    case 3: DeletingCommentsAndDeployingMacros(text); // Удаление комментариев и развёртка макросов
-    break;
-    switch_close
-
-    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
-    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
-    putchar('\n');
-
-    FILE * desc = fopen("preprocessing\\_.asm", "wb");
-    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
-    fclose(desc);
-
-    // Препроцессорная обработка закончена!
-    printf("\n\n Preprocessing completed!\n");
-
-    #if defined DEBUG
-     printf("\n EXIT: Preprocessing");
     #endif
 }
 
@@ -715,6 +672,60 @@ void Execute() // Launch
     #endif
 }
 
+void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
+{
+    #if defined DEBUG
+     puts("\n ENTRANCE: Preprocessing");
+    #endif
+
+    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
+    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
+    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
+
+    // Препроцессорная обработка начата...
+    printf(" Preprocessing started...\n");
+
+    printf("\n----\n<До>\n----\n%s\n\n", text);
+    for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
+    putchar('\n');
+
+    //bool taking_into_account_errors = true; // с учётом ошибок?
+    switch (true) // с учётом ошибок?
+    switch_open
+    case false:
+    {
+        switch (preprocessing_type){
+        case 1: DeletingComments(text); break; // Только удаление комментариев
+        case 2: DeployingMacros(text, false); break; // Только развёртка макросов
+        case 3: DeletingCommentsAndDeployingMacros(text); break;// Удаление комментариев и развёртка макросов
+        }
+    }
+    case true:
+    {
+        switch (preprocessing_type){
+        case 1: DeletingComments(text); break; // Только удаление комментариев
+        case 2: DeployingMacros(text, true); break; // Только развёртка макросов
+        case 3: DeletingCommentsAndDeployingMacros(text); break;// Удаление комментариев и развёртка макросов
+        }
+    }
+    switch_close
+
+    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
+    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
+    putchar('\n');
+
+    FILE * desc = fopen("preprocessing\\_.asm", "wb");
+    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
+    fclose(desc);
+
+    // Препроцессорная обработка закончена!
+    printf("\n\n Preprocessing completed!\n");
+
+    #if defined DEBUG
+     printf("\n EXIT: Preprocessing");
+    #endif
+}
+
 uint8_t data[0xFF] = "";
 uint8_t ptr_data = 0xFF;
 //
@@ -865,15 +876,6 @@ int main(int argc, char *argv[])
     for (int i = 0; i < argc; i++) printf("\n argv[%d] = %s", i, argv[i]);
     putchar('\n');
 
-    bool taking_into_account_errors = true; // с учётом ошибок?
-    switch (taking_into_account_errors)
-    switch_open
-    case false:
-    { break; }
-    case true:
-    { break; }
-    switch_close
-
     //Generator(); // не проверяет на наличие ошибок, просто делает обычную замену макросов или удаляет комментарии, либо делает и то, и другое - одновременно
     //Converter(); // преобразователь
     //Transpilation();
@@ -885,7 +887,7 @@ int main(int argc, char *argv[])
     // 2. Из языка ассемблера в оп-код | _.asm -> _.bin
     // 3a. Из C$ в язык ассемблера | _.cdlr -> _.asm
     // 3b. Из C$ в оп-код | _.cdlr -> _.bin
-    //Compile("_.asm"); return 0;
+    Compile("_.asm", ""); return 0; // временно, для быстрого тестирования
 
     char input[128];
     char cmd[128];
@@ -919,12 +921,11 @@ int main(int argc, char *argv[])
                 printf(" Ошибка: Введите имя входного файла!\n");
                 continue;
             }
-            Compile(input_file, "");
             char *output_file = Strtok(input, &idx); // 3-й аргумент: выходной файл
             if (output_file == NULL)
             {
                 printf(" Ошибка: Введите имя выходного файла!\n");
-                //Compile(input_file, "");
+                Compile(input_file, "");
                 continue;
             }
             printf("output_file = \"%s\"", output_file);
