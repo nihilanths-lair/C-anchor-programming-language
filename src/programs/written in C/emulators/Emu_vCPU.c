@@ -296,7 +296,53 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
     switch_open
     case false:
     {
-        uint8_t idx__text = 0;
+        uint8_t idx__text;
+        // I проход //
+        idx__text = 0;
+        _1_run:
+        switch (text[idx__text])
+        switch_open
+        case '\0': goto _1_end;
+        case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
+        {
+            printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx__text);
+            uint8_t addr_labels = idx__text; // запомним адрес конца метки
+            uint8_t idx__labels = 0xFF;
+            --idx__text;
+            // идём обратным ходом, ... //
+            _2_run:
+            switch (text[idx__text])
+            switch_open
+            case '\0': goto _1_end;
+            case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
+            {
+                labels[0][++idx__labels] = '\0';
+                idx__labels = 0xFF;
+                printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
+                idx__text += addr_labels;
+                goto _1_run;
+            }
+            default: // идём по метке
+            {
+                printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx__text);
+                labels[count_labels][++idx__labels] = text[idx__text--];
+                goto _2_run;
+            }
+            switch_close
+            printf("\n\t№%d, МЕТКА ОБРАБОТАНА!\n", idx__text);
+            goto _1_run;
+        }
+        default: // не макрос, записываем как есть!
+        {
+            processed_text[++idx__processed_text] = text[idx__text++];
+            goto _1_run;
+        }
+        switch_close _1_end:
+        processed_text[++idx__processed_text] = '\0';
+
+        // II проход //
+        /*
+        idx__text = 0;
         _1_run:
         switch (text[idx__text])
         switch_open
@@ -352,43 +398,10 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
             }
             switch_close
         }
-        case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
-        {
-            printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx__text);
-            uint8_t addr_labels = idx__text; // запомним адрес конца метки
-            uint8_t idx__labels = 0xFF;
-            --idx__text;
-            // идём обратным ходом, ... //
-            _2_run:
-            switch (text[idx__text])
-            switch_open
-            case '\0': goto _1_end;
-            case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
-            {
-                labels[0][++idx__labels] = '\0';
-                idx__labels = 0xFF;
-                printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
-                idx__text += addr_labels;
-                goto _1_run;
-            }
-            default: // идём по метке
-            {
-                printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx__text);
-                labels[count_labels][++idx__labels] = text[idx__text--];
-                goto _2_run;
-            }
-            switch_close
-            printf("\n\t№%d, МЕТКА ОБРАБОТАНА!\n", idx__text);
-            goto _1_run;
-        }
-        default: // не макрос, записываем как есть!
-        {
-            processed_text[++idx__processed_text] = text[idx__text++];
-            goto _1_run;
-        }
-        switch_close _1_end:
-        processed_text[++idx__processed_text] = '\0';
-    } break;
+        switch_close
+        */
+    }
+    break;
     case true: {}
     switch_close
 
@@ -414,7 +427,7 @@ void FullPreprocessing(const char *text)
 void DeployingMacros(const char *text, bool taking_into_account_errors)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: DeployingMacros(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
+     printf("\n ENTRANCE: DeployingMacros(..., %s)", (taking_into_account_errors) ? "true" : "false");
     #endif
 
     idx__processed_text = 0-1;
@@ -611,29 +624,13 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
 uint8_t data[0xFF] = "";
 uint8_t ptr_data = 0xFF;
 //
-char Compile(const char *file_name, const char *params)
+char Compile(const char *data, const char *params)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: Compile(\"%s\")\n", file_name);
+     printf("\n ENTRANCE: Compile(\"%s\")\n", data);
     #endif
 
-    /// Начало компиляции
-    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
-    if (desc == NULL)
-    {
-        printf("\n Ошибка открытия файла.");
-        return -1;
-    }
-    fseek(desc, 0, SEEK_END);
-    size_t file_size = ftell(desc);
-    printf("\nРазмер файла: %ld.\n", file_size);
-    fseek(desc, 0, SEEK_SET);
-    fread(data, file_size, sizeof (char), desc);
-    fclose(desc);
-    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
-
-    Preprocessing(data, 2, false);
-    /// Конец компиляции
+    // ... //
 
     #if !defined DEBUG
      puts("\n EXIT: Compile");
@@ -1029,7 +1026,28 @@ int main(int argc, char *argv[])
     // 2. Из языка ассемблера в оп-код | _.asm -> _.bin
     // 3a. Из C$ в язык ассемблера | _.cdlr -> _.asm
     // 3b. Из C$ в оп-код | _.cdlr -> _.bin
-    Compile("_.asm", ""); return 0; // временно, для быстрого тестирования
+    
+    const char *file_name = "_.asm"; // временно
+    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
+    if (desc == NULL)
+    {
+        printf("\n Ошибка открытия файла.");
+        return -1;
+    }
+    fseek(desc, 0, SEEK_END);
+    size_t file_size = ftell(desc);
+    printf("\nРазмер файла: %ld.\n", file_size);
+    fseek(desc, 0, SEEK_SET);
+    fread(data, file_size, sizeof (char), desc);
+    fclose(desc);
+    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
+
+    uint8_t action = 1; // Только препроцессорная обработка, обходя этап компиляции (временно)
+    switch (action){
+    case 1: Preprocessing(data, 2, false); break;
+    case 2: Compile(data, ""); break;
+    }
+    return 0; // временно, для быстрого тестирования
 
     char input[128];
     char cmd[128];
