@@ -167,20 +167,6 @@ void _fwrite(size_t len)
     fclose(desc);
 }
 */
-
-// Удаление комментариев и развёртка макросов
-void DeletingCommentsAndDeployingMacros(const char * text)
-{
-    #if !defined DEBUG
-     printf("\n ENTRANCE: DeletingCommentsAndDeployingMacros()\n");
-    #endif
-
-    // ... //
-
-    #if !defined DEBUG
-     printf("\n EXIT: DeletingCommentsAndDeployingMacros");
-    #endif
-}
 //////////////////////////////////////////
 char labels[0xF][0xFF];
 uint8_t count_labels = 0xFF;
@@ -411,7 +397,19 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
     #endif
 }
 //////////////////////////////////////////
+// Удаление комментариев и развёртка макросов
+void FullPreprocessing(const char *text)
+{
+    #if !defined DEBUG
+     printf("\n ENTRANCE: FullPreprocessing()\n");
+    #endif
 
+    // ... //
+
+    #if !defined DEBUG
+     printf("\n EXIT: FullPreprocessing");
+    #endif
+}
 // Только развёртка макросов
 void DeployingMacros(const char *text, bool taking_into_account_errors)
 {
@@ -432,10 +430,10 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
 }
 
 // Только удаление комментариев
-void DeletingComments(const char * text)
+void DeletingComments(const char *text)
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: DeletingComments");
+     puts("\n ENTRANCE: DeletingComments()");
     #endif
 
     idx__processed_text = 0-1;
@@ -554,6 +552,91 @@ void DeletingComments(const char * text)
 
     #if !defined DEBUG
      printf("\n EXIT: DeletingComments");
+    #endif
+}
+
+void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_account_errors) // size_t file_size режим
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: Preprocessing()");
+    #endif
+
+    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
+    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
+    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
+
+    // Препроцессорная обработка начата...
+    //printf(" Preprocessing started...\n");
+
+    printf("\n----\n<До>\n----\n%s\n\n", text);
+    for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
+    putchar('\n');
+
+    switch (taking_into_account_errors) // проверять на наличие ошибок (корректность синтаксиса)
+    switch_open
+    case false:
+    {
+        switch (preprocessing_type){
+        case 1: DeletingComments(text); break; // Только удаление комментариев
+        case 2: DeployingMacros(text, false); break; // Только развёртка макросов
+        case 3: FullPreprocessing(text); break; // Удаление комментариев и развёртка макросов
+        }
+    }
+    case true:
+    {
+        switch (preprocessing_type){
+        case 1: DeletingComments(text); break; // Только удаление комментариев
+        case 2: DeployingMacros(text, true); break; // Только развёртка макросов
+        case 3: FullPreprocessing(text); break; // Удаление комментариев и развёртка макросов
+        }
+    }
+    switch_close
+
+    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
+    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
+    putchar('\n');
+
+    FILE * desc = fopen("preprocessing\\_.asm", "wb");
+    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
+    fclose(desc);
+
+    // Препроцессорная обработка закончена!
+    //printf("\n\n Preprocessing completed!\n");
+
+    #if !defined DEBUG
+     printf("\n EXIT: Preprocessing");
+    #endif
+}
+
+uint8_t data[0xFF] = "";
+uint8_t ptr_data = 0xFF;
+//
+char Compile(const char *file_name, const char *params)
+{
+    #if !defined DEBUG
+     printf("\n ENTRANCE: Compile(\"%s\")\n", file_name);
+    #endif
+
+    /// Начало компиляции
+    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
+    if (desc == NULL)
+    {
+        printf("\n Ошибка открытия файла.");
+        return -1;
+    }
+    fseek(desc, 0, SEEK_END);
+    size_t file_size = ftell(desc);
+    printf("\nРазмер файла: %ld.\n", file_size);
+    fseek(desc, 0, SEEK_SET);
+    fread(data, file_size, sizeof (char), desc);
+    fclose(desc);
+    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
+
+    Preprocessing(data, 2, false);
+    /// Конец компиляции
+
+    #if !defined DEBUG
+     puts("\n EXIT: Compile");
     #endif
 }
 
@@ -813,91 +896,6 @@ void Execute() // Launch
 
     #if defined DEBUG
      puts("\n EXIT: Execute");
-    #endif
-}
-
-void Preprocessing(char * text, unsigned char preprocessing_type, size_t file_size) // режим
-{
-    #if defined DEBUG
-     puts("\n ENTRANCE: Preprocessing");
-    #endif
-
-    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
-    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
-    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
-
-    // Препроцессорная обработка начата...
-    printf(" Preprocessing started...\n");
-
-    printf("\n----\n<До>\n----\n%s\n\n", text);
-    for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
-    putchar('\n');
-
-    //bool taking_into_account_errors = true; // с учётом ошибок?
-    switch (true) // с учётом ошибок?
-    switch_open
-    case false:
-    {
-        switch (preprocessing_type){
-        case 1: DeletingComments(text); break; // Только удаление комментариев
-        case 2: DeployingMacros(text, false); break; // Только развёртка макросов
-        case 3: DeletingCommentsAndDeployingMacros(text); break;// Удаление комментариев и развёртка макросов
-        }
-    }
-    case true:
-    {
-        switch (preprocessing_type){
-        case 1: DeletingComments(text); break; // Только удаление комментариев
-        case 2: DeployingMacros(text, true); break; // Только развёртка макросов
-        case 3: DeletingCommentsAndDeployingMacros(text); break;// Удаление комментариев и развёртка макросов
-        }
-    }
-    switch_close
-
-    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
-    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
-    putchar('\n');
-
-    FILE * desc = fopen("preprocessing\\_.asm", "wb");
-    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
-    fclose(desc);
-
-    // Препроцессорная обработка закончена!
-    printf("\n\n Preprocessing completed!\n");
-
-    #if defined DEBUG
-     printf("\n EXIT: Preprocessing");
-    #endif
-}
-
-uint8_t data[0xFF] = "";
-uint8_t ptr_data = 0xFF;
-//
-char Compile(const char *file_name, const char *params)
-{
-    #if !defined DEBUG
-     printf("\n ENTRANCE: Compile(\"%s\")\n", file_name);
-    #endif
-
-    /// Начало компиляции
-    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
-    if (desc == NULL)
-    {
-        printf("\n Ошибка открытия файла.");
-        return -1;
-    }
-    fseek(desc, 0, SEEK_END);
-    size_t file_size = ftell(desc);
-    printf("\nРазмер файла: %ld.\n", file_size);
-    fseek(desc, 0, SEEK_SET);
-    fread(data, file_size, sizeof (char), desc);
-    fclose(desc);
-    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
-    Preprocessing(data, 2, file_size);
-    /// Конец компиляции
-
-    #if !defined DEBUG
-     puts("\n EXIT: Compile");
     #endif
 }
 
