@@ -27,9 +27,6 @@ uint8_t vMEMORY[0xFF];
 
 char _data_1[0xFF];
 
-char processed_text[0xFF];
-uint8_t idx__processed_text;
-
 enum UppercaseLetters // Заглавные буквы
 {
     HLT,
@@ -167,6 +164,12 @@ void _fwrite(size_t len)
     fclose(desc);
 }
 */
+/// КОМПИЛЯТОР ///
+char _source_code[0xFF] = "";
+//uint8_t _ptr_source_code = 0xFF;
+
+char _processed_text[0xFF];
+uint8_t _idx_processed_text;
 //////////////////////////////////////////
 char labels[0xF][0xFF];
 uint8_t count_labels = 0xFF;
@@ -191,7 +194,7 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
         case 'J': // проверить следующие два символа, возможно JMP
         {
             printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-            processed_text[++idx__processed_text] = text[idx__text++];
+            _processed_text[++_idx_processed_text] = text[idx__text++];
             //++idx__text;
             switch (text[idx__text])
             switch_open
@@ -199,7 +202,7 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
             case 'M': // проверить следующий символ, возможно JMP
             {
                 printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                processed_text[++idx__processed_text] = text[idx__text++];
+                _processed_text[++_idx_processed_text] = text[idx__text++];
                 //++idx__text;
                 switch (text[idx__text])
                 switch_open
@@ -207,34 +210,34 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
                 case 'P': // проверить след. символ, необходим отступ/пробел
                 {
                     printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                    processed_text[++idx__processed_text] = text[idx__text++];
+                    _processed_text[++_idx_processed_text] = text[idx__text++];
                     //++idx__text;
                     switch (text[idx__text])
                     switch_open
                     case '\0': goto _1_end;
                     case ' ':
                         printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                        processed_text[++idx__processed_text] = text[idx__text++];
-                        printf("\n Обработанные данные: \"%s\"", processed_text);
+                        _processed_text[++_idx_processed_text] = text[idx__text++];
+                        printf("\n Обработанные данные: \"%s\"", _processed_text);
                         //++idx__text; // пока мы не знаем метка находится выше или ниже
                         // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
                     default:
                     {
-                        processed_text[++idx__processed_text] = text[idx__text++];
+                        _processed_text[++_idx_processed_text] = text[idx__text++];
                         goto _1_run; // если не ' ' !
                     }
                     switch_close
                 }
                 default:
                 {
-                    processed_text[++idx__processed_text] = text[idx__text++];
+                    _processed_text[++_idx_processed_text] = text[idx__text++];
                     goto _1_run; // если не 'P' !
                 }
                 switch_close
             }
             default: // не макрос, записываем как есть!
             {
-                processed_text[++idx__processed_text] = text[idx__text++];
+                _processed_text[++_idx_processed_text] = text[idx__text++];
                 goto _1_run; // если не 'M' !
             }
             switch_close
@@ -270,11 +273,11 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
         }
         default: // не макрос, записываем как есть!
         {
-            processed_text[++idx__processed_text] = text[idx__text++];
+            _processed_text[++_idx_processed_text] = text[idx__text++];
             goto _1_run;
         }
         switch_close _1_end:
-        processed_text[++idx__processed_text] = '\0';
+        _processed_text[++_idx_processed_text] = '\0';
     } break;
     case true: {}
     switch_close
@@ -334,11 +337,11 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
         }
         default: // не макрос, записываем как есть!
         {
-            processed_text[++idx__processed_text] = text[idx__text++];
+            _processed_text[++_idx_processed_text] = text[idx__text++];
             goto _1_run;
         }
         switch_close _1_end:
-        processed_text[++idx__processed_text] = '\0';
+        _processed_text[++_idx_processed_text] = '\0';
 
         // II проход //
         /*
@@ -350,7 +353,7 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
         case 'J': // проверить следующие два символа, возможно JMP
         {
             printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-            processed_text[++idx__processed_text] = text[idx__text++];
+            _processed_text[++_idx_processed_text] = text[idx__text++];
             //++idx__text;
             switch (text[idx__text])
             switch_open
@@ -358,7 +361,7 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
             case 'M': // проверить следующий символ, возможно JMP
             {
                 printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                processed_text[++idx__processed_text] = text[idx__text++];
+                _processed_text[++_idx_processed_text] = text[idx__text++];
                 //++idx__text;
                 switch (text[idx__text])
                 switch_open
@@ -366,34 +369,34 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
                 case 'P': // проверить след. символ, необходим отступ/пробел
                 {
                     printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                    processed_text[++idx__processed_text] = text[idx__text++];
+                    _processed_text[++_idx_processed_text] = text[idx__text++];
                     //++idx__text;
                     switch (text[idx__text])
                     switch_open
                     case '\0': goto _1_end;
                     case ' ':
                         printf("\n\t№%d, символ '%c' обнаружен!", idx__text, text[idx__text]);
-                        processed_text[++idx__processed_text] = text[idx__text++];
-                        printf("\n Обработанные данные: \"%s\"", processed_text);
+                        _processed_text[++_idx_processed_text] = text[idx__text++];
+                        printf("\n Обработанные данные: \"%s\"", _processed_text);
                         //++idx__text; // пока мы не знаем метка находится выше или ниже
                         // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
                     default:
                     {
-                        processed_text[++idx__processed_text] = text[idx__text++];
+                        _processed_text[++_idx_processed_text] = text[idx__text++];
                         goto _1_run; // если не ' ' !
                     }
                     switch_close
                 }
                 default:
                 {
-                    processed_text[++idx__processed_text] = text[idx__text++];
+                    _processed_text[++_idx_processed_text] = text[idx__text++];
                     goto _1_run; // если не 'P' !
                 }
                 switch_close
             }
             default: // не макрос, записываем как есть!
             {
-                processed_text[++idx__processed_text] = text[idx__text++];
+                _processed_text[++_idx_processed_text] = text[idx__text++];
                 goto _1_run; // если не 'M' !
             }
             switch_close
@@ -430,7 +433,7 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
      printf("\n ENTRANCE: DeployingMacros(..., %s)", (taking_into_account_errors) ? "true" : "false");
     #endif
 
-    idx__processed_text = 0-1;
+    _idx_processed_text = 0-1;
 
     switch (2){ // Кол-во проходов
     case 1: SinglepassMacroDeployment(text, taking_into_account_errors); break; // Однопроходная (сбор меток + подстановка адресов
@@ -449,7 +452,7 @@ void DeletingComments(const char *text)
      puts("\n ENTRANCE: DeletingComments()");
     #endif
 
-    idx__processed_text = 0-1;
+    _idx_processed_text = 0-1;
     uint8_t idx__text = 0-1;
 
     //int number_of_opening_singleline_comments = 0; // number_of_singleline_comments
@@ -472,7 +475,7 @@ void DeletingComments(const char *text)
         }
         default: // Это не комментарий
         {
-            processed_text[++idx__processed_text] = text[--idx__text];
+            _processed_text[++_idx_processed_text] = text[--idx__text];
             goto _1_run;
         }
         switch_close
@@ -536,13 +539,13 @@ void DeletingComments(const char *text)
             case '\0': goto _1_end;
             case '\r': // Конец однострочного комментария?
             {
-                processed_text[++idx__processed_text] = text[idx__text];
+                _processed_text[++_idx_processed_text] = text[idx__text];
                 switch (text[++idx__text])
                 switch_open
                 case '\0': goto _1_end;
                 case '\n': // Конец однострочного комментария
                 {
-                    processed_text[++idx__processed_text] = text[idx__text];
+                    _processed_text[++_idx_processed_text] = text[idx__text];
                     goto _1_run;
                 }
                 default: goto _3_run; // Не конец однострочного комментария
@@ -556,12 +559,12 @@ void DeletingComments(const char *text)
     }
     default: // Не комментарий
     {
-        processed_text[++idx__processed_text] = text[idx__text];
+        _processed_text[++_idx_processed_text] = text[idx__text];
         goto _1_run;
     }
     switch_close
     _1_end:
-    processed_text[++idx__processed_text] = '\0';
+    _processed_text[++_idx_processed_text] = '\0';
 
     #if !defined DEBUG
      printf("\n EXIT: DeletingComments");
@@ -605,12 +608,12 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     }
     switch_close
 
-    printf("\n\n-------\n<После>\n-------\n%s\n\n", processed_text);
-    for (int i = 0; processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(processed_text[i]));
+    printf("\n\n-------\n<После>\n-------\n%s\n\n", _processed_text);
+    for (int i = 0; _processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_processed_text[i]));
     putchar('\n');
 
     FILE * desc = fopen("preprocessing\\_.asm", "wb");
-    fwrite(processed_text, idx__processed_text, sizeof (char), desc);
+    fwrite(_processed_text, _idx_processed_text, sizeof (char), desc);
     fclose(desc);
 
     // Препроцессорная обработка закончена!
@@ -646,19 +649,16 @@ void CodeGeneration()
 }
 /*-------------------------------------*///
 
-uint8_t data[0xFF] = "";
-uint8_t ptr_data = 0xFF;
-//
 char Compile(const char *data, const char *params)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: Compile(\"%s\")\n", data);
+     printf("\n ENTRANCE: Compile()");
     #endif
 
     CodeGeneration();
 
     #if !defined DEBUG
-     puts("\n EXIT: Compile");
+     puts(" EXIT: Compile");
     #endif
 }
 
@@ -1051,6 +1051,10 @@ int main(int argc, char *argv[])
     // 2. Из языка ассемблера в оп-код | _.asm -> _.bin
     // 3a. Из C$ в язык ассемблера | _.cdlr -> _.asm
     // 3b. Из C$ в оп-код | _.cdlr -> _.bin
+
+    // препроцессорная обработка без этапа компиляции
+    // препроцессорная обработка с этапом компиляции
+    // без процессорной обработки, сразу этап компиляции
     
     const char *file_name = "_.asm"; // временно
     FILE *desc = fopen(file_name, "rb"); // Считываем с файла
@@ -1063,14 +1067,14 @@ int main(int argc, char *argv[])
     size_t file_size = ftell(desc);
     printf("\nРазмер файла: %ld.\n", file_size);
     fseek(desc, 0, SEEK_SET);
-    fread(data, file_size, sizeof (char), desc);
+    fread(_source_code, file_size, sizeof (char), desc);
     fclose(desc);
-    printf("\n[file: _.asm]\n'''\n%s\n'''\n", data);
+    printf("\n[file: _.asm]\n'''\n%s\n'''\n", _source_code);
 
-    uint8_t action = 1; // Только препроцессорная обработка, обходя этап компиляции (временно)
+    uint8_t action = 2; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
     switch (action){
-    case 1: Preprocessing(data, 2, false); break;
-    case 2: Compile(data, ""); break;
+    case 1: Preprocessing(_source_code, 2, false); break;
+    case 2: Compile(_source_code, ""); break;
     }
     return 0; // временно, для быстрого тестирования
 
