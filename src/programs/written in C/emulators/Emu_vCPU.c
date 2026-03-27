@@ -305,9 +305,10 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
     {
         uint8_t idx_text;
         uint8_t idx_processed_text;
-        // I проход //
+        printf(" < I проход >");
         idx_processed_text = 0-1;
         idx_text = 0;
+        /*//*/
         _1_run:
         switch (text[idx_text])
         switch_open
@@ -317,7 +318,7 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
             printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx_text);
             uint8_t addr_labels = idx_text; // запомним адрес конца метки
             uint8_t idx__labels = 0xFF;
-            --idx_text;
+            ++idx_text;
             // идём обратным ходом, ... //
             _2_run:
             switch (text[idx_text])
@@ -325,16 +326,16 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
             case '\0': goto _1_end;
             case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
             {
-                labels[0][++idx__labels] = '\0';
-                idx__labels = 0xFF;
+                //labels[0][++idx__labels] = '\0';
+                //idx__labels = 0xFF;
                 printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
-                idx_text += addr_labels;
+                //idx_text += addr_labels;
                 goto _1_run;
             }
             default: // идём по метке
             {
-                printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx_text);
-                labels[count_labels][++idx__labels] = text[idx_text--];
+                //printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx_text);
+                //labels[count_labels][++idx__labels] = text[idx_text--];
                 goto _2_run;
             }
             switch_close
@@ -348,8 +349,8 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
         }
         switch_close _1_end:
         _processed_text[++idx_processed_text] = '\0';
-
-        // II проход //
+        /*//*/
+        printf(" < II проход >");
         idx_processed_text = 0-1;
         idx_text = 0;
         _2_1_run:
@@ -408,6 +409,7 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
             switch_close
         }
         switch_close
+        /*//*/
     }
     break;
     case true: {}
@@ -661,7 +663,24 @@ char Compile(const char *data, const char *params)
      printf("\n ENTRANCE: Compile()");
     #endif
 
-    CodeGeneration();
+    // Однопроходная или многопроходная?
+    switch (2){
+    case 1:
+    {
+        /** Однопроходная компиляция */
+        // ... //
+        /* Однопроходная компиляция **/
+    }
+    break;
+    case 2:
+    {
+        /** Многопроходная компиляция */
+        // ... //
+        /* Многопроходная компиляция **/
+    }
+    break;
+    default:
+    }
 
     #if !defined DEBUG
      puts(" EXIT: Compile");
@@ -1033,10 +1052,7 @@ char *Strtok(const char *string, int *index)
     if (offset == *index) return NULL;
     return result;
 }
-/// @brief
-/// @param argc
-/// @param argv
-/// @return
+///
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
@@ -1080,7 +1096,7 @@ int main(int argc, char *argv[])
     fclose(desc);
     printf("\n[file: _.asm]\n'''\n%s\n'''\n", _source_code);
 
-    uint8_t action = 1; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
+    uint8_t action = 2; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
     switch (action){
     case 1: Preprocessing(_source_code, 2, false); break;
     case 2: Compile(_source_code, ""); break;
