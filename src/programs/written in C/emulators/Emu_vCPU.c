@@ -657,7 +657,7 @@ void CodeGeneration()
 }
 /*-------------------------------------*///
 
-char Compile(const char *data, const char *params)
+char Compile(const char *data, size_t file_size, const char *params)
 {
     #if !defined DEBUG
      printf("\n ENTRANCE: Compile()");
@@ -673,11 +673,23 @@ char Compile(const char *data, const char *params)
         /* Однопроходная компиляция **/
     }
     break;
-    case 2:
+    case 2: // Разделение ответственности
     {
-        /** Многопроходная компиляция */
-        SemanticAnalysisAndSynthesis();
-        CodeGeneration();
+        /** Многопроходная компиляция или же компиляция в несколько этапов */
+        // Синтаксический анализ //
+        ///////////////////////////
+        // Семантический анализ //
+        // Сбор (вычисление) меток
+        for (size_t _file_size = file_size; _file_size; _file_size--)
+        {
+            printf(" %d", _file_size);
+        }
+        // Макрозамена меток
+        for (size_t _file_size = file_size; _file_size; _file_size--)
+        {
+            printf(" %d", _file_size);
+        }
+        //////////////////////////
         /* Многопроходная компиляция **/
     }
     switch_close
@@ -1099,7 +1111,7 @@ int main(int argc, char *argv[])
     uint8_t action = 2; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
     switch (action){
     case 1: Preprocessing(_source_code, 2, false); break;
-    case 2: Compile(_source_code, ""); break;
+    case 2: Compile(_source_code, file_size, ""); break;
     }
     return 0; // временно, для быстрого тестирования
 
@@ -1139,11 +1151,11 @@ int main(int argc, char *argv[])
             if (output_file == NULL)
             {
                 printf(" Ошибка: Введите имя выходного файла!\n");
-                Compile(input_file, "");
+                Compile(input_file, 0, "");
                 continue;
             }
             printf("output_file = \"%s\"", output_file);
-            Compile(input_file, output_file);
+            Compile(input_file, 0, output_file);
         }
         //else if (!strcmp(cmd, "/execute")){}
         else
