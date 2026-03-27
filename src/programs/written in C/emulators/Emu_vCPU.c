@@ -664,7 +664,8 @@ char Compile(const char *data, const char *params)
     #endif
 
     // Однопроходная или многопроходная?
-    switch (2){
+    switch (2)
+    switch_open
     case 1:
     {
         /** Однопроходная компиляция */
@@ -675,15 +676,14 @@ char Compile(const char *data, const char *params)
     case 2:
     {
         /** Многопроходная компиляция */
-        // ... //
+        SemanticAnalysisAndSynthesis();
+        CodeGeneration();
         /* Многопроходная компиляция **/
     }
-    break;
-    default:
-    }
+    switch_close
 
     #if !defined DEBUG
-     puts(" EXIT: Compile");
+     printf("\n EXIT: Compile");
     #endif
 }
 
