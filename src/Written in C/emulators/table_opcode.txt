@@ -1,3 +1,4 @@
+lang: bowling
 /// Инструкции ; Оп-код (СС16) ; Оп-код (СС10)
 // 8-bit's 
 // operation operand-1:register8
