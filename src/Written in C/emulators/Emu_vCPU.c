@@ -647,7 +647,9 @@ void LexicalSynthesis(Lexer *lexer)
      printf("\n ::=> LexicalSynthesis()");
     #endif
 
-    // ... //
+    printf("\n row_position = %d", lexer->row_position);
+    printf("\n column_position = %d", lexer->column_position);
+    printf("\n binary_position = %d", lexer->binary_position);
 
     #if !defined DEBUG
      printf("\n <=:: LexicalSynthesis");
