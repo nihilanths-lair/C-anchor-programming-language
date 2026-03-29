@@ -683,22 +683,20 @@ char Compile(const char *text, size_t file_size, const char *params)
         // Сбор (вычисление) меток
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
-            printf(" %d", _file_size);
-
             switch (text[++idx_text])
             switch_open
             case '\0': goto _1_end;
+            // ... //
             switch_close
         }
         _1_end:
         // Макрозамена меток
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
-            printf(" %d", _file_size);
-
             switch (text[++idx_text])
             switch_open
             case '\0': goto _2_end;
+            // ... //
             switch_close
         }
         _2_end:
