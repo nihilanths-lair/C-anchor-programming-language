@@ -641,7 +641,7 @@ void LexicalAnalysis(Lexer *lexer)
     #endif
 }
 // Только лексический синтез
-void LexicalSynthesis()
+void LexicalSynthesis(Lexer *lexer)
 {
     #if !defined DEBUG
      printf("\n ::=> LexicalSynthesis()");
@@ -717,7 +717,7 @@ char Compile(const char *text, size_t file_size, const char *params)
         /** Многопроходная компиляция или же компиляция в несколько этапов */
         //lexer.row_position = 1, lexer.column_position = 1, lexer.binary_position = 0;
         LexicalAnalysis(&lexer);
-        LexicalSynthesis();
+        LexicalSynthesis(&lexer);
         // Лексический анализ и синтез (вместе)                                            // type-3 (регулярные)
         LexicalAnalysisAndSynthesis(text); //return 0; // STOP
         ////////////////////////
