@@ -619,33 +619,33 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
 void LexicalAnalysis()
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: LexicalAnalysis()");
+     printf("\n ::=> LexicalAnalysis()");
     #endif
 
     // ... //
 
     #if !defined DEBUG
-     puts("\n EXIT: LexicalAnalysis");
+     printf("\n <=:: LexicalAnalysis");
     #endif
 }
 // Только лексический синтез
 void LexicalSynthesis()
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: LexicalSynthesis()");
+     printf("\n ::=> LexicalSynthesis()");
     #endif
 
     // ... //
 
     #if !defined DEBUG
-     puts("\n EXIT: LexicalSynthesis");
+     printf("\n <=:: LexicalSynthesis");
     #endif
 }
 // Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
 void LexicalAnalysisAndSynthesis(const char *text)
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: LexicalAnalysisAndSynthesis()");
+     printf("\n ::=> LexicalAnalysisAndSynthesis()");
     #endif
 
     uint8_t idx_text = 0;
@@ -657,7 +657,7 @@ void LexicalAnalysisAndSynthesis(const char *text)
     _1_end:
 
     #if !defined DEBUG
-     puts("\n EXIT: LexicalAnalysisAndSynthesis");
+     printf("\n <=:: LexicalAnalysisAndSynthesis");
     #endif
 }
 
@@ -671,13 +671,13 @@ void SemanticAnalysisAndSynthesis(){}
 void CodeGeneration()
 {
     #if !defined DEBUG
-     puts("\n ENTRANCE: CodeGeneration()");
+     puts("\n ::=> CodeGeneration()");
     #endif
 
     // ... //
 
     #if !defined DEBUG
-     puts("\n EXIT: CodeGeneration");
+     puts("\n <=:: CodeGeneration");
     #endif
 }
 /*-------------------------------------*///
@@ -685,7 +685,7 @@ void CodeGeneration()
 char Compile(const char *text, size_t file_size, const char *params)
 {
     #if !defined DEBUG
-     printf("\n ENTRANCE: Compile()");
+     printf("\n ::=> Compile()");
     #endif
 
     // Однопроходная или многопроходная?
@@ -706,8 +706,10 @@ char Compile(const char *text, size_t file_size, const char *params)
         uint8_t idx_text = 0;
         uint8_t idx_processed_text = 0-1;
         /** Многопроходная компиляция или же компиляция в несколько этапов */
+        LexicalAnalysis();
+        LexicalSynthesis();
         // Лексический анализ и синтез (вместе)                                            // type-3 (регулярные)
-        LexicalAnalysisAndSynthesis(text); return 0; // STOP
+        LexicalAnalysisAndSynthesis(text); //return 0; // STOP
         ////////////////////////
         // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)    // type-2 (контекстно-свободные)
         ///////////////////////////
@@ -738,7 +740,7 @@ char Compile(const char *text, size_t file_size, const char *params)
     switch_close
 
     #if !defined DEBUG
-     printf("\n EXIT: Compile");
+     printf("\n <=:: Compile");
     #endif
 }
 
@@ -1157,10 +1159,12 @@ int main(int argc, char *argv[])
     printf("\n[file: _.asm]\n'''\n%s\n'''\n", _source_code);
 
     uint8_t action = 2; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
-    switch (action){
+    switch (action)
+    switch_open
     case 1: Preprocessing(_source_code, 2, false); break;
     case 2: Compile(_source_code, file_size, ""); break;
-    }
+    switch_close
+    putchar('\n');
     return 0; // временно, для быстрого тестирования
 
     char input[128];
