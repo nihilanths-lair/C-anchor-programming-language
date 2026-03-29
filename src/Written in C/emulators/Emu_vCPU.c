@@ -615,6 +615,32 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
 }
 
 ///*-------------------------------------*/
+// Только лексический анализ
+void LexicalAnalysis()
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: LexicalAnalysis()");
+    #endif
+
+    // ... //
+
+    #if !defined DEBUG
+     puts("\n EXIT: LexicalAnalysis");
+    #endif
+}
+// Только лексический синтез
+void LexicalSynthesis()
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: LexicalSynthesis()");
+    #endif
+
+    // ... //
+
+    #if !defined DEBUG
+     puts("\n EXIT: LexicalSynthesis");
+    #endif
+}
 // Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
 void LexicalAnalysisAndSynthesis(const char *text)
 {
