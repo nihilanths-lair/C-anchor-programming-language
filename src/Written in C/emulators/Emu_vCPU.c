@@ -614,15 +614,26 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     #endif
 }
 
+struct Lexer {
+    uint64_t row_position;
+    uint64_t column_position;
+    uint64_t binary_position;
+} lexer = {
+    .row_position = 1,
+    .column_position = 1,
+    .binary_position = 0
+};
 ///*-------------------------------------*/
 // Только лексический анализ
-void LexicalAnalysis()
+void LexicalAnalysis(struct Lexer *lexer)
 {
     #if !defined DEBUG
      printf("\n ::=> LexicalAnalysis()");
     #endif
 
-    // ... //
+    printf("\n row_position = %d", lexer->row_position);
+    printf("\n column_position = %d", lexer->column_position);
+    printf("\n binary_position = %d", lexer->binary_position);
 
     #if !defined DEBUG
      printf("\n <=:: LexicalAnalysis");
@@ -700,13 +711,11 @@ char Compile(const char *text, size_t file_size, const char *params)
     break;
     case 2: // Разделение ответственности
     {
-        uint8_t row_position = 0;
-        uint8_t column_position = 0;
-        uint8_t binary_position = 0;
         uint8_t idx_text = 0;
         uint8_t idx_processed_text = 0-1;
         /** Многопроходная компиляция или же компиляция в несколько этапов */
-        LexicalAnalysis();
+        //lexer.row_position = 1, lexer.column_position = 1, lexer.binary_position = 0;
+        LexicalAnalysis(&lexer);
         LexicalSynthesis();
         // Лексический анализ и синтез (вместе)                                            // type-3 (регулярные)
         LexicalAnalysisAndSynthesis(text); //return 0; // STOP
