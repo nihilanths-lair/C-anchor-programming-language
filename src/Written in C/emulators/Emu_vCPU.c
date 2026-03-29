@@ -129,15 +129,10 @@ void StrictStyle(const char *text)
 }
 /// ... ///
 
-bool strcmpex(const char * str1, const char * str2){
-    return false;
-}
-bool scaner(const char * str1, const char * str2){
-    return false;
-}
+//bool strcmpex(const char * str1, const char * str2) { return false; }
+//bool scaner(const char * str1, const char * str2) { return false; }
 
-//Assembly(){}
-//Disassembly(){}
+//Assembly(){} //Disassembly(){}
 /*
 void _fwrite(size_t len)
 {
@@ -425,10 +420,11 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
      printf("\n ENTRANCE: DeployingMacros(..., %s)", (taking_into_account_errors) ? "true" : "false");
     #endif
 
-    switch (2){ // Кол-во проходов
+    switch (2) // Кол-во проходов
+    switch_open
     case 1: SinglepassMacroDeployment(text, taking_into_account_errors); break; // Однопроходная (сбор меток + подстановка адресов
     case 2: TwopassMacroDeployment(text, taking_into_account_errors); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
-    }
+    switch_close
 
     #if !defined DEBUG
      printf("\n EXIT: DeployingMacros");
@@ -574,8 +570,7 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
     // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
 
-    // Препроцессорная обработка начата...
-    //printf(" Preprocessing started...\n");
+    //printf(" Preprocessing started...\n"); // Препроцессорная обработка начата...
 
     printf("\n----\n<До>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
@@ -585,19 +580,22 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     switch_open
     case false:
     {
-        switch (preprocessing_type){
+        switch (preprocessing_type)
+        switch_open
         case 1: DeletingComments(text); break; // Только удаление комментариев
         case 2: DeployingMacros(text, false); break; // Только развёртка макросов
-        case 3: FullPreprocessing(text); break; // Удаление комментариев и развёртка макросов
-        }
+        case 3: FullPreprocessing(text); // Удаление комментариев и развёртка макросов
+        switch_close
     }
+    break;
     case true:
     {
-        switch (preprocessing_type){
+        switch (preprocessing_type)
+        switch_open
         case 1: DeletingComments(text); break; // Только удаление комментариев
         case 2: DeployingMacros(text, true); break; // Только развёртка макросов
-        case 3: FullPreprocessing(text); break; // Удаление комментариев и развёртка макросов
-        }
+        case 3: FullPreprocessing(text); // Удаление комментариев и развёртка макросов
+        switch_close
     }
     switch_close
 
@@ -609,8 +607,7 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     fwrite(_processed_text, sizeof (_processed_text), sizeof (char), desc);
     fclose(desc);
 
-    // Препроцессорная обработка закончена!
-    //printf("\n\n Preprocessing completed!\n");
+    //printf("\n\n Preprocessing completed!\n"); // Препроцессорная обработка закончена!
 
     #if !defined DEBUG
      printf("\n EXIT: Preprocessing");
@@ -1338,15 +1335,6 @@ int main(int argc, char *argv[])
     //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
     //puts("А-я | 192-255");
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-*/
-/*
-// Формат: printf("\033[<цвет>m<символ>\033[0m");
-// \033[0m - сброс цвета обратно на стандартный
-31m@ - Красный символ\n"); // Красный
-32m# - Зеленый символ\n"); // Зеленый
-33m$ - Желтый символ\n");  // Желтый
-34m& - Синий символ\n");   // Синий
-1;35m* - Жирный пурпурный\n"); // Жирный + цвет
 */
 /*
 case INT:
