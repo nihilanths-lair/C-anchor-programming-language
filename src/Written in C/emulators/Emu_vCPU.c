@@ -724,16 +724,17 @@ char Compile(const char *text, size_t file_size, const char *params)
     {
         uint8_t idx_text = 0;
         uint8_t idx_processed_text = 0-1;
+        // type-3 (регулярные), type-2 (контекстно-свободные), type-1 (контекстно-зависимые), type-0 (неограниченные/рекурсивно-перечислимые)
         /** Многопроходная компиляция или же компиляция в несколько этапов */
         //lexer.row_position = 1, lexer.column_position = 1, lexer.binary_position = 0;
         LexicalAnalysis(text, &lexer);  // Только лексический анализ
         LexicalSynthesis(text, &lexer); // Только лексический синтез
-        // Лексический анализ и синтез вместе                                              // type-3 (регулярные)
-        LexicalAnalysisAndSynthesis(text, &lexer); //return 0;
+        LexicalAnalysisAndSynthesis(text, &lexer); // Лексический анализ и синтез вместе
+        //return 0;
         ////////////////////////
-        // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)    // type-2 (контекстно-свободные)
+        // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)
         ///////////////////////////
-        // Семантический анализ и синтез кодогенерации (пока без IR)                       // type-1 (контекстно-зависимые), type-0 (неограниченные/рекурсивно-перечислимые)
+        // Семантический анализ и синтез кодогенерации (пока без IR)
         // Сбор (вычисление) меток
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
