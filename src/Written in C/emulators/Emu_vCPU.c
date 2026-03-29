@@ -629,12 +629,14 @@ typedef struct Lexer Lexer;
 void LexicalAnalysis(Lexer *lexer)
 {
     #if !defined DEBUG
-     printf("\n ::=> LexicalAnalysis()");
+     printf("\n ::=> LexicalAnalysis(");
+     printf("\n  row_position = %d", lexer->row_position);
+     printf("\n  column_position = %d", lexer->column_position);
+     printf("\n  binary_position = %d", lexer->binary_position);
+     printf("\n )");
     #endif
 
-    printf("\n row_position = %d", lexer->row_position);
-    printf("\n column_position = %d", lexer->column_position);
-    printf("\n binary_position = %d", lexer->binary_position);
+    // ... //
 
     #if !defined DEBUG
      printf("\n <=:: LexicalAnalysis");
@@ -644,12 +646,14 @@ void LexicalAnalysis(Lexer *lexer)
 void LexicalSynthesis(Lexer *lexer)
 {
     #if !defined DEBUG
-     printf("\n ::=> LexicalSynthesis()");
+     printf("\n ::=> LexicalSynthesis(");
+     printf("\n  row_position = %d", lexer->row_position);
+     printf("\n  column_position = %d", lexer->column_position);
+     printf("\n  binary_position = %d", lexer->binary_position);
+     printf("\n )");
     #endif
 
-    printf("\n row_position = %d", lexer->row_position);
-    printf("\n column_position = %d", lexer->column_position);
-    printf("\n binary_position = %d", lexer->binary_position);
+    // ... //
 
     #if !defined DEBUG
      printf("\n <=:: LexicalSynthesis");
