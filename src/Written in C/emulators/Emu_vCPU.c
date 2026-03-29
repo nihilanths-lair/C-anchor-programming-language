@@ -623,9 +623,10 @@ struct Lexer {
     .column_position = 1,
     .binary_position = 0
 };
+typedef struct Lexer Lexer;
 ///*-------------------------------------*/
 // Только лексический анализ
-void LexicalAnalysis(struct Lexer *lexer)
+void LexicalAnalysis(Lexer *lexer)
 {
     #if !defined DEBUG
      printf("\n ::=> LexicalAnalysis()");
