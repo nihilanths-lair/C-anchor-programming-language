@@ -27,25 +27,16 @@ uint8_t vMEMORY[0xFF];
 
 char _data_1[0xFF];
 
-enum UppercaseLetters // Заглавные буквы , LowercaseLetters // Строчные буквы: hlt, nop = 0x90,/*144*/inc = 2, dec, jmp, mov, add, sub, mul, _div, cmp, je, _int, //push
+enum UppercaseLetters // Заглавные буквы , LowercaseLetters // Строчные буквы: hlt, nop = 0x90,/*144*/
 {
     HLT,
     NOP = 0x90,//144
     INC = 2, DEC,
-    //
-    // Безусловный переход
-    JMP,
-    //
+    JMP, // Безусловный переход
     MOV,
-    // Арифметические операции
-    ADD, SUB, MUL, DIV,
-    //
-    // Операция сравнения
-    CMP,
-    //
-    // Условный переход
-    JE,
-    //
+    ADD, SUB, MUL, DIV, // Арифметические операции
+    CMP, // Операция сравнения
+    JE, // Условный переход
     _INT
     //PUSH
 };
@@ -125,16 +116,16 @@ const char ProcAsciiChr(uint8_t chr)
 enum { FREE_STYLE, STRICT_STYLE };
 bool syntax_style = STRICT_STYLE; // Стиль синтаксиса
 // Свободный стиль - компилятор на разное количество отступов в разных местах не ругается
-void FreeStyle(const char * text)
+void FreeStyle(const char *text)
 {
-    puts("\n>> FreeStyle()");
-    char filter[0xFF]; //filter[0] = '\0';
+    puts("\n ENTRANCE: FreeStyle()");
+    //char filter[0xFF]; //filter[0] = '\0';
 }
 // Строгий стиль - синтаксис жёстко зафиксирован и компилятор будет ругаться если ставить отступы в разных местах не по стандартам
-void StrictStyle(const char * text)
+void StrictStyle(const char *text)
 {
-    puts("\n>> StrictStyle()");
-    char filter[0xFF]; //filter[0] = '\0';
+    puts("\n ENTRANCE: StrictStyle()");
+    //char filter[0xFF]; //filter[0] = '\0';
 }
 /// ... ///
 
@@ -628,7 +619,24 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
 
 ///*-------------------------------------*/
 // Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
-void LexicalAnalysisAndSynthesis(){}
+void LexicalAnalysisAndSynthesis(const char *text)
+{
+    #if !defined DEBUG
+     puts("\n ENTRANCE: LexicalAnalysisAndSynthesis()");
+    #endif
+
+    uint8_t idx_text = 0;
+    switch (text[++idx_text])
+    switch_open
+    case '\0': goto _1_end;
+    // ... //
+    switch_close
+    _1_end:
+
+    #if !defined DEBUG
+     puts("\n EXIT: LexicalAnalysisAndSynthesis");
+    #endif
+}
 
 // Синтаксический анализ и синтез (анализ синтаксиса и построение: CST [для отладки] / AST [для релиза])
 void SyntacticAnalysisAndSynthesis(){}
@@ -675,8 +683,8 @@ char Compile(const char *text, size_t file_size, const char *params)
         uint8_t idx_text = 0;
         uint8_t idx_processed_text = 0-1;
         /** Многопроходная компиляция или же компиляция в несколько этапов */
-        // Лексический анализ и синтез                                                     // type-3 (регулярные)
-        // Сбор токенов и выдача ошибок если такого токена не существует
+        // Лексический анализ и синтез (вместе)                                            // type-3 (регулярные)
+        LexicalAnalysisAndSynthesis(text); return 0; // STOP
         ////////////////////////
         // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)    // type-2 (контекстно-свободные)
         ///////////////////////////
@@ -726,7 +734,7 @@ void Disassembly() //DebuggingInformation
         switch (opcode[i])
         switch_open
 
-        case HLT: // Syntax: Intel / AT&T
+        case HLT: // Specifics: Intel / AT&T
          printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[HLT].symbolic_name, ProcAsciiChr(opcode[i]));
          // Для дизассемблирования
          ++i;
@@ -734,13 +742,13 @@ void Disassembly() //DebuggingInformation
          //return 0;
          //break;
 
-        case NOP: // Syntax: Intel / AT&T
+        case NOP: // Specifics: Intel / AT&T
          printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[NOP].symbolic_name, ProcAsciiChr(opcode[i]));
          // Для дизассемблирования
          ++i;
         break;
 
-        case INC: // Syntax: Intel
+        case INC: // Specifics: Intel
          printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[INC].symbolic_name, vMEMORY[vIP+1]);
          // Для дизассемблирования
          ++i;
@@ -748,7 +756,7 @@ void Disassembly() //DebuggingInformation
          //vIP++;
         break;
 
-        case DEC: // Syntax: Intel
+        case DEC: // Specifics: Intel
          printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[DEC].symbolic_name, vMEMORY[vIP+1]);
          // Для дизассемблирования
          ++i;
@@ -756,7 +764,7 @@ void Disassembly() //DebuggingInformation
          //vIP++;
         break;
 
-        case JMP: // Syntax: Intel
+        case JMP: // Specifics: Intel
          printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d            |…| %c%c  ¦",
           i, opcode[i], opcode[i+1], i, opcode[i], opcode[i+1], table_opcode[JMP].symbolic_name, opcode[i+1], ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1])
          );
@@ -776,41 +784,41 @@ void Disassembly() //DebuggingInformation
          // Для дизассемблирования
          i += 3;
          // Для интерпретации
-         // Syntax: Intel
+         // Specifics: Intel
          //vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
          //vIP += 2;
-         //Syntax: AT&T
+         //Specifics: AT&T
          //vMEMORY[vMEMORY[++vIP]] = vMEMORY[++vIP];
          //++vIP;
         break;
 
         case ADD:
          printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-         // Syntax: Intel
+         // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
          vIP += 2;
-         //Syntax: AT&T
+         //Specifics: AT&T
          //vMEMORY[vMEMORY[--vIP]] = vMEMORY[--vIP] + vMEMORY[vIP+=2];
          //vIP += 2;
         break;
 
         case SUB:
          printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-         // Syntax: Intel
+         // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
          vIP += 2;
         break;
 
         case MUL:
          printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-         // Syntax: Intel
+         // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2];
          vIP += 2;
         break;
 
         case DIV:
          printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
-         // Syntax: Intel
+         // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2];
          vIP += 2;
         break;
@@ -1316,15 +1324,6 @@ int main(int argc, char *argv[])
 //else if (!strcmp(sample, "-;")){}
 */
 /*
-    switch (syntax_style){
-    case FREE_STYLE: {
-        FreeStyle(text);
-    } break;
-    case STRICT_STYLE: {
-        StrictStyle(text);
-    }}
-    */
-    /*
     char filter[0xFF]; //filter[0] = '\0';
     //printf("\n%s\n", _data_1);
     //for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_data_1[i]));
@@ -1339,37 +1338,26 @@ int main(int argc, char *argv[])
     //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
     //puts("А-я | 192-255");
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    */
+*/
 /*
 // Формат: printf("\033[<цвет>m<символ>\033[0m");
 // \033[0m - сброс цвета обратно на стандартный
-
-printf("\033[31m@\033[0m - Красный символ\n");  // Красный
-printf("\033[32m#\033[0m - Зеленый символ\n");  // Зеленый
-printf("\033[33m$\033[0m - Желтый символ\n");  // Желтый
-printf("\033[34m&\033[0m - Синий символ\n");    // Синий
-printf("\033[1;35m*\033[0m - Жирный пурпурный\n"); // Жирный + цвет
+31m@ - Красный символ\n"); // Красный
+32m# - Зеленый символ\n"); // Зеленый
+33m$ - Желтый символ\n");  // Желтый
+34m& - Синий символ\n");   // Синий
+1;35m* - Жирный пурпурный\n"); // Жирный + цвет
 */
-    /*char * ptr_op_code = opcode;
-    switch (opcode[vIP])
-    _rb_
-    case PUSH:
-        vSTACK[vSP--] = opcode[++vIP];
-        break;
-
-    case INT:
-        vIP++; // сдвигаем указатель на след. инструкцию
-        switch (*++ptr_op_code)
-        _rb_
-        case PUTCHAR:
-            vIP++; // сдвигаем указатель на след. инструкцию
-            putchar(opcode[vIP]);
-            break;
-            
-        case PRINTF:
-            break;
-        _eb_
-    _eb_*/
+/*
+case INT:
+ vIP++;
+ switch (*++ptr_op_code)
+ case PUTCHAR:
+  vIP++;
+  putchar(opcode[vIP]);
+  break;
+ case PRINTF: break;
+*/
 /// Текущая ячейка / Произвольная ячейка
 /// ...-> Выборка -> Декодирование -> Исполнение -> Смещение IP на след. инструкцию (автоматически) ->...
 
