@@ -636,7 +636,13 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
      printf("\n )");
     #endif
 
+    uint8_t idx_text = 0;
+    switch (text[++idx_text])
+    switch_open
+    case '\0': goto _1_end;
     // ... //
+    switch_close
+    _1_end:
 
     #if !defined DEBUG
      printf("\n <=:: LexicalAnalysis");
@@ -653,7 +659,13 @@ void LexicalSynthesis(const char *text, Lexer *lexer)
      printf("\n )");
     #endif
 
+    uint8_t idx_text = 0;
+    switch (text[++idx_text])
+    switch_open
+    case '\0': goto _1_end;
     // ... //
+    switch_close
+    _1_end:
 
     #if !defined DEBUG
      printf("\n <=:: LexicalSynthesis");
