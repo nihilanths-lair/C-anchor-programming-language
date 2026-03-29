@@ -626,7 +626,7 @@ struct Lexer {
 typedef struct Lexer Lexer;
 ///*-------------------------------------*/
 // Только лексический анализ
-void LexicalAnalysis(Lexer *lexer)
+void LexicalAnalysis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
      printf("\n ::=> LexicalAnalysis(");
@@ -643,7 +643,7 @@ void LexicalAnalysis(Lexer *lexer)
     #endif
 }
 // Только лексический синтез
-void LexicalSynthesis(Lexer *lexer)
+void LexicalSynthesis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
      printf("\n ::=> LexicalSynthesis(");
@@ -660,10 +660,14 @@ void LexicalSynthesis(Lexer *lexer)
     #endif
 }
 // Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
-void LexicalAnalysisAndSynthesis(const char *text)
+void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
-     printf("\n ::=> LexicalAnalysisAndSynthesis()");
+     printf("\n ::=> LexicalAnalysisAndSynthesis(");
+     printf("\n  row_position = %d", lexer->row_position);
+     printf("\n  column_position = %d", lexer->column_position);
+     printf("\n  binary_position = %d", lexer->binary_position);
+     printf("\n )");
     #endif
 
     uint8_t idx_text = 0;
@@ -722,10 +726,10 @@ char Compile(const char *text, size_t file_size, const char *params)
         uint8_t idx_processed_text = 0-1;
         /** Многопроходная компиляция или же компиляция в несколько этапов */
         //lexer.row_position = 1, lexer.column_position = 1, lexer.binary_position = 0;
-        LexicalAnalysis(&lexer);
-        LexicalSynthesis(&lexer);
-        // Лексический анализ и синтез (вместе)                                            // type-3 (регулярные)
-        LexicalAnalysisAndSynthesis(text); //return 0; // STOP
+        LexicalAnalysis(text, &lexer);  // Только лексический анализ
+        LexicalSynthesis(text, &lexer); // Только лексический синтез
+        // Лексический анализ и синтез вместе                                              // type-3 (регулярные)
+        LexicalAnalysisAndSynthesis(text, &lexer); //return 0;
         ////////////////////////
         // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)    // type-2 (контекстно-свободные)
         ///////////////////////////
