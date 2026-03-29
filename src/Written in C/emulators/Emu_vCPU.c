@@ -651,7 +651,7 @@ void CodeGeneration()
 }
 /*-------------------------------------*///
 
-char Compile(const char *data, size_t file_size, const char *params)
+char Compile(const char *text, size_t file_size, const char *params)
 {
     #if !defined DEBUG
      printf("\n ENTRANCE: Compile()");
@@ -675,21 +675,33 @@ char Compile(const char *data, size_t file_size, const char *params)
         // Синтаксический анализ //   type-2 (контекстно-свободные)
         ///////////////////////////
         // Семантический анализ //    type-1 (контекстно-зависимые), type-0 (неограниченные/рекурсивно-перечислимые)
+        uint8_t row_position = 0;
+        uint8_t column_position = 0;
+        uint8_t binary_position = 0;
+        uint8_t idx_text = 0;
+        uint8_t idx_processed_text = 0-1;
         // Сбор (вычисление) меток
-
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
             printf(" %d", _file_size);
-            switch ('\0')
+
+            switch (text[++idx_text])
             switch_open
-            case '\0': {}
+            case '\0': goto _1_end;
             switch_close
         }
+        _1_end:
         // Макрозамена меток
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
             printf(" %d", _file_size);
+
+            switch (text[++idx_text])
+            switch_open
+            case '\0': goto _2_end;
+            switch_close
         }
+        _2_end:
         //////////////////////////
         /* Многопроходная компиляция **/
     }
