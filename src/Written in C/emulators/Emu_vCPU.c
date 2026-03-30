@@ -624,6 +624,16 @@ struct Lexer {
     .binary_position = 0
 };
 typedef struct Lexer Lexer;
+
+struct Token {
+    uint8_t type;
+} token[0xFF];
+typedef struct Token Token;
+
+const char _table_of_symbolic_names[][3+sizeof(char)] =
+{
+    "", "", "", "", "JMP"
+};
 ///*-------------------------------------*/
 // Только лексический анализ
 void LexicalAnalysis(const char *text, Lexer *lexer)
@@ -637,24 +647,53 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
     #endif
 
     uint8_t idx_text = 0;
-    switch (text[++idx_text])
+    _1_run:
+    switch (text[idx_text])
     switch_open
     case '\0': goto _1_end;
+    case ' ': // не схлопываем, важен для строгого стиля, где пробелы учитываются
+    {
+        printf("\n [ЛА %d:%d, %d]: Токен ' ' обнаружен.", lexer->row_position, lexer->column_position, lexer->binary_position);
+        idx_text++;
+        lexer->column_position++;
+        lexer->binary_position++;
+        goto _1_run;
+    }
     case 'J':
     {
-        // ... //
-    }
-    case 'M':
-    {
-        // ... //
-    }
-    case 'P':
-    {
-        // ... //
+        idx_text++;
+        lexer->column_position++;
+        lexer->binary_position++;
+        switch (text[idx_text])
+        switch_open
+        case 'M':
+        {
+            idx_text++;
+            lexer->column_position++;
+            lexer->binary_position++;
+            switch (text[idx_text])
+            switch_open
+            case 'P':
+            {
+                token->type = JMP;
+                printf("\n [ЛА %d:%d, %d]: Токен \"%s\", тип %d обнаружен.", lexer->row_position, lexer->column_position, lexer->binary_position, _table_of_symbolic_names[token->type], token->type);
+                idx_text++;
+                lexer->column_position++;
+                lexer->binary_position++;
+                goto _1_run;
+            }
+            default: printf("\n [ЛА %d:%d, %d]: Ошибка! Токен \"JM\" не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position);
+            switch_close
+            goto _1_run;
+        }
+        default: printf("\n [ЛА %d:%d, %d]: Ошибка! Токен 'J' не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position);
+        switch_close
+        goto _1_run;
     }
     default:
     {
-        // ... //
+        // обычно крутим дальше, ищя другие токены, либо завершаем цикл
+        printf("\n [ЛА %d:%d, %d]: Ошибка! Токен не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position); // Неопознанный/неизвестный тип токена
     }
     // ... //
     switch_close
