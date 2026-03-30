@@ -651,6 +651,54 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
     switch (text[idx_text])
     switch_open
     case '\0': goto _1_end;
+    // ... //
+    switch_close
+    _1_end:
+
+    #if !defined DEBUG
+     printf("\n <=:: LexicalAnalysis");
+    #endif
+}
+// Только лексический синтез
+void LexicalSynthesis(const char *text, Lexer *lexer)
+{
+    #if !defined DEBUG
+     printf("\n ::=> LexicalSynthesis(");
+     printf("\n  row_position = %d", lexer->row_position);
+     printf("\n  column_position = %d", lexer->column_position);
+     printf("\n  binary_position = %d", lexer->binary_position);
+     printf("\n )");
+    #endif
+
+    uint8_t idx_text = 0;
+    _1_run:
+    switch (text[idx_text])
+    switch_open
+    case '\0': goto _1_end;
+    // ... //
+    switch_close
+    _1_end:
+
+    #if !defined DEBUG
+     printf("\n <=:: LexicalSynthesis");
+    #endif
+}
+// Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
+void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
+{
+    #if !defined DEBUG
+     printf("\n ::=> LexicalAnalysisAndSynthesis(");
+     printf("\n  row_position = %d", lexer->row_position);
+     printf("\n  column_position = %d", lexer->column_position);
+     printf("\n  binary_position = %d", lexer->binary_position);
+     printf("\n )");
+    #endif
+
+    uint8_t idx_text = 0;
+    _1_run:
+    switch (text[idx_text])
+    switch_open
+    case '\0': goto _1_end;
     case ' ': // не схлопываем, важен для строгого стиля, где пробелы учитываются
     {
         printf("\n [ЛА %d:%d, %d]: Токен ' ' обнаружен.", lexer->row_position, lexer->column_position, lexer->binary_position);
@@ -695,53 +743,6 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
         // обычно крутим дальше, ищя другие токены, либо завершаем цикл
         printf("\n [ЛА %d:%d, %d]: Ошибка! Токен не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position); // Неопознанный/неизвестный тип токена
     }
-    // ... //
-    switch_close
-    _1_end:
-
-    #if !defined DEBUG
-     printf("\n <=:: LexicalAnalysis");
-    #endif
-}
-// Только лексический синтез
-void LexicalSynthesis(const char *text, Lexer *lexer)
-{
-    #if !defined DEBUG
-     printf("\n ::=> LexicalSynthesis(");
-     printf("\n  row_position = %d", lexer->row_position);
-     printf("\n  column_position = %d", lexer->column_position);
-     printf("\n  binary_position = %d", lexer->binary_position);
-     printf("\n )");
-    #endif
-
-    uint8_t idx_text = 0;
-    switch (text[++idx_text])
-    switch_open
-    case '\0': goto _1_end;
-    // ... //
-    switch_close
-    _1_end:
-
-    #if !defined DEBUG
-     printf("\n <=:: LexicalSynthesis");
-    #endif
-}
-// Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
-void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
-{
-    #if !defined DEBUG
-     printf("\n ::=> LexicalAnalysisAndSynthesis(");
-     printf("\n  row_position = %d", lexer->row_position);
-     printf("\n  column_position = %d", lexer->column_position);
-     printf("\n  binary_position = %d", lexer->binary_position);
-     printf("\n )");
-    #endif
-
-    uint8_t idx_text = 0;
-    switch (text[++idx_text])
-    switch_open
-    case '\0': goto _1_end;
-    // ... //
     switch_close
     _1_end:
 
