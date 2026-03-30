@@ -4,6 +4,8 @@
 //#include <string.h>
 #include <stdlib.h> // Для malloc и free
 
+#define MAX_FILE_SIZE (10*1024*1024) // Лимит 10 Мегабайт
+
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
@@ -19,10 +21,18 @@ int main(int argc, char *argv[])
     long file_size = ftell(file);      // Получаем позицию (это и есть размер в байтах)
     rewind(file);                      // Возвращаемся в начало файла для чтения
 
-    // 2. Выделяем память (+1 байт для нулевого терминатора '\0')
-    char *source_code = malloc(file_size+1);
-    if (!source_code)
+    if (file_size > MAX_FILE_SIZE)
     {
+        printf("Файл слишком большой! Лимит %d байт.\n", MAX_FILE_SIZE);
+        fclose(file);
+        return 1;
+    }
+
+    // 2. Выделяем память (+1 байт для нулевого терминатора '\0') и проверяем, выделилась ли память
+    char *source_code = malloc(file_size+1);
+    if (source_code == NULL)
+    {
+        printf("\n Не удалось выделить память под файл.");
         fclose(file);
         return 1;
     }
