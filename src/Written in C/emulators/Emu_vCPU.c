@@ -640,6 +640,22 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
     switch (text[++idx_text])
     switch_open
     case '\0': goto _1_end;
+    case 'J':
+    {
+        // ... //
+    }
+    case 'M':
+    {
+        // ... //
+    }
+    case 'P':
+    {
+        // ... //
+    }
+    default:
+    {
+        // ... //
+    }
     // ... //
     switch_close
     _1_end:
