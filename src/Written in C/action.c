@@ -1,8 +1,8 @@
 static inline void Action()
 {
-    printf("\n Старт.");
     void *action[] = {&&_1, &&_2, &&_3};
     goto *action[1];
+    printf("\n Старт.");
     _1:
      printf("\n Вы поднялись на I этаж.");
      goto _0;
