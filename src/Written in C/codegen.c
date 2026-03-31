@@ -6,6 +6,8 @@
 
 #define MAX_FILE_SIZE (10*1024*1024) // Лимит 10 Мегабайт
 
+#include "action.c"
+
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
@@ -15,8 +17,11 @@ int main(int argc, char *argv[])
     putchar('\n');
 
     FILE *file = fopen("_.asm", "rb"); // "rb" — чтение в бинарном режиме (надежнее для размера)
-    if (!file) return 1;
-
+    if (!file)
+    {
+        printf("\n Не удалось открыть файл.");
+        return 1;
+    }
     // 1. Узнаем размер файла
     fseek(file, 0, SEEK_END);     // Переходим в самый конец
     long file_size = ftell(file); // Получаем позицию (это и есть размер в байтах)
@@ -52,7 +57,10 @@ int main(int argc, char *argv[])
     free(source_code);
     fclose(file);
 
-    // ... //
+    //-/
+    Action();
+    #include "action.txt"
+    //-/
 
     main_end: putchar('\n');
     return 0;
