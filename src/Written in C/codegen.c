@@ -12,18 +12,19 @@ int main(int argc, char *argv[])
 
     printf("\n argc = %d", argc);
     for (int i = 0; i < argc; i++) printf("\n argv[%d] = \"%s\"", i, argv[i]);
+    putchar('\n');
 
     FILE *file = fopen("_.asm", "rb"); // "rb" — чтение в бинарном режиме (надежнее для размера)
     if (!file) return 1;
 
     // 1. Узнаем размер файла
-    fseek(file, 0, SEEK_END);          // Переходим в самый конец
-    long file_size = ftell(file);      // Получаем позицию (это и есть размер в байтах)
-    rewind(file);                      // Возвращаемся в начало файла для чтения
+    fseek(file, 0, SEEK_END);     // Переходим в самый конец
+    long file_size = ftell(file); // Получаем позицию (это и есть размер в байтах)
+    rewind(file);                 // Возвращаемся в начало файла для чтения
 
     if (file_size > MAX_FILE_SIZE)
     {
-        printf("Файл слишком большой! Лимит %d байт.\n", MAX_FILE_SIZE);
+        printf("\n Файл слишком большой! Лимит %d байт.\n", MAX_FILE_SIZE);
         fclose(file);
         return 1;
     }
@@ -50,6 +51,8 @@ int main(int argc, char *argv[])
     // Чистим за собой
     free(source_code);
     fclose(file);
+
+    // ... //
 
     main_end: putchar('\n');
     return 0;
