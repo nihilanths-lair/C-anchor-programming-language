@@ -12,7 +12,7 @@ struct Syntax {
     char hex[2+sizeof(char)];
     char dec[3+sizeof(char)];
     char bin[8+sizeof(char)];
-} syntax[0xFF] = {
+} syntax[0xFF+sizeof(char)] = {
     "00", "000", "00000000",
     "01", "001", "00000001",
     "02", "002", "00000010",
