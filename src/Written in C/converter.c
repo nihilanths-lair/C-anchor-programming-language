@@ -7,9 +7,25 @@ unsigned char input_data[0xFFFFFF] = "\
 unsigned char output_data[0xFFFFFF] = "\
 ";
 
+struct Byte {
+    char ascii;
+    char hex;
+    char dec;
+    char bin;
+} byte[0xFF];
+
+struct Syntax {
+    char ascii;
+    char hex[2+sizeof(char)];
+    char dec[3+sizeof(char)];
+    char bin[8+sizeof(char)];
+} syntax[0xFF];
+
+// Микроассемблирование (микрокомпиляция)
 void _16txt_to_ascii(){}
 void _10txt_to_ascii(){}
 void _2txt_to_ascii(){}
+// Микродизассемблирование
 void ascii_to_16txt(){}
 void ascii_to_10txt(){}
 void ascii_to_2txt(){}
