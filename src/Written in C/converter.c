@@ -351,6 +351,21 @@ void byte_to_binary_ultra(unsigned char n, char *b)
     b[8] = '\0';
 }
 
+unsigned char hex_to_byte_fast(const char *s)
+{
+    unsigned char res = 0;
+    for (int i = 0; i < 2; i++)
+    {   // Обрабатываем 2 символа (1 байт)
+        char c = s[i];
+        res <<= 4; // Сдвигаем на 4 бита влево (освобождаем место под новую цифру)
+        
+        if (c >= '0' && c <= '9') res |= (c - '0');
+        else if (c >= 'A' && c <= 'F') res |= (c - 'A' + 10);
+        else if (c >= 'a' && c <= 'f') res |= (c - 'a' + 10);
+    }
+    return res;
+}
+
 #define __ "    "
 #define EOS "sizeof(char)"
 int main()
