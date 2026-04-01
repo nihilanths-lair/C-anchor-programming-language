@@ -338,6 +338,19 @@ void byte_to_binary(unsigned char n, char *buffer)
     buffer[8] = '\0'; // Закрываем строку
 }
 
+void byte_to_binary_ultra(unsigned char n, char *b)
+{
+    b[0] = (n & 0x80) ? '1' : '0';
+    b[1] = (n & 0x40) ? '1' : '0';
+    b[2] = (n & 0x20) ? '1' : '0';
+    b[3] = (n & 0x10) ? '1' : '0';
+    b[4] = (n & 0x08) ? '1' : '0';
+    b[5] = (n & 0x04) ? '1' : '0';
+    b[6] = (n & 0x02) ? '1' : '0';
+    b[7] = (n & 0x01) ? '1' : '0';
+    b[8] = '\0';
+}
+
 #define __ "    "
 #define EOS "sizeof(char)"
 int main()
