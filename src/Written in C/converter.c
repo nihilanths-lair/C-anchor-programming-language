@@ -401,6 +401,7 @@ int main(int argc, char *argv[])
     uint64_t IP = 0; // 64-bit's
     uint8_t  IP_8  = 0; //  8-bit's
     uint16_t IP_16 = 0; // 16-bit's
+    //uint24_t IP_24 = 0; // 24-bit's
     uint32_t IP_32 = 0; // 32-bit's
     uint64_t IP_64 = 0; // 64-bit's
 
@@ -415,17 +416,68 @@ int main(int argc, char *argv[])
     uint16_t SP_16 = 0; // 16-bit's
     uint32_t SP_32 = 0; // 32-bit's
     uint64_t SP_64 = 0; // 64-bit's
+
+    //uint32_t TAPE[0xFFFFFF]; // 16 Mb.
+    //uint8_t *TAPE = source_code;
+    uint8_t TAPE[] = {1, 1};
+    //strcpy(TAPE, source_code);
     // ѕарсинг шестнадцатеричного текстового представлени€ в бинарное
     void *section_data[0xFF];
-    void *section_code[] = {&&opcode__1, &&opcode__2, &&opcode__3};
+    void *section_code[] =
+    {
+        &&identifier_opcode__1,
+        &&identifier_opcode__2,
+        &&identifier_opcode__3,
+        &&identifier_opcode__4, // JMP  8-bit's
+        &&identifier_opcode__5, // JMP 64-bit's
+        &&identifier_opcode__6,
+        &&identifier_opcode__7
+    };
     //char opcode = 0; // временно
     _1_run:
-    //opcode = *source_code;
-    goto *section_code[*source_code];
-    //
-    opcode__1: goto _1_end; // ќстановить/прервать выполнение
-    opcode__2: goto *section_code[*(--source_code)]; // ѕерейти к пред. €чейки пам€ти (сдвиг указател€ по адресу на шаг назад)
-    opcode__3: goto *section_code[*(++source_code)]; // ѕерейти к след. €чейки пам€ти (сдвиг указател€ по адресу на шаг вперЄд)
+    //opcode = *TAPE;
+    goto *section_code[TAPE[IP]];
+    identifier_opcode__1: goto _1_end; // ќстановить/прервать выполнение.
+    identifier_opcode__2: // »нкрементировать текущую €чейку пам€ти.
+    {
+        printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+        TAPE[IP]++;
+        printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+        goto *section_code[TAPE[++IP]];
+    }
+    identifier_opcode__3: // ƒекрементировать текущую €чейку пам€ти.
+    {
+        printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+        TAPE[IP]--;
+        printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+        goto *section_code[TAPE[++IP]];
+    }
+    identifier_opcode__4: // ѕерейти к пред. €чейки пам€ти (сдвиг указател€ по адресу на шаг назад).
+    {
+        goto *section_code[TAPE[--IP]];
+    }
+    identifier_opcode__5: // ѕерейти к след. €чейки пам€ти (сдвиг указател€ по адресу на шаг вперЄд).
+    {
+        goto *section_code[TAPE[++IP]];
+    }
+    identifier_opcode__6: // ѕерейти к произвольной €чейки пам€ти с 8-ми битной адресацией (сдвиг указател€ по произвольному адресу).
+    {
+        IP = TAPE[++IP];
+        goto *section_code[TAPE[IP]];
+    }
+    identifier_opcode__7: // ѕерейти к произвольной €чейки пам€ти с 64-х битной адресацией (сдвиг указател€ по произвольному адресу).
+    {
+        //TAPE++; // ѕропускаем сам оп-код инструкции JMP
+        //IP = *(uint64_t*) TAPE; // ѕолучаем 8 байт
+        //TAPE += 8; // —двигаем указатель за пределы адреса
+        // ≈сли IP Ч это адрес внутри source_code, делаем переход:
+        // source_code = (unsigned char*)IP;
+        //goto *section_code[*TAPE];
+        // Syntax: AT&T, пор€док байт: big endian.
+        // ... //
+        // Syntax: Intel, пор€док байт: little endian.
+        // ... //
+    }
     _1_end:
 
     _2_run:
