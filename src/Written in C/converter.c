@@ -187,28 +187,31 @@ int main(int argc, char *argv[])
     // Через конфиг. файл считываются идентификаторы и присвоенные им оп-коды, затем определяется табличный адрес ISA и переход на него)
     // Преимущество такого подхода, можно задавать любые оп-коды или даже символьные имена какие вздумается, при этом архитектура никак не меняется (не ломается)
 
-    #define HLT 0x00 // <%1>
-    #define JMP 0x01 // <%2>
-    #define INC 0x02 // <%3>
-    char opcode_configuration_file[] = {HLT, JMP, INC};
+    #define HLT 0x01 // <%1>
+    #define JMP 0x02 // <%2>
+    #define INC 0x03 // <%3>
+    char opcode_configuration_file[] = {INC, JMP, HLT, '\0'};
 
-    void *ops[] = {&&ident_1, &&ident_2, &&ident_3};
-
-    // Базовые реализации
-    ident_1: printf("\n <%1>: ?");
-    ident_2: printf("\n <%2>: ?");
-    ident_3: printf("\n <%3>: ?");
-
+    void *opcode_table[] = {&&op_1, &&op_2, &&op_3};
     // В процессе загрузки (псевдологика)
     void *current_isa[0x100];
-    for (int i = 0; i < sizeof (opcode_configuration_file); i++)
-    {
-        // например, оп-код 0x05
-        current_isa[opcode_configuration_file[i]] = ops[i];  // маппим его на внутреннюю логику #i
-    }
+    for (int i = 0; i < sizeof (opcode_configuration_file); i++) current_isa[opcode_configuration_file[i]] = opcode_table[i]; // например, оп-код 0x05 маппим на внутреннюю логику #i
+    for (int i = 0; i < sizeof (opcode_configuration_file); i++) printf("\n 0x%p, 0x%p", opcode_table[i], current_isa[i]);
 
-    // Выполнение (Dispatch loop)
-    //-/exec: goto *current_isa[program[pc++]];
+    /*goto *current_isa[0];*/
+    // Базовые реализации
+    op_1:
+     printf("\n <%%1>: ?");
+    op_2:
+     printf("\n <%%2>: ?");
+    op_3:
+     printf("\n <%%3>: ?");
+    return 0;
+    /* Выполнение (Dispatch loop)
+    char program[0xFF];
+    uint8_t pc;
+    exec: goto *current_isa[program[pc++]];
+    */
 
     // void *dispatch_table[0xFF];
     // goto *dispatch_table[?];
