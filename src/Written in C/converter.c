@@ -172,13 +172,12 @@ int main(int argc, char *argv[])
     void *section_data[0xFF];
     void *section_code[] =
     {
-        &&identifier_opcode__1,
-        &&identifier_opcode__2,
-        &&identifier_opcode__3,
-        &&identifier_opcode__4, // JMP  8-bit's
-        &&identifier_opcode__5, // JMP 64-bit's
-        &&identifier_opcode__6,
-        &&identifier_opcode__7
+        &&op_1,
+        &&op_2,
+        &&op_3,
+        &&op_4, // JMP  8-bit's
+        &&op_5, // JMP 64-bit's
+        &&op_6
     };
     //char opcode = 0; // временно
     _1_run:
@@ -200,6 +199,7 @@ int main(int argc, char *argv[])
 
     /*goto *current_isa[0];*/
     // Базовые реализации
+    /*
     op_1:
      printf("\n <%%1>: ?");
     op_2:
@@ -207,6 +207,7 @@ int main(int argc, char *argv[])
     op_3:
      printf("\n <%%3>: ?");
     return 0;
+    */
     /* Выполнение (Dispatch loop)
     char program[0xFF];
     uint8_t pc;
@@ -217,39 +218,48 @@ int main(int argc, char *argv[])
     // goto *dispatch_table[?];
 
     goto *section_code[TAPE[IP]];
-    identifier_opcode__1: goto _1_end; // Остановить/прервать выполнение.
-    identifier_opcode__2: // Инкрементировать текущую ячейку памяти.
+    // Базовые реализации
+    op_1: goto _1_end; // Остановить/прервать выполнение.
+    op_2: // Инкрементировать текущую ячейку памяти.
     {
+        printf("\n <%%2>: ?");
         printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
         TAPE[IP]++;
         printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
         goto *section_code[TAPE[++IP]];
     }
-    identifier_opcode__3: // Декрементировать текущую ячейку памяти.
+    op_3: // Декрементировать текущую ячейку памяти.
     {
+        printf("\n <%%3>: ?");
         printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
         TAPE[IP]--;
         printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
         goto *section_code[TAPE[++IP]];
     }
-    identifier_opcode__4: // Перейти к пред. ячейки памяти (сдвиг указателя по адресу на шаг назад).
+    op_4: // Перейти к пред. ячейки памяти (сдвиг указателя по адресу на шаг назад).
     {
+        printf("\n <%%4>: ?");
         goto *section_code[TAPE[--IP]];
     }
-    identifier_opcode__5: // Перейти к след. ячейки памяти (сдвиг указателя по адресу на шаг вперёд).
+    op_5: // Перейти к след. ячейки памяти (сдвиг указателя по адресу на шаг вперёд).
     {
+        printf("\n <%%5>: ?");
         goto *section_code[TAPE[++IP]];
     }
-    identifier_opcode__6: // Перейти к произвольной ячейки памяти с 8-ми битной адресацией (сдвиг указателя по произвольному адресу).
+    op_6: // Перейти к произвольной ячейки памяти с 8-ми битной адресацией (сдвиг указателя по произвольному адресу).
     {
+        printf("\n <%%6>: ?");
         IP = TAPE[++IP];
         goto *section_code[TAPE[IP]];
     }
-    identifier_opcode__7: // Перейти к произвольной ячейки памяти с 64-х битной адресацией (сдвиг указателя по произвольному адресу).
+    /*
+    op_7: // Перейти к произвольной ячейки памяти с 64-х битной адресацией (сдвиг указателя по произвольному адресу).
     {
-        //TAPE++; // Пропускаем сам оп-код инструкции JMP
-        //IP = *(uint64_t*) TAPE; // Получаем 8 байт
-        //TAPE += 8; // Сдвигаем указатель за пределы адреса
+        printf("\n <%%7>: ?");
+        TAPE++; // Пропускаем сам оп-код инструкции JMP
+        IP = *(uint64_t*) TAPE; // Получаем 8 байт
+        TAPE += 8; // Сдвигаем указатель за пределы адреса
+
         // Если IP — это адрес внутри source_code, делаем переход:
         // source_code = (unsigned char*)IP;
         //goto *section_code[*TAPE];
@@ -258,6 +268,7 @@ int main(int argc, char *argv[])
         // Syntax: Intel, порядок байт: little endian.
         // ... //
     }
+    */
     _1_end:
 
     _2_run:
