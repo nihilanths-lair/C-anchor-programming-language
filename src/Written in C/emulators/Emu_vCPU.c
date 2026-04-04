@@ -19,7 +19,7 @@ uint8_t vIP; uint16_t vEIP;
 uint8_t vSP;
 uint8_t vDI, vSI;
 
-// comparison flag / флаг сравнения
+// comparison flag / С„Р»Р°Рі СЃСЂР°РІРЅРµРЅРёСЏ
 bool CF;
 
 uint8_t vMEMORY[0xFF];
@@ -27,16 +27,16 @@ uint8_t vMEMORY[0xFF];
 
 char _data_1[0xFF];
 
-enum UppercaseLetters // Заглавные буквы , LowercaseLetters // Строчные буквы: hlt, nop = 0x90,/*144*/
+enum UppercaseLetters // Р—Р°РіР»Р°РІРЅС‹Рµ Р±СѓРєРІС‹ , LowercaseLetters // РЎС‚СЂРѕС‡РЅС‹Рµ Р±СѓРєРІС‹: hlt, nop = 0x90,/*144*/
 {
     HLT,
     NOP = 0x90,//144
     INC = 2, DEC,
-    JMP, // Безусловный переход
+    JMP, // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ
     MOV,
-    ADD, SUB, MUL, DIV, // Арифметические операции
-    CMP, // Операция сравнения
-    JE, // Условный переход
+    ADD, SUB, MUL, DIV, // РђСЂРёС„РјРµС‚РёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё
+    CMP, // РћРїРµСЂР°С†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ
+    JE, // РЈСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ
     _INT
     //PUSH
 };
@@ -75,53 +75,53 @@ const char ProcAsciiChr(uint8_t chr)
 {
     switch (chr)
     switch_open
-    case '\0': return '·'; // ··0
-    case 0x01: return '·'; // ··1
-    case 0x02: return '·'; // ··2
-    case 0x03: return '·'; // ··3
-    case 0x04: return '·'; // ··4
-    case 0x05: return '·'; // ··5
-    case 0x06: return '·'; // ··6
-    case 0x07: return '·'; // ··7
-    case 0x08: return '·'; // ··8
-    case 0x09: return '·'; // ··9
-    case '\n': return '·'; // ·10
-    case 0x0B: return '·'; // ·11
-    case 0x0C: return '·'; // ·12
-    case '\r': return '·'; // ·13
-    //case 0x0E: return '·'; // ·14
-    case 0x0F: return '·'; // ·15
-    case 0x10: return '·'; // ·16
-    case 0x11: return '·'; // ·17
-    case 0x12: return '·'; // ·18
-    case 0x13: return '·'; // ·19
-    case 0x14: return '·'; // ·20
-    case 0x1B: return '·'; // ·27
-    // 30-39 или 048-057: 0-9
-    // 41-5A или 065-090: A-Z
-    // 61-7A или 097-122: a-z
-    case 0x90: return '·'; // 144
-    case 0x95: return '·'; // 149
-    //    A8 или     168: Ё
-    //    B8 или     184: ё
-    // C0-DF или 192-223: А-Я
-    // E0-FF или 224-255: а-я
+    case '\0': return 'В·'; // В·В·0
+    case 0x01: return 'В·'; // В·В·1
+    case 0x02: return 'В·'; // В·В·2
+    case 0x03: return 'В·'; // В·В·3
+    case 0x04: return 'В·'; // В·В·4
+    case 0x05: return 'В·'; // В·В·5
+    case 0x06: return 'В·'; // В·В·6
+    case 0x07: return 'В·'; // В·В·7
+    case 0x08: return 'В·'; // В·В·8
+    case 0x09: return 'В·'; // В·В·9
+    case '\n': return 'В·'; // В·10
+    case 0x0B: return 'В·'; // В·11
+    case 0x0C: return 'В·'; // В·12
+    case '\r': return 'В·'; // В·13
+    //case 0x0E: return 'В·'; // В·14
+    case 0x0F: return 'В·'; // В·15
+    case 0x10: return 'В·'; // В·16
+    case 0x11: return 'В·'; // В·17
+    case 0x12: return 'В·'; // В·18
+    case 0x13: return 'В·'; // В·19
+    case 0x14: return 'В·'; // В·20
+    case 0x1B: return 'В·'; // В·27
+    // 30-39 РёР»Рё 048-057: 0-9
+    // 41-5A РёР»Рё 065-090: A-Z
+    // 61-7A РёР»Рё 097-122: a-z
+    case 0x90: return 'В·'; // 144
+    case 0x95: return 'В·'; // 149
+    //    A8 РёР»Рё     168: РЃ
+    //    B8 РёР»Рё     184: С‘
+    // C0-DF РёР»Рё 192-223: Рђ-РЇ
+    // E0-FF РёР»Рё 224-255: Р°-СЏ
     default: return chr;
     switch_close
 }
 
 /// ... ///
-/// метка: оператор операнд-1 операнд-2
-// Метка является необязательным параметром, оператор может иметь два, один или вообще не иметь операндов
+/// РјРµС‚РєР°: РѕРїРµСЂР°С‚РѕСЂ РѕРїРµСЂР°РЅРґ-1 РѕРїРµСЂР°РЅРґ-2
+// РњРµС‚РєР° СЏРІР»СЏРµС‚СЃСЏ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј, РѕРїРµСЂР°С‚РѕСЂ РјРѕР¶РµС‚ РёРјРµС‚СЊ РґРІР°, РѕРґРёРЅ РёР»Рё РІРѕРѕР±С‰Рµ РЅРµ РёРјРµС‚СЊ РѕРїРµСЂР°РЅРґРѕРІ
 enum { FREE_STYLE, STRICT_STYLE };
-bool syntax_style = STRICT_STYLE; // Стиль синтаксиса
-// Свободный стиль - компилятор на разное количество отступов в разных местах не ругается
+bool syntax_style = STRICT_STYLE; // РЎС‚РёР»СЊ СЃРёРЅС‚Р°РєСЃРёСЃР°
+// РЎРІРѕР±РѕРґРЅС‹Р№ СЃС‚РёР»СЊ - РєРѕРјРїРёР»СЏС‚РѕСЂ РЅР° СЂР°Р·РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚СЃС‚СѓРїРѕРІ РІ СЂР°Р·РЅС‹С… РјРµСЃС‚Р°С… РЅРµ СЂСѓРіР°РµС‚СЃСЏ
 void FreeStyle(const char *text)
 {
     puts("\n ENTRANCE: FreeStyle()");
     //char filter[0xFF]; //filter[0] = '\0';
 }
-// Строгий стиль - синтаксис жёстко зафиксирован и компилятор будет ругаться если ставить отступы в разных местах не по стандартам
+// РЎС‚СЂРѕРіРёР№ СЃС‚РёР»СЊ - СЃРёРЅС‚Р°РєСЃРёСЃ Р¶С‘СЃС‚РєРѕ Р·Р°С„РёРєСЃРёСЂРѕРІР°РЅ Рё РєРѕРјРїРёР»СЏС‚РѕСЂ Р±СѓРґРµС‚ СЂСѓРіР°С‚СЊСЃСЏ РµСЃР»Рё СЃС‚Р°РІРёС‚СЊ РѕС‚СЃС‚СѓРїС‹ РІ СЂР°Р·РЅС‹С… РјРµСЃС‚Р°С… РЅРµ РїРѕ СЃС‚Р°РЅРґР°СЂС‚Р°Рј
 void StrictStyle(const char *text)
 {
     puts("\n ENTRANCE: StrictStyle()");
@@ -136,15 +136,15 @@ void StrictStyle(const char *text)
 /*
 void _fwrite(size_t len)
 {
-    // Записываем в файл
+    // Р—Р°РїРёСЃС‹РІР°РµРј РІ С„Р°Р№Р»
     FILE * desc = fopen("_.bin", "wb");
-    if (desc == NULL) { printf("Ошибка открытия файла."); return -1; }
+    if (desc == NULL) { printf("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°."); return -1; }
     //ptr_data = 0xFF;
     //while (file_size--) fputc(data[++ptr_data], desc);
     fclose(desc);
 }
 */
-/// КОМПИЛЯТОР ///
+/// РљРћРњРџРР›РЇРўРћР  ///
 char _source_code[0xFF] = "";
 //uint8_t _ptr_source_code = 0xFF;
 
@@ -154,7 +154,7 @@ char _processed_text[0xFF];
 char labels[0xF][0xFF];
 uint8_t count_labels = 0xFF;
 //////////////////////////////////////////
-// Однопроходное развертывание макросов //
+// РћРґРЅРѕРїСЂРѕС…РѕРґРЅРѕРµ СЂР°Р·РІРµСЂС‚С‹РІР°РЅРёРµ РјР°РєСЂРѕСЃРѕРІ //
 //////////////////////////////////////////
 void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors)
 {
@@ -162,7 +162,7 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
      printf("\n ENTRANCE: SinglepassMacroDeployment(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
     #endif
 
-    switch (taking_into_account_errors) // С учётом ошибок?
+    switch (taking_into_account_errors) // РЎ СѓС‡С‘С‚РѕРј РѕС€РёР±РѕРє?
     switch_open
     case false:
     {
@@ -175,87 +175,87 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
         switch (text[idx_text])
         switch_open
         case '\0': goto _1_end;
-        case 'J': // проверить следующие два символа, возможно JMP
+        case 'J': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РґРІР° СЃРёРјРІРѕР»Р°, РІРѕР·РјРѕР¶РЅРѕ JMP
         {
-            printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+            printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
             _processed_text[++idx_processed_text] = text[idx_text++];
             //++idx__text;
             switch (text[idx_text])
             switch_open
             case '\0': goto _1_end;
-            case 'M': // проверить следующий символ, возможно JMP
+            case 'M': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґСѓСЋС‰РёР№ СЃРёРјРІРѕР», РІРѕР·РјРѕР¶РЅРѕ JMP
             {
-                printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                 _processed_text[++idx_processed_text] = text[idx_text++];
                 //++idx__text;
                 switch (text[idx_text])
                 switch_open
                 case '\0': goto _1_end;
-                case 'P': // проверить след. символ, необходим отступ/пробел
+                case 'P': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґ. СЃРёРјРІРѕР», РЅРµРѕР±С…РѕРґРёРј РѕС‚СЃС‚СѓРї/РїСЂРѕР±РµР»
                 {
-                    printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                    printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                     _processed_text[++idx_processed_text] = text[idx_text++];
                     //++idx__text;
                     switch (text[idx_text])
                     switch_open
                     case '\0': goto _1_end;
                     case ' ':
-                        printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                        printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                         _processed_text[++idx_processed_text] = text[idx_text++];
-                        printf("\n Обработанные данные: \"%s\"", _processed_text);
-                        //++idx__text; // пока мы не знаем метка находится выше или ниже
-                        // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
+                        printf("\n РћР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ: \"%s\"", _processed_text);
+                        //++idx__text; // РїРѕРєР° РјС‹ РЅРµ Р·РЅР°РµРј РјРµС‚РєР° РЅР°С…РѕРґРёС‚СЃСЏ РІС‹С€Рµ РёР»Рё РЅРёР¶Рµ
+                        // ... // Р·РґРµСЃСЊ СѓР¶Рµ РёРґС‘С‚ РјРµС‚РєР° РїРµСЂРµС…РѕРґР°, РЅРµРѕР±С…РѕРґРёРјРѕ РµС‘ РїСЂРѕСЃРєР°РЅРёСЂРѕРІР°С‚СЊ Рё Р·Р°РїРёСЃР°С‚СЊ РїРѕ РєР°РєРѕРјСѓ Р°РґСЂРµСЃСѓ РЅР°С…РѕРґРёС‚СЃСЏ
                     default:
                     {
                         _processed_text[++idx_processed_text] = text[idx_text++];
-                        goto _1_run; // если не ' ' !
+                        goto _1_run; // РµСЃР»Рё РЅРµ ' ' !
                     }
                     switch_close
                 }
                 default:
                 {
                     _processed_text[++idx_processed_text] = text[idx_text++];
-                    goto _1_run; // если не 'P' !
+                    goto _1_run; // РµСЃР»Рё РЅРµ 'P' !
                 }
                 switch_close
             }
-            default: // не макрос, записываем как есть!
+            default: // РЅРµ РјР°РєСЂРѕСЃ, Р·Р°РїРёСЃС‹РІР°РµРј РєР°Рє РµСЃС‚СЊ!
             {
                 _processed_text[++idx_processed_text] = text[idx_text++];
-                goto _1_run; // если не 'M' !
+                goto _1_run; // РµСЃР»Рё РЅРµ 'M' !
             }
             switch_close
         }
-        case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
+        case ':': // РѕР±РЅР°СЂСѓР¶РµРЅР° РјРµС‚РєР°, РЅРµРѕР±С…РѕРґРёРјРѕ РµС‘ РїСЂРѕР°РЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє, Р° Р·Р°С‚РµРј СЃРѕС…СЂР°РЅРёС‚СЊ Р°РґСЂРµСЃ РїРµСЂРµС…РѕРґР°
         {
-            printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx_text);
-            uint8_t addr_labels = idx_text; // запомним адрес конца метки
+            printf("\n\tв„–%d, РњР•РўРљРђ РћР‘РќРђР РЈР–Р•РќРђ!\n", idx_text);
+            uint8_t addr_labels = idx_text; // Р·Р°РїРѕРјРЅРёРј Р°РґСЂРµСЃ РєРѕРЅС†Р° РјРµС‚РєРё
             uint8_t idx__labels = 0xFF;
             --idx_text;
-            // идём обратным ходом, ... //
+            // РёРґС‘Рј РѕР±СЂР°С‚РЅС‹Рј С…РѕРґРѕРј, ... //
             _2_run:
             switch (text[idx_text])
             switch_open
             case '\0': goto _1_end;
-            case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
+            case ' ': // ... РїРѕРєР° РЅРµ Р±СѓРґРµС‚ РѕР±РЅР°СЂСѓР¶РµРЅ РѕС‚СЃС‚СѓРї/РїСЂРѕР±РµР» РѕР·РЅР°С‡Р°СЋС‰РёР№ РЅР°С‡Р°Р»Рѕ РјРµС‚РєРё
             {
                 labels[0][++idx__labels] = '\0';
                 idx__labels = 0xFF;
-                printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
+                printf("\n\tРњР•РўРљРђ в„–%d: \"%s\" - РџРћР™РњРђРќРђ!\n", count_labels, labels[count_labels]);
                 idx_text += addr_labels;
                 goto _1_run;
             }
-            default: // идём по метке
+            default: // РёРґС‘Рј РїРѕ РјРµС‚РєРµ
             {
-                printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx_text);
+                printf("\n\tв„–%d, РЎРћР‘РР РђР•Рњ РњР•РўРљРЈ!\n", idx_text);
                 labels[count_labels][++idx__labels] = text[idx_text--];
                 goto _2_run;
             }
             switch_close
-            printf("\n\t№%d, МЕТКА ОБРАБОТАНА!\n", idx_text);
+            printf("\n\tв„–%d, РњР•РўРљРђ РћР‘Р РђР‘РћРўРђРќРђ!\n", idx_text);
             goto _1_run;
         }
-        default: // не макрос, записываем как есть!
+        default: // РЅРµ РјР°РєСЂРѕСЃ, Р·Р°РїРёСЃС‹РІР°РµРј РєР°Рє РµСЃС‚СЊ!
         {
             _processed_text[++idx_processed_text] = text[idx_text++];
             goto _1_run;
@@ -271,7 +271,7 @@ void SinglepassMacroDeployment(const char *text, bool taking_into_account_errors
     #endif
 }
 //////////////////////////////////////////
-// Двухпроходное развертывание макросов //
+// Р”РІСѓС…РїСЂРѕС…РѕРґРЅРѕРµ СЂР°Р·РІРµСЂС‚С‹РІР°РЅРёРµ РјР°РєСЂРѕСЃРѕРІ //
 //////////////////////////////////////////
 void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
 {
@@ -279,13 +279,13 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
      printf("\n ENTRANCE: TwopassMacroDeployment(..., %s)\n", (taking_into_account_errors) ? "true" : "false");
     #endif
 
-    switch (taking_into_account_errors) // С учётом ошибок?
+    switch (taking_into_account_errors) // РЎ СѓС‡С‘С‚РѕРј РѕС€РёР±РѕРє?
     switch_open
     case false:
     {
         uint8_t idx_text;
         uint8_t idx_processed_text;
-        printf(" < I проход >");
+        printf(" < I РїСЂРѕС…РѕРґ >");
         idx_processed_text = 0-1;
         idx_text = 0;
         /*//*/
@@ -293,36 +293,36 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
         switch (text[idx_text])
         switch_open
         case '\0': goto _1_end;
-        case ':': // обнаружена метка, необходимо её проанализировать на наличие ошибок, а затем сохранить адрес перехода
+        case ':': // РѕР±РЅР°СЂСѓР¶РµРЅР° РјРµС‚РєР°, РЅРµРѕР±С…РѕРґРёРјРѕ РµС‘ РїСЂРѕР°РЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє, Р° Р·Р°С‚РµРј СЃРѕС…СЂР°РЅРёС‚СЊ Р°РґСЂРµСЃ РїРµСЂРµС…РѕРґР°
         {
-            printf("\n\t№%d, МЕТКА ОБНАРУЖЕНА!\n", idx_text);
-            uint8_t addr_labels = idx_text; // запомним адрес конца метки
+            printf("\n\tв„–%d, РњР•РўРљРђ РћР‘РќРђР РЈР–Р•РќРђ!\n", idx_text);
+            uint8_t addr_labels = idx_text; // Р·Р°РїРѕРјРЅРёРј Р°РґСЂРµСЃ РєРѕРЅС†Р° РјРµС‚РєРё
             uint8_t idx__labels = 0xFF;
             ++idx_text;
-            // идём обратным ходом, ... //
+            // РёРґС‘Рј РѕР±СЂР°С‚РЅС‹Рј С…РѕРґРѕРј, ... //
             _2_run:
             switch (text[idx_text])
             switch_open
             case '\0': goto _1_end;
-            case ' ': // ... пока не будет обнаружен отступ/пробел означающий начало метки
+            case ' ': // ... РїРѕРєР° РЅРµ Р±СѓРґРµС‚ РѕР±РЅР°СЂСѓР¶РµРЅ РѕС‚СЃС‚СѓРї/РїСЂРѕР±РµР» РѕР·РЅР°С‡Р°СЋС‰РёР№ РЅР°С‡Р°Р»Рѕ РјРµС‚РєРё
             {
                 //labels[0][++idx__labels] = '\0';
                 //idx__labels = 0xFF;
-                printf("\n\tМЕТКА №%d: \"%s\" - ПОЙМАНА!\n", count_labels, labels[count_labels]);
+                printf("\n\tРњР•РўРљРђ в„–%d: \"%s\" - РџРћР™РњРђРќРђ!\n", count_labels, labels[count_labels]);
                 //idx_text += addr_labels;
                 goto _1_run;
             }
-            default: // идём по метке
+            default: // РёРґС‘Рј РїРѕ РјРµС‚РєРµ
             {
-                //printf("\n\t№%d, СОБИРАЕМ МЕТКУ!\n", idx_text);
+                //printf("\n\tв„–%d, РЎРћР‘РР РђР•Рњ РњР•РўРљРЈ!\n", idx_text);
                 //labels[count_labels][++idx__labels] = text[idx_text--];
                 goto _2_run;
             }
             switch_close
-            printf("\n\t№%d, МЕТКА ОБРАБОТАНА!\n", idx_text);
+            printf("\n\tв„–%d, РњР•РўРљРђ РћР‘Р РђР‘РћРўРђРќРђ!\n", idx_text);
             goto _1_run;
         }
-        default: // не макрос, записываем как есть!
+        default: // РЅРµ РјР°РєСЂРѕСЃ, Р·Р°РїРёСЃС‹РІР°РµРј РєР°Рє РµСЃС‚СЊ!
         {
             _processed_text[++idx_processed_text] = text[idx_text++];
             goto _1_run;
@@ -330,61 +330,61 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
         switch_close _1_end:
         _processed_text[++idx_processed_text] = '\0';
         /*//*/
-        printf(" < II проход >");
+        printf(" < II РїСЂРѕС…РѕРґ >");
         idx_processed_text = 0-1;
         idx_text = 0;
         _2_1_run:
         switch (text[idx_text])
         switch_open
         case '\0': goto _1_end;
-        case 'J': // проверить следующие два символа, возможно JMP
+        case 'J': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РґРІР° СЃРёРјРІРѕР»Р°, РІРѕР·РјРѕР¶РЅРѕ JMP
         {
-            printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+            printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
             _processed_text[++idx_processed_text] = text[idx_text++];
             //++idx__text;
             switch (text[idx_text])
             switch_open
             case '\0': goto _1_end;
-            case 'M': // проверить следующий символ, возможно JMP
+            case 'M': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґСѓСЋС‰РёР№ СЃРёРјРІРѕР», РІРѕР·РјРѕР¶РЅРѕ JMP
             {
-                printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                 _processed_text[++idx_processed_text] = text[idx_text++];
                 //++idx__text;
                 switch (text[idx_text])
                 switch_open
                 case '\0': goto _1_end;
-                case 'P': // проверить след. символ, необходим отступ/пробел
+                case 'P': // РїСЂРѕРІРµСЂРёС‚СЊ СЃР»РµРґ. СЃРёРјРІРѕР», РЅРµРѕР±С…РѕРґРёРј РѕС‚СЃС‚СѓРї/РїСЂРѕР±РµР»
                 {
-                    printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                    printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                     _processed_text[++idx_processed_text] = text[idx_text++];
                     //++idx__text;
                     switch (text[idx_text])
                     switch_open
                     case '\0': goto _1_end;
                     case ' ':
-                        printf("\n\t№%d, символ '%c' обнаружен!", idx_text, text[idx_text]);
+                        printf("\n\tв„–%d, СЃРёРјРІРѕР» '%c' РѕР±РЅР°СЂСѓР¶РµРЅ!", idx_text, text[idx_text]);
                         _processed_text[++idx_processed_text] = text[idx_text++];
-                        printf("\n Обработанные данные: \"%s\"", _processed_text);
-                        //++idx__text; // пока мы не знаем метка находится выше или ниже
-                        // ... // здесь уже идёт метка перехода, необходимо её просканировать и записать по какому адресу находится
+                        printf("\n РћР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ: \"%s\"", _processed_text);
+                        //++idx__text; // РїРѕРєР° РјС‹ РЅРµ Р·РЅР°РµРј РјРµС‚РєР° РЅР°С…РѕРґРёС‚СЃСЏ РІС‹С€Рµ РёР»Рё РЅРёР¶Рµ
+                        // ... // Р·РґРµСЃСЊ СѓР¶Рµ РёРґС‘С‚ РјРµС‚РєР° РїРµСЂРµС…РѕРґР°, РЅРµРѕР±С…РѕРґРёРјРѕ РµС‘ РїСЂРѕСЃРєР°РЅРёСЂРѕРІР°С‚СЊ Рё Р·Р°РїРёСЃР°С‚СЊ РїРѕ РєР°РєРѕРјСѓ Р°РґСЂРµСЃСѓ РЅР°С…РѕРґРёС‚СЃСЏ
                     default:
                     {
                         _processed_text[++idx_processed_text] = text[idx_text++];
-                        goto _2_1_run; // если не ' ' !
+                        goto _2_1_run; // РµСЃР»Рё РЅРµ ' ' !
                     }
                     switch_close
                 }
                 default:
                 {
                     _processed_text[++idx_processed_text] = text[idx_text++];
-                    goto _2_1_run; // если не 'P' !
+                    goto _2_1_run; // РµСЃР»Рё РЅРµ 'P' !
                 }
                 switch_close
             }
-            default: // не макрос, записываем как есть!
+            default: // РЅРµ РјР°РєСЂРѕСЃ, Р·Р°РїРёСЃС‹РІР°РµРј РєР°Рє РµСЃС‚СЊ!
             {
                 _processed_text[++idx_processed_text] = text[idx_text++];
-                goto _2_1_run; // если не 'M' !
+                goto _2_1_run; // РµСЃР»Рё РЅРµ 'M' !
             }
             switch_close
         }
@@ -400,7 +400,7 @@ void TwopassMacroDeployment(const char *text, bool taking_into_account_errors)
     #endif
 }
 //////////////////////////////////////////
-// Удаление комментариев и развёртка макросов
+// РЈРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ Рё СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
 void FullPreprocessing(const char *text)
 {
     #if !defined DEBUG
@@ -413,17 +413,17 @@ void FullPreprocessing(const char *text)
      printf("\n EXIT: FullPreprocessing");
     #endif
 }
-// Только развёртка макросов
+// РўРѕР»СЊРєРѕ СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
 void DeployingMacros(const char *text, bool taking_into_account_errors)
 {
     #if !defined DEBUG
      printf("\n ENTRANCE: DeployingMacros(..., %s)", (taking_into_account_errors) ? "true" : "false");
     #endif
 
-    switch (2) // Кол-во проходов
+    switch (2) // РљРѕР»-РІРѕ РїСЂРѕС…РѕРґРѕРІ
     switch_open
-    case 1: SinglepassMacroDeployment(text, taking_into_account_errors); break; // Однопроходная (сбор меток + подстановка адресов
-    case 2: TwopassMacroDeployment(text, taking_into_account_errors); // Двухпроходная (сначала сбор меток, затем подстановка адресов)
+    case 1: SinglepassMacroDeployment(text, taking_into_account_errors); break; // РћРґРЅРѕРїСЂРѕС…РѕРґРЅР°СЏ (СЃР±РѕСЂ РјРµС‚РѕРє + РїРѕРґСЃС‚Р°РЅРѕРІРєР° Р°РґСЂРµСЃРѕРІ
+    case 2: TwopassMacroDeployment(text, taking_into_account_errors); // Р”РІСѓС…РїСЂРѕС…РѕРґРЅР°СЏ (СЃРЅР°С‡Р°Р»Р° СЃР±РѕСЂ РјРµС‚РѕРє, Р·Р°С‚РµРј РїРѕРґСЃС‚Р°РЅРѕРІРєР° Р°РґСЂРµСЃРѕРІ)
     switch_close
 
     #if !defined DEBUG
@@ -431,7 +431,7 @@ void DeployingMacros(const char *text, bool taking_into_account_errors)
     #endif
 }
 
-// Только удаление комментариев
+// РўРѕР»СЊРєРѕ СѓРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
 void DeletingComments(const char *text)
 {
     #if !defined DEBUG
@@ -451,38 +451,38 @@ void DeletingComments(const char *text)
     switch (text[++idx_text])
     switch_open
     case '\0': goto _1_end;
-    case '-': // Выдать ошибку на этапе препроцессинга об отсутствии открывающего многострочного комментария.
+    case '-': // Р’С‹РґР°С‚СЊ РѕС€РёР±РєСѓ РЅР° СЌС‚Р°РїРµ РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРіР° РѕР± РѕС‚СЃСѓС‚СЃС‚РІРёРё РѕС‚РєСЂС‹РІР°СЋС‰РµРіРѕ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ.
     {
         _4_run:
         switch (text[++idx_text])
         switch_open
         case '\0': goto _1_end;
-        case ';': // Ошибка: Отсутствует открывающий многострочный комментарий!
+        case ';': // РћС€РёР±РєР°: РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РѕС‚РєСЂС‹РІР°СЋС‰РёР№ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№!
         {
             printf("\nError: Missing opening multi-line comment!");
             goto _1_end;
         }
-        default: // Это не комментарий
+        default: // Р­С‚Рѕ РЅРµ РєРѕРјРјРµРЅС‚Р°СЂРёР№
         {
             _processed_text[++idx_processed_text] = text[--idx_text];
             goto _1_run;
         }
         switch_close
     }
-    case ';': // Начало однострочного или многострочного комментария?
+    case ';': // РќР°С‡Р°Р»Рѕ РѕРґРЅРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РёР»Рё РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ?
     {
         switch (text[++idx_text])
         switch_open
         case '\0': goto _1_end;
-        case '-': // Начало многострочного комментария
+        case '-': // РќР°С‡Р°Р»Рѕ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
         {
-            printf("\n';-' - №%d №%d", idx_text-1, idx_text);
+            printf("\n';-' - в„–%d в„–%d", idx_text-1, idx_text);
             _2_run:
             switch (text[++idx_text])
             switch_open
-            case '\0': // Выдать ошибку на этапе препроцессинга об отсутствии закрывающего многострочного комментария.
+            case '\0': // Р’С‹РґР°С‚СЊ РѕС€РёР±РєСѓ РЅР° СЌС‚Р°РїРµ РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРіР° РѕР± РѕС‚СЃСѓС‚СЃС‚РІРёРё Р·Р°РєСЂС‹РІР°СЋС‰РµРіРѕ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ.
             {
-                printf("\nError: Missing closing multi-line comment!"); // Ошибка: Отсутствует закрывающий многострочный комментарий!
+                printf("\nError: Missing closing multi-line comment!"); // РћС€РёР±РєР°: РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ Р·Р°РєСЂС‹РІР°СЋС‰РёР№ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№!
                 goto _1_end;
             }
             case '-':
@@ -490,63 +490,63 @@ void DeletingComments(const char *text)
                 switch (text[++idx_text])
                 switch_open
                 case '\0': goto _1_end;
-                case ';': // Конец многострочного комментария
+                case ';': // РљРѕРЅРµС† РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
                 {
-                    printf("\n'-;' - №%d №%d", idx_text-1, idx_text);
+                    printf("\n'-;' - в„–%d в„–%d", idx_text-1, idx_text);
                     switch (text[++idx_text])
                     switch_open
                     case '\0': goto _1_end;
                     case '\r':
                     {
-                        printf("\n'\\r' - №%d", idx_text);
+                        printf("\n'\\r' - в„–%d", idx_text);
                         switch (text[++idx_text])
                         switch_open
                         case '\0': goto _1_end;
                         case '\n':
                         {
-                            printf("\n'\\n' - №%d", idx_text);
+                            printf("\n'\\n' - в„–%d", idx_text);
                             goto _1_run;
                         }
                         default: goto _1_run;
                         switch_close
                     }
-                    default: goto _1_run; // Конец многострочного комментария
+                    default: goto _1_run; // РљРѕРЅРµС† РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
                     switch_close
                 }
-                default: goto _2_run; // Пропускаем многострочный комментарий
+                default: goto _2_run; // РџСЂРѕРїСѓСЃРєР°РµРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№
                 switch_close
             }
-            default: goto _2_run; // Пропускаем многострочный комментарий
+            default: goto _2_run; // РџСЂРѕРїСѓСЃРєР°РµРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№
             switch_close
         }
-        default: // Начало однострочного комментария
+        default: // РќР°С‡Р°Р»Рѕ РѕРґРЅРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
         {
-            printf("\n';' - №%d", idx_text);
+            printf("\n';' - в„–%d", idx_text);
             _3_run:
             switch (text[++idx_text])
             switch_open
             case '\0': goto _1_end;
-            case '\r': // Конец однострочного комментария?
+            case '\r': // РљРѕРЅРµС† РѕРґРЅРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ?
             {
                 _processed_text[++idx_processed_text] = text[idx_text];
                 switch (text[++idx_text])
                 switch_open
                 case '\0': goto _1_end;
-                case '\n': // Конец однострочного комментария
+                case '\n': // РљРѕРЅРµС† РѕРґРЅРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
                 {
                     _processed_text[++idx_processed_text] = text[idx_text];
                     goto _1_run;
                 }
-                default: goto _3_run; // Не конец однострочного комментария
+                default: goto _3_run; // РќРµ РєРѕРЅРµС† РѕРґРЅРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
                 switch_close
             }
-            default: goto _3_run; // Пропускаем однострочный комментарий
+            default: goto _3_run; // РџСЂРѕРїСѓСЃРєР°РµРј РѕРґРЅРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№
             switch_close
         }
         switch_close
         goto _1_run;
     }
-    default: // Не комментарий
+    default: // РќРµ РєРѕРјРјРµРЅС‚Р°СЂРёР№
     {
         _processed_text[++idx_processed_text] = text[idx_text];
         goto _1_run;
@@ -560,31 +560,31 @@ void DeletingComments(const char *text)
     #endif
 }
 
-void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_account_errors) // size_t file_size режим
+void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_account_errors) // size_t file_size СЂРµР¶РёРј
 {
     #if !defined DEBUG
      puts("\n ENTRANCE: Preprocessing()");
     #endif
 
-    // cdlr -E -M file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением нераскрытых макросов)
-    // cdlr -E -C file_name.cdlr > file_name.cdlr (препроцессорная обработка с сохранением комментариев)
-    // cdlr -E file_name.cdlr > file_name.cdlr (препроцессорная обработка без сохранения того и другого)
+    // cdlr -E -M file_name.cdlr > file_name.cdlr (РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° СЃ СЃРѕС…СЂР°РЅРµРЅРёРµРј РЅРµСЂР°СЃРєСЂС‹С‚С‹С… РјР°РєСЂРѕСЃРѕРІ)
+    // cdlr -E -C file_name.cdlr > file_name.cdlr (РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° СЃ СЃРѕС…СЂР°РЅРµРЅРёРµРј РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ)
+    // cdlr -E file_name.cdlr > file_name.cdlr (РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° Р±РµР· СЃРѕС…СЂР°РЅРµРЅРёСЏ С‚РѕРіРѕ Рё РґСЂСѓРіРѕРіРѕ)
 
-    //printf(" Preprocessing started...\n"); // Препроцессорная обработка начата...
+    //printf(" Preprocessing started...\n"); // РџСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РЅР°С‡Р°С‚Р°...
 
-    printf("\n----\n<До>\n----\n%s\n\n", text);
+    printf("\n----\n<Р”Рѕ>\n----\n%s\n\n", text);
     for (int i = 0; text[i] != '\0'; i++) printf("%c", ProcAsciiChr(text[i]));
     putchar('\n');
 
-    switch (taking_into_account_errors) // проверять на наличие ошибок (корректность синтаксиса)
+    switch (taking_into_account_errors) // РїСЂРѕРІРµСЂСЏС‚СЊ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє (РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ СЃРёРЅС‚Р°РєСЃРёСЃР°)
     switch_open
     case false:
     {
         switch (preprocessing_type)
         switch_open
-        case 1: DeletingComments(text); break; // Только удаление комментариев
-        case 2: DeployingMacros(text, false); break; // Только развёртка макросов
-        case 3: FullPreprocessing(text); // Удаление комментариев и развёртка макросов
+        case 1: DeletingComments(text); break; // РўРѕР»СЊРєРѕ СѓРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
+        case 2: DeployingMacros(text, false); break; // РўРѕР»СЊРєРѕ СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
+        case 3: FullPreprocessing(text); // РЈРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ Рё СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
         switch_close
     }
     break;
@@ -592,14 +592,14 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     {
         switch (preprocessing_type)
         switch_open
-        case 1: DeletingComments(text); break; // Только удаление комментариев
-        case 2: DeployingMacros(text, true); break; // Только развёртка макросов
-        case 3: FullPreprocessing(text); // Удаление комментариев и развёртка макросов
+        case 1: DeletingComments(text); break; // РўРѕР»СЊРєРѕ СѓРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
+        case 2: DeployingMacros(text, true); break; // РўРѕР»СЊРєРѕ СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
+        case 3: FullPreprocessing(text); // РЈРґР°Р»РµРЅРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ Рё СЂР°Р·РІС‘СЂС‚РєР° РјР°РєСЂРѕСЃРѕРІ
         switch_close
     }
     switch_close
 
-    printf("\n\n-------\n<После>\n-------\n%s\n\n", _processed_text);
+    printf("\n\n-------\n<РџРѕСЃР»Рµ>\n-------\n%s\n\n", _processed_text);
     for (int i = 0; _processed_text[i] != '\0'; i++) printf("%c", ProcAsciiChr(_processed_text[i]));
     putchar('\n');
 
@@ -607,7 +607,7 @@ void Preprocessing(char *text, uint8_t preprocessing_type, bool taking_into_acco
     fwrite(_processed_text, sizeof (_processed_text), sizeof (char), desc);
     fclose(desc);
 
-    //printf("\n\n Preprocessing completed!\n"); // Препроцессорная обработка закончена!
+    //printf("\n\n Preprocessing completed!\n"); // РџСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РєРѕРЅС‡РµРЅР°!
 
     #if !defined DEBUG
      printf("\n EXIT: Preprocessing");
@@ -635,7 +635,7 @@ const char _table_of_symbolic_names[][3+sizeof(char)] =
     "", "", "", "", "JMP"
 };
 ///*-------------------------------------*/
-// Только лексический анализ
+// РўРѕР»СЊРєРѕ Р»РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·
 void LexicalAnalysis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
@@ -659,7 +659,7 @@ void LexicalAnalysis(const char *text, Lexer *lexer)
      printf("\n <=:: LexicalAnalysis");
     #endif
 }
-// Только лексический синтез
+// РўРѕР»СЊРєРѕ Р»РµРєСЃРёС‡РµСЃРєРёР№ СЃРёРЅС‚РµР·
 void LexicalSynthesis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
@@ -683,7 +683,7 @@ void LexicalSynthesis(const char *text, Lexer *lexer)
      printf("\n <=:: LexicalSynthesis");
     #endif
 }
-// Лексический анализ и синтез (анализ лексем и выдача токенов [классифицируемых лексем])
+// Р›РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Рё СЃРёРЅС‚РµР· (Р°РЅР°Р»РёР· Р»РµРєСЃРµРј Рё РІС‹РґР°С‡Р° С‚РѕРєРµРЅРѕРІ [РєР»Р°СЃСЃРёС„РёС†РёСЂСѓРµРјС‹С… Р»РµРєСЃРµРј])
 void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
 {
     #if !defined DEBUG
@@ -699,9 +699,9 @@ void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
     switch (text[idx_text])
     switch_open
     case '\0': goto _1_end;
-    case ' ': // не схлопываем, важен для строгого стиля, где пробелы учитываются
+    case ' ': // РЅРµ СЃС…Р»РѕРїС‹РІР°РµРј, РІР°Р¶РµРЅ РґР»СЏ СЃС‚СЂРѕРіРѕРіРѕ СЃС‚РёР»СЏ, РіРґРµ РїСЂРѕР±РµР»С‹ СѓС‡РёС‚С‹РІР°СЋС‚СЃСЏ
     {
-        printf("\n [ЛА %d:%d, %d]: Токен ' ' обнаружен.", lexer->row_position, lexer->column_position, lexer->binary_position);
+        printf("\n [Р›Рђ %d:%d, %d]: РўРѕРєРµРЅ ' ' РѕР±РЅР°СЂСѓР¶РµРЅ.", lexer->row_position, lexer->column_position, lexer->binary_position);
         idx_text++;
         lexer->column_position++;
         lexer->binary_position++;
@@ -724,24 +724,24 @@ void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
             case 'P':
             {
                 token->type = JMP;
-                printf("\n [ЛА %d:%d, %d]: Токен \"%s\", тип %d обнаружен.", lexer->row_position, lexer->column_position, lexer->binary_position, _table_of_symbolic_names[token->type], token->type);
+                printf("\n [Р›Рђ %d:%d, %d]: РўРѕРєРµРЅ \"%s\", С‚РёРї %d РѕР±РЅР°СЂСѓР¶РµРЅ.", lexer->row_position, lexer->column_position, lexer->binary_position, _table_of_symbolic_names[token->type], token->type);
                 idx_text++;
                 lexer->column_position++;
                 lexer->binary_position++;
                 goto _1_run;
             }
-            default: printf("\n [ЛА %d:%d, %d]: Ошибка! Токен \"JM\" не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position);
+            default: printf("\n [Р›Рђ %d:%d, %d]: РћС€РёР±РєР°! РўРѕРєРµРЅ \"JM\" РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅ ...", lexer->row_position, lexer->column_position, lexer->binary_position);
             switch_close
             goto _1_run;
         }
-        default: printf("\n [ЛА %d:%d, %d]: Ошибка! Токен 'J' не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position);
+        default: printf("\n [Р›Рђ %d:%d, %d]: РћС€РёР±РєР°! РўРѕРєРµРЅ 'J' РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅ ...", lexer->row_position, lexer->column_position, lexer->binary_position);
         switch_close
         goto _1_run;
     }
     default:
     {
-        // обычно крутим дальше, ищя другие токены, либо завершаем цикл
-        printf("\n [ЛА %d:%d, %d]: Ошибка! Токен не обнаружен ...", lexer->row_position, lexer->column_position, lexer->binary_position); // Неопознанный/неизвестный тип токена
+        // РѕР±С‹С‡РЅРѕ РєСЂСѓС‚РёРј РґР°Р»СЊС€Рµ, РёС‰СЏ РґСЂСѓРіРёРµ С‚РѕРєРµРЅС‹, Р»РёР±Рѕ Р·Р°РІРµСЂС€Р°РµРј С†РёРєР»
+        printf("\n [Р›Рђ %d:%d, %d]: РћС€РёР±РєР°! РўРѕРєРµРЅ РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅ ...", lexer->row_position, lexer->column_position, lexer->binary_position); // РќРµРѕРїРѕР·РЅР°РЅРЅС‹Р№/РЅРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї С‚РѕРєРµРЅР°
     }
     switch_close
     _1_end:
@@ -751,13 +751,13 @@ void LexicalAnalysisAndSynthesis(const char *text, Lexer *lexer)
     #endif
 }
 
-// Синтаксический анализ и синтез (анализ синтаксиса и построение: CST [для отладки] / AST [для релиза])
+// РЎРёРЅС‚Р°РєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Рё СЃРёРЅС‚РµР· (Р°РЅР°Р»РёР· СЃРёРЅС‚Р°РєСЃРёСЃР° Рё РїРѕСЃС‚СЂРѕРµРЅРёРµ: CST [РґР»СЏ РѕС‚Р»Р°РґРєРё] / AST [РґР»СЏ СЂРµР»РёР·Р°])
 void SyntacticAnalysisAndSynthesis(){}
 
-// Семантический анализ и синтез (анализ семантики и построение промежуточного псевдокода [IR], либо без него и переход на след. этап: кодогенерация)
+// РЎРµРјР°РЅС‚РёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Рё СЃРёРЅС‚РµР· (Р°РЅР°Р»РёР· СЃРµРјР°РЅС‚РёРєРё Рё РїРѕСЃС‚СЂРѕРµРЅРёРµ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅРѕРіРѕ РїСЃРµРІРґРѕРєРѕРґР° [IR], Р»РёР±Рѕ Р±РµР· РЅРµРіРѕ Рё РїРµСЂРµС…РѕРґ РЅР° СЃР»РµРґ. СЌС‚Р°Рї: РєРѕРґРѕРіРµРЅРµСЂР°С†РёСЏ)
 void SemanticAnalysisAndSynthesis(){}
 
-// Генерация кода
+// Р“РµРЅРµСЂР°С†РёСЏ РєРѕРґР°
 void CodeGeneration()
 {
     #if !defined DEBUG
@@ -778,32 +778,32 @@ char Compile(const char *text, size_t file_size, const char *params)
      printf("\n ::=> Compile()");
     #endif
 
-    // Однопроходная или многопроходная?
+    // РћРґРЅРѕРїСЂРѕС…РѕРґРЅР°СЏ РёР»Рё РјРЅРѕРіРѕРїСЂРѕС…РѕРґРЅР°СЏ?
     switch (2)
     switch_open
     case 1:
     {
-        /** Однопроходная компиляция */
+        /** РћРґРЅРѕРїСЂРѕС…РѕРґРЅР°СЏ РєРѕРјРїРёР»СЏС†РёСЏ */
         // ... //
-        /* Однопроходная компиляция **/
+        /* РћРґРЅРѕРїСЂРѕС…РѕРґРЅР°СЏ РєРѕРјРїРёР»СЏС†РёСЏ **/
     }
     break;
-    case 2: // Разделение ответственности
+    case 2: // Р Р°Р·РґРµР»РµРЅРёРµ РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕСЃС‚Рё
     {
         uint8_t idx_text = 0;
         uint8_t idx_processed_text = 0-1;
-        // type-3 (регулярные), type-2 (контекстно-свободные), type-1 (контекстно-зависимые), type-0 (неограниченные/рекурсивно-перечислимые)
-        /** Многопроходная компиляция или же компиляция в несколько этапов */
+        // type-3 (СЂРµРіСѓР»СЏСЂРЅС‹Рµ), type-2 (РєРѕРЅС‚РµРєСЃС‚РЅРѕ-СЃРІРѕР±РѕРґРЅС‹Рµ), type-1 (РєРѕРЅС‚РµРєСЃС‚РЅРѕ-Р·Р°РІРёСЃРёРјС‹Рµ), type-0 (РЅРµРѕРіСЂР°РЅРёС‡РµРЅРЅС‹Рµ/СЂРµРєСѓСЂСЃРёРІРЅРѕ-РїРµСЂРµС‡РёСЃР»РёРјС‹Рµ)
+        /** РњРЅРѕРіРѕРїСЂРѕС…РѕРґРЅР°СЏ РєРѕРјРїРёР»СЏС†РёСЏ РёР»Рё Р¶Рµ РєРѕРјРїРёР»СЏС†РёСЏ РІ РЅРµСЃРєРѕР»СЊРєРѕ СЌС‚Р°РїРѕРІ */
         //lexer.row_position = 1, lexer.column_position = 1, lexer.binary_position = 0;
-        LexicalAnalysis(text, &lexer);  // Только лексический анализ
-        LexicalSynthesis(text, &lexer); // Только лексический синтез
-        LexicalAnalysisAndSynthesis(text, &lexer); // Лексический анализ и синтез вместе
+        LexicalAnalysis(text, &lexer);  // РўРѕР»СЊРєРѕ Р»РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·
+        LexicalSynthesis(text, &lexer); // РўРѕР»СЊРєРѕ Р»РµРєСЃРёС‡РµСЃРєРёР№ СЃРёРЅС‚РµР·
+        LexicalAnalysisAndSynthesis(text, &lexer); // Р›РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Рё СЃРёРЅС‚РµР· РІРјРµСЃС‚Рµ
         //return 0;
         ////////////////////////
-        // Синтаксический анализ, пока без синтеза CST (для отладки) / AST (для релиза)
+        // РЎРёРЅС‚Р°РєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР·, РїРѕРєР° Р±РµР· СЃРёРЅС‚РµР·Р° CST (РґР»СЏ РѕС‚Р»Р°РґРєРё) / AST (РґР»СЏ СЂРµР»РёР·Р°)
         ///////////////////////////
-        // Семантический анализ и синтез кодогенерации (пока без IR)
-        // Сбор (вычисление) меток
+        // РЎРµРјР°РЅС‚РёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Рё СЃРёРЅС‚РµР· РєРѕРґРѕРіРµРЅРµСЂР°С†РёРё (РїРѕРєР° Р±РµР· IR)
+        // РЎР±РѕСЂ (РІС‹С‡РёСЃР»РµРЅРёРµ) РјРµС‚РѕРє
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
             switch (text[++idx_text])
@@ -813,7 +813,7 @@ char Compile(const char *text, size_t file_size, const char *params)
             switch_close
         }
         _1_end:
-        // Макрозамена меток
+        // РњР°РєСЂРѕР·Р°РјРµРЅР° РјРµС‚РѕРє
         for (size_t _file_size = file_size; _file_size; _file_size--)
         {
             switch (text[++idx_text])
@@ -824,7 +824,7 @@ char Compile(const char *text, size_t file_size, const char *params)
         }
         _2_end:
         //////////////////////////
-        /* Многопроходная компиляция **/
+        /* РњРЅРѕРіРѕРїСЂРѕС…РѕРґРЅР°СЏ РєРѕРјРїРёР»СЏС†РёСЏ **/
     }
     switch_close
 
@@ -840,8 +840,8 @@ void Disassembly() //DebuggingInformation
     #endif
 
     printf("-------------------------------------------<+>-------------------------------------------------");
-    printf("\n                                            ¦            Disassembly: vCPU (8-bit's)");
-    printf("\n Address: Opcode (HEX<=>DEC)                ¦       Low-level assembler ¦ High-level assembler");
+    printf("\n                                            В¦            Disassembly: vCPU (8-bit's)");
+    printf("\n Address: Opcode (HEX<=>DEC)                В¦       Low-level assembler В¦ High-level assembler");
     printf("\n-------------------------------------------<+>-------------------------<+>---------------------");
     for (uint8_t i = 0; i < sizeof (opcode); )
     {
@@ -849,55 +849,55 @@ void Disassembly() //DebuggingInformation
         switch_open
 
         case HLT: // Specifics: Intel / AT&T
-         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[HLT].symbolic_name, ProcAsciiChr(opcode[i]));
-         // Для дизассемблирования
+         printf("\n      %02X: %02X\t    |вЂ¦|\t %03d: %03d\t    В¦  %s              |вЂ¦| %c   В¦", i, opcode[i], i, opcode[i], table_opcode[HLT].symbolic_name, ProcAsciiChr(opcode[i]));
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          ++i;
-         // Для интерпретации
+         // Р”Р»СЏ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё
          //return 0;
          //break;
 
         case NOP: // Specifics: Intel / AT&T
-         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s              |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[NOP].symbolic_name, ProcAsciiChr(opcode[i]));
-         // Для дизассемблирования
+         printf("\n      %02X: %02X\t    |вЂ¦|\t %03d: %03d\t    В¦  %s              |вЂ¦| %c   В¦", i, opcode[i], i, opcode[i], table_opcode[NOP].symbolic_name, ProcAsciiChr(opcode[i]));
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          ++i;
         break;
 
         case INC: // Specifics: Intel
-         printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[INC].symbolic_name, vMEMORY[vIP+1]);
-         // Для дизассемблирования
+         printf("\n      %02X: %02X %02X    В¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[INC].symbolic_name, vMEMORY[vIP+1]);
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          ++i;
          //vMEMORY[vMEMORY[++vIP]]++;
          //vIP++;
         break;
 
         case DEC: // Specifics: Intel
-         printf("\n      %02X: %02X %02X    ¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[DEC].symbolic_name, vMEMORY[vIP+1]);
-         // Для дизассемблирования
+         printf("\n      %02X: %02X %02X    В¦    %s %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], table_opcode[DEC].symbolic_name, vMEMORY[vIP+1]);
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          ++i;
          //vMEMORY[vMEMORY[++vIP]]--;
          //vIP++;
         break;
 
         case JMP: // Specifics: Intel
-         printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d            |…| %c%c  ¦",
+         printf("\n      %02X: %02X %02X\t    |вЂ¦|\t %03d: %03d %03d\t    В¦  %s %d            |вЂ¦| %c%c  В¦",
           i, opcode[i], opcode[i+1], i, opcode[i], opcode[i+1], table_opcode[JMP].symbolic_name, opcode[i+1], ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1])
          );
-         // Для дизассемблирования
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          i += 2;
-         // Для интерпретации
+         // Р”Р»СЏ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё
          //vIP = vMEMORY[++vIP];
         break;
 
         case MOV:
-         printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d, %d ; %c\t|…| %c%c%c ¦",
+         printf("\n      %02X: %02X %02X %02X  |вЂ¦|  %03d: %03d %03d %03d   В¦  %s %d, %d ; %c\t|вЂ¦| %c%c%c В¦",
           i, opcode[i], opcode[i+1], opcode[i+2],
           i, opcode[i], opcode[i+1], opcode[i+2],
           table_opcode[MOV].symbolic_name, opcode[i+1], opcode[i+2], ProcAsciiChr(opcode[i+2]),
           ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1]), ProcAsciiChr(opcode[i+2])
          );
-         // Для дизассемблирования
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
          i += 3;
-         // Для интерпретации
+         // Р”Р»СЏ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё
          // Specifics: Intel
          //vMEMORY[vMEMORY[--vIP]] = vMEMORY[vIP+=2];
          //vIP += 2;
@@ -907,7 +907,7 @@ void Disassembly() //DebuggingInformation
         break;
 
         case ADD:
-         printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+         printf("\n      %02X: %02X %02X %02X    В¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[ADD].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
          // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] += vMEMORY[vIP+=2];
          vIP += 2;
@@ -917,36 +917,36 @@ void Disassembly() //DebuggingInformation
         break;
 
         case SUB:
-         printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+         printf("\n      %02X: %02X %02X %02X    В¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[SUB].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
          // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] -= vMEMORY[vIP+=2];
          vIP += 2;
         break;
 
         case MUL:
-         printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+         printf("\n      %02X: %02X %02X %02X    В¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[MUL].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
          // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] *= vMEMORY[vIP+=2];
          vIP += 2;
         break;
 
         case DIV:
-         printf("\n      %02X: %02X %02X %02X    ¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
+         printf("\n      %02X: %02X %02X %02X    В¦    %s %d, %d", vIP, vMEMORY[vIP], vMEMORY[vIP+1], vMEMORY[vIP+2], table_opcode[DIV].symbolic_name, vMEMORY[vIP+1], vMEMORY[vIP+2]);
          // Specifics: Intel
          vMEMORY[vMEMORY[--vIP]] /= vMEMORY[vIP+=2];
          vIP += 2;
         break;
 
         case CMP:
-         // Для дизассемблирования
-         printf("\n      %02X: %02X %02X %02X  |…|  %03d: %03d %03d %03d   ¦  %s %d %d\t|…| %c%c%c ¦",
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
+         printf("\n      %02X: %02X %02X %02X  |вЂ¦|  %03d: %03d %03d %03d   В¦  %s %d %d\t|вЂ¦| %c%c%c В¦",
           i, opcode[i], opcode[i+1], opcode[i+2],
           i, opcode[i], opcode[i+1], opcode[i+2],
           table_opcode[CMP].symbolic_name, opcode[i+1], opcode[i+2],
           ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1]), ProcAsciiChr(opcode[i+2])
          );
          i += 3;
-         // Для интерпретации
+         // Р”Р»СЏ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё
          /*
          CF = (vMEMORY[--vIP] == vMEMORY[vIP+=2]);
          vIP += 2;
@@ -954,12 +954,12 @@ void Disassembly() //DebuggingInformation
         break;
 
         case JE:
-         // Для дизассемблирования
-         printf("\n      %02X: %02X %02X\t    |…|\t %03d: %03d %03d\t    ¦  %s %d\t\t|…| %c%c  ¦",
+         // Р”Р»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°РЅРёСЏ
+         printf("\n      %02X: %02X %02X\t    |вЂ¦|\t %03d: %03d %03d\t    В¦  %s %d\t\t|вЂ¦| %c%c  В¦",
           i, opcode[i], opcode[i+1], i, opcode[i], opcode[i+1], table_opcode[JE].symbolic_name, opcode[i+1], ProcAsciiChr(opcode[i]), ProcAsciiChr(opcode[i+1])
          );
          i += 2;
-         // Для интерпретации
+         // Р”Р»СЏ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё
          /*
          switch (CF){
           case 0: vIP = vMEMORY[vIP+=2];
@@ -970,7 +970,7 @@ void Disassembly() //DebuggingInformation
         break;
 
         default:
-         printf("\n      %02X: %02X\t    |…|\t %03d: %03d\t    ¦  %s                 |…| %c   ¦", i, opcode[i], i, opcode[i], table_opcode[opcode[i]].symbolic_name, ProcAsciiChr(opcode[i]));
+         printf("\n      %02X: %02X\t    |вЂ¦|\t %03d: %03d\t    В¦  %s                 |вЂ¦| %c   В¦", i, opcode[i], i, opcode[i], table_opcode[opcode[i]].symbolic_name, ProcAsciiChr(opcode[i]));
          ++i;
         
         switch_close
@@ -982,7 +982,7 @@ void Disassembly() //DebuggingInformation
     #endif
 }
 
-// Отладка: шаг назад
+// РћС‚Р»Р°РґРєР°: С€Р°Рі РЅР°Р·Р°Рґ
 void StepBack()
 {
     #if defined DEBUG
@@ -996,7 +996,7 @@ void StepBack()
     #endif
 }
 
-// Релиз: полный цикл
+// Р РµР»РёР·: РїРѕР»РЅС‹Р№ С†РёРєР»
 void FullCycle()
 {
     #if defined DEBUG
@@ -1010,7 +1010,7 @@ void FullCycle()
     #endif
 }
 
-// Отладка: шаг вперёд
+// РћС‚Р»Р°РґРєР°: С€Р°Рі РІРїРµСЂС‘Рґ
 void StepNext()
 {
     #if defined DEBUG
@@ -1170,15 +1170,15 @@ void LoadingProgramIntoMemory()
         vMEMORY[i+1] = opcode[i+1];
         vMEMORY[i+2] = opcode[i+2];
     }
-    puts("\n Программа загружена в память.");
+    puts("\n РџСЂРѕРіСЂР°РјРјР° Р·Р°РіСЂСѓР¶РµРЅР° РІ РїР°РјСЏС‚СЊ.");
 
     #if defined DEBUG
      puts("\n EXIT: LoadingProgramIntoMemory");
     #endif
 }
 
-// 1. Возвращаем указатель на char (char*), а не один символ (char)
-// 2. Вместо ссылки (&) используем указатель (*index)
+// 1. Р’РѕР·РІСЂР°С‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° char (char*), Р° РЅРµ РѕРґРёРЅ СЃРёРјРІРѕР» (char)
+// 2. Р’РјРµСЃС‚Рѕ СЃСЃС‹Р»РєРё (&) РёСЃРїРѕР»СЊР·СѓРµРј СѓРєР°Р·Р°С‚РµР»СЊ (*index)
 char *Strtok(const char *string, int *index)
 {
     int length = strlen(string);
@@ -1202,7 +1202,7 @@ void _(int argc, char *argv[])
 {
     setlocale(0, "");
     /*
-    // 1. Устанавливаем кодировку Windows-1251 для кириллицы
+    // 1. РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєРѕРґРёСЂРѕРІРєСѓ Windows-1251 РґР»СЏ РєРёСЂРёР»Р»РёС†С‹
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     */
@@ -1210,87 +1210,87 @@ void _(int argc, char *argv[])
     for (int i = 0; i < argc; i++) printf("\n argv[%d] = %s", i, argv[i]);
     putchar('\n');
 
-    // Статический (неизменный/фиксированный) компилятор - compiler.exe (в саму программу вшита логика, и поэтому не может быть изменена)
-    // Динамический (изменяемый/подвижной) компилятор - compiler.exe (логика программы хранится в отдельном файле и может подвергаться модификациям)
-    /// При каждом вызове компилятора (компиляции файла) происходит загрузка ядра компилятора, что при больших объёмах затрачивает огромное количество времени,
-    //   в таких случаях рекомендуется перейти на резидентный компилятор, который позволяет многократно использовать ядро, без необходимости повторной загрузки
+    // РЎС‚Р°С‚РёС‡РµСЃРєРёР№ (РЅРµРёР·РјРµРЅРЅС‹Р№/С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№) РєРѕРјРїРёР»СЏС‚РѕСЂ - compiler.exe (РІ СЃР°РјСѓ РїСЂРѕРіСЂР°РјРјСѓ РІС€РёС‚Р° Р»РѕРіРёРєР°, Рё РїРѕСЌС‚РѕРјСѓ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·РјРµРЅРµРЅР°)
+    // Р”РёРЅР°РјРёС‡РµСЃРєРёР№ (РёР·РјРµРЅСЏРµРјС‹Р№/РїРѕРґРІРёР¶РЅРѕР№) РєРѕРјРїРёР»СЏС‚РѕСЂ - compiler.exe (Р»РѕРіРёРєР° РїСЂРѕРіСЂР°РјРјС‹ С…СЂР°РЅРёС‚СЃСЏ РІ РѕС‚РґРµР»СЊРЅРѕРј С„Р°Р№Р»Рµ Рё РјРѕР¶РµС‚ РїРѕРґРІРµСЂРіР°С‚СЊСЃСЏ РјРѕРґРёС„РёРєР°С†РёСЏРј)
+    /// РџСЂРё РєР°Р¶РґРѕРј РІС‹Р·РѕРІРµ РєРѕРјРїРёР»СЏС‚РѕСЂР° (РєРѕРјРїРёР»СЏС†РёРё С„Р°Р№Р»Р°) РїСЂРѕРёСЃС…РѕРґРёС‚ Р·Р°РіСЂСѓР·РєР° СЏРґСЂР° РєРѕРјРїРёР»СЏС‚РѕСЂР°, С‡С‚Рѕ РїСЂРё Р±РѕР»СЊС€РёС… РѕР±СЉС‘РјР°С… Р·Р°С‚СЂР°С‡РёРІР°РµС‚ РѕРіСЂРѕРјРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІСЂРµРјРµРЅРё,
+    //   РІ С‚Р°РєРёС… СЃР»СѓС‡Р°СЏС… СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ РїРµСЂРµР№С‚Рё РЅР° СЂРµР·РёРґРµРЅС‚РЅС‹Р№ РєРѕРјРїРёР»СЏС‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РїРѕР·РІРѕР»СЏРµС‚ РјРЅРѕРіРѕРєСЂР°С‚РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЏРґСЂРѕ, Р±РµР· РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РїРѕРІС‚РѕСЂРЅРѕР№ Р·Р°РіСЂСѓР·РєРё
 
-    //Generator(); // не проверяет на наличие ошибок, просто делает обычную замену макросов или удаляет комментарии, либо делает и то, и другое - одновременно
-    //Converter(); // преобразователь
+    //Generator(); // РЅРµ РїСЂРѕРІРµСЂСЏРµС‚ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє, РїСЂРѕСЃС‚Рѕ РґРµР»Р°РµС‚ РѕР±С‹С‡РЅСѓСЋ Р·Р°РјРµРЅСѓ РјР°РєСЂРѕСЃРѕРІ РёР»Рё СѓРґР°Р»СЏРµС‚ РєРѕРјРјРµРЅС‚Р°СЂРёРё, Р»РёР±Рѕ РґРµР»Р°РµС‚ Рё С‚Рѕ, Рё РґСЂСѓРіРѕРµ - РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ
+    //Converter(); // РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚РµР»СЊ
     //Transpilation();
-    //Translator(); // переводчик
+    //Translator(); // РїРµСЂРµРІРѕРґС‡РёРє
     //const char params[] = "-E";
-    /** Варианты компиляции (сама по себе компиляция предполагает наличие проверок на ошибки[*, но можно отключить*^тогда скорее это будет уже не компиляция, а генерация]) */
-    // 1a. Из dec/hex или bin представления в оп-код, без проверок ошибок
-    // 1b. Из dec/hex или bin представления в оп-код, с проверкой ошибок
-    // 2. Из языка ассемблера в оп-код | _.asm -> _.bin
-    // 3a. Из C$ в язык ассемблера | _.cdlr -> _.asm
-    // 3b. Из C$ в оп-код | _.cdlr -> _.bin
+    /** Р’Р°СЂРёР°РЅС‚С‹ РєРѕРјРїРёР»СЏС†РёРё (СЃР°РјР° РїРѕ СЃРµР±Рµ РєРѕРјРїРёР»СЏС†РёСЏ РїСЂРµРґРїРѕР»Р°РіР°РµС‚ РЅР°Р»РёС‡РёРµ РїСЂРѕРІРµСЂРѕРє РЅР° РѕС€РёР±РєРё[*, РЅРѕ РјРѕР¶РЅРѕ РѕС‚РєР»СЋС‡РёС‚СЊ*^С‚РѕРіРґР° СЃРєРѕСЂРµРµ СЌС‚Рѕ Р±СѓРґРµС‚ СѓР¶Рµ РЅРµ РєРѕРјРїРёР»СЏС†РёСЏ, Р° РіРµРЅРµСЂР°С†РёСЏ]) */
+    // 1a. РР· dec/hex РёР»Рё bin РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РІ РѕРї-РєРѕРґ, Р±РµР· РїСЂРѕРІРµСЂРѕРє РѕС€РёР±РѕРє
+    // 1b. РР· dec/hex РёР»Рё bin РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РІ РѕРї-РєРѕРґ, СЃ РїСЂРѕРІРµСЂРєРѕР№ РѕС€РёР±РѕРє
+    // 2. РР· СЏР·С‹РєР° Р°СЃСЃРµРјР±Р»РµСЂР° РІ РѕРї-РєРѕРґ | _.asm -> _.bin
+    // 3a. РР· C$ РІ СЏР·С‹Рє Р°СЃСЃРµРјР±Р»РµСЂР° | _.cdlr -> _.asm
+    // 3b. РР· C$ РІ РѕРї-РєРѕРґ | _.cdlr -> _.bin
 
-    // препроцессорная обработка без этапа компиляции
-    // препроцессорная обработка с этапом компиляции
-    // без процессорной обработки, сразу этап компиляции
+    // РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° Р±РµР· СЌС‚Р°РїР° РєРѕРјРїРёР»СЏС†РёРё
+    // РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° СЃ СЌС‚Р°РїРѕРј РєРѕРјРїРёР»СЏС†РёРё
+    // Р±РµР· РїСЂРѕС†РµСЃСЃРѕСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё, СЃСЂР°Р·Сѓ СЌС‚Р°Рї РєРѕРјРїРёР»СЏС†РёРё
     
-    const char *file_name = "_.asm"; // временно
-    FILE *desc = fopen(file_name, "rb"); // Считываем с файла
+    const char *file_name = "_.asm"; // РІСЂРµРјРµРЅРЅРѕ
+    FILE *desc = fopen(file_name, "rb"); // РЎС‡РёС‚С‹РІР°РµРј СЃ С„Р°Р№Р»Р°
     if (desc == NULL)
     {
-        printf("\n Ошибка открытия файла.");
+        printf("\n РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°.");
         return;
     }
     fseek(desc, 0, SEEK_END);
     size_t file_size = ftell(desc);
-    printf("\nРазмер файла: %ld.\n", file_size);
+    printf("\nР Р°Р·РјРµСЂ С„Р°Р№Р»Р°: %ld.\n", file_size);
     fseek(desc, 0, SEEK_SET);
     fread(_source_code, file_size, sizeof (char), desc);
     fclose(desc);
     printf("\n[file: _.asm]\n'''\n%s\n'''\n", _source_code);
 
-    uint8_t action = 2; // (временно) 1] Только препроцессорная обработка, обходя этап компиляции, 2] Компиляция
+    uint8_t action = 2; // (РІСЂРµРјРµРЅРЅРѕ) 1] РўРѕР»СЊРєРѕ РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР°, РѕР±С…РѕРґСЏ СЌС‚Р°Рї РєРѕРјРїРёР»СЏС†РёРё, 2] РљРѕРјРїРёР»СЏС†РёСЏ
     switch (action)
     switch_open
     case 1: Preprocessing(_source_code, 2, false); break;
     case 2: Compile(_source_code, file_size, ""); break;
     switch_close
     putchar('\n');
-    return; // временно, для быстрого тестирования
+    return; // РІСЂРµРјРµРЅРЅРѕ, РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 
     char input[128];
     char cmd[128];
 
-    //printf("\nДля отображения списка команд введите: !cmdlist");
+    //printf("\nР”Р»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ РІРІРµРґРёС‚Рµ: !cmdlist");
     while (true)
     {
-        printf("\nДля отображения списка команд введите: !cmdlist");
+        printf("\nР”Р»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ РІРІРµРґРёС‚Рµ: !cmdlist");
         printf("\n$: ");
         if (fgets(input, sizeof(input), stdin) == NULL) break;
-        input[strcspn(input, "\r\n")] = '\0'; // Удаляем перевод строки
+        input[strcspn(input, "\r\n")] = '\0'; // РЈРґР°Р»СЏРµРј РїРµСЂРµРІРѕРґ СЃС‚СЂРѕРєРё
 
-        int idx = 0; // Инициализируем индекс нуля для каждого ввода
-        char *cmd = Strtok(input, &idx); // Получаем первое слово (команду)
-        if (cmd == NULL) goto unknown_command; // Если ничего не ввели
+        int idx = 0; // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёРЅРґРµРєСЃ РЅСѓР»СЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ РІРІРѕРґР°
+        char *cmd = Strtok(input, &idx); // РџРѕР»СѓС‡Р°РµРј РїРµСЂРІРѕРµ СЃР»РѕРІРѕ (РєРѕРјР°РЅРґСѓ)
+        if (cmd == NULL) goto unknown_command; // Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РІРІРµР»Рё
 
-        // Копируем команду в отдельный буфер, если нужно сохранить
+        // РљРѕРїРёСЂСѓРµРј РєРѕРјР°РЅРґСѓ РІ РѕС‚РґРµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ, РµСЃР»Рё РЅСѓР¶РЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ
         //strcpy(first_word, cmd);
-        /** background information :: справочная информация */
+        /** background information :: СЃРїСЂР°РІРѕС‡РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ */
         if (!strcmp(cmd, "!cmdlist"))
         {
-            puts("\n Список команд:");
+            puts("\n РЎРїРёСЃРѕРє РєРѕРјР°РЅРґ:");
             printf("\n1] !compile input_file output_file");
             //printf("\n2] !execute");
         }
         else if (!strcmp(cmd, "!compile"))
         {
-            char *input_file = Strtok(input, &idx); // 2-й аргумент: входной файл
+            char *input_file = Strtok(input, &idx); // 2-Р№ Р°СЂРіСѓРјРµРЅС‚: РІС…РѕРґРЅРѕР№ С„Р°Р№Р»
             if (input_file == NULL)
             {
-                printf(" Ошибка: Введите имя входного файла!\n");
+                printf(" РћС€РёР±РєР°: Р’РІРµРґРёС‚Рµ РёРјСЏ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°!\n");
                 continue;
             }
-            char *output_file = Strtok(input, &idx); // 3-й аргумент: выходной файл
+            char *output_file = Strtok(input, &idx); // 3-Р№ Р°СЂРіСѓРјРµРЅС‚: РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
             if (output_file == NULL)
             {
-                printf(" Ошибка: Введите имя выходного файла!\n");
+                printf(" РћС€РёР±РєР°: Р’РІРµРґРёС‚Рµ РёРјСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°!\n");
                 Compile(input_file, 0, "");
                 continue;
             }
@@ -1301,14 +1301,14 @@ void _(int argc, char *argv[])
         else
         {
             unknown_command:
-            printf("\nНеизвестная команда: \"%s\"", cmd);
+            printf("\nРќРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°: \"%s\"", cmd);
         }
     }
 
-    // Инициализация vCPU
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ vCPU
     vIP = 0;
 
-    // Загрузка программы в память
+    // Р—Р°РіСЂСѓР·РєР° РїСЂРѕРіСЂР°РјРјС‹ РІ РїР°РјСЏС‚СЊ
     //LoadingProgramIntoMemory();
     for (uint8_t i = 0; i < sizeof (opcode); i++) vMEMORY[i] = opcode[i];
 
@@ -1321,14 +1321,14 @@ void _(int argc, char *argv[])
     table_opcode[DEC].opcode = DEC;
     strcpy(table_opcode[DEC].symbolic_name, "DEC");
 
-    // Безусловный переход
+    // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ
     table_opcode[JMP].opcode = JMP;
     strcpy(table_opcode[JMP].symbolic_name, "JMP");
 
     table_opcode[MOV].opcode = MOV;
     strcpy(table_opcode[MOV].symbolic_name, "MOV");
 
-    // Арифметические операции
+    // РђСЂРёС„РјРµС‚РёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё
     table_opcode[ADD].opcode = ADD;
     strcpy(table_opcode[ADD].symbolic_name, "ADD");
     //
@@ -1341,11 +1341,11 @@ void _(int argc, char *argv[])
     table_opcode[DIV].opcode = DIV;
     strcpy(table_opcode[DIV].symbolic_name, "DIV");
 
-    // Операция сравнения
+    // РћРїРµСЂР°С†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ
     table_opcode[CMP].opcode = CMP;
     strcpy(table_opcode[CMP].symbolic_name, "CMP");
 
-    // Условный переход
+    // РЈСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ
     table_opcode[JE].opcode = JE;
     strcpy(table_opcode[JE].symbolic_name, "JE"); // JZ
 
@@ -1354,7 +1354,7 @@ void _(int argc, char *argv[])
 
     while (true)
     {
-        printf("\n Шаг: %d\n", step);
+        printf("\n РЁР°Рі: %d\n", step);
         puts("     HEX(16) |  DEC(10)  | ASCII");
         //for (int i = 0; i < 256; i++)
         printf(" IP: [%02X]:%02X | [%03d]:%03d | ['%c']:'%c'\n", vIP, vMEMORY[vIP], vIP, vMEMORY[vIP], ProcAsciiChr(vIP), ProcAsciiChr(vMEMORY[vIP]));
@@ -1368,70 +1368,70 @@ void _(int argc, char *argv[])
         ShowDashboard();
         printf(
          "\n---------------------------------------------------------------------"
-         "\n Клавиша\tОписание"
+         "\n РљР»Р°РІРёС€Р°\tРћРїРёСЃР°РЅРёРµ"
          "\n"
-         "\n ESC\t\tЗавершить эмуляцию"
-         "\n F2\t\tПродвинуться на 1 шаг назад"
-         "\n F3\t\tВыполнить все шаги (скорость каждого шага - 2,5 сек.)"
-         "\n F4\t\tПродвинуться на 1 шаг вперёд"
+         "\n ESC\t\tР—Р°РІРµСЂС€РёС‚СЊ СЌРјСѓР»СЏС†РёСЋ"
+         "\n F2\t\tРџСЂРѕРґРІРёРЅСѓС‚СЊСЃСЏ РЅР° 1 С€Р°Рі РЅР°Р·Р°Рґ"
+         "\n F3\t\tР’С‹РїРѕР»РЅРёС‚СЊ РІСЃРµ С€Р°РіРё (СЃРєРѕСЂРѕСЃС‚СЊ РєР°Р¶РґРѕРіРѕ С€Р°РіР° - 2,5 СЃРµРє.)"
+         "\n F4\t\tРџСЂРѕРґРІРёРЅСѓС‚СЊСЃСЏ РЅР° 1 С€Р°Рі РІРїРµСЂС‘Рґ"
          "\n----------------------------------------------------------------------"
-         "\n Нажмите соответствующую клавишу..."
+         "\n РќР°Р¶РјРёС‚Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ РєР»Р°РІРёС€Сѓ..."
         );
         uint8_t ch = _getch();
         switch (ch)
         switch_open
         case 0:
         {
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+            //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
             ch = _getch();
-            //printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             switch (ch)
             switch_open
 
-            case '<': StepBack(); // Шаг назад
+            case '<': StepBack(); // РЁР°Рі РЅР°Р·Р°Рґ
             break;
 
-            case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // Полный цикл / StepNext(); // Шаг вперёд /././ //Sleep(2500); // Задержка на 2500 миллисекунд (2,5 секунд)
+            case '=': for (int i = 0; i < sizeof (opcode); i++) FullCycle(); // РџРѕР»РЅС‹Р№ С†РёРєР» / StepNext(); // РЁР°Рі РІРїРµСЂС‘Рґ /././ //Sleep(2500); // Р—Р°РґРµСЂР¶РєР° РЅР° 2500 РјРёР»Р»РёСЃРµРєСѓРЅРґ (2,5 СЃРµРєСѓРЅРґ)
             break;
 
-            case '>': StepNext(); // Шаг вперёд
+            case '>': StepNext(); // РЁР°Рі РІРїРµСЂС‘Рґ
             break;
 
-            default: printf("\n Вы нажали клавишу №2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            default: printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–2: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             switch_close
             break;
         }
-        case 27: // 1B | 027 | ·  <ESC>
-         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        case 27: // 1B | 027 | В·  <ESC>
+         //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
          return;
 
-        case '<': puts("\n Такая клавиша не определена.");
-         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        case '<': puts("\n РўР°РєР°СЏ РєР»Р°РІРёС€Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°.");
+         //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
         break;
 
-        case '=': puts("\n Такая клавиша не определена.");
-         //printf("\n Вы нажали клавишу №1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
+        case '=': puts("\n РўР°РєР°СЏ РєР»Р°РІРёС€Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°.");
+         //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–1: %02X | %03d | %c", ch, ch, ProcAsciiChr(ch));
         break;
 
         case '>':
         {
-            puts("\n Такая клавиша не определена.");
-            //printf("\n Вы нажали клавишу №1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
+            puts("\n РўР°РєР°СЏ РєР»Р°РІРёС€Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°.");
+            //printf("\n Р’С‹ РЅР°Р¶Р°Р»Рё РєР»Р°РІРёС€Сѓ в„–1: %02X | %03d | %c\n", ch, ch, ProcAsciiChr(ch));
             Execute(ch); // Launch
             ShowDashboard();
             break;
         }
 
-        default: puts("\n Такая клавиша не определена.");
+        default: puts("\n РўР°РєР°СЏ РєР»Р°РІРёС€Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°.");
         //break;
-        // 0D | 013 | ·  <ENTER>
-        // E0 | 224 | а  <F11-F12>
+        // 0D | 013 | В·  <ENTER>
+        // E0 | 224 | Р°  <F11-F12>
         switch_close
     }
 }
 ///
 int main(int argc, char *argv[]) { _(argc, argv); }
-//?// По мимо глобальных меток, необходимо ввести локальные метки
+//?// РџРѕ РјРёРјРѕ РіР»РѕР±Р°Р»СЊРЅС‹С… РјРµС‚РѕРє, РЅРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё Р»РѕРєР°Р»СЊРЅС‹Рµ РјРµС‚РєРё
 /*
 //char sample[2+sizeof(char)];
 //if (!strcmp(sample, ";-")){}
@@ -1451,7 +1451,7 @@ int main(int argc, char *argv[]) { _(argc, argv); }
     //for (int i = 65; i <= 90; i++) printf("case (unsigned char)'%c': {} break;\n", i);
     //puts("a-z | 97-122");
     //for (int i = 97; i <= 122; i++) printf("case (unsigned char)'%c': {} break;\n", i);
-    //puts("А-я | 192-255");
+    //puts("Рђ-СЏ | 192-255");
     //for (int i = 192; i <= 255; i++) printf("case (unsigned char)'%c': {} break;\n", i);
 */
 /*
@@ -1464,8 +1464,8 @@ case INT:
   break;
  case PRINTF: break;
 */
-/// Текущая ячейка / Произвольная ячейка
-/// ...-> Выборка -> Декодирование -> Исполнение -> Смещение IP на след. инструкцию (автоматически) ->...
+/// РўРµРєСѓС‰Р°СЏ СЏС‡РµР№РєР° / РџСЂРѕРёР·РІРѕР»СЊРЅР°СЏ СЏС‡РµР№РєР°
+/// ...-> Р’С‹Р±РѕСЂРєР° -> Р”РµРєРѕРґРёСЂРѕРІР°РЅРёРµ -> РСЃРїРѕР»РЅРµРЅРёРµ -> РЎРјРµС‰РµРЅРёРµ IP РЅР° СЃР»РµРґ. РёРЅСЃС‚СЂСѓРєС†РёСЋ (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё) ->...
 
-// Инструкции и данные находятся в одной секции или разделены?
-// Инструкции кодируются как в x86 первые два байта - одним или каждый по раздельности?
+// РРЅСЃС‚СЂСѓРєС†РёРё Рё РґР°РЅРЅС‹Рµ РЅР°С…РѕРґСЏС‚СЃСЏ РІ РѕРґРЅРѕР№ СЃРµРєС†РёРё РёР»Рё СЂР°Р·РґРµР»РµРЅС‹?
+// РРЅСЃС‚СЂСѓРєС†РёРё РєРѕРґРёСЂСѓСЋС‚СЃСЏ РєР°Рє РІ x86 РїРµСЂРІС‹Рµ РґРІР° Р±Р°Р№С‚Р° - РѕРґРЅРёРј РёР»Рё РєР°Р¶РґС‹Р№ РїРѕ СЂР°Р·РґРµР»СЊРЅРѕСЃС‚Рё?
