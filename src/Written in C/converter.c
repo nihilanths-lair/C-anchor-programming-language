@@ -166,6 +166,9 @@ int main(int argc, char *argv[])
 
     //uint32_t TAPE[0xFFFFFF]; // 16 Mb.
     //uint8_t *TAPE = source_code;
+    #define HLT 0x01 // <%1>
+    #define JMP 0x02 // <%2>
+    #define INC 0x03 // <%3>
     uint8_t TAPE[] = {1, 1};
     //strcpy(TAPE, source_code);
     // Парсинг шестнадцатеричного текстового представления в бинарное
@@ -186,15 +189,13 @@ int main(int argc, char *argv[])
     // Через конфиг. файл считываются идентификаторы и присвоенные им оп-коды, затем определяется табличный адрес ISA и переход на него)
     // Преимущество такого подхода, можно задавать любые оп-коды или даже символьные имена какие вздумается, при этом архитектура никак не меняется (не ломается)
 
-    #define HLT 0x01 // <%1>
-    #define JMP 0x02 // <%2>
-    #define INC 0x03 // <%3>
     char opcode_configuration_file[] = {INC, JMP, HLT, '\0'};
 
     void *opcode_table[] = {&&op_1, &&op_2, &&op_3};
     // В процессе загрузки (псевдологика)
     void *current_isa[0x100];
-    for (int i = 0; i < sizeof (opcode_configuration_file); i++) current_isa[opcode_configuration_file[i]] = opcode_table[i]; // например, оп-код 0x05 маппим на внутреннюю логику #i
+    // Процесс пермутации ...
+    for (int i = 0; i < sizeof (opcode_configuration_file); i++) current_isa[ opcode_configuration_file[i] ] = opcode_table[i]; // например, оп-код 0x05 маппим на внутреннюю логику #i
     for (int i = 0; i < sizeof (opcode_configuration_file); i++) printf("\n 0x%p, 0x%p", opcode_table[i], current_isa[i]);
 
     /*goto *current_isa[0];*/
@@ -219,39 +220,36 @@ int main(int argc, char *argv[])
 
     goto *section_code[TAPE[IP]];
     // Базовые реализации
-    op_1: goto _1_end; // Остановить/прервать выполнение.
+    op_1:
+     printf("\n <%%1>: ?");
+     goto _1_end; // Остановить/прервать выполнение.
+
     op_2: // Инкрементировать текущую ячейку памяти.
-    {
-        printf("\n <%%2>: ?");
-        printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
-        TAPE[IP]++;
-        printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
-        goto *section_code[TAPE[++IP]];
-    }
+     printf("\n <%%2>: ?");
+     printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+     TAPE[IP]++;
+     printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+     goto *section_code[TAPE[++IP]];
+
     op_3: // Декрементировать текущую ячейку памяти.
-    {
-        printf("\n <%%3>: ?");
-        printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
-        TAPE[IP]--;
-        printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
-        goto *section_code[TAPE[++IP]];
-    }
+     printf("\n <%%3>: ?");
+     printf("\n 1: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+     TAPE[IP]--;
+     printf("\n 2: TAPE[IP=%d] = %02X - %03d - %c", IP, TAPE[IP], TAPE[IP], TAPE[IP]);
+     goto *section_code[TAPE[++IP]];
+
     op_4: // Перейти к пред. ячейки памяти (сдвиг указателя по адресу на шаг назад).
-    {
-        printf("\n <%%4>: ?");
-        goto *section_code[TAPE[--IP]];
-    }
+     printf("\n <%%4>: ?");
+     goto *section_code[TAPE[--IP]];
+
     op_5: // Перейти к след. ячейки памяти (сдвиг указателя по адресу на шаг вперёд).
-    {
-        printf("\n <%%5>: ?");
-        goto *section_code[TAPE[++IP]];
-    }
+     printf("\n <%%5>: ?");
+     goto *section_code[TAPE[++IP]];
+
     op_6: // Перейти к произвольной ячейки памяти с 8-ми битной адресацией (сдвиг указателя по произвольному адресу).
-    {
-        printf("\n <%%6>: ?");
-        IP = TAPE[++IP];
-        goto *section_code[TAPE[IP]];
-    }
+     printf("\n <%%6>: ?");
+     IP = TAPE[++IP];
+     goto *section_code[TAPE[IP]];
     /*
     op_7: // Перейти к произвольной ячейки памяти с 64-х битной адресацией (сдвиг указателя по произвольному адресу).
     {
