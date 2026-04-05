@@ -771,6 +771,18 @@ void CodeGeneration()
     #endif
 }
 /*-------------------------------------*///
+void Converter()
+{
+    #if !defined DEBUG
+     puts("\n ::=> Converter()");
+    #endif
+
+    // ... //
+
+    #if !defined DEBUG
+     puts("\n <=:: Converter");
+    #endif
+}
 
 char Compile(const char *text, size_t file_size, const char *params)
 {
