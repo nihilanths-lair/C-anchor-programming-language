@@ -21,8 +21,8 @@ void _(int argc, char *argv[])
 
     FILE *file = fopen("_.asm", "rb");
     if (file == NULL) { printf("\n #1\n"); return; }
-    size_t read_bytes = fread(buf, 1, sizeof (buf), file);
-    buf[read_bytes] = '\0';
+    size_t bytes_read = fread(buf, 1, sizeof (buf), file);
+    buf[bytes_read] = '\0';
     printf("\n```\n%s\n```", buf);
 
     //PatternMatching(buf, "JMP");
