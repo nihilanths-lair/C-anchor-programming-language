@@ -6,6 +6,12 @@
 #define switch_open {
 #define switch_close }
 
+// Сопоставление с образцом
+void PatternMatching(const char *text, const char *sample)
+{
+    // ... //
+}
+
 void _(int argc, char *argv[])
 {
     setlocale(0, "");
