@@ -6,7 +6,7 @@
 #define switch_open {
 #define switch_close }
 
-// Сопоставление с образцом
+// РЎРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ СЃ РѕР±СЂР°Р·С†РѕРј
 void PatternMatching(const char *text, const char *sample)
 {
     // ... //
@@ -24,6 +24,8 @@ void _(int argc, char *argv[])
     size_t read_bytes = fread(buf, 1, sizeof (buf), file);
     buf[read_bytes] = '\0';
     printf("\n```\n%s\n```", buf);
+
+    //PatternMatching(buf, "JMP");
 
     _1_run: switch (*ptr_buf)
     switch_open
