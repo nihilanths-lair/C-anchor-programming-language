@@ -3,7 +3,7 @@
 #include <locale.h>
 #include <stdio.h>
 
-void _()
+void _(int argc, char *argv[])
 {
     setlocale(0, "");
     // ... //
