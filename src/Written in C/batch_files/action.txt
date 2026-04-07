@@ -24,11 +24,8 @@
 
     _case_2: // Операция сравнения
      printf("\n \\2");
-     //printf("\n |>> cf = %s", (cf) ? "true" : "false");
-     cf = (memory[ip+1] == memory[ip+2]);
-     //printf("\n <<| cf = %s", (cf) ? "true" : "false");
-     //printf("\n memory[ip+=3] = %d", memory[ip+=3]);
-     goto *action[memory[ip+=3]];
+     cf = (memory[++ip] == memory[++ip]);
+     goto *action[memory[++ip]];
 
     _default: // _case_3_255
      printf("\n Финиш.");
