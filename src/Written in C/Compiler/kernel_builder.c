@@ -44,8 +44,23 @@ void _(int argc, char *argv[])
      ptr_buf++;
      goto _1_run;
 
+    case 'O':
+     printf("\n -> 'O'");
+     ptr_buf++;
+     goto _1_run;
+
     case 'P':
      printf("\n -> 'P'");
+     ptr_buf++;
+     goto _1_run;
+
+    case 'V':
+     printf("\n -> 'V'");
+     ptr_buf++;
+     goto _1_run;
+
+    default:
+     //printf("\n -> '%c'", *ptr_buf);
      ptr_buf++;
      goto _1_run;
 
