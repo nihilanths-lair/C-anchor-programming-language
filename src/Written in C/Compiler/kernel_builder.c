@@ -2,6 +2,7 @@
 
 #include <locale.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #define switch_open {
 #define switch_close }
@@ -25,6 +26,8 @@ void _(int argc, char *argv[])
     buf[bytes_read] = '\0';
     printf("\n```\n%s\n```", buf);
 
+    uint8_t initial_position;
+    uint8_t final_position;
     //PatternMatching(buf, "JMP");
 
     _1_run: switch (*ptr_buf)
