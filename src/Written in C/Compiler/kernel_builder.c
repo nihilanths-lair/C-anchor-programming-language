@@ -26,9 +26,14 @@ void _(int argc, char *argv[])
     buf[bytes_read] = '\0';
     printf("\n```\n%s\n```", buf);
 
-    uint8_t initial_position;
-    uint8_t final_position;
     //PatternMatching(buf, "JMP");
+
+    /// Слои абстракций
+    // opcode (ascii: bin) = syntax: low-level assembler (ascii: hex/dec/bin) = syntax: middle-level assembler (ascii) = high-level assembler (ascii)
+    // <%?><%?> <-.-> "01 <%?>" = "001 <%?>" = "0000^0001 <%?>" <-.-> "JMP <%?>" <-.-> "GOTO <%?>"
+
+    uint8_t initial_position = 0;
+    uint8_t final_position = 0;
 
     _1_run: switch (*ptr_buf)
     switch_open
