@@ -3,11 +3,16 @@
 #include <locale.h>
 #include <stdio.h>
 
+#include "..\..\batch_files\action.c"
+
 int main(int argc, char *argv[])
 {
     setlocale(0, "");
     //
-	printf("%d", argc);
+	//-/
+    //Action();
+    #include "..\..\batch_files\action.txt"
+    //-/
     //
     return 0;
 }
