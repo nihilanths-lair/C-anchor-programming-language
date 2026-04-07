@@ -1,9 +1,21 @@
-    #define JMP 1
-    #define CMP 2
+    enum
+    {
+        JMP =   1,
+        CMP,
+        LEA,       // Load Effective Address / Загрузить эффективно адрес
+         JE,       // Если равно (условие истинно)
+        JNE,       // Если не равно (условие не истинно)
+        HLT = 255  // Завершить выполнение программы
+    };
+    #define _case_1 JMP
+    #define _case_2 CMP
     static unsigned char memory[255] =
     {
-        CMP, 0, 0,
-        254
+        CMP, 0, 0, // CMP r/r, CMP m/m, CMP r/i, CMP m/i
+        JE, 0,
+        'C', '$', '\0', // Строка-1
+        'C', '$', '\0', // Строка-2
+        HLT
     }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
     static unsigned char ip = 0;   // Регистр-указатель на инструкцию (след. команду)
     static unsigned char cf = 0;   // Comparison flag / Флаг сравнения
