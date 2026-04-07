@@ -1,60 +1,95 @@
     enum
     {
-        JMP  =  1,
+        JMP,       // Безусловный переход
         CMP,       // Сравнение прямых значений
-        LEA,       // Load Effective Address / Загрузить эффективно адрес
-        JE,       // Если равно (условие истинно)
-        JNE,       // Если не равно (условие не истинно)
-        CALL,       // Позвонить (вызвать процедуру)
-        PUSH,       // Положить в стек
+        CALL,      // Позвонить (вызвать процедуру)
+        PUSH,      // Положить в стек
         POP,       // Снять со стека
+        RET,       // Вернуться из процедуры
+        LEA,       // Load Effective Address / Загрузить эффективно адрес
+        JE,        // Если равно (условие истинно)
+        JNE,       // Если не равно (условие не истинно)
         HLT  = 255 // Завершить выполнение программы
     };
     #define _opcode_1 JMP
     #define _opcode_2 CMP
     #define _opcode_3 CALL
+    #define _opcode_4 PUSH
+    #define _opcode_5 POP
+    #define _opcode_6 RET
     //#define _opcode_from_4_to_255 NOP
     static unsigned char memory[255] =
     {
-        CALL, 1,
-        CMP, 0, 0, // CMP r/r, CMP m/m, CMP r/i, CMP m/i
-        JE, 0,
+        CALL, 3,
+        //CMP, 0, 0,
+        HLT,
+        //CMP, 0, 0,
+        RET,
+        HLT,
         'C', '$', '\0', // Строка-1
         'C', '$', '\0', // Строка-2
         HLT
     }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
     static unsigned char ip =   0; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
+    static unsigned char sp; //       Stack pointer / Регистр-указатель на стек
+    sp = 255;
     static unsigned char cf =   0; //     Comparison flag / Флаг сравнения
-    static unsigned char sp = 255; //       Stack pointer / Регистр-указатель на стек
 
-    //-/
+    //-/ static inline void Action() -/
 
     void *action[] =
     {
-        [0] = &&_opcode_1,
-        [1] = &&_opcode_2,
-        [2] = &&_opcode_3,
-        [3 ... 255] = &&_opcode_from_4_to_255
+        [0] = &&_opcode_1, // Безусловный переход
+        [1] = &&_opcode_2, // Оператор сравнения
+        [2] = &&_opcode_3, // Позвонить (вызов процедуры)
+        [3] = &&_opcode_4, // Втолкнуть в стек
+        [4] = &&_opcode_5, // Вытолкнуть из стека
+        [5] = &&_opcode_6, // Вытолкнуть из стека
+        [6 ... 255] = &&_opcode_from_7_to_255
     };
 
     printf("\n Старт.");
-    ShowDashboard(memory); // Логируем
+    //ShowDashboard(memory, ip, sp, ""); // Логируем
     goto *action[memory[ip]];
 
     _opcode_1: // Безусловный переход
-     ShowDashboard(memory); // Логируем
+     ShowDashboard(memory, ip, sp, "JMP"); // Логируем
      ip = memory[++ip];
      goto *action[memory[ip]];
 
     _opcode_2: // Операция сравнения
-     ShowDashboard(memory); // Логируем
+     ShowDashboard(memory, ip, sp, "CMP"); // Логируем
      cf = (memory[++ip] == memory[++ip]);
      goto *action[memory[++ip]];
 
     _opcode_3: // Позвонить (вызвать процедуру)
-     ShowDashboard(memory); // Логируем
-     memory[sp] = ip; // Положить в стек адрес точки возврата из процедуры
+     ShowDashboard(memory, ip, sp, "CALL"); // Логируем
+     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
+     memory[sp--] = memory[ip+2]; // Положить в стек адрес точки возврата из процедуры
+     printf("\ndata_stack[%02X]=%02X", sp+1, memory[sp+1]);
+     ip = memory[++ip]; // Адрес перехода в процедуру
+     goto *action[memory[ip]]; // Адрес перехода в процедуру
+
+    _opcode_4: // Втолкнуть в стек
+     ShowDashboard(memory, ip, sp, "PUSH"); // Логируем
+     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
+     memory[sp--] = memory[++ip];
+     printf("\ndata_stack[%02X]=%02X", sp+1, memory[sp+1]);
      goto *action[memory[++ip]];
 
-    _opcode_from_4_to_255: // default
-     printf("\n \\4~\\255");
+    _opcode_5: // Вытолкнуть из стека
+     ShowDashboard(memory, ip, sp, "POP"); // Логируем
+     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
+     sp++;
+     printf("\ndata_stack[%02X]=%02X", sp-1, memory[sp-1]);
+     goto *action[memory[++ip]];
+
+    _opcode_6: // Вернуться из процедуры
+     ShowDashboard(memory, ip, sp, "RET"); // Логируем
+     ip = memory[++sp];
+     goto *action[memory[ip]];
+
+    _opcode_from_7_to_255: // default
+     //ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255"); // Логируем
+
+    _extreme_exit:
