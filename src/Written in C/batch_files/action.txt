@@ -57,14 +57,14 @@
         [6] = &&_opcode_7, // JE
         [7] = &&_opcode_8, // JNE
         [8 ... 254] = &&_opcode_from_9_to_255,
-        [255] = &&_opcode_256 // Остановить/завершить выполнение программы
+        [255] = &&_opcode_256 // HLT
     };
 
     printf("\n Старт.");
     goto *action[memory[ip]];
     //-/
     _opcode_1: // JMP
-     ip = memory[++ip];
+     ip = memory[ip+1]; // Берём адрес из аргумента
      goto *action[memory[ip]];
     //-/
     _opcode_2: // CMP
