@@ -1,24 +1,25 @@
     enum
     {
-        JMP,       // Безусловный переход
-        CMP,       // Сравнение прямых значений
-        CALL,      // Позвонить (вызвать процедуру)
-        RET,       // Вернуться из процедуры
-        PUSH,      // Положить в стек
-        POP,       // Снять со стека
-        JE,        // Условный оператор
-        JNE,       // Условный оператор (инвертированный)
-        LEA,       // Load Effective Address / Загрузить эффективно адрес
+        JMP,  // Безусловный переход
+        MOV,  // Перемещение данных (перезапись)
+        CMP,  // Сравнение прямых значений
+        CALL, // Позвонить (вызвать процедуру)
+        RET,  // Вернуться из процедуры
+        PUSH, // Положить в стек
+        POP,  // Снять со стека
+        JE,   // Условный оператор
+        JNE,  // Условный оператор (инвертированный)
         HLT  = 255 // Завершить выполнение программы
     };
     #define _opcode_1 JMP
-    #define _opcode_2 CMP
-    #define _opcode_3 CALL
-    #define _opcode_4 RET
-    #define _opcode_5 PUSH
-    #define _opcode_6 POP
-    #define _opcode_7 JE
-    #define _opcode_8 JNE
+    #define _opcode_2 MOV
+    #define _opcode_3 CMP
+    #define _opcode_4 CALL
+    #define _opcode_5 RET
+    #define _opcode_6 PUSH
+    #define _opcode_7 POP
+    #define _opcode_8 JE
+    #define _opcode_9 JNE
     #define _opcode_256 HLT
     //#define _opcode_from_4_to_255 NOP
     static unsigned char memory[256] =
@@ -49,14 +50,15 @@
     void *action[] =
     {
         [0] = &&_opcode_1, // JMP
-        [1] = &&_opcode_2, // CMP
-        [2] = &&_opcode_3, // CALL
-        [3] = &&_opcode_4, // RET
-        [4] = &&_opcode_5, // PUSH
-        [5] = &&_opcode_6, // POP
-        [6] = &&_opcode_7, // JE
-        [7] = &&_opcode_8, // JNE
-        [8 ... 254] = &&_opcode_from_9_to_255,
+        [1] = &&_opcode_2, // MOV
+        [2] = &&_opcode_3, // CMP
+        [3] = &&_opcode_4, // CALL
+        [4] = &&_opcode_5, // RET
+        [5] = &&_opcode_6, // PUSH
+        [6] = &&_opcode_7, // POP
+        [7] = &&_opcode_8, // JE
+        [8] = &&_opcode_9, // JNE
+        [9 ... 254] = &&_opcode_from_10_to_255,
         [255] = &&_opcode_256 // HLT
     };
 
@@ -64,10 +66,22 @@
     goto *action[memory[ip]];
     //-/
     _opcode_1: // JMP
+     ShowDashboard(memory, ip, sp, "JMP");
      ip = memory[ip+1]; // Берём адрес из аргумента
      goto *action[memory[ip]];
     //-/
-    _opcode_2: // CMP
+    _opcode_2: // MOV
+     ShowDashboard(memory, ip, sp, "MOV");
+     #if !defined INTEL //@Specifics: Intel (справа налево): dest:mem8 <-. src:imm8
+     memory[memory[ip+1]] = memory[ip+2]; // Берём прямое значение из аргумента и кладём его по адресу в памяти
+     #endif
+     #if defined AT_T //@Specifics: AT&T (слева направо): src:imm8 .-> dest:mem8
+     memory[memory[ip+2]] = memory[ip+1]; // Берём прямое значение из аргумента и кладём его по адресу в памяти
+     #endif
+     ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
+     goto *action[memory[ip]];
+    //-/
+    _opcode_3: // CMP
      ShowDashboard(memory, ip, sp, "CMP");
      a = memory[ip+1];
      b = memory[ip+2];
@@ -75,43 +89,43 @@
      ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
      goto *action[memory[ip]];
     //-/
-    _opcode_3: // CALL
+    _opcode_4: // CALL
      ShowDashboard(memory, ip, sp, "CALL");
      memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
      ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
      goto *action[memory[ip]];
     //-/
-    _opcode_4: // RET
+    _opcode_5: // RET
      ShowDashboard(memory, ip, sp, "RET");
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //-/
-    _opcode_5: // PUSH
+    _opcode_6: // PUSH
      ShowDashboard(memory, ip, sp, "PUSH");
      memory[sp--] = memory[ip+1];
      ip += 2; // Сдвиг на следующую команду (OP + ARG)
      goto *action[memory[ip]];
     //-/
-    _opcode_6: // POP
+    _opcode_7: // POP
      ShowDashboard(memory, ip, sp, "POP");
      sp++;
      ip += 1; // У POP обычно нет аргумента, просто сдвиг на 1
      goto *action[memory[ip]];
     //-/
-    _opcode_7: // JE
+    _opcode_8: // JE
      ShowDashboard(memory, ip, sp, "JE");
      if (cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else    ip += 2;           // Пропуск инструкции JE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_8: // JNE
+    _opcode_9: // JNE
      ShowDashboard(memory, ip, sp, "JNE");
      if (!cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else     ip += 2;           // Пропуск инструкции JNE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_from_9_to_255: // default
-     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255"); // Логируем
+    _opcode_from_10_to_255: // default
+     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255");
      goto _extreme_exit; // Просто завершаем
      //goto *action[memory[++ip]]; // Крутим дальше
     //-/
