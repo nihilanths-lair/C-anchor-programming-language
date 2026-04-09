@@ -3,9 +3,9 @@
         JMP,       // Безусловный переход
         CMP,       // Сравнение прямых значений
         CALL,      // Позвонить (вызвать процедуру)
+        RET,       // Вернуться из процедуры
         PUSH,      // Положить в стек
         POP,       // Снять со стека
-        RET,       // Вернуться из процедуры
         JE,        // Условный оператор
         JNE,       // Условный оператор (инвертированный)
         LEA,       // Load Effective Address / Загрузить эффективно адрес
@@ -14,12 +14,11 @@
     #define _opcode_1 JMP
     #define _opcode_2 CMP
     #define _opcode_3 CALL
-    #define _opcode_4 PUSH
-    #define _opcode_5 POP
-    #define _opcode_6 RET
-    #define _opcode_7 JE  // Условный оператор
-    #define _opcode_8 JNE // Условный оператор (инвертированный)
-    //
+    #define _opcode_4 RET
+    #define _opcode_5 PUSH
+    #define _opcode_6 POP
+    #define _opcode_7 JE
+    #define _opcode_8 JNE
     #define _opcode_256 HLT
     //#define _opcode_from_4_to_255 NOP
     static unsigned char memory[256] =
@@ -49,14 +48,14 @@
 
     void *action[] =
     {
-        [0] = &&_opcode_1, // Безусловный переход
-        [1] = &&_opcode_2, // Оператор сравнения
-        [2] = &&_opcode_3, // Позвонить (вызов процедуры)
-        [3] = &&_opcode_4, // Втолкнуть в стек
-        [4] = &&_opcode_5, // Вытолкнуть из стека
-        [5] = &&_opcode_6, // Вытолкнуть из стека
-        [6] = &&_opcode_7, // Условный оператор
-        [7] = &&_opcode_8, // Условный оператор (инвертированный)
+        [0] = &&_opcode_1, // JMP
+        [1] = &&_opcode_2, // CMP
+        [2] = &&_opcode_3, // CALL
+        [3] = &&_opcode_4, // RET
+        [4] = &&_opcode_5, // PUSH
+        [5] = &&_opcode_6, // POP
+        [6] = &&_opcode_7, // JE
+        [7] = &&_opcode_8, // JNE
         [8 ... 254] = &&_opcode_from_9_to_255,
         [255] = &&_opcode_256 // Остановить/завершить выполнение программы
     };
@@ -65,47 +64,43 @@
     //ShowDashboard(memory, ip, sp, ""); // Логируем
     goto *action[memory[ip]];
 
-    _opcode_1: // Безусловный переход
-     ShowDashboard(memory, ip, sp, "JMP"); // Логируем
-     ip = memory[++ip]; // Адрес перехода
-     goto *action[memory[ip]]; // Адрес перехода
+    _opcode_1: // JMP
+     ShowDashboard(memory, ip, sp, "JMP");
+     ip = memory[++ip];
+     goto *action[memory[ip]];
 
-    _opcode_2: // Операция сравнения
-     ShowDashboard(memory, ip, sp, "CMP"); // Логируем
-     //-/ Specifics: AT&T
-     //cf = (memory[++ip] == memory[++ip]); // Быстрее, но не гарантирует последовательный порядок выполнения
-     // Медленней, но безопасней
-     a = memory[++ip];
-     b = memory[++ip];
+    _opcode_2: // CMP
+     ShowDashboard(memory, ip, sp, "CMP");
+     a = memory[ip+1];
+     b = memory[ip+2];
      cf = (a == b);
-     goto *action[memory[++ip]];
+     ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
+     goto *action[memory[ip]];
 
-    _opcode_3: // Позвонить (вызвать процедуру)
-     ShowDashboard(memory, ip, sp, "CALL"); // Логируем
-     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
-     memory[sp--] = memory[ip+2]; // Положить в стек адрес точки возврата из процедуры
-     printf("\ndata_stack[%02X]=%02X", sp+1, memory[sp+1]);
-     ip = memory[++ip]; // Адрес перехода в процедуру
-     goto *action[memory[ip]]; // Адрес перехода в процедуру
+    _opcode_3: // CALL
+     ShowDashboard(memory, ip, sp, "CALL");
+     memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
+     ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
+     goto *action[memory[ip]];
 
-    _opcode_4: // Втолкнуть в стек
-     ShowDashboard(memory, ip, sp, "PUSH"); // Логируем
+    _opcode_4: // RET
+     ShowDashboard(memory, ip, sp, "RET");
+     ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
+     goto *action[memory[ip]];
+
+    _opcode_5: // PUSH
+     ShowDashboard(memory, ip, sp, "PUSH");
      printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
      memory[sp--] = memory[++ip];
      printf("\ndata_stack[%02X]=%02X", sp+1, memory[sp+1]);
      goto *action[memory[++ip]];
 
-    _opcode_5: // Вытолкнуть из стека
-     ShowDashboard(memory, ip, sp, "POP"); // Логируем
+    _opcode_6: // POP
+     ShowDashboard(memory, ip, sp, "POP");
      printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
      sp++;
      printf("\ndata_stack[%02X]=%02X", sp-1, memory[sp-1]);
      goto *action[memory[++ip]];
-
-    _opcode_6: // Вернуться из процедуры
-     ShowDashboard(memory, ip, sp, "RET"); // Логируем
-     ip = memory[++sp];
-     goto *action[memory[ip]];
 
     _opcode_7: // JE
      ShowDashboard(memory, ip, sp, "JE");
