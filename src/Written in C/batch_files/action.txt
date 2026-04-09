@@ -90,17 +90,15 @@
 
     _opcode_5: // PUSH
      ShowDashboard(memory, ip, sp, "PUSH");
-     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
-     memory[sp--] = memory[++ip];
-     printf("\ndata_stack[%02X]=%02X", sp+1, memory[sp+1]);
-     goto *action[memory[++ip]];
+     memory[sp--] = memory[ip+1];
+     ip += 2; // Сдвиг на следующую команду (OP + ARG)
+     goto *action[memory[ip]];
 
     _opcode_6: // POP
      ShowDashboard(memory, ip, sp, "POP");
-     printf("\ndata_stack[%02X]=%02X", sp, memory[sp]);
      sp++;
-     printf("\ndata_stack[%02X]=%02X", sp-1, memory[sp-1]);
-     goto *action[memory[++ip]];
+     ip += 1; // У POP обычно нет аргумента, просто сдвиг на 1
+     goto *action[memory[ip]];
 
     _opcode_7: // JE
      ShowDashboard(memory, ip, sp, "JE");
