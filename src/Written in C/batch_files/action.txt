@@ -120,6 +120,7 @@
      //goto *action[memory[++ip]]; // Крутим дальше
 
     _opcode_256: // Остановить/завершить выполнение программы
+     printf("\n Стоп.");
      //goto _extreme_exit; // Просто завершаем
 
     _extreme_exit:
