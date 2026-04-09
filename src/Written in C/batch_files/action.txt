@@ -6,8 +6,8 @@
         PUSH,      // Положить в стек
         POP,       // Снять со стека
         RET,       // Вернуться из процедуры
+        JE,        // Условный оператор
         LEA,       // Load Effective Address / Загрузить эффективно адрес
-        JE,        // Если равно (условие истинно)
         JNE,       // Если не равно (условие не истинно)
         HLT  = 255 // Завершить выполнение программы
     };
@@ -17,8 +17,11 @@
     #define _opcode_4 PUSH
     #define _opcode_5 POP
     #define _opcode_6 RET
+    #define _opcode_7 JE // Условный оператор
+    //
+    #define _opcode_256 HLT
     //#define _opcode_from_4_to_255 NOP
-    static unsigned char memory[255] =
+    static unsigned char memory[256] =
     {
         CALL, 3,
         //CMP, 0, 0,
@@ -30,10 +33,16 @@
         'C', '$', '\0', // Строка-2
         HLT
     }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
-    static unsigned char ip =   0; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
-    static unsigned char sp; //       Stack pointer / Регистр-указатель на стек
+    static unsigned char ip; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
+    ip =   0;
+    static unsigned char sp; // Stack pointer / Регистр-указатель на стек
     sp = 255;
-    static unsigned char cf =   0; //     Comparison flag / Флаг сравнения
+    static unsigned char cf; // Comparison flag / Флаг сравнения
+    cf =   0;
+    static unsigned char a;
+    a = 0;
+    static unsigned char b;
+    b = 0;
 
     //-/ static inline void Action() -/
 
@@ -45,7 +54,9 @@
         [3] = &&_opcode_4, // Втолкнуть в стек
         [4] = &&_opcode_5, // Вытолкнуть из стека
         [5] = &&_opcode_6, // Вытолкнуть из стека
-        [6 ... 255] = &&_opcode_from_7_to_255
+        [6] = &&_opcode_7, // Условный оператор
+        [7 ... 254] = &&_opcode_from_7_to_255,
+        [255] = &&_opcode_256 // Остановить/завершить выполнение программы
     };
 
     printf("\n Старт.");
@@ -54,12 +65,17 @@
 
     _opcode_1: // Безусловный переход
      ShowDashboard(memory, ip, sp, "JMP"); // Логируем
-     ip = memory[++ip];
-     goto *action[memory[ip]];
+     ip = memory[++ip]; // Адрес перехода
+     goto *action[memory[ip]]; // Адрес перехода
 
     _opcode_2: // Операция сравнения
      ShowDashboard(memory, ip, sp, "CMP"); // Логируем
-     cf = (memory[++ip] == memory[++ip]);
+     //-/ Specifics: AT&T
+     //cf = (memory[++ip] == memory[++ip]); // Быстрее, но не гарантирует последовательный порядок выполнения
+     // Медленней, но безопасней
+     a = memory[++ip];
+     b = memory[++ip];
+     cf = (a == b);
      goto *action[memory[++ip]];
 
     _opcode_3: // Позвонить (вызвать процедуру)
@@ -89,7 +105,21 @@
      ip = memory[++sp];
      goto *action[memory[ip]];
 
+    _opcode_7: // Условный оператор
+     ShowDashboard(memory, ip, sp, "JE"); // Логируем
+     if (cf)
+     {
+        ip = memory[++ip]; // Адрес перехода
+        goto *action[memory[ip]]; // Адрес перехода
+     }
+     else goto *action[memory[ip+=2]];
+
     _opcode_from_7_to_255: // default
-     //ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255"); // Логируем
+     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255"); // Логируем
+     goto _extreme_exit; // Просто завершаем
+     //goto *action[memory[++ip]]; // Крутим дальше
+
+    _opcode_256: // Остановить/завершить выполнение программы
+     //goto _extreme_exit; // Просто завершаем
 
     _extreme_exit:
