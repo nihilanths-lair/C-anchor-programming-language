@@ -105,14 +105,29 @@
      ip = memory[++sp];
      goto *action[memory[ip]];
 
-    _opcode_7: // Условный оператор
+    // Условный оператор
+    _opcode_7:
      ShowDashboard(memory, ip, sp, "JE"); // Логируем
+     // Если флаг сравнения истина, переходим на оп-код, идущий следом за адресом
      if (cf)
      {
-        ip = memory[++ip]; // Адрес перехода
-        goto *action[memory[ip]]; // Адрес перехода
+        ip = memory[++ip];
+        goto *action[memory[ip]];
      }
+     // Если флаг сравнения ложь, переходим по адресу
      else goto *action[memory[ip+=2]];
+
+    // Условный оператор (инвертированный)
+    _opcode_8:
+     ShowDashboard(memory, ip, sp, "JNE"); // Логируем
+     // Если флаг сравнения истина, переходим на оп-код, идущий следом за адресом
+     if (cf) goto *action[memory[ip+=2]];
+     // Если флаг сравнения ложь, переходим по адресу
+     else
+     {
+        ip = memory[++ip];
+        goto *action[memory[ip]];
+     }
 
     _opcode_from_7_to_255: // default
      ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 4~255"); // Логируем
