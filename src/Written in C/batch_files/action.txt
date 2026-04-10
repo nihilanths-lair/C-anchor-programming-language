@@ -152,15 +152,12 @@
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
-    // <-\_
-    // *[* Косвенная адресация через ptr8 *]*
-    // _/->
+    //-/
     _opcode_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)");
      #endif
-     // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
-     memory[memory[ip+1]] = memory[ip+2];
+     memory[memory[ip+1]] = memory[ip+2]; // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //-/
@@ -168,8 +165,7 @@
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)");
      #endif
-     // То же самое: записать imm8 по адресу из dst_ptr
-     memory[memory[ip+2]] = memory[ip+1];
+     memory[memory[ip+2]] = memory[ip+1]; // То же самое: записать imm8 по адресу из dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //-/
@@ -177,8 +173,7 @@
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)");
      #endif
-     // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
-     memory[memory[ip+1]] = memory[memory[ip+2]];
+     memory[memory[ip+1]] = memory[memory[ip+2]]; // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //-/
@@ -189,22 +184,20 @@
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
-    // <-\_
-    _opcode_12: // MOV mem8 <~ ptr8 (Intel: dst mem8, src ptr8)
+    //-/
+    _opcode_12: // MOV mem8 <~ ptr8  (Intel)
      #ifdef DEBUG
-      ShowDashboard(memory, ip, sp, "MOV mem8 <~ ptr8");
+      ShowDashboard(memory, ip, sp, "MOV mem8 <~ ptr8  (Intel)");
      #endif
-     // Записать в память по прямому адресу (arg1) значение, взятое из памяти по указателю, хранящемуся в ячейке arg2
-     memory[memory[ip+1]] = memory[memory[ip+2]];
+     memory[memory[ip+1]] = memory[memory[memory[ip+2]]];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_13: // MOV ptr8 ~> mem8 (AT&T: src ptr8, dst mem8)
+    _opcode_13: // MOV ptr8 ~> mem8  (AT&T)
      #ifdef DEBUG
-      ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8");
+      ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8  (AT&T)");
      #endif
-     // Записать в память по прямому адресу (arg2) значение, взятое из памяти по указателю, хранящемуся в ячейке arg1
-     memory[memory[ip+2]] = memory[memory[ip+1]];
+     memory[memory[ip+2]] = memory[memory[memory[ip+1]]];
      ip += 3;
      goto *action[memory[ip]];
     //-/
