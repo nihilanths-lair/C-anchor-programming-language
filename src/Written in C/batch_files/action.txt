@@ -3,28 +3,34 @@
         JMP = 0,
         INC,
         DEC,
-        MOV__DST_MEM8__SRC_IMM8 = 3,
-        MOV__SRC_IMM8__DST_MEM8,
-        MOV__DST_MEM8__SRC_MEM8,
-        MOV__SRC_MEM8__DST_MEM8,
-        MOV__DST_PTR8__SRC_IMM8,
-        MOV__SRC_IMM8__DST_PTR8,
-        MOV__DST_PTR8__SRC_MEM8,
-        MOV__SRC_MEM8__DST_PTR8,
-        MOV__DST_MEM8__SRC_PTR8,   // 11
-        MOV__SRC_PTR8__DST_MEM8,   // 12
-        ADD,                       // 13
-        SUB,                       // 14
-        MUL,                       // 15
-        DIV,                       // 16
-        CMP,                       // 17
-        CALL,                      // 18
-        RET,                       // 19
-        PUSH,                      // 20
-        POP,                       // 21
-        JE,                        // 22
-        JNE,                       // 23
-        HLT = 255
+
+        MOV__DST_MEM8__SRC_IMM8 = 3, // MOV mem8 <~ imm8 (Intel: dst src)
+        MOV__SRC_IMM8__DST_MEM8,     // MOV imm8 ~> mem8 ( AT&T: src dst)
+
+        MOV__DST_MEM8__SRC_MEM8,     // MOV mem8 <~ mem8 (Intel: dst src)
+        MOV__SRC_MEM8__DST_MEM8,     // MOV mem8 ~> mem8 ( AT&T: src dst)
+
+        MOV__DST_PTR8__SRC_IMM8,     // MOV ptr8 <~ imm8 (Intel: dst src)
+        MOV__SRC_IMM8__DST_PTR8,     // MOV imm8 ~> ptr8 ( AT&T: src dst)
+
+        MOV__DST_PTR8__SRC_MEM8,     // MOV ptr8 <~ mem8 (Intel: dst src)
+        MOV__SRC_MEM8__DST_PTR8,     // MOV mem8 ~> ptr8 ( AT&T: src dst)
+
+        MOV__DST_MEM8__SRC_PTR8,     // MOV mem8 <~ ptr8 (Intel: dst src)
+        MOV__SRC_PTR8__DST_MEM8,     // MOV ptr8 ~> mem8 ( AT&T: src dst)
+
+        ADD,      // 13
+        SUB,      // 14
+        MUL,      // 15
+        DIV,      // 16
+        CMP,      // 17
+        CALL,     // 18
+        RET,      // 19
+        PUSH,     // 20
+        POP,      // 21
+        JE,       // 22
+        JNE,      // 23
+        HLT = 255 //
     };
 
     static unsigned char memory[256] =
