@@ -256,12 +256,11 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "orn:CMP ord-1 ord-2");
     #endif
-     static char a = 0;
-     static char b = 0;
-     a = memory[ip+1];
-     b = memory[ip+2];
-     ef = (a == b);
-     bf = (a > b);
+     static unsigned char a = 0;
+     static unsigned char b = 0;
+     ef = (a == b); // ZF (Zero Flag) в x86
+     af = (a > b);  // JA (Above)
+     bf = (a < b);  // JB (Below)
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
@@ -300,31 +299,33 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JE addr8  (Jump if Equal)");
     #endif
-     if (ef) ip = memory[ip+1]; // Перемещение указателя по новому адресу
+     if (ef) ip = memory[ip+1]; // JE (Jump if Equal): Прыгаем, если ef == 1
      else    ip += 2;           // Пропуск инструкции JE (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_24: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JNE addr8  (Jump if Not Equal)");
     #endif
-     if (!ef) ip = memory[ip+1]; // Перемещение указателя по новому адресу
+     if (!ef) ip = memory[ip+1]; // JNE (Jump if Not Equal): Прыгаем, если ef == 0
      else     ip += 2;           // Пропуск инструкции JNE (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_25: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JB addr8  (Jump if Below)");
     #endif
-     if (bf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
+     if (bf) ip = memory[ip+1]; // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
      else    ip += 2;           // Пропуск инструкции JB (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_26: // JBE addr8  (Jump if Below or Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JBE addr8  (Jump if Below or Equal)");
     #endif
-     return; // Заглушка
+     if (bf || ef) ip = memory[ip+1]; // JBE (Jump if Below or Equal): Прыгаем, если bf || ef
+     else          ip += 2;           // JBE + addr8
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_27: // JNB addr8  (Jump if Not Below)
     #ifdef DEBUG
@@ -336,15 +337,17 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JA addr8  (Jump if Above)");
     #endif
-     if (!bf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
-     else     ip += 2;           // Пропуск инструкции JA (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
+     if (af) ip = memory[ip+1]; // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
+     else    ip += 2;           // JA + addr8
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_29: // JAE addr8  (Jump if Above or Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JAE addr8  (Jump if Above or Equal)");
     #endif
-     return; // Заглушка
+     if (af || ef) ip = memory[ip+1]; // JAE (Jump if Above or Equal): Прыгаем, если af || ef
+     else          ip += 2;           // JAE + addr8
+     goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_30: // JNA addr8  (Jump if Not Above)
     #ifdef DEBUG
