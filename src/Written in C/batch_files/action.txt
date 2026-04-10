@@ -20,24 +20,7 @@
         JNE,  // Условный оператор (инвертированный)
         HLT  = 255 // Завершить выполнение программы
     };
-    #define _opcode_1 JMP
-    #define _opcode_2 INC
-    #define _opcode_3 DEC
-    #define _opcode_4 MOV_MEM8_IMM8
-    #define _opcode_5 MOV_IMM8_MEM8
-    #define _opcode_6 ADD
-    #define _opcode_7 SUB
-    #define _opcode_8 MUL
-    #define _opcode_9 DIV
-    #define _opcode_10 CMP
-    #define _opcode_11 CALL
-    #define _opcode_12 RET
-    #define _opcode_13 PUSH
-    #define _opcode_14 POP
-    #define _opcode_15 JE
-    #define _opcode_16 JNE
-    #define _opcode_256 HLT
-    //#define _opcode_from_4_to_255 NOP
+
     static unsigned char memory[256] =
     {
         CALL, 3,
@@ -50,14 +33,15 @@
         'C', '$', '\0', // Строка-2
         HLT
     }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
+
+    //-/ static inline void Action() -/
+
     static unsigned char ip; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
     ip =   0;
     static unsigned char sp; // Stack pointer / Регистр-указатель на стек
     sp = 255;
     static unsigned char cf; // Comparison flag / Флаг сравнения
     cf =   0;
-
-    //-/ static inline void Action() -/
 
     void *action[] =
     {
