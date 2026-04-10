@@ -48,11 +48,11 @@ static inline void Action()
         [1] = &&_opcode_2, // INC
         [2] = &&_opcode_3, // DEC
 
-        [3] = &&_opcode_4, // MOV mem8:dst imm8:src (Intel)
-        [4] = &&_opcode_5, // MOV imm8:src mem8:dst (AT&T)
+        [3] = &&_opcode_4, // MOV mem8 <~ imm8 (Intel: dst src)
+        [4] = &&_opcode_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
 
-        [5] = &&_opcode_6, // MOV ? (Intel)
-        [6] = &&_opcode_7, // MOV ? (AT&T)
+        [5] = &&_opcode_6, // MOV mem8 <~ mem8 (Intel: dst src)
+        [6] = &&_opcode_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
 
         [7] = &&_opcode_8, // ADD
         [8] = &&_opcode_9, // SUB
