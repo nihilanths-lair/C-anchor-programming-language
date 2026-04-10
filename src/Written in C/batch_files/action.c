@@ -1,36 +1,47 @@
 enum
 {
-    JMP = 0,
+    // Безусловный переход
+    JMP,
+
     INC,
     DEC,
 
-    MOV__DST_MEM8__SRC_IMM8 = 3, // MOV mem8 <~ imm8 (Intel: dst src)
-    MOV__SRC_IMM8__DST_MEM8,     // MOV imm8 ~> mem8 ( AT&T: src dst)
+    MOV__DST_MEM8__SRC_IMM8 = 03, // MOV mem8 <~ imm8 (Intel: dst src)
+    MOV__SRC_IMM8__DST_MEM8,      // MOV imm8 ~> mem8 ( AT&T: src dst)
 
-    MOV__DST_MEM8__SRC_MEM8,     // MOV mem8 <~ mem8 (Intel: dst src)
-    MOV__SRC_MEM8__DST_MEM8,     // MOV mem8 ~> mem8 ( AT&T: src dst)
+    MOV__DST_MEM8__SRC_MEM8,      // MOV mem8 <~ mem8 (Intel: dst src)
+    MOV__SRC_MEM8__DST_MEM8,      // MOV mem8 ~> mem8 ( AT&T: src dst)
 
-    MOV__DST_PTR8__SRC_IMM8,     // MOV ptr8 <~ imm8 (Intel: dst src)
-    MOV__SRC_IMM8__DST_PTR8,     // MOV imm8 ~> ptr8 ( AT&T: src dst)
+    MOV__DST_PTR8__SRC_IMM8,      // MOV ptr8 <~ imm8 (Intel: dst src)
+    MOV__SRC_IMM8__DST_PTR8,      // MOV imm8 ~> ptr8 ( AT&T: src dst)
 
-    MOV__DST_PTR8__SRC_MEM8,     // MOV ptr8 <~ mem8 (Intel: dst src)
-    MOV__SRC_MEM8__DST_PTR8,     // MOV mem8 ~> ptr8 ( AT&T: src dst)
+    MOV__DST_PTR8__SRC_MEM8,      // MOV ptr8 <~ mem8 (Intel: dst src)
+    MOV__SRC_MEM8__DST_PTR8,      // MOV mem8 ~> ptr8 ( AT&T: src dst)
 
-    MOV__DST_MEM8__SRC_PTR8,     // MOV mem8 <~ ptr8 (Intel: dst src)
-    MOV__SRC_PTR8__DST_MEM8,     // MOV ptr8 ~> mem8 ( AT&T: src dst)
+    MOV__DST_MEM8__SRC_PTR8,      // MOV mem8 <~ ptr8 (Intel: dst src)
+    MOV__SRC_PTR8__DST_MEM8 = 12, // MOV ptr8 ~> mem8 ( AT&T: src dst)
 
-    ADD,      // 13
-    SUB,      // 14
-    MUL,      // 15
-    DIV,      // 16
+    ADD,  // 13
+    SUB,  // 14
+    MUL,  // 15
+    DIV,  // 16
 
-    CMP,      // 17
-    CALL,     // 18
-    RET,      // 19
-    PUSH,     // 20
-    POP,      // 21
-    JE,       // 22
-    JNE,      // 23
+    CMP,  // 17
+    CALL, // 18
+    RET,  // 19
+    PUSH, // 20
+    POP,  // 21
+
+    // Условные переходы
+     JE__IMM8__IMM8 = 22, // JE imm8 imm8  (Jump if Equal)
+    JNE__IMM8__IMM8,      // JNE (Jump if Not Equal)
+     JB__IMM8__IMM8,      // JB (Jump if Below)
+    JBE__IMM8__IMM8,      // JBE (Jump if Below or Equal)
+    JNB__IMM8__IMM8,      // JNB (Jump if Not Below)
+     JA__IMM8__IMM8,      // JA (Jump if Above)
+    JAE__IMM8__IMM8,      // JAE (Jump if Above or Equal)
+    JNA__IMM8__IMM8 = 29, // JNA (Jump if Not Above)
+
     HLT = 255 //
 };
 
@@ -252,7 +263,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "PUSH");
     #endif
-     memory[sp--] = memory[ip+1];
+     memory[sp--] = memory[memory[ip+1]];
      ip += 2;
      goto *action[memory[ip]];
     //-/
