@@ -76,10 +76,12 @@
         [11] = &&_opcode_12, // MOV mem8 <~ ptr8 (Intel: dst src)
         [12] = &&_opcode_13, // MOV ptr8 ~> mem8 ( AT&T: src dst)
         //-/
+        /*
         [13] = &&_opcode_14, // ADD
         [14] = &&_opcode_15, // SUB
         [15] = &&_opcode_16, // MUL
         [16] = &&_opcode_17, // DIV
+        */
         [17] = &&_opcode_18, // CMP
         [18] = &&_opcode_19, // CALL
         [19] = &&_opcode_20, // RET
@@ -206,6 +208,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //-/
+    /*
     _opcode_14: // ADD
     //-/
     _opcode_15: // SUB
@@ -213,6 +216,7 @@
     _opcode_16: // MUL
     //-/
     _opcode_17: // DIV
+    */
     //-/
     _opcode_18: // CMP
      ShowDashboard(memory, ip, sp, "CMP");
