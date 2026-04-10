@@ -3,16 +3,20 @@
         JMP,  // Безусловный переход
         INC,  // Инкремент произвольной ячейки памяти
         DEC,  // Декремент произвольной ячейки памяти
+
         //- Перемещение данных (перезапись) -/
-        MOV__DST_MEM8__SRC_IMM8, // 3
-        MOV__SRC_IMM8__DST_MEM8, // 4
-        //
-        MOV__DST_MEM8__SRC_MEM8, // 5
-        MOV__SRC_MEM8__DST_MEM8, // 6
-        //
-        MOV__DST_MEM8__SRC_PTR8, // 7
-        MOV__SRC_PTR8__DST_MEM8, // 8
-        //
+        // Непосредственное (константное) значение в память
+        MOV__DST_MEM8__SRC_IMM8, // 4-1
+        MOV__SRC_IMM8__DST_MEM8, // 5-1
+        // Из памяти в память (переменная)
+        MOV__DST_MEM8__SRC_MEM8, // 6-1
+        MOV__SRC_MEM8__DST_MEM8, // 7-1
+        // Адрес непосредственного (константного) значения в указатель (память)
+        MOV__DST_PTR8__SRC_IMM8, // 8-1
+        MOV__SRC_IMM8__DST_PTR8, // 9-1
+        // Адрес из памяти в указатель (память)
+        MOV__DST_PTR8__SRC_MEM8, // 10-1
+        MOV__SRC_MEM8__DST_PTR8, // 11-1
         //-/
         ADD,  // Сложение
         SUB,  // Вычитание
@@ -102,53 +106,56 @@
      memory[memory[ip+1]]--; // Берёт из аргумента адрес ячейки памяти, и производит над ним декрементацию.
      ip += 2;
      goto *action[memory[ip]];
-    //-/
-    _opcode_4: // MOV mem8 <~ imm8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8 (Intel: dst src)");
+    //
+    // *[* Прямая адресация (mem8) *]*
+    // _/->
+    _opcode_4: // MOV mem8 <~ imm8  (Intel: dst, src)
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_5: // MOV imm8 ~> mem8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8 ( AT&T: src dst)");
+
+    _opcode_5: // MOV imm8 ~> mem8  (AT&T: src, dst)
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_6: // MOV mem8 <~ mem8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8 (Intel: dst src)");
+
+    _opcode_6: // MOV mem8 <~ mem8  (Intel)
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_7: // MOV mem8 ~> mem8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8 ( AT&T: src dst)");
+
+    _opcode_7: // MOV mem8 ~> mem8  (AT&T)
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_8: // MOV ptr8 <~ imm8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8 (Intel: dst src)");
-     memory[ip+1] = ip+2;
+    // <-\_
+    // *[* Косвенная адресация через ptr8 *]*
+    // _/->
+    _opcode_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+     // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+     memory[ memory[ip+1] ] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_9: // MOV imm8 ~> ptr8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8 ( AT&T: src dst)");
-     memory[ip+2] = ip+1;
+
+    _opcode_9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+     // То же самое: записать imm8 по адресу из dst_ptr
+     memory[ memory[ip+2] ] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_10: // MOV ptr8 <~ mem8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8 (Intel: dst src)");
+
+    _opcode_10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+     // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+     memory[ memory[ip+1] ] = memory[ memory[ip+2] ];
      ip += 3;
      goto *action[memory[ip]];
-    //
-    _opcode_11: // MOV mem8 ~> ptr8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV mem8 ~> ptr8 ( AT&T: src dst)");
+
+    _opcode_11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+     // То же самое, порядок аргументов обратный
+     memory[ memory[ip+2] ] = memory[ memory[ip+1] ];
      ip += 3;
      goto *action[memory[ip]];
-    //-/
+    // <-\_
+    //
     _opcode_12: // ADD
     //-/
     _opcode_13: // SUB
@@ -160,7 +167,7 @@
     _opcode_16: // CMP
      ShowDashboard(memory, ip, sp, "CMP");
      cf = (memory[ip+1] == memory[ip+2]);
-     ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
+     ip += 3;
      goto *action[memory[ip]];
     //-/
     _opcode_17: // CALL
@@ -177,7 +184,7 @@
     _opcode_19: // PUSH
      ShowDashboard(memory, ip, sp, "PUSH");
      memory[sp--] = memory[ip+1];
-     ip += 2; // Сдвиг на следующую команду (OP + ARG)
+     ip += 2;
      goto *action[memory[ip]];
     //-/
     _opcode_20: // POP
