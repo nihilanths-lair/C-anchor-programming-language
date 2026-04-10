@@ -92,15 +92,15 @@
      ip += 2;
      goto *action[memory[ip]];
     //-/
-    _opcode_4: // MOV mem8:dst imm8:src (Intel)
+    _opcode_4: // MOV mem8 <~ imm8 (Intel: dst src)
      ShowDashboard(memory, ip, sp, "MOV mem8:dst imm8:src");
-     memory[memory[ip+1]] = memory[ip+2]; // mem8 <- imm8
+     memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-
-    _opcode_5: // MOV imm8:src mem8:dst (AT&T)
+    //-/
+    _opcode_5: // MOV imm8 ~> mem8 ( AT&T: src dst)
      ShowDashboard(memory, ip, sp, "MOV imm8:src mem8:dst");
-     memory[memory[ip+2]] = memory[ip+1]; // imm8 -> mem8
+     memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
     //-/
