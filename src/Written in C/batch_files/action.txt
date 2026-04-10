@@ -4,11 +4,15 @@
         INC,  // Инкремент произвольной ячейки памяти
         DEC,  // Декремент произвольной ячейки памяти
         //- Перемещение данных (перезапись) -/
-        MOV_MEM8_IMM8, // 3
-        MOV_IMM8_MEM8, // 4
-
+        MOV__DST_MEM8__SRC_IMM8, // 3
+        MOV__SRC_IMM8__DST_MEM8, // 4
+        //
         MOV__DST_MEM8__SRC_MEM8, // 5
         MOV__SRC_MEM8__DST_MEM8, // 6
+        //
+        MOV__DST_MEM8__SRC_PTR8, // 7
+        MOV__SRC_PTR8__DST_MEM8, // 8
+        //
         //-/
         ADD,  // Сложение
         SUB,  // Вычитание
@@ -48,28 +52,34 @@
 
     void *action[] =
     {
-        [0] = &&_opcode_1, // JMP
-        [1] = &&_opcode_2, // INC
-        [2] = &&_opcode_3, // DEC
-
-        [3] = &&_opcode_4, // MOV mem8 <~ imm8 (Intel: dst src)
-        [4] = &&_opcode_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
-
-        [5] = &&_opcode_6, // MOV mem8 <~ mem8 (Intel: dst src)
-        [6] = &&_opcode_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
-
-        [7] = &&_opcode_8, // ADD
-        [8] = &&_opcode_9, // SUB
-        [9] = &&_opcode_10, // MUL
-        [10] = &&_opcode_11, // DIV
-        [11] = &&_opcode_12, // CMP
-        [12] = &&_opcode_13, // CALL
-        [13] = &&_opcode_14, // RET
-        [14] = &&_opcode_15, // PUSH
-        [15] = &&_opcode_16, // POP
-        [16] = &&_opcode_17, // JE
-        [17] = &&_opcode_18, // JNE
-        [18 ... 254] = &&_opcode_from_19_to_255,
+        [ 0] = &&_opcode_1, // JMP
+        [ 1] = &&_opcode_2, // INC
+        [ 2] = &&_opcode_3, // DEC
+        //-/
+        [ 3] = &&_opcode_4, // MOV mem8 <~ imm8 (Intel: dst src)
+        [ 4] = &&_opcode_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
+        //
+        [ 5] = &&_opcode_6, // MOV mem8 <~ mem8 (Intel: dst src)
+        [ 6] = &&_opcode_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
+        //
+        [ 7] = &&_opcode_8, // MOV ptr8 <~ imm8 (Intel: dst src)
+        [ 8] = &&_opcode_9, // MOV imm8 ~> ptr8 ( AT&T: src dst)
+        //
+        [ 9] = &&_opcode_10, // MOV ptr8 <~ mem8 (Intel: dst src)
+        [10] = &&_opcode_11, // MOV mem8 ~> ptr8 ( AT&T: src dst)
+        //-/
+        [11] = &&_opcode_12, // ADD
+        [12] = &&_opcode_13, // SUB
+        [13] = &&_opcode_14, // MUL
+        [14] = &&_opcode_15, // DIV
+        [15] = &&_opcode_16, // CMP
+        [16] = &&_opcode_17, // CALL
+        [17] = &&_opcode_18, // RET
+        [18] = &&_opcode_19, // PUSH
+        [19] = &&_opcode_20, // POP
+        [20] = &&_opcode_21, // JE
+        [21] = &&_opcode_22, // JNE
+        [22 ... 254] = &&_opcode_from_23_to_255,
         [255] = &&_opcode_256 // HLT
     };
 
@@ -98,76 +108,98 @@
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-    //-/
+    //
     _opcode_5: // MOV imm8 ~> mem8 ( AT&T: src dst)
      ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8 ( AT&T: src dst)");
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
-    //-/
+    //
     _opcode_6: // MOV mem8 <~ mem8 (Intel: dst src)
      ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8 (Intel: dst src)");
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
-    //-/
+    //
     _opcode_7: // MOV mem8 ~> mem8 ( AT&T: src dst)
      ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8 ( AT&T: src dst)");
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
+    //
+    _opcode_8: // MOV ptr8 <~ imm8 (Intel: dst src)
+     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8 (Intel: dst src)");
+     memory[ip+1] = ip+2;
+     ip += 3;
+     goto *action[memory[ip]];
+    //
+    _opcode_9: // MOV imm8 ~> ptr8 ( AT&T: src dst)
+     ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8 ( AT&T: src dst)");
+     memory[ip+2] = ip+1;
+     ip += 3;
+     goto *action[memory[ip]];
+    //
+    _opcode_10: // MOV ptr8 <~ mem8 (Intel: dst src)
+     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8 (Intel: dst src)");
+     ip += 3;
+     goto *action[memory[ip]];
+    //
+    _opcode_11: // MOV mem8 ~> ptr8 ( AT&T: src dst)
+     ShowDashboard(memory, ip, sp, "MOV mem8 ~> ptr8 ( AT&T: src dst)");
+     ip += 3;
+     goto *action[memory[ip]];
     //-/
-    _opcode_8: // ADD
+    _opcode_12: // ADD
     //-/
-    _opcode_9: // SUB
+    _opcode_13: // SUB
     //-/
-    _opcode_10: // MUL
+    _opcode_14: // MUL
     //-/
-    _opcode_11: // DIV
+    _opcode_15: // DIV
     //-/
-    _opcode_12: // CMP
+    _opcode_16: // CMP
      ShowDashboard(memory, ip, sp, "CMP");
      cf = (memory[ip+1] == memory[ip+2]);
      ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
      goto *action[memory[ip]];
     //-/
-    _opcode_13: // CALL
+    _opcode_17: // CALL
      ShowDashboard(memory, ip, sp, "CALL");
      memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
      ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
      goto *action[memory[ip]];
     //-/
-    _opcode_14: // RET
+    _opcode_18: // RET
      ShowDashboard(memory, ip, sp, "RET");
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //-/
-    _opcode_15: // PUSH
+    _opcode_19: // PUSH
      ShowDashboard(memory, ip, sp, "PUSH");
      memory[sp--] = memory[ip+1];
      ip += 2; // Сдвиг на следующую команду (OP + ARG)
      goto *action[memory[ip]];
     //-/
-    _opcode_16: // POP
+    _opcode_20: // POP
      ShowDashboard(memory, ip, sp, "POP");
      sp++;
      ip += 1; // У POP обычно нет аргумента, просто сдвиг на 1
      goto *action[memory[ip]];
     //-/
-    _opcode_17: // JE
+    _opcode_21: // JE
      ShowDashboard(memory, ip, sp, "JE");
      if (cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else    ip += 2;           // Пропуск инструкции JE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_18: // JNE
+    _opcode_22: // JNE
      ShowDashboard(memory, ip, sp, "JNE");
      if (!cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else     ip += 2;           // Пропуск инструкции JNE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_from_19_to_255: // default
-     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 19~255");
+    _opcode_from_23_to_255: // default
+     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 23~255");
      goto _extreme_exit; // Просто завершаем
      //goto *action[memory[++ip]]; // Крутим дальше
     //-/
