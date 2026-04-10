@@ -3,16 +3,15 @@
 #include <locale.h>
 #include <stdio.h>
 
+#include "..\..\batch_files\ProcAsciiChr.c"
+#include "..\..\batch_files\ShowDashboard.c"
+
 #include "..\..\batch_files\action.c"
 
-int main(int argc, char *argv[])
+void _()
 {
     setlocale(0, "");
-    //
-	//-/
-    //Action();
-    #include "..\..\batch_files\action.txt"
-    //-/
-    //
-    return 0;
+    Action();
+    //#include "..\..\batch_files\action.txt"
 }
+int main(int argc, char *argv[]) { _(argc, argv); }
