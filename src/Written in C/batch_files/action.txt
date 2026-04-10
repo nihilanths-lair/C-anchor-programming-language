@@ -118,9 +118,7 @@
      memory[memory[ip+1]]--;
      ip += 2;
      goto *action[memory[ip]];
-    //
-    // *[* Прямая адресация (mem8) *]*
-    // _/->
+    //-/
     _opcode_4: // MOV mem8 <~ imm8  (Intel: dst, src)
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8  (Intel: dst, src)");
