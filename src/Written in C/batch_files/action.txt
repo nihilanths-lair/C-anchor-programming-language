@@ -54,8 +54,8 @@
         [3] = &&_opcode_4, // MOV mem8:dst imm8:src (Intel)
         [4] = &&_opcode_5, // MOV imm8:src mem8:dst (AT&T)
 
-        [5] = &&_opcode_6, // MOV mem8:dst imm8:src (Intel)
-        [6] = &&_opcode_7, // MOV imm8:src mem8:dst (AT&T)
+        [5] = &&_opcode_6, // MOV ? (Intel)
+        [6] = &&_opcode_7, // MOV ? (AT&T)
 
         [7] = &&_opcode_8, // ADD
         [8] = &&_opcode_9, // SUB
