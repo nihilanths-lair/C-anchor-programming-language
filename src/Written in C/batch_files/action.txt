@@ -1,6 +1,6 @@
     enum
     {
-        // Безусловный переход
+        // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ
         JMP,
 
         INC,
@@ -32,7 +32,7 @@
         PUSH, // 20
         POP,  // 21
 
-        // Условные переходы (Specifics: Intel/AT&T: src src)
+        // РЈСЃР»РѕРІРЅС‹Рµ РїРµСЂРµС…РѕРґС‹ (Specifics: Intel/AT&T: src src)
          JE_I8 = 22, //  JE imm8 imm8  (Jump if Equal)
         JNE_I8,      // JNE imm8 imm8  (Jump if Not Equal)
          JB_I8,      //  JB imm8 imm8  (Jump if Below)
@@ -48,91 +48,91 @@
     static unsigned char memory[256] =
     {
         MOV__DST_MEM8__SRC_IMM8, 10, 42,   // mem[10] = 42
-        MOV__DST_MEM8__SRC_PTR8, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
+        MOV__DST_MEM8__SRC_PTR8, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (РјСѓСЃРѕСЂ)
         HLT
         /*
         CALL, 3,
         HLT,
         RET,
         HLT,
-        'C', '$', '\0', // Строка-1
-        'C', '$', '\0', // Строка-2
+        'C', '$', '\0', // РЎС‚СЂРѕРєР°-1
+        'C', '$', '\0', // РЎС‚СЂРѕРєР°-2
         HLT
         */
-    }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
+    }; // РћС‚РІРµРґС‘РЅРЅР°СЏ РїР°РјСЏС‚СЊ РґР»СЏ Р·Р°РіСЂСѓР·С‡РёРєР°, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ СЂР°Р·РјРµС‰РµРЅР°/РїРѕРјРµС‰РµРЅР° РїСЂРѕРіСЂР°РјРјР° РґР»СЏ РёСЃРїРѕР»РЅРµРЅРёСЏ
 
     //-/ static inline void Action() -/
 
     //static
-    unsigned char ip =       0; // указатель инструкции
+    unsigned char ip =       0; // СѓРєР°Р·Р°С‚РµР»СЊ РёРЅСЃС‚СЂСѓРєС†РёРё
     //static
-    unsigned char sp =     255; // указатель стека
+    unsigned char sp =     255; // СѓРєР°Р·Р°С‚РµР»СЊ СЃС‚РµРєР°
     //static
-    unsigned char ef/*zf*/ = 2; // флаг равенства
+    unsigned char ef/*zf*/ = 2; // С„Р»Р°Рі СЂР°РІРµРЅСЃС‚РІР°
     //static
-    unsigned char bf       = 2; // (below) флаг меньше
+    unsigned char bf       = 2; // (below) С„Р»Р°Рі РјРµРЅСЊС€Рµ
     //static
-    unsigned char af       = 2; // (above) флаг больше
+    unsigned char af       = 2; // (above) С„Р»Р°Рі Р±РѕР»СЊС€Рµ
 
     void *action[] =
     {
-        [ 0] = &&operation_code__1, // JMP
-        [ 1] = &&operation_code__2, // INC
-        [ 2] = &&operation_code__3, // DEC
+        [ 0] = &&___OPERATION_CODE_1, // JMP
+        [ 1] = &&___OPERATION_CODE_2, // INC
+        [ 2] = &&___OPERATION_CODE_3, // DEC
         //
-        [ 3] = &&operation_code__4, // MOV mem8 <~ imm8 (Intel: dst src)
-        [ 4] = &&operation_code__5, // MOV imm8 ~> mem8 ( AT&T: src dst)
+        [ 3] = &&___OPERATION_CODE_4, // MOV mem8 <~ imm8 (Intel: dst src)
+        [ 4] = &&___OPERATION_CODE_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
         //
-        [ 5] = &&operation_code__6, // MOV mem8 <~ mem8 (Intel: dst src)
-        [ 6] = &&operation_code__7, // MOV mem8 ~> mem8 ( AT&T: src dst)
+        [ 5] = &&___OPERATION_CODE_6, // MOV mem8 <~ mem8 (Intel: dst src)
+        [ 6] = &&___OPERATION_CODE_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
         //
-        [ 7] = &&operation_code__8, // MOV ptr8 <~ imm8 (Intel: dst src)
-        [ 8] = &&operation_code__9, // MOV imm8 ~> ptr8 ( AT&T: src dst)
+        [ 7] = &&___OPERATION_CODE_8, // MOV ptr8 <~ imm8 (Intel: dst src)
+        [ 8] = &&___OPERATION_CODE_9, // MOV imm8 ~> ptr8 ( AT&T: src dst)
         //
-        [ 9] = &&operation_code__10, // MOV ptr8 <~ mem8 (Intel: dst src)
-        [10] = &&operation_code__11, // MOV mem8 ~> ptr8 ( AT&T: src dst)
+        [ 9] = &&___OPERATION_CODE_10, // MOV ptr8 <~ mem8 (Intel: dst src)
+        [10] = &&___OPERATION_CODE_11, // MOV mem8 ~> ptr8 ( AT&T: src dst)
         //
-        [11] = &&operation_code__12, // MOV mem8 <~ ptr8 (Intel: dst src)
-        [12] = &&operation_code__13, // MOV ptr8 ~> mem8 ( AT&T: src dst)
+        [11] = &&___OPERATION_CODE_12, // MOV mem8 <~ ptr8 (Intel: dst src)
+        [12] = &&___OPERATION_CODE_13, // MOV ptr8 ~> mem8 ( AT&T: src dst)
         //
-        [13] = &&operation_code__14, // ADD
-        [14] = &&operation_code__15, // SUB
-        [15] = &&operation_code__16, // MUL
-        [16] = &&operation_code__17, // DIV
+        [13] = &&___OPERATION_CODE_14, // ADD
+        [14] = &&___OPERATION_CODE_15, // SUB
+        [15] = &&___OPERATION_CODE_16, // MUL
+        [16] = &&___OPERATION_CODE_17, // DIV
         //
-        [17] = &&operation_code__18, // CMP
-        [18] = &&operation_code__19, // CALL
-        [19] = &&operation_code__20, // RET
-        [20] = &&operation_code__21, // PUSH
-        [21] = &&operation_code__22, // POP
+        [17] = &&___OPERATION_CODE_18, // CMP
+        [18] = &&___OPERATION_CODE_19, // CALL
+        [19] = &&___OPERATION_CODE_20, // RET
+        [20] = &&___OPERATION_CODE_21, // PUSH
+        [21] = &&___OPERATION_CODE_22, // POP
 
-        // Условные операторы (Specifics: Intel/AT&T: src src)
-        [22] = &&operation_code__23, //  JE imm8 imm8  (Jump if Equal)
-        [23] = &&operation_code__24, // JNE imm8 imm8  (Jump if Not Equal)
-        [24] = &&operation_code__25, //  JB imm8 imm8  (Jump if Below)
-        [25] = &&operation_code__26, // JBE imm8 imm8  (Jump if Below or Equal)
-        [26] = &&operation_code__27, // JNB imm8 imm8  (Jump if Not Below)
-        [27] = &&operation_code__28, //  JA imm8 imm8  (Jump if Above)
-        [28] = &&operation_code__29, // JAE imm8 imm8  (Jump if Above or Equal)
-        [29] = &&operation_code__30, // JNA imm8 imm8  (Jump if Not Above)
+        // РЈСЃР»РѕРІРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹ (Specifics: Intel/AT&T: src src)
+        [22] = &&___OPERATION_CODE_23, //  JE imm8 imm8  (Jump if Equal)
+        [23] = &&___OPERATION_CODE_24, // JNE imm8 imm8  (Jump if Not Equal)
+        [24] = &&___OPERATION_CODE_25, //  JB imm8 imm8  (Jump if Below)
+        [25] = &&___OPERATION_CODE_26, // JBE imm8 imm8  (Jump if Below or Equal)
+        [26] = &&___OPERATION_CODE_27, // JNB imm8 imm8  (Jump if Not Below)
+        [27] = &&___OPERATION_CODE_28, //  JA imm8 imm8  (Jump if Above)
+        [28] = &&___OPERATION_CODE_29, // JAE imm8 imm8  (Jump if Above or Equal)
+        [29] = &&___OPERATION_CODE_30, // JNA imm8 imm8  (Jump if Not Above)
 
-        [30 ... 254] = &&operation_code_from_31_to_255,
-        [255] = &&operation_code__256 // HLT
+        [30 ... 254] = &&___OPERATION_CODE_FROM_31_TO_255,
+        [255] = &&___OPERATION_CODE_256 // HLT
     };
    #define DEBUG
    #ifdef DEBUG
-    printf("\n Запуск vCPU.");
+    printf("\n Р—Р°РїСѓСЃРє vCPU.");
    #endif
     goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__1: // JMP
+    ___OPERATION_CODE_1: // JMP
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JMP");
     #endif
      ip = memory[ip+1];
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__2: // INC [инкремент произвольной ячейкой памяти]
+    ___OPERATION_CODE_2: // INC [РёРЅРєСЂРµРјРµРЅС‚ РїСЂРѕРёР·РІРѕР»СЊРЅРѕР№ СЏС‡РµР№РєРѕР№ РїР°РјСЏС‚Рё]
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "INC");
     #endif
@@ -140,7 +140,7 @@
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__3: // DEC [декремент произвольной ячейкой памяти]
+    ___OPERATION_CODE_3: // DEC [РґРµРєСЂРµРјРµРЅС‚ РїСЂРѕРёР·РІРѕР»СЊРЅРѕР№ СЏС‡РµР№РєРѕР№ РїР°РјСЏС‚Рё]
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "DEC");
     #endif
@@ -148,7 +148,7 @@
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__4: // MOV mem8 <~ imm8  (Intel: dst, src)
+    ___OPERATION_CODE_4: // MOV mem8 <~ imm8  (Intel: dst, src)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8  (Intel: dst, src)");
     #endif
@@ -156,7 +156,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__5: // MOV imm8 ~> mem8  (AT&T: src, dst)
+    ___OPERATION_CODE_5: // MOV imm8 ~> mem8  (AT&T: src, dst)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8  (AT&T: src, dst)");
     #endif
@@ -164,7 +164,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__6: // MOV mem8 <~ mem8  (Intel)
+    ___OPERATION_CODE_6: // MOV mem8 <~ mem8  (Intel)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8  (Intel)");
     #endif
@@ -172,7 +172,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__7: // MOV mem8 ~> mem8  (AT&T)
+    ___OPERATION_CODE_7: // MOV mem8 ~> mem8  (AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8  (AT&T)");
     #endif
@@ -180,31 +180,31 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+    ___OPERATION_CODE_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)");
     #endif
-     memory[memory[ip+1]] = memory[ip+2]; // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+     memory[memory[ip+1]] = memory[ip+2]; // Р—Р°РїРёСЃР°С‚СЊ imm8 РІ РїР°РјСЏС‚СЊ РїРѕ Р°РґСЂРµСЃСѓ, РєРѕС‚РѕСЂС‹Р№ Р»РµР¶РёС‚ РІ СЏС‡РµР№РєРµ dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+    ___OPERATION_CODE_9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)");
     #endif
-     memory[memory[ip+2]] = memory[ip+1]; // То же самое: записать imm8 по адресу из dst_ptr
+     memory[memory[ip+2]] = memory[ip+1]; // РўРѕ Р¶Рµ СЃР°РјРѕРµ: Р·Р°РїРёСЃР°С‚СЊ imm8 РїРѕ Р°РґСЂРµСЃСѓ РёР· dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+    ___OPERATION_CODE_10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)");
     #endif
-     memory[memory[ip+1]] = memory[memory[ip+2]]; // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+     memory[memory[ip+1]] = memory[memory[ip+2]]; // Р’Р·СЏС‚СЊ Р·РЅР°С‡РµРЅРёРµ РёР· src_mem Рё Р·Р°РїРёСЃР°С‚СЊ РµРіРѕ РїРѕ Р°РґСЂРµСЃСѓ, С…СЂР°РЅСЏС‰РµРјСѓСЃСЏ РІ dst_ptr
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+    ___OPERATION_CODE_11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)");
     #endif
@@ -212,7 +212,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__12: // MOV mem8 <~ ptr8  (Intel)
+    ___OPERATION_CODE_12: // MOV mem8 <~ ptr8  (Intel)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV mem8 <~ ptr8  (Intel)");
     #endif
@@ -220,7 +220,7 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__13: // MOV ptr8 ~> mem8  (AT&T)
+    ___OPERATION_CODE_13: // MOV ptr8 ~> mem8  (AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8  (AT&T)");
     #endif
@@ -228,31 +228,31 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__14: // ADD
+    ___OPERATION_CODE_14: // ADD
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "ADD");
     #endif
      return;
     //////////////////////////////
-    operation_code__15: // SUB
+    ___OPERATION_CODE_15: // SUB
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "SUB");
     #endif
      return;
     //////////////////////////////
-    operation_code__16: // MUL
+    ___OPERATION_CODE_16: // MUL
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "MUL");
     #endif
      return;
     //////////////////////////////
-    operation_code__17: // DIV
+    ___OPERATION_CODE_17: // DIV
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "DIV");
     #endif
      return;
     //////////////////////////////
-    operation_code__18: // CMP
+    ___OPERATION_CODE_18: // CMP
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CMP");
     #endif
@@ -260,22 +260,22 @@
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__19: // CALL
+    ___OPERATION_CODE_19: // CALL
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CALL");
     #endif
-     memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
-     ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
+     memory[sp--] = ip + 2; // РЎРѕС…СЂР°РЅСЏРµС‚ Р°РґСЂРµСЃ СЃР»РµРґСѓСЋС‰РµР№ РєРѕРјР°РЅРґС‹ (С‚РµРєСѓС‰РёР№ ip + 2 Р±Р°Р№С‚Р°: РѕРїРєРѕРґ + Р°СЂРіСѓРјРµРЅС‚)
+     ip = memory[ip+1]; // РџРµСЂРµС…РѕРґ РїРѕ Р°РґСЂРµСЃСѓ, СѓРєР°Р·Р°РЅРЅРѕРјСѓ РІ Р°СЂРіСѓРјРµРЅС‚Рµ
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__20: // RET
+    ___OPERATION_CODE_20: // RET
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "RET");
     #endif
-     ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
+     ip = memory[++sp]; // Р”РѕСЃС‚Р°С‘С‚ Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р° Рё СЃС‚Р°РІРёС‚ ip РЅР° РЅРµРіРѕ
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__21: // PUSH
+    ___OPERATION_CODE_21: // PUSH
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "PUSH");
     #endif
@@ -283,7 +283,7 @@
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__22: // POP mem8
+    ___OPERATION_CODE_22: // POP mem8
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "POP");
     #endif
@@ -291,68 +291,68 @@
      ip += 2; // opcode + arg
      goto *action[memory[ip]];
     //////////////////////////////
-    operation_code__23: // JE
+    ___OPERATION_CODE_23: //  JE imm8 imm8  (Jump if Equal)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp, "JE");
+     ShowDashboard(memory, ip, sp, "JE imm8 imm8  (Jump if Equal)");
     #endif
-     if (ef) ip = memory[ip+1]; // Перемещение указателя по новому адресу
-     else    ip += 2;           // Пропуск инструкции JE (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
+     if (ef) ip = memory[ip+1]; // РџРµСЂРµРјРµС‰РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ РїРѕ РЅРѕРІРѕРјСѓ Р°РґСЂРµСЃСѓ
+     else    ip += 2;           // РџСЂРѕРїСѓСЃРє РёРЅСЃС‚СЂСѓРєС†РёРё JE (1 Р±Р°Р№С‚) Рё РµС‘ Р°СЂРіСѓРјРµРЅС‚-Р°РґСЂРµСЃ (1 Р±Р°Р№С‚)
+     goto *action[memory[ip]];  // РџРµСЂРµС…РѕРґ РЅР° РѕРїРєРѕРґ, РєРѕС‚РѕСЂС‹Р№ Р»РµР¶РёС‚ РїРѕ РЅРѕРІРѕРјСѓ Р°РґСЂРµСЃСѓ
     //////////////////////////////
-    operation_code__24: // JNE
+    ___OPERATION_CODE_24: // JNE imm8 imm8  (Jump if Not Equal)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp, "JNE");
+     ShowDashboard(memory, ip, sp, "JNE imm8 imm8  (Jump if Not Equal)");
     #endif
-     if (!ef) ip = memory[ip+1]; // Перемещение указателя по новому адресу
-     else     ip += 2;           // Пропуск инструкции JNE (1 байт) и её аргумент-адрес (1 байт)
-     goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
+     if (!ef) ip = memory[ip+1]; // РџРµСЂРµРјРµС‰РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ РїРѕ РЅРѕРІРѕРјСѓ Р°РґСЂРµСЃСѓ
+     else     ip += 2;           // РџСЂРѕРїСѓСЃРє РёРЅСЃС‚СЂСѓРєС†РёРё JNE (1 Р±Р°Р№С‚) Рё РµС‘ Р°СЂРіСѓРјРµРЅС‚-Р°РґСЂРµСЃ (1 Р±Р°Р№С‚)
+     goto *action[memory[ip]];   // РџРµСЂРµС…РѕРґ РЅР° РѕРїРєРѕРґ, РєРѕС‚РѕСЂС‹Р№ Р»РµР¶РёС‚ РїРѕ РЅРѕРІРѕРјСѓ Р°РґСЂРµСЃСѓ
     //////////////////////////////
-    operation_code__25:
+    ___OPERATION_CODE_25: //  JB imm8 imm8  (Jump if Below)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JB imm8 imm8  (Jump if Below)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code__26:
+    ___OPERATION_CODE_26: // JBE imm8 imm8  (Jump if Below or Equal)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JBE imm8 imm8  (Jump if Below or Equal)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code__27:
+    ___OPERATION_CODE_27: // JNB imm8 imm8  (Jump if Not Below)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JNB imm8 imm8  (Jump if Not Below)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code__28:
+    ___OPERATION_CODE_28: //  JA imm8 imm8  (Jump if Above)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JA imm8 imm8  (Jump if Above)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code__29:
+    ___OPERATION_CODE_29: // JAE imm8 imm8  (Jump if Above or Equal)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JAE imm8 imm8  (Jump if Above or Equal)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code__30:
+    ___OPERATION_CODE_30: // JNA imm8 imm8  (Jump if Not Above)
     #ifdef DEBUG
-    // ? //
+     ShowDashboard(memory, ip, sp, "JNA imm8 imm8  (Jump if Not Above)");
     #endif
-     return; // Заглушка
+     return; // Р—Р°РіР»СѓС€РєР°
     //////////////////////////////
-    operation_code_from_31_to_255: // default
+    ___OPERATION_CODE_FROM_31_TO_255:
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 31~255");
     #endif
-     return; // Экстремальный выход
-     //goto *action[memory[++ip]]; // Крутим дальше
+     return; // Р­РєСЃС‚СЂРµРјР°Р»СЊРЅС‹Р№ РІС‹С…РѕРґ
+     //goto *action[memory[++ip]]; // РљСЂСѓС‚РёРј РґР°Р»СЊС€Рµ
     //////////////////////////////
-    operation_code__256: // Остановить/завершить выполнение программы
+    ___OPERATION_CODE_256: // РћСЃС‚Р°РЅРѕРІРёС‚СЊ/Р·Р°РІРµСЂС€РёС‚СЊ РІС‹РїРѕР»РЅРµРЅРёРµ РїСЂРѕРіСЂР°РјРјС‹
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "HLT");
     #endif
-     return; // Экстремальный выход
+     return; // Р­РєСЃС‚СЂРµРјР°Р»СЊРЅС‹Р№ РІС‹С…РѕРґ
     //////////////////////////////
