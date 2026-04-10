@@ -7,7 +7,8 @@
         MOV_MEM8_IMM8, // 3
         MOV_IMM8_MEM8, // 4
 
-        
+        MOV__DST_MEM8__SRC_MEM8, // 5
+        MOV__SRC_MEM8__DST_MEM8, // 6
         //-/
         ADD,  // Сложение
         SUB,  // Вычитание
@@ -93,20 +94,28 @@
      goto *action[memory[ip]];
     //-/
     _opcode_4: // MOV mem8 <~ imm8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV mem8:dst imm8:src");
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8 (Intel: dst src)");
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
     //-/
     _opcode_5: // MOV imm8 ~> mem8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV imm8:src mem8:dst");
+     ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8 ( AT&T: src dst)");
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_6: //
+    _opcode_6: // MOV mem8 <~ mem8 (Intel: dst src)
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8 (Intel: dst src)");
+     memory[memory[ip+1]] = memory[memory[ip+2]];
+     ip += 3;
+     goto *action[memory[ip]];
     //-/
-    _opcode_7: //
+    _opcode_7: // MOV mem8 ~> mem8 ( AT&T: src dst)
+     ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8 ( AT&T: src dst)");
+     memory[memory[ip+2]] = memory[memory[ip+1]];
+     ip += 3;
+     goto *action[memory[ip]];
     //-/
     _opcode_8: // ADD
     //-/
