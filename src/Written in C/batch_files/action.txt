@@ -47,12 +47,9 @@
 
     //-/ static inline void Action() -/
 
-    static unsigned char ip; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
-    ip =   0;
-    static unsigned char sp; // Stack pointer / Регистр-указатель на стек
-    sp = 255;
-    static unsigned char cf; // Comparison flag / Флаг сравнения
-    cf =   0;
+    static unsigned char ip = 0;
+    static unsigned char sp = 255;
+    static unsigned char cf = 0;
 
     void *action[] =
     {
@@ -158,13 +155,19 @@
      ip += 3;
      goto *action[memory[ip]];
     // <-\_
-    _opcode_12: // MOV mem8 <~ ptr8 (Intel: dst src)
-     // ? //
+    _opcode_12: // MOV mem8 <~ ptr8 (Intel: dst mem8, src ptr8)
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ ptr8");
+     // Записать в память по прямому адресу (arg1) значение,
+     // взятое из памяти по указателю, хранящемуся в ячейке arg2
+     memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
 
-    _opcode_13: // MOV ptr8 ~> mem8 ( AT&T: src dst)
-     // ? //
+    _opcode_13: // MOV ptr8 ~> mem8 (AT&T: src ptr8, dst mem8)
+     ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8");
+     // Записать в память по прямому адресу (arg2) значение,
+     // взятое из памяти по указателю, хранящемуся в ячейке arg1
+     memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
     //-/
@@ -199,10 +202,10 @@
      ip += 2;
      goto *action[memory[ip]];
     //-/
-    _opcode_22: // POP
+    _opcode_22: // POP mem8
      ShowDashboard(memory, ip, sp, "POP");
-     sp++;
-     ip += 1; // У POP обычно нет аргумента, просто сдвиг на 1
+     memory[memory[ip+1]] = memory[++sp];
+     ip += 2; // opcode + arg
      goto *action[memory[ip]];
     //-/
     _opcode_23: // JE
@@ -219,11 +222,10 @@
     //-/
     _opcode_from_25_to_255: // default
      ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 25~255");
-     goto _extreme_exit; // Просто завершаем
+     return; // Экстремальный выход
      //goto *action[memory[++ip]]; // Крутим дальше
     //-/
     _opcode_256: // Остановить/завершить выполнение программы
-     printf("\n Стоп.");
-     //goto _extreme_exit; // Просто завершаем
+     ShowDashboard(memory, ip, sp, "HLT");
+     return; // Экстремальный выход
     //-/
-    _extreme_exit:
