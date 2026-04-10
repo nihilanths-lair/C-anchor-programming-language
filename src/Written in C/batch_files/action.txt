@@ -18,11 +18,12 @@
 
         MOV__DST_MEM8__SRC_PTR8,     // MOV mem8 <~ ptr8 (Intel: dst src)
         MOV__SRC_PTR8__DST_MEM8,     // MOV ptr8 ~> mem8 ( AT&T: src dst)
-
+        /*
         ADD,      // 13
         SUB,      // 14
         MUL,      // 15
         DIV,      // 16
+        */
         CMP,      // 17
         CALL,     // 18
         RET,      // 19
