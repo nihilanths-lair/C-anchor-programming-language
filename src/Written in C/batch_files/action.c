@@ -1,176 +1,296 @@
 enum
 {
-    JMP,  // Безусловный переход
-    INC,  // Инкремент произвольной ячейки памяти
-    DEC,  // Декремент произвольной ячейки памяти
-    //- Перемещение данных (перезапись) -/
-    MOV_MEM8_IMM8, // 3
-    MOV_IMM8_MEM8, // 4
+    JMP = 0,
+    INC,
+    DEC,
 
-    MOV__DST_MEM8__SRC_MEM8, // 5
-    MOV__SRC_MEM8__DST_MEM8, // 6
-    //-/
-    ADD,  // Сложение
-    SUB,  // Вычитание
-    MUL,  // Умножение
-    DIV,  // Деление
-    CMP,  // Сравнение прямых значений
-    CALL, // Позвонить (вызвать процедуру)
-    RET,  // Вернуться из процедуры
-    PUSH, // Положить в стек
-    POP,  // Снять со стека
-    JE,   // Условный оператор
-    JNE,  // Условный оператор (инвертированный)
-    HLT  = 255 // Завершить выполнение программы
+    MOV__DST_MEM8__SRC_IMM8 = 3, // MOV mem8 <~ imm8 (Intel: dst src)
+    MOV__SRC_IMM8__DST_MEM8,     // MOV imm8 ~> mem8 ( AT&T: src dst)
+
+    MOV__DST_MEM8__SRC_MEM8,     // MOV mem8 <~ mem8 (Intel: dst src)
+    MOV__SRC_MEM8__DST_MEM8,     // MOV mem8 ~> mem8 ( AT&T: src dst)
+
+    MOV__DST_PTR8__SRC_IMM8,     // MOV ptr8 <~ imm8 (Intel: dst src)
+    MOV__SRC_IMM8__DST_PTR8,     // MOV imm8 ~> ptr8 ( AT&T: src dst)
+
+    MOV__DST_PTR8__SRC_MEM8,     // MOV ptr8 <~ mem8 (Intel: dst src)
+    MOV__SRC_MEM8__DST_PTR8,     // MOV mem8 ~> ptr8 ( AT&T: src dst)
+
+    MOV__DST_MEM8__SRC_PTR8,     // MOV mem8 <~ ptr8 (Intel: dst src)
+    MOV__SRC_PTR8__DST_MEM8,     // MOV ptr8 ~> mem8 ( AT&T: src dst)
+
+    ADD,      // 13
+    SUB,      // 14
+    MUL,      // 15
+    DIV,      // 16
+
+    CMP,      // 17
+    CALL,     // 18
+    RET,      // 19
+    PUSH,     // 20
+    POP,      // 21
+    JE,       // 22
+    JNE,      // 23
+    HLT = 255 //
 };
 
 static unsigned char memory[256] =
 {
+    MOV__DST_MEM8__SRC_IMM8, 10, 42,   // mem[10] = 42
+    MOV__DST_MEM8__SRC_PTR8, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
+    HLT
+    /*
     CALL, 3,
-    //CMP, 0, 0,
     HLT,
-    //CMP, 0, 0,
     RET,
     HLT,
     'C', '$', '\0', // Строка-1
     'C', '$', '\0', // Строка-2
     HLT
+    */
 }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 
 static inline void Action()
 {
-    unsigned char ip =   0; // Instruction pointer / Регистр-указатель на инструкцию (след. команду)
-    unsigned char sp = 255; // Stack pointer / Регистр-указатель на стек
-    unsigned char cf =   2; // Comparison flag / Флаг сравнения
+    static unsigned char ip = 0;
+    static unsigned char sp = 255;
+    static unsigned char cf = 0;
 
     void *action[] =
     {
-        [0] = &&_opcode_1, // JMP
-        [1] = &&_opcode_2, // INC
-        [2] = &&_opcode_3, // DEC
-
-        [3] = &&_opcode_4, // MOV mem8 <~ imm8 (Intel: dst src)
-        [4] = &&_opcode_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
-
-        [5] = &&_opcode_6, // MOV mem8 <~ mem8 (Intel: dst src)
-        [6] = &&_opcode_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
-
-        [7] = &&_opcode_8, // ADD
-        [8] = &&_opcode_9, // SUB
-        [9] = &&_opcode_10, // MUL
-        [10] = &&_opcode_11, // DIV
-        [11] = &&_opcode_12, // CMP
-        [12] = &&_opcode_13, // CALL
-        [13] = &&_opcode_14, // RET
-        [14] = &&_opcode_15, // PUSH
-        [15] = &&_opcode_16, // POP
-        [16] = &&_opcode_17, // JE
-        [17] = &&_opcode_18, // JNE
-        [18 ... 254] = &&_opcode_from_19_to_255,
+        [ 0] = &&_opcode_1, // JMP
+        [ 1] = &&_opcode_2, // INC
+        [ 2] = &&_opcode_3, // DEC
+        //
+        [ 3] = &&_opcode_4, // MOV mem8 <~ imm8 (Intel: dst src)
+        [ 4] = &&_opcode_5, // MOV imm8 ~> mem8 ( AT&T: src dst)
+        //
+        [ 5] = &&_opcode_6, // MOV mem8 <~ mem8 (Intel: dst src)
+        [ 6] = &&_opcode_7, // MOV mem8 ~> mem8 ( AT&T: src dst)
+        //
+        [ 7] = &&_opcode_8, // MOV ptr8 <~ imm8 (Intel: dst src)
+        [ 8] = &&_opcode_9, // MOV imm8 ~> ptr8 ( AT&T: src dst)
+        //
+        [ 9] = &&_opcode_10, // MOV ptr8 <~ mem8 (Intel: dst src)
+        [10] = &&_opcode_11, // MOV mem8 ~> ptr8 ( AT&T: src dst)
+        //
+        [11] = &&_opcode_12, // MOV mem8 <~ ptr8 (Intel: dst src)
+        [12] = &&_opcode_13, // MOV ptr8 ~> mem8 ( AT&T: src dst)
+        //
+        [13] = &&_opcode_14, // ADD
+        [14] = &&_opcode_15, // SUB
+        [15] = &&_opcode_16, // MUL
+        [16] = &&_opcode_17, // DIV
+        //
+        [17] = &&_opcode_18, // CMP
+        [18] = &&_opcode_19, // CALL
+        [19] = &&_opcode_20, // RET
+        [20] = &&_opcode_21, // PUSH
+        [21] = &&_opcode_22, // POP
+        [22] = &&_opcode_23, // JE
+        [23] = &&_opcode_24, // JNE
+        [24 ... 254] = &&_opcode_from_25_to_255,
         [255] = &&_opcode_256 // HLT
     };
-
-    printf("\n Старт.");
+   #define DEBUG
+   #ifdef DEBUG
+    printf("\n Запуск vCPU.");
+   #endif
     goto *action[memory[ip]];
     //-/
     _opcode_1: // JMP
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JMP");
-     ip = memory[ip+1]; // Берёт адрес из аргумента
+    #endif
+     ip = memory[ip+1];
      goto *action[memory[ip]];
     //-/
     _opcode_2: // INC [инкремент произвольной ячейкой памяти]
-     ShowDashboard(memory, ip, sp, "INC"); //@Specifics: Intel/AT&T
-     memory[memory[ip+1]]++; // Берёт из аргумента адрес ячейки памяти, и производит над ним инкрементацию.
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "INC");
+    #endif
+     memory[memory[ip+1]]++;
      ip += 2;
      goto *action[memory[ip]];
     //-/
     _opcode_3: // DEC [декремент произвольной ячейкой памяти]
-     ShowDashboard(memory, ip, sp, "DEC"); //@Specifics: Intel/AT&T
-     memory[memory[ip+1]]--; // Берёт из аргумента адрес ячейки памяти, и производит над ним декрементацию.
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "DEC");
+    #endif
+     memory[memory[ip+1]]--;
      ip += 2;
      goto *action[memory[ip]];
     //-/
-    _opcode_4: // MOV mem8 <~ imm8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8 (Intel: dst src)");
+    _opcode_4: // MOV mem8 <~ imm8  (Intel: dst, src)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8  (Intel: dst, src)");
+    #endif
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_5: // MOV imm8 ~> mem8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8 ( AT&T: src dst)");
+    _opcode_5: // MOV imm8 ~> mem8  (AT&T: src, dst)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8  (AT&T: src, dst)");
+    #endif
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_6: // MOV mem8 <~ mem8 (Intel: dst src)
-     ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8 (Intel: dst src)");
+    _opcode_6: // MOV mem8 <~ mem8  (Intel)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8  (Intel)");
+    #endif
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_7: // MOV mem8 ~> mem8 ( AT&T: src dst)
-     ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8 ( AT&T: src dst)");
+    _opcode_7: // MOV mem8 ~> mem8  (AT&T)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8  (AT&T)");
+    #endif
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_8: // ADD
-    //-/
-    _opcode_9: // SUB
-    //-/
-    _opcode_10: // MUL
-    //-/
-    _opcode_11: // DIV
-    //-/
-    _opcode_12: // CMP
-     ShowDashboard(memory, ip, sp, "CMP");
-     cf = (memory[ip+1] == memory[ip+2]);
-     ip += 3; // Сдвиг на следующую команду (OP + ARG1 + ARG2)
+    _opcode_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)");
+    #endif
+     memory[memory[ip+1]] = memory[ip+2]; // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+     ip += 3;
      goto *action[memory[ip]];
     //-/
-    _opcode_13: // CALL
+    _opcode_9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)");
+    #endif
+     memory[memory[ip+2]] = memory[ip+1]; // То же самое: записать imm8 по адресу из dst_ptr
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)");
+    #endif
+     memory[memory[ip+1]] = memory[memory[ip+2]]; // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)");
+    #endif
+     memory[memory[ip+2]] = memory[memory[ip+1]];
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_12: // MOV mem8 <~ ptr8  (Intel)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV mem8 <~ ptr8  (Intel)");
+    #endif
+     memory[memory[ip+1]] = memory[memory[memory[ip+2]]];
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_13: // MOV ptr8 ~> mem8  (AT&T)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8  (AT&T)");
+    #endif
+     memory[memory[ip+2]] = memory[memory[memory[ip+1]]];
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_14: // ADD
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "ADD");
+    #endif
+     return;
+    //-/
+    _opcode_15: // SUB
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "SUB");
+    #endif
+     return;
+    //-/
+    _opcode_16: // MUL
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "MUL");
+    #endif
+     return;
+    //-/
+    _opcode_17: // DIV
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "DIV");
+    #endif
+     return;
+    //-/
+    _opcode_18: // CMP
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "CMP");
+    #endif
+     cf = (memory[ip+1] == memory[ip+2]);
+     ip += 3;
+     goto *action[memory[ip]];
+    //-/
+    _opcode_19: // CALL
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CALL");
+    #endif
      memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
      ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
      goto *action[memory[ip]];
     //-/
-    _opcode_14: // RET
+    _opcode_20: // RET
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "RET");
+    #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //-/
-    _opcode_15: // PUSH
+    _opcode_21: // PUSH
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "PUSH");
+    #endif
      memory[sp--] = memory[ip+1];
-     ip += 2; // Сдвиг на следующую команду (OP + ARG)
+     ip += 2;
      goto *action[memory[ip]];
     //-/
-    _opcode_16: // POP
+    _opcode_22: // POP mem8
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "POP");
-     sp++;
-     ip += 1; // У POP обычно нет аргумента, просто сдвиг на 1
+    #endif
+     memory[memory[ip+1]] = memory[++sp];
+     ip += 2; // opcode + arg
      goto *action[memory[ip]];
     //-/
-    _opcode_17: // JE
+    _opcode_23: // JE
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JE");
+    #endif
      if (cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else    ip += 2;           // Пропуск инструкции JE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];  // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_18: // JNE
+    _opcode_24: // JNE
+    #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JNE");
+    #endif
      if (!cf) ip = memory[ip+1]; // Перемещение указателя по новому адресу
      else     ip += 2;           // Пропуск инструкции JNE (1 байт) и её аргумент-адрес (1 байт)
      goto *action[memory[ip]];   // Переход на опкод, который лежит по новому адресу
     //-/
-    _opcode_from_19_to_255: // default
-     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 19~255");
-     goto _extreme_exit; // Просто завершаем
+    _opcode_from_25_to_255: // default
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 25~255");
+    #endif
+     return; // Экстремальный выход
      //goto *action[memory[++ip]]; // Крутим дальше
     //-/
     _opcode_256: // Остановить/завершить выполнение программы
-     printf("\n Стоп.");
-     //goto _extreme_exit; // Просто завершаем
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "HLT");
+    #endif
+     return; // Экстремальный выход
     //-/
-    _extreme_exit:
 }
