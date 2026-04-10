@@ -105,7 +105,7 @@
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "INC");
      #endif
-     memory[memory[ip+1]]++; // Берёт из аргумента адрес ячейки памяти, и производит над ним инкрементацию.
+     memory[memory[ip+1]]++;
      ip += 2;
      goto *action[memory[ip]];
     //-/
@@ -113,7 +113,7 @@
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "DEC");
      #endif
-     memory[memory[ip+1]]--; // Берёт из аргумента адрес ячейки памяти, и производит над ним декрементацию.
+     memory[memory[ip+1]]--;
      ip += 2;
      goto *action[memory[ip]];
     //
@@ -121,27 +121,31 @@
     // _/->
     _opcode_4: // MOV mem8 <~ imm8  (Intel: dst, src)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV mem8 <~ imm8  (Intel: dst, src)");
      #endif
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_5: // MOV imm8 ~> mem8  (AT&T: src, dst)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV imm8 ~> mem8  (AT&T: src, dst)");
      #endif
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_6: // MOV mem8 <~ mem8  (Intel)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV mem8 <~ mem8  (Intel)");
      #endif
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_7: // MOV mem8 ~> mem8  (AT&T)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV mem8 ~> mem8  (AT&T)");
      #endif
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
@@ -151,32 +155,35 @@
     // _/->
     _opcode_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)");
      #endif
      // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
      memory[memory[ip+1]] = memory[ip+2];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)");
      #endif
      // То же самое: записать imm8 по адресу из dst_ptr
      memory[memory[ip+2]] = memory[ip+1];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)");
      #endif
      // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
      #ifdef DEBUG
+      ShowDashboard(memory, ip, sp, "MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)");
      #endif
-     // То же самое, порядок аргументов обратный
      memory[memory[ip+2]] = memory[memory[ip+1]];
      ip += 3;
      goto *action[memory[ip]];
@@ -189,7 +196,7 @@
      memory[memory[ip+1]] = memory[memory[ip+2]];
      ip += 3;
      goto *action[memory[ip]];
-
+    //-/
     _opcode_13: // MOV ptr8 ~> mem8 (AT&T: src ptr8, dst mem8)
      #ifdef DEBUG
       ShowDashboard(memory, ip, sp, "MOV ptr8 ~> mem8");
