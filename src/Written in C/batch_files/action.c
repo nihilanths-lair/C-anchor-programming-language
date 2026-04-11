@@ -137,8 +137,10 @@ static unsigned char memory[0x100] = {/*Заглушка=*/hlt}; // Отведё
 #endif
 static inline void Action()
 {
-    /*static*/unsigned char ip =       0; // указатель инструкции
-    /*static*/unsigned char sp =     255; // указатель стека
+    /*static*/unsigned char  ip8  = 0x00;
+    /*static*/unsigned short ip16 = 0x0000;
+
+    /*static*/unsigned char    sp =  255; // указатель стека
     /*static*/unsigned char ef/*zf*/ = 0; // флаг равенства
     /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
     /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
@@ -222,21 +224,24 @@ static inline void Action()
     };
     // Таблица диспетчеризации II (для 16-ти битного режима адресации)
     void *dispatch_mode16[0x100] = {[0 ... 255] = &&___OPERATION_CODE_256}; // Пока заглушка
-   #ifdef DEBUG
-    printf("\n Запуск vCPU.");
-   #endif
-    goto *action[memory[ip]];
+    #ifdef DEBUG
+     printf("\n Starting vCPU (8-bit's mode)...");
+    #endif
+    // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
+    goto *action[memory[ip8]];
+    // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
+    goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 
     //////////////////////////////////
     /////////  INC (8-bit's) /////////
     //                              //
     ___OPERATION_CODE_001:          // <cmd=INC> <arg-1=dst:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp); //
+     ShowDashboard(memory, ip8, sp); //
     #endif                          //
-     memory[memory[ip+1]]++;        // <arg-1=dst:m8> ; Произвольная ЯП
-     ip += 2;                       //
-     goto *action[memory[ip]];      //
+     memory[memory[ip8+1]]++;        // <arg-1=dst:m8> ; Произвольная ЯП
+     ip8 += 2;                       //
+     goto *action[memory[ip8]];      //
     //                              //
     /////////  INC (8-bit's) /////////
     //////////////////////////////////
@@ -246,11 +251,11 @@ static inline void Action()
     //                              //
     ___OPERATION_CODE_002:          // <cmd=DEC> <arg-1=dst:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp); //
+     ShowDashboard(memory, ip8, sp); //
     #endif                          //
-     memory[memory[ip+1]]--;        // <arg-1=dst:m8> ; Произвольная ЯП
-     ip += 2;                       //
-     goto *action[memory[ip]];      //
+     memory[memory[ip8+1]]--;        // <arg-1=dst:m8> ; Произвольная ЯП
+     ip8 += 2;                       //
+     goto *action[memory[ip8]];      //
     //                              //
     /////////  DEC (8-bit's) /////////
     //////////////////////////////////
@@ -258,94 +263,94 @@ static inline void Action()
     //////////////////////////////
     ___OPERATION_CODE_003: // MOV mem8 <~ imm8
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+1]] = memory[ip+2];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+1]] = memory[ip8+2];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_004: // MOV imm8 ~> mem8
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+2]] = memory[ip+1];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+2]] = memory[ip8+1];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_005: // MOV mem8 <~ mem8
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+1]] = memory[memory[ip+2]];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+1]] = memory[memory[ip8+2]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_006: // MOV mem8 ~> mem8
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+2]] = memory[memory[ip+1]];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+2]] = memory[memory[ip8+1]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_007: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+1]] = memory[ip+2]; // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+1]] = memory[ip8+2]; // Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_008: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+2]] = memory[ip+1]; // То же самое: записать imm8 по адресу из dst_ptr
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+2]] = memory[ip8+1]; // То же самое: записать imm8 по адресу из dst_ptr
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_009: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+1]] = memory[memory[ip+2]]; // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+1]] = memory[memory[ip8+2]]; // Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_010: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+2]] = memory[memory[ip+1]];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+2]] = memory[memory[ip8+1]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_011: // MOV mem8 <~ ptr8  (Intel)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+1]] = memory[memory[memory[ip+2]]];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_012: // MOV ptr8 ~> mem8  (AT&T)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     memory[memory[ip+2]] = memory[memory[memory[ip+1]]];
-     ip += 3;
-     goto *action[memory[ip]];
+     memory[memory[ip8+2]] = memory[memory[memory[ip8+1]]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
 
     /////////////////////////////////////////
     ///////////// ADD (8-bit's) /////////////
     //                                     //
     ___OPERATION_CODE_013:                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);        //
+     ShowDashboard(memory, ip8, sp);        //
     #endif                                 //
-     memory[memory[ip+1]] += memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
-     ip += 3;                              //
-     goto *action[memory[ip]];             //
+     memory[memory[ip8+1]] += memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip8 += 3;                              //
+     goto *action[memory[ip8]];             //
     //                                     //
     ///////////// ADD (8-bit's) /////////////
     /////////////////////////////////////////
@@ -355,11 +360,11 @@ static inline void Action()
     //                                     //
     ___OPERATION_CODE_014:                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);        //
+     ShowDashboard(memory, ip8, sp);        //
     #endif                                 //
-     memory[memory[ip+1]] -= memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
-     ip += 3;                              //
-     goto *action[memory[ip]];             //
+     memory[memory[ip8+1]] -= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip8 += 3;                              //
+     goto *action[memory[ip8]];             //
     //                                     //
     ///////////// SUB (8-bit's) /////////////
     /////////////////////////////////////////
@@ -369,11 +374,11 @@ static inline void Action()
     //                                     //
     ___OPERATION_CODE_015:                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);        //
+     ShowDashboard(memory, ip8, sp);        //
     #endif                                 //
-     memory[memory[ip+1]] *= memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
-     ip += 3;                              //
-     goto *action[memory[ip]];             //
+     memory[memory[ip8+1]] *= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip8 += 3;                              //
+     goto *action[memory[ip8]];             //
     //                                     //
     ///////////// MUL (8-bit's) /////////////
     /////////////////////////////////////////
@@ -383,11 +388,11 @@ static inline void Action()
     //                                     //
     ___OPERATION_CODE_016:                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);        //
+     ShowDashboard(memory, ip8, sp);        //
     #endif                                 //
-     memory[memory[ip+1]] /= memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
-     ip += 3;                              //
-     goto *action[memory[ip]];             //
+     memory[memory[ip8+1]] /= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip8 += 3;                              //
+     goto *action[memory[ip8]];             //
     //                                     //
     ///////////// DIV (8-bit's) /////////////
     /////////////////////////////////////////
@@ -397,64 +402,64 @@ static inline void Action()
     //                                  //
     ___OPERATION_CODE_017:              // <cmd=CALL> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);     //
+     ShowDashboard(memory, ip8, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
-     ip = memory[ip+1];                 // <arg1=src:i8>
-     goto *action[memory[ip]];          //
+     memory[sp--] = ip8+2;               // Запоминаем адрес возврата из процедуры
+     ip8 = memory[ip8+1];                 // <arg1=src:i8>
+     goto *action[memory[ip8]];          //
     //                                  //
     ___OPERATION_CODE_018:              // <cmd=CALL> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);     //
+     ShowDashboard(memory, ip8, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
-     ip = memory[memory[ip+1]];         // <arg1=src:m8>
-     goto *action[memory[ip]];          //
+     memory[sp--] = ip8+2;               // Запоминаем адрес возврата из процедуры
+     ip8 = memory[memory[ip8+1]];         // <arg1=src:m8>
+     goto *action[memory[ip8]];          //
     //                                  //
     ___OPERATION_CODE_019:              // <cmd=CALL> <arg1=src:p8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);     //
+     ShowDashboard(memory, ip8, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
-     ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     goto *action[memory[ip]];          //
+     memory[sp--] = ip8+2;               // Запоминаем адрес возврата из процедуры
+     ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
+     goto *action[memory[ip8]];          //
     //                                  //
     /////////// CALL (8-bit's) ///////////
     //////////////////////////////////////
 
     ___OPERATION_CODE_020: // <cmd=RET>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
-     goto *action[memory[ip]];
+     ip8 = memory[++sp]; // Достаёт адрес возврата и ставит ip8 на него
+     goto *action[memory[ip8]];
 
     ////////////////////////////////////////////////
     //////////////// PUSH (8-bit's) ////////////////
     //                                            //
     ___OPERATION_CODE_021:                        // <cmd=PUSH> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);               //
+     ShowDashboard(memory, ip8, sp);               //
     #endif                                        //
-     memory[sp--] = memory[ip+1];                 // <arg1=src:i8>
-     ip += 2;                                     //
-     goto *action[memory[ip]];                    //
+     memory[sp--] = memory[ip8+1];                 // <arg1=src:i8>
+     ip8 += 2;                                     //
+     goto *action[memory[ip8]];                    //
     //                                            //
     ___OPERATION_CODE_022:                        // <cmd=PUSH> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);               //
+     ShowDashboard(memory, ip8, sp);               //
     #endif                                        //
-     memory[sp--] = memory[memory[ip+1]];         // <arg1=src:m8>
-     ip += 2;                                     //
-     goto *action[memory[ip]];                    //
+     memory[sp--] = memory[memory[ip8+1]];         // <arg1=src:m8>
+     ip8 += 2;                                     //
+     goto *action[memory[ip8]];                    //
     //                                            //
     ___OPERATION_CODE_023:                        // <cmd=PUSH> <arg1=src:p8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);               //
+     ShowDashboard(memory, ip8, sp);               //
     #endif                                        //
-     memory[sp--] = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     ip += 2;                                     //
-     goto *action[memory[ip]];                    //
+     memory[sp--] = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
+     ip8 += 2;                                     //
+     goto *action[memory[ip8]];                    //
     //                                            //
     //////////////// PUSH (8-bit's) ////////////////
     ////////////////////////////////////////////////
@@ -464,19 +469,19 @@ static inline void Action()
     //                                            //
     ___OPERATION_CODE_024:                        // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);               //
+     ShowDashboard(memory, ip8, sp);               //
     #endif                                        //
-     memory[memory[ip+1]] = memory[++sp];         // <arg1=dst:m8>
-     ip += 2;                                     //
-     goto *action[memory[ip]];                    //
+     memory[memory[ip8+1]] = memory[++sp];         // <arg1=dst:m8>
+     ip8 += 2;                                     //
+     goto *action[memory[ip8]];                    //
     //                                            //
     ___OPERATION_CODE_025:                        // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);               //
+     ShowDashboard(memory, ip8, sp);               //
     #endif                                        //
-     memory[memory[memory[ip+1]]] = memory[++sp]; // <arg1=dst:p8>
-     ip += 2;                                     //
-     goto *action[memory[ip]];                    //
+     memory[memory[memory[ip8+1]]] = memory[++sp]; // <arg1=dst:p8>
+     ip8 += 2;                                     //
+     goto *action[memory[ip8]];                    //
     //                                            //
     ///////////////// POP (8-bit's) ////////////////
     ////////////////////////////////////////////////
@@ -484,133 +489,133 @@ static inline void Action()
     //////////////////////////////
     ___OPERATION_CODE_026: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     a = memory[ip+1]; // <arg1=src:i8>
-     b = memory[ip+2]; // <arg2=src:i8>
+     a = memory[ip8+1]; // <arg1=src:i8>
+     b = memory[ip8+2]; // <arg2=src:i8>
      ef = (a == b); // ZF (Zero Flag) в x86
      af = (a > b);  // JA (Above) / тут какой флаг в x86???
      bf = (a < b);  // JB (Below) / тут какой флаг в x86???
-     ip += 3;
-     goto *action[memory[ip]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_027: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     a = memory[memory[ip+1]]; // <arg1=src:m8>
-     b = memory[ip+2];         // <arg2=src:i8>
+     a = memory[memory[ip8+1]]; // <arg1=src:m8>
+     b = memory[ip8+2];         // <arg2=src:i8>
      ef = (a == b); // ZF (Zero Flag) в x86
      af = (a > b);  // JA (Above) / тут какой флаг в x86???
      bf = (a < b);  // JB (Below) / тут какой флаг в x86???
-     ip += 3;
-     goto *action[memory[ip]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_028: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     a = memory[ip+1];         // <arg1=src:i8>
-     b = memory[memory[ip+2]]; // <arg2=src:m8>
+     a = memory[ip8+1];         // <arg1=src:i8>
+     b = memory[memory[ip8+2]]; // <arg2=src:m8>
      ef = (a == b); // ZF (Zero Flag) в x86
      af = (a > b);  // JA (Above) / тут какой флаг в x86???
      bf = (a < b);  // JB (Below) / тут какой флаг в x86???
-     ip += 3;
-     goto *action[memory[ip]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_029: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     a = memory[memory[ip+1]]; // <arg1=src:m8>
-     b = memory[memory[ip+2]]; // <arg2=src:m8>
+     a = memory[memory[ip8+1]]; // <arg1=src:m8>
+     b = memory[memory[ip8+2]]; // <arg2=src:m8>
      ef = (a == b); // ZF (Zero Flag) в x86
      af = (a > b);  // JA (Above) / тут какой флаг в x86???
      bf = (a < b);  // JB (Below) / тут какой флаг в x86???
-     ip += 3;
-     goto *action[memory[ip]];
+     ip8 += 3;
+     goto *action[memory[ip8]];
     /////////////////////////////////
     ////////// JMP 8-bit's //////////
     ___OPERATION_CODE_030: // <cmd=JMP> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     ip = memory[ip+1]; // <arg1=src:i8>
-     goto *action[memory[ip]];
+     ip8 = memory[ip8+1]; // <arg1=src:i8>
+     goto *action[memory[ip8]];
 
     ___OPERATION_CODE_031: // <cmd=JMP> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     ip = memory[memory[ip+1]]; // <arg1=src:m8>
-     goto *action[memory[ip]];
+     ip8 = memory[memory[ip8+1]]; // <arg1=src:m8>
+     goto *action[memory[ip8]];
 
     ___OPERATION_CODE_032: // <cmd=JMP> <arg1=src:p8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     goto *action[memory[ip]];
+     ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
+     goto *action[memory[ip8]];
     ////////// JMP 8-bit's //////////
     /////////////////////////////////
     ___OPERATION_CODE_033: //  JE addr8  (Jump if Equal)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (ef) ip = memory[ip+1]; // JE (Jump if Equal): Прыгаем, если ef == 1
-     else    ip += 2;           // JE + addr8
-     goto *action[memory[ip]];
+     if (ef) ip8 = memory[ip8+1]; // JE (Jump if Equal): Прыгаем, если ef == 1
+     else    ip8 += 2;           // JE + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_034: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (!ef) ip = memory[ip+1]; // JNE (Jump if Not Equal): Прыгаем, если ef == 0
-     else     ip += 2;           // JNE + addr8
-     goto *action[memory[ip]];
+     if (!ef) ip8 = memory[ip8+1]; // JNE (Jump if Not Equal): Прыгаем, если ef == 0
+     else     ip8 += 2;           // JNE + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_035: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (bf) ip = memory[ip+1]; // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
-     else    ip += 2;           // JB + addr8
-     goto *action[memory[ip]];
+     if (bf) ip8 = memory[ip8+1]; // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
+     else    ip8 += 2;           // JB + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_036: //  JA addr8  (Jump if Above)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (af) ip = memory[ip+1]; // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
-     else    ip += 2;           // JA + addr8
-     goto *action[memory[ip]];
+     if (af) ip8 = memory[ip8+1]; // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
+     else    ip8 += 2;           // JA + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_037: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (bf||ef) ip = memory[ip+1]; // JBE (Jump if Below or Equal)
-     else       ip += 2;           // JBE + addr8
-     goto *action[memory[ip]];
+     if (bf||ef) ip8 = memory[ip8+1]; // JBE (Jump if Below or Equal)
+     else       ip8 += 2;           // JBE + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_038: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
-     if (af||ef) ip = memory[ip+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
-     else       ip += 2;           // JAE/JNB + addr8
-     goto *action[memory[ip]];
+     if (af||ef) ip8 = memory[ip8+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
+     else       ip8 += 2;           // JAE/JNB + addr8
+     goto *action[memory[ip8]];
     //////////////////////////////
     ___OPERATION_CODE_FROM_039_TO_255:
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
      return; // Экстремальный выход
-     //goto *action[memory[++ip]]; // Крутим дальше
+     //goto *action[memory[++ip8]]; // Крутим дальше
     //////////////////////////////
     ___OPERATION_CODE_256: // Остановить/завершить выполнение программы
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
+     ShowDashboard(memory, ip8, sp);
     #endif
      return; // Экстремальный выход
     //////////////////////////////
