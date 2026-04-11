@@ -298,7 +298,7 @@ static inline void Action()
      if (ef) ip = memory[ip+1]; // JE (Jump if Equal): Прыгаем, если ef == 1
      else    ip += 2;           // JE + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_24: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JNE addr8  (Jump if Not Equal)");
@@ -306,7 +306,7 @@ static inline void Action()
      if (!ef) ip = memory[ip+1]; // JNE (Jump if Not Equal): Прыгаем, если ef == 0
      else     ip += 2;           // JNE + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_25: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JB addr8  (Jump if Below)");
@@ -314,15 +314,15 @@ static inline void Action()
      if (bf) ip = memory[ip+1]; // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
      else    ip += 2;           // JB + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_26: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)");
     #endif
-     if (bf | ef) ip = memory[ip+1]; // JBE (Jump if Below or Equal): Прыгаем, если bf || ef
-     else          ip += 2;          // JBE + addr8
+     if (bf|ef) ip = memory[ip+1]; // JBE (Jump if Below or Equal): Прыгаем, если bf || ef
+     else          ip += 2;        // JBE + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_27: //  JA addr8  (Jump if Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JA addr8  (Jump if Above)");
@@ -330,15 +330,15 @@ static inline void Action()
      if (af) ip = memory[ip+1]; // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
      else    ip += 2;           // JA + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_28: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)");
     #endif
-     if (af || ef) ip = memory[ip+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below): переход, если af || ef
-     else          ip += 2;           // JAE/JNB + addr8
+     if (af|ef) ip = memory[ip+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below): переход, если af || ef
+     else          ip += 2;        // JAE/JNB + addr8
      goto *action[memory[ip]];
-    //-//-//-//-//-//-//-//-//-//
+    //////////////////////////////
     ___OPERATION_CODE_FROM_29_TO_255:
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "UNKNOWN OPERAND: 29~255");
