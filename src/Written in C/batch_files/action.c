@@ -28,11 +28,13 @@ enum
        mul8,      //
        div8 = 15, //
     /////////////////
-    // Сопрограмма //
-    call8_i = 16,  // <cmd=CALL> <arg1=src:i8>
-    call8_m,       // <cmd=CALL> <arg1=src:m8>
-    call8_p,       // <cmd=CALL> <arg1=src:p8>
-    // Сопрограмма //
+    ///////////////////////////////////
+    // Переход в процедуру (8-bit's) //
+    call8_i = 16,                    // <cmd=CALL> <arg1=src:i8>
+    call8_m,                         // <cmd=CALL> <arg1=src:m8>
+    call8_p,                         // <cmd=CALL> <arg1=src:p8>
+    // Переход в процедуру (8-bit's) //
+    ///////////////////////////////////
     /////////////////
         ret,      //
        push,      //
