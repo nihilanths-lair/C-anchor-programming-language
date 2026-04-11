@@ -52,10 +52,18 @@ enum
     mul8_dm_sm,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
     mul8_dm_sp,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
+    mul8_dp_si,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    mul8_dp_sm,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    mul8_dp_sp,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
     // Деление                                  //
     div8_dm_si,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
     div8_dm_sm,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
     div8_dm_sp,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //
+    div8_dp_si,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    div8_dp_sm,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    div8_dp_sp,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
     // Арифметико-логические операции (8-bit's) //
     //////////////////////////////////////////////
@@ -101,8 +109,8 @@ enum
     jne8_si,                       //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
      jb8_si,                       //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
      ja8_si,                       //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-    jbe8_si, jna8_si = 50,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    jae8_si, jnb8_si = 51,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+    jbe8_si, jna8_si = 56,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    jae8_si, jnb8_si = 57,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
 
