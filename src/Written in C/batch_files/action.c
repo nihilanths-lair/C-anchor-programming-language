@@ -107,9 +107,9 @@ static inline void Action()
         [14] = &&___OPERATION_CODE_015, // <cmd=MUL>
         [15] = &&___OPERATION_CODE_016, // <cmd=DIV>
         //
-        [16] = &&___OPERATION_CODE_017, // <cmd=CALL> <arg1=src:i8> / Пример: call addr8 ; mem[0]
-      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:m8> / Пример: call addr8 ; mem[mem[0]]
-      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:p8> / Пример: call addr8 ; mem[mem[mem[0]]] ?
+        [16] = &&___OPERATION_CODE_017, // <cmd=CALL> <arg1=src:i8> / CALL addr8
+      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:m8> / CALL addr8
+      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:p8> / CALL addr8
         [17] = &&___OPERATION_CODE_018, // <cmd=RET>
         [18] = &&___OPERATION_CODE_019, // <cmd=PUSH>
         [19] = &&___OPERATION_CODE_020, // <cmd=POP>
@@ -120,20 +120,20 @@ static inline void Action()
         [22] = &&___OPERATION_CODE_023, // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
         [23] = &&___OPERATION_CODE_024, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 
-        // Безусловный переход
-        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8> / Пример: jmp addr8 ; mem[0]
-      //[??] = &&___OPERATION_CODE_???, // <cmd=JMP> <arg1=src:m8> / Пример: jmp addr8 ; mem[mem[0]]
-      //[??] = &&___OPERATION_CODE_???, // <cmd=JMP> <arg1=src:p8> / Пример: jmp addr8 ; mem[mem[mem[0]]] ?
+        // Безусловный переход (8-bit's)
+        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8>
+        [25] = &&___OPERATION_CODE_026, // <cmd=JMP> <arg1=src:m8>
+        [26] = &&___OPERATION_CODE_027, // <cmd=JMP> <arg1=src:p8>
 
         // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-        [25] = &&___OPERATION_CODE_026, //      JE addr8  (Jump if Equal)
-        [26] = &&___OPERATION_CODE_027, //     JNE addr8  (Jump if Not Equal)
-        [27] = &&___OPERATION_CODE_028, //      JB addr8  (Jump if Below)
-        [28] = &&___OPERATION_CODE_029, //      JA addr8  (Jump if Above)
-        [29] = &&___OPERATION_CODE_030, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-        [30] = &&___OPERATION_CODE_031, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+        [27] = &&___OPERATION_CODE_028, //      JE addr8  (Jump if Equal)
+        [28] = &&___OPERATION_CODE_029, //     JNE addr8  (Jump if Not Equal)
+        [29] = &&___OPERATION_CODE_030, //      JB addr8  (Jump if Below)
+        [30] = &&___OPERATION_CODE_031, //      JA addr8  (Jump if Above)
+        [31] = &&___OPERATION_CODE_032, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+        [32] = &&___OPERATION_CODE_033, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
 
-        [31 ... 254] = &&___OPERATION_CODE_FROM_032_TO_255,
+        [33 ... 254] = &&___OPERATION_CODE_FROM_034_TO_255,
         [255] = &&___OPERATION_CODE_256 // HLT
     };
    #define DEBUG
@@ -297,7 +297,6 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     // Вынесли unsigned char за пределы, чтобы каждый раз не создавались переменные, + к микрооптимизации
      a = memory[ip+1]; // <arg1=src:i8>
      b = memory[ip+2]; // <arg2=src:i8>
      ef = (a == b); // ZF (Zero Flag) в x86
@@ -310,7 +309,6 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     // Вынесли unsigned char за пределы, чтобы каждый раз не создавались переменные, + к микрооптимизации
      a = memory[memory[ip+1]]; // <arg1=src:m8>
      b = memory[ip+2];         // <arg2=src:i8>
      ef = (a == b); // ZF (Zero Flag) в x86
@@ -323,7 +321,6 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     // Вынесли unsigned char за пределы, чтобы каждый раз не создавались переменные, + к микрооптимизации
      a = memory[ip+1];         // <arg1=src:i8>
      b = memory[memory[ip+2]]; // <arg2=src:m8>
      ef = (a == b); // ZF (Zero Flag) в x86
@@ -336,7 +333,6 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     // Вынесли unsigned char за пределы, чтобы каждый раз не создавались переменные, + к микрооптимизации
      a = memory[memory[ip+1]]; // <arg1=src:m8>
      b = memory[memory[ip+2]]; // <arg2=src:m8>
      ef = (a == b); // ZF (Zero Flag) в x86
@@ -344,15 +340,31 @@ static inline void Action()
      bf = (a < b);  // JB (Below) / тут какой флаг в x86???
      ip += 3;
      goto *action[memory[ip]];
-    //////////////////////////////
+    /////////////////////////////////
+    ////////// JMP 8-bit's //////////
     ___OPERATION_CODE_025: // <cmd=JMP> <arg1=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     ip = memory[ip+1];
+     ip = memory[ip+1]; // <arg1=src:i8>
      goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_026: //  JE addr8  (Jump if Equal)
+
+    ___OPERATION_CODE_026: // <cmd=JMP> <arg1=src:m8>
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);
+    #endif
+     ip = memory[memory[ip+1]]; // <arg1=src:m8>
+     goto *action[memory[ip]];
+
+    ___OPERATION_CODE_027: // <cmd=JMP> <arg1=src:p8>
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);
+    #endif
+     ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
+     goto *action[memory[ip]];
+    ////////// JMP 8-bit's //////////
+    /////////////////////////////////
+    ___OPERATION_CODE_028: //  JE addr8  (Jump if Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -360,7 +372,7 @@ static inline void Action()
      else    ip += 2;           // JE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_027: // JNE addr8  (Jump if Not Equal)
+    ___OPERATION_CODE_029: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -368,7 +380,7 @@ static inline void Action()
      else     ip += 2;           // JNE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_028: //  JB addr8  (Jump if Below)
+    ___OPERATION_CODE_030: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -376,7 +388,7 @@ static inline void Action()
      else    ip += 2;           // JB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_029: //  JA addr8  (Jump if Above)
+    ___OPERATION_CODE_031: //  JA addr8  (Jump if Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -384,7 +396,7 @@ static inline void Action()
      else    ip += 2;           // JA + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_030: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    ___OPERATION_CODE_032: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -392,7 +404,7 @@ static inline void Action()
      else       ip += 2;           // JBE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_031: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+    ___OPERATION_CODE_033: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -400,7 +412,7 @@ static inline void Action()
      else       ip += 2;           // JAE/JNB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_FROM_032_TO_255:
+    ___OPERATION_CODE_FROM_034_TO_255:
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
