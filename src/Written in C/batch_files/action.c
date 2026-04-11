@@ -151,7 +151,8 @@ static inline void Action()
     /*static*/unsigned char e = 0;
     /*static*/unsigned char f = 0;
 
-    void *action[] =
+    // Таблица диспетчеризации I (для 8-ти битного режима адресации)
+    void *action[0x100] =
     {
         [ 0] = &&___OPERATION_CODE_001, // <cmd=INC> <arg-1=dst:m8>
         [ 1] = &&___OPERATION_CODE_002, // <cmd=DEC> <arg-1=dst:m8>
@@ -219,6 +220,8 @@ static inline void Action()
         [255] = &&___OPERATION_CODE_256  // <cmd=HLT>
         ///////////////////////////////////
     };
+    // Таблица диспетчеризации II (для 16-ти битного режима адресации)
+    void *dispatch_mode16[0x100] = {[0 ... 255] = &&___OPERATION_CODE_256};
    #ifdef DEBUG
     printf("\n Запуск vCPU.");
    #endif
