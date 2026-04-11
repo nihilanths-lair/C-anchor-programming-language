@@ -8,16 +8,16 @@ enum
     // Перессылка данных (8-bit's) //
     mov8_ds_mi = 02,               // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
     mov8_sd_im,                    // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
-                                   //
+    //                             //
     mov8_ds_mm,                    // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
     mov8_sd_mm,                    // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
-                                   //
+    //                             //
     mov8_ds_pi,                    // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
     mov8_sd_ip,                    // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
-                                   //
+    //                             //
     mov8_ds_pm,                    // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
     mov8_sd_mp,                    // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
-                                   //
+    //                             //
     mov8_ds_mp,                    // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
     mov8_sd_pm = 11,               // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
     // Перессылка данных (8-bit's) //
@@ -38,11 +38,12 @@ enum
     call8_m,                          // <cmd=CALL> <arg1=src:m8>
     call8_p = 18,                     // <cmd=CALL> <arg1=src:p8>
     // Возврат из процедуры (8-bit's) //
-    ret = 19,                         //
+    ret = 19,                         // <cmd=RET>
     // Управление стеком (8-bit's)    //
     push8_i = 20,                     // <cmd=PUSH> <arg1=src:i8>
     push8_m,                          // <cmd=PUSH> <arg1=src:m8>
     push8_p,                          // <cmd=PUSH> <arg1=src:p8>
+    //                                //
     pop8 = 23,                        //
     ////////////////////////////////////
 
