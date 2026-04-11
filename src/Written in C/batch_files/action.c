@@ -2,24 +2,27 @@
 #ifdef DEBUG
 enum
 {
-    inc, // <cmd=INC>
-    dec, // <cmd=DEC>
+    ///////////////
+    inc8_dm = 0, // <cmd=INC> <arg-1=dst:m8>
+    dec8_dm = 1, // <cmd=DEC> <arg-1=dst:m8>
+    ///////////////
+
     /////////////////////////////////
     // Перессылка данных (8-bit's) //
-    mov8_ds_mi = 2,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
-    mov8_sd_im,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
+    mov8_dm_si = 2,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
+    mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
     //                             //
-    mov8_ds_mm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
-    mov8_sd_mm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
+    mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+    mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
     //                             //
-    mov8_ds_pi,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
-    mov8_sd_ip,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
+    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+    mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
     //                             //
-    mov8_ds_pm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
-    mov8_sd_mp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
+    mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+    mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     //                             //
-    mov8_ds_mp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-    mov8_sd_pm = 11,               // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
+    mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
+    mov8_sp_dm = 11,               // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
     // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
@@ -80,8 +83,8 @@ enum
 };
 static unsigned char memory[256] = // Для быстрого теста/проверки работоспобности движка
 {
-    mov8_ds_mi, 10, 42,   // mem[10] = 42
-    mov8_ds_mp, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
+    mov8_dm_si, 10, 42, // mem[10] = 42
+    mov8_dm_sp, 20, 10, // mem[20] = mem[mem[10]] = mem[42] (мусор)
     hlt
     /*
     CALL, 3,
