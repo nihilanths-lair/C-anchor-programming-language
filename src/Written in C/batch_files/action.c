@@ -297,33 +297,36 @@ static inline void Action()
      ShowDashboard(memory, ip, sp);
     #endif
      return;
-    //////////////////////////////////
-    ////////// CALL 8-bit's //////////
-    ___OPERATION_CODE_017: // <cmd=CALL> <arg1=src:i8>
+    //////////////////////////////////////
+    /////////// CALL (8-bit's) ///////////
+    //                                  //
+    ___OPERATION_CODE_017:              // <cmd=CALL> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
-     ip = memory[ip+1]; // <arg1=src:i8>
-     goto *action[memory[ip]];
-
-    ___OPERATION_CODE_018: // <cmd=CALL> <arg1=src:m8>
+     ShowDashboard(memory, ip, sp);     //
+    #endif                              //
+     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
+     ip = memory[ip+1];                 // <arg1=src:i8>
+     goto *action[memory[ip]];          //
+    //                                  //
+    ___OPERATION_CODE_018:              // <cmd=CALL> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
-     ip = memory[memory[ip+1]]; // <arg1=src:m8>
-     goto *action[memory[ip]];
-
-    ___OPERATION_CODE_019: // <cmd=CALL> <arg1=src:p8>
+     ShowDashboard(memory, ip, sp);     //
+    #endif                              //
+     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
+     ip = memory[memory[ip+1]];         // <arg1=src:m8>
+     goto *action[memory[ip]];          //
+    //                                  //
+    ___OPERATION_CODE_019:              // <cmd=CALL> <arg1=src:p8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
+     ShowDashboard(memory, ip, sp);     //
+    #endif                              //
+     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
      ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     goto *action[memory[ip]];
-    ////////// CALL (8-bit's) //////////
-    ////////////////////////////////////
+     goto *action[memory[ip]];          //
+    //                                  //
+    /////////// CALL (8-bit's) ///////////
+    //////////////////////////////////////
+
     ___OPERATION_CODE_020: // <cmd=RET>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
