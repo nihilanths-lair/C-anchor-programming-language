@@ -68,30 +68,19 @@ static unsigned char memory[256] =
 
 static inline void Action()
 {
-    //static
-    unsigned char ip =       0; // указатель инструкции
-    //static
-    unsigned char sp =     255; // указатель стека
-    //static
-    unsigned char ef/*zf*/ = 2; // флаг равенства
-    //static
-    unsigned char bf       = 2; // (below) флаг меньше
-    //static
-    unsigned char af       = 2; // (above) флаг больше
+    /*static*/unsigned char ip =       0; // указатель инструкции
+    /*static*/unsigned char sp =     255; // указатель стека
+    /*static*/unsigned char ef/*zf*/ = 0; // флаг равенства
+    /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
+    /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
 
     // регистры общего назначения для хранения промежуточных результатов
-    //static
-    unsigned char a = 0;
-    //static
-    unsigned char b = 0;
-    //static
-    unsigned char c = 0;
-    //static
-    unsigned char d = 0;
-    //static
-    unsigned char e = 0;
-    //static
-    unsigned char f = 0;
+    /*static*/unsigned char a = 0;
+    /*static*/unsigned char b = 0;
+    /*static*/unsigned char c = 0;
+    /*static*/unsigned char d = 0;
+    /*static*/unsigned char e = 0;
+    /*static*/unsigned char f = 0;
 
     void *action[] =
     {
