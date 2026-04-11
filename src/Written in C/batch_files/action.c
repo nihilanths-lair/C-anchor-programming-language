@@ -142,34 +142,35 @@ static inline void Action()
         [17] = &&___OPERATION_CODE_018,   //   <cmd=CALL> <arg1=src:m8>
         [18] = &&___OPERATION_CODE_019,   //   <cmd=CALL> <arg1=src:p8>
         // Возврат из процедуры (8-bit's) //
-        [19] = &&___OPERATION_CODE_020,   //    <cmd=RET>               ; Снимает значение-адрес со стека и совершает переход по нему
+        [19] = &&___OPERATION_CODE_020,   //   <cmd=RET>                ; Снимает значение-адрес со стека и совершает переход по нему
         // Управление стеком (8-bit's)    //
         [20] = &&___OPERATION_CODE_021,   //   <cmd=PUSH> <arg1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
         [21] = &&___OPERATION_CODE_022,   //   <cmd=PUSH> <arg1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
         [22] = &&___OPERATION_CODE_023,   //   <cmd=PUSH> <arg1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
         //                                //
-        [23] = &&___OPERATION_CODE_024,   //    <cmd=POP> <arg1=dst:m8> ; Снимаемое значение со стека пойдёт в приёмник памяти
+        [23] = &&___OPERATION_CODE_024,   //   <cmd=POP> <arg1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+        [24] = &&___OPERATION_CODE_025,   //   <cmd=POP> <arg1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
         ///////////////////////////////////
         // Сравнение (8-bit's)           //
-        [24] = &&___OPERATION_CODE_025,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-        [25] = &&___OPERATION_CODE_026,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-        [26] = &&___OPERATION_CODE_027,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-        [27] = &&___OPERATION_CODE_028,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+        [25] = &&___OPERATION_CODE_026,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+        [26] = &&___OPERATION_CODE_027,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+        [27] = &&___OPERATION_CODE_028,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+        [28] = &&___OPERATION_CODE_029,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
         ///////////////////////////////////
         // Безусловный переход (8-bit's) //
-        [28] = &&___OPERATION_CODE_029,  //     <cmd=JMP> <arg1=src:i8>
-        [29] = &&___OPERATION_CODE_030,  //     <cmd=JMP> <arg1=src:m8>
-        [30] = &&___OPERATION_CODE_031,  //     <cmd=JMP> <arg1=src:p8>
+        [29] = &&___OPERATION_CODE_030,  //     <cmd=JMP> <arg1=src:i8>
+        [30] = &&___OPERATION_CODE_031,  //     <cmd=JMP> <arg1=src:m8>
+        [31] = &&___OPERATION_CODE_032,  //     <cmd=JMP> <arg1=src:p8>
         ///////////////////////////////////
         // Условные переходы (8-bit's)   //
-        [31] = &&___OPERATION_CODE_032,  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
-        [32] = &&___OPERATION_CODE_033,  //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
-        [33] = &&___OPERATION_CODE_034,  //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
-        [34] = &&___OPERATION_CODE_035,  //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-        [35] = &&___OPERATION_CODE_036,  // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-        [36] = &&___OPERATION_CODE_037,  // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+        [32] = &&___OPERATION_CODE_033,  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+        [33] = &&___OPERATION_CODE_034,  //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
+        [34] = &&___OPERATION_CODE_035,  //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
+        [35] = &&___OPERATION_CODE_036,  //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
+        [36] = &&___OPERATION_CODE_037,  // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+        [37] = &&___OPERATION_CODE_038,  // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
-        [37 ... 254] = &&___OPERATION_CODE_FROM_038_TO_255,
+        [38 ... 254] = &&___OPERATION_CODE_FROM_039_TO_255,
         [255] = &&___OPERATION_CODE_256 // HLT
     };
    #ifdef DEBUG
@@ -329,42 +330,60 @@ static inline void Action()
     #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
-    ////////////////////////////////////
-    ////////// PUSH (8-bit's) //////////
-    ___OPERATION_CODE_021: // <cmd=PUSH> <arg1=src:i8>
+    //////////////////////////////////////////////
+    /////////////// PUSH (8-bit's) ///////////////
+    //                                          //
+    ___OPERATION_CODE_021:                      // <cmd=PUSH> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[sp--] = memory[ip+1]; // <arg1=src:i8>
-     ip += 2;
-     goto *action[memory[ip]];
-
-    ___OPERATION_CODE_022: // <cmd=PUSH> <arg1=src:m8>
+     ShowDashboard(memory, ip, sp);             //
+    #endif                                      //
+     memory[sp--] = memory[ip+1];               // <arg1=src:i8>
+     ip += 2;                                   //
+     goto *action[memory[ip]];                  //
+    //                                          //
+    ___OPERATION_CODE_022:                      // <cmd=PUSH> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[sp--] = memory[memory[ip+1]]; // <arg1=src:m8>
-     ip += 2;
-     goto *action[memory[ip]];
-
-    ___OPERATION_CODE_023: // <cmd=PUSH> <arg1=src:p8>
+     ShowDashboard(memory, ip, sp);             //
+    #endif                                      //
+     memory[sp--] = memory[memory[ip+1]];       // <arg1=src:m8>
+     ip += 2;                                   //
+     goto *action[memory[ip]];                  //
+    //                                          //
+    ___OPERATION_CODE_023:                      // <cmd=PUSH> <arg1=src:p8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
+     ShowDashboard(memory, ip, sp);             //
+    #endif                                      //
      memory[sp--] = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     ip += 2;
-     goto *action[memory[ip]];
-    ////////// PUSH (8-bit's) //////////
-    ////////////////////////////////////
-    ___OPERATION_CODE_024: // <cmd=POP> <arg1=dst:m8>
+     ip += 2;                                   //
+     goto *action[memory[ip]];                  //
+    //                                          //
+    /////////////// PUSH (8-bit's) ///////////////
+    //////////////////////////////////////////////
+
+    ///////////////////////////////////
+    ////////// POP (8-bit's) //////////
+    //                               //
+    ___OPERATION_CODE_024: // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      memory[memory[ip+1]] = memory[++sp]; // <arg1=dst:m8>
      ip += 2;
      goto *action[memory[ip]];
+    //                               //
+    ___OPERATION_CODE_025: // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);
+    #endif
+     memory[memory[memory[ip+1]]] = memory[++sp]; // <arg1=dst:p8>
+     ip += 2;
+     goto *action[memory[ip]];
+    //                               //
+    ////////// POP (8-bit's) //////////
+    ///////////////////////////////////
+
     //////////////////////////////
-    ___OPERATION_CODE_025: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    ___OPERATION_CODE_026: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -376,7 +395,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_026: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+    ___OPERATION_CODE_027: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -388,7 +407,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_027: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+    ___OPERATION_CODE_028: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -400,7 +419,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_028: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    ___OPERATION_CODE_029: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -413,21 +432,21 @@ static inline void Action()
      goto *action[memory[ip]];
     /////////////////////////////////
     ////////// JMP 8-bit's //////////
-    ___OPERATION_CODE_029: // <cmd=JMP> <arg1=src:i8>
+    ___OPERATION_CODE_030: // <cmd=JMP> <arg1=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      ip = memory[ip+1]; // <arg1=src:i8>
      goto *action[memory[ip]];
 
-    ___OPERATION_CODE_030: // <cmd=JMP> <arg1=src:m8>
+    ___OPERATION_CODE_031: // <cmd=JMP> <arg1=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      ip = memory[memory[ip+1]]; // <arg1=src:m8>
      goto *action[memory[ip]];
 
-    ___OPERATION_CODE_031: // <cmd=JMP> <arg1=src:p8>
+    ___OPERATION_CODE_032: // <cmd=JMP> <arg1=src:p8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -435,7 +454,7 @@ static inline void Action()
      goto *action[memory[ip]];
     ////////// JMP 8-bit's //////////
     /////////////////////////////////
-    ___OPERATION_CODE_032: //  JE addr8  (Jump if Equal)
+    ___OPERATION_CODE_033: //  JE addr8  (Jump if Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -443,7 +462,7 @@ static inline void Action()
      else    ip += 2;           // JE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_033: // JNE addr8  (Jump if Not Equal)
+    ___OPERATION_CODE_034: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -451,7 +470,7 @@ static inline void Action()
      else     ip += 2;           // JNE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_034: //  JB addr8  (Jump if Below)
+    ___OPERATION_CODE_035: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -459,7 +478,7 @@ static inline void Action()
      else    ip += 2;           // JB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_035: //  JA addr8  (Jump if Above)
+    ___OPERATION_CODE_036: //  JA addr8  (Jump if Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -467,7 +486,7 @@ static inline void Action()
      else    ip += 2;           // JA + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_036: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    ___OPERATION_CODE_037: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -475,7 +494,7 @@ static inline void Action()
      else       ip += 2;           // JBE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_037: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+    ___OPERATION_CODE_038: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -483,7 +502,7 @@ static inline void Action()
      else       ip += 2;           // JAE/JNB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_FROM_038_TO_255:
+    ___OPERATION_CODE_FROM_039_TO_255:
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
