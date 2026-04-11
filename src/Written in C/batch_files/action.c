@@ -133,8 +133,8 @@ static inline void Action()
 
         // Безусловный переход
         [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8> / Пример: jmp addr8 ; mem[0]
-      //[??] = &&___OPERATION_CODE_0??, // <cmd=JMP> <arg1=src:m8> / Пример: jmp addr8 ; mem[mem[0]]
-      //[??] = &&___OPERATION_CODE_0??, // <cmd=JMP> <arg1=src:p8> / Пример: jmp addr8 ; mem[mem[mem[0]]] ?
+      //[??] = &&___OPERATION_CODE_???, // <cmd=JMP> <arg1=src:m8> / Пример: jmp addr8 ; mem[mem[0]]
+      //[??] = &&___OPERATION_CODE_???, // <cmd=JMP> <arg1=src:p8> / Пример: jmp addr8 ; mem[mem[mem[0]]] ?
 
         // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
         [25] = &&___OPERATION_CODE_026, //      JE addr8  (Jump if Equal)
