@@ -12,13 +12,13 @@ enum
     mov8_dm_si = 2,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
     mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
     //                             //
-    mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+    mov8_dm_sm = 4,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
     mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
     //                             //
-    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+    mov8_dp_si = 6,                // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
     //                             //
-    mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+    mov8_dp_sm = 8,                // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
     mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     //                             //
     mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
@@ -81,7 +81,7 @@ enum
 
     hlt = 255
 };
-static unsigned char memory[256] = // Для быстрого теста/проверки работоспобности движка
+static unsigned char memory[0x100] = // Для быстрого теста/проверки работоспобности движка
 {
     mov8_dm_si, 10, 42, // mem[10] = 42
     mov8_dm_sp, 20, 10, // mem[20] = mem[mem[10]] = mem[42] (мусор)
@@ -118,23 +118,23 @@ static inline void Action()
 
     void *action[] =
     {
-        [ 0] = &&___OPERATION_CODE_001, // <cmd=INC>
-        [ 1] = &&___OPERATION_CODE_002, // <cmd=DEC>
+        [ 0] = &&___OPERATION_CODE_001, // <cmd=INC> <arg-1=dst:m8>
+        [ 1] = &&___OPERATION_CODE_002, // <cmd=DEC> <arg-1=dst:m8>
         //
-        [ 2] = &&___OPERATION_CODE_003, // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
-        [ 3] = &&___OPERATION_CODE_004, // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
+        [ 2] = &&___OPERATION_CODE_003, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
+        [ 3] = &&___OPERATION_CODE_004, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
         //
-        [ 4] = &&___OPERATION_CODE_005, // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
-        [ 5] = &&___OPERATION_CODE_006, // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
+        [ 4] = &&___OPERATION_CODE_005, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+        [ 5] = &&___OPERATION_CODE_006, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
         //
-        [ 6] = &&___OPERATION_CODE_007, // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
-        [ 7] = &&___OPERATION_CODE_008, // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
+        [ 6] = &&___OPERATION_CODE_007, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+        [ 7] = &&___OPERATION_CODE_008, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
         //
-        [ 8] = &&___OPERATION_CODE_009, // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
-        [ 9] = &&___OPERATION_CODE_010, // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
+        [ 8] = &&___OPERATION_CODE_009, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+        [ 9] = &&___OPERATION_CODE_010, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
         //
-        [10] = &&___OPERATION_CODE_011, // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
-        [11] = &&___OPERATION_CODE_012, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
+        [10] = &&___OPERATION_CODE_011, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
+        [11] = &&___OPERATION_CODE_012, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
         //
         ////////////////////////////////////
         // Арифметико-логические операции //
