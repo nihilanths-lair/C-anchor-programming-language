@@ -8,29 +8,29 @@ enum
     // Перессылка данных (8-bit's) //
     mov8_ds_mi = 02,               // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
     mov8_sd_im,                    // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
-
+                                   //
     mov8_ds_mm,                    // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
     mov8_sd_mm,                    // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
-
+                                   //
     mov8_ds_pi,                    // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
     mov8_sd_ip,                    // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
-
+                                   //
     mov8_ds_pm,                    // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
     mov8_sd_mp,                    // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
-
+                                   //
     mov8_ds_mp,                    // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
     mov8_sd_pm = 11,               // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
     // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
-    ////////////////////////////////////
-    // Арифметико-логические операции //
-    add8 = 12,                        //
-    sub8,                             //
-    mul8,                             //
-    div8 = 15,                        //
-    // Арифметико-логические операции //
-    ////////////////////////////////////
+    //////////////////////////////////////////////
+    // Арифметико-логические операции (8-bit's) //
+    add8 = 12,                                  //
+    sub8,                                       //
+    mul8,                                       //
+    div8 = 15,                                  //
+    // Арифметико-логические операции (8-bit's) //
+    //////////////////////////////////////////////
 
     ////////////////////////////////////
     // Переход в процедуру (8-bit's)  //
@@ -44,14 +44,14 @@ enum
      pop = 21,                        //
     ////////////////////////////////////
 
-    ///////////////
-    // Сравнение //
-    cmp8_ii = 22, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-    cmp8_mi,      // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-    cmp8_im,      // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_mm = 25, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-    // Сравнение //
-    ///////////////
+    //////////////////////////
+    // Сравнение (8-bit's)  //
+    cmp8_ii = 22,           // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_mi,                // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+    cmp8_im,                // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+    cmp8_mm = 25,           // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    // Сравнение (8-bit's)  //
+    //////////////////////////
 
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
@@ -59,7 +59,9 @@ enum
     jmp8_m,                          // <cmd=JMP> <arg1=src:m8>
     jmp8_p = 28,                     // <cmd=JMP> <arg1=src:p8>
     // Безусловный переход (8-bit's) //
-    //////////////////////////////////
+    ///////////////////////////////////
+
+    /////////////////////////////////
     // Условные переходы (8-bit's) //
      je8_i = 29,                   //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
     jne8_i,                        //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
@@ -69,6 +71,7 @@ enum
     jae8_i, jnb8_i = 34,           // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
+
     hlt = 255
 };
 static unsigned char memory[256] = // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
