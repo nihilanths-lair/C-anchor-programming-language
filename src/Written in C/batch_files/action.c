@@ -309,13 +309,20 @@ static inline void Action()
     ///////////// SUB (8-bit's) /////////////
     /////////////////////////////////////////
 
-    //////////////////////////////
-    ___OPERATION_CODE_015: // MUL
+    /////////////////////////////////////////
+    ///////////// MUL (8-bit's) /////////////
+    //                                     //
+    ___OPERATION_CODE_015:                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     return;
-    //////////////////////////////
+     ShowDashboard(memory, ip, sp);        //
+    #endif                                 //
+     memory[memory[ip+1]] *= memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip += 3;                              //
+     goto *action[memory[ip]];             //
+    //                                     //
+    ///////////// MUL (8-bit's) /////////////
+    /////////////////////////////////////////
+
     ___OPERATION_CODE_016: // DIV
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
