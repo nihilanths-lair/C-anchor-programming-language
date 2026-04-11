@@ -386,23 +386,25 @@ __dispatch_mode8__opcode_016__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:
  goto *dispatch_mode8[memory[ip8]];      //
 ///////////////////////////////////////////
 
+//////////////////////////////////////
+__dispatch_mode8__opcode_017__:     // <cmd=CALL> <arg1=src:i8>
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);    //
+#endif                              //
+ memory[sp--] = ip8+2;              // Запоминаем адрес возврата из процедуры
+ ip8 = memory[ip8+1];               // <arg1=src:i8>
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+//////////////////////////////////////
+__dispatch_mode8__opcode_018__:     // <cmd=CALL> <arg1=src:m8>
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);    //
+#endif                              //
+ memory[sp--] = ip8+2;              // Запоминаем адрес возврата из процедуры
+ ip8 = memory[memory[ip8+1]];       // <arg1=src:m8>
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
 ////////////////////////////////////////
-__dispatch_mode8__opcode_017__:       // <cmd=CALL> <arg1=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp);      //
-#endif                                //
- memory[sp--] = ip8+2;                // Запоминаем адрес возврата из процедуры
- ip8 = memory[ip8+1];                 // <arg1=src:i8>
- goto *dispatch_mode8[memory[ip8]];   //
-//                                    //
-__dispatch_mode8__opcode_018__:       // <cmd=CALL> <arg1=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp);      //
-#endif                                //
- memory[sp--] = ip8+2;                // Запоминаем адрес возврата из процедуры
- ip8 = memory[memory[ip8+1]];         // <arg1=src:m8>
- goto *dispatch_mode8[memory[ip8]];   //
-//                                    //
 __dispatch_mode8__opcode_019__:       // <cmd=CALL> <arg1=src:p8>
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);      //
@@ -421,22 +423,24 @@ __dispatch_mode8__opcode_020__:     // <cmd=RET>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 
-/////////////////////////////////////////////////
-__dispatch_mode8__opcode_021__:                // <cmd=PUSH> <arg1=src:i8>
+//////////////////////////////////////
+__dispatch_mode8__opcode_021__:     // <cmd=PUSH> <arg1=src:i8>
 #ifdef DEBUG
- ShowDashboard(memory, ip8, sp);               //
-#endif                                         //
- memory[sp--] = memory[ip8+1];                 // <arg1=src:i8>
- ip8 += 2;                                     //
- goto *dispatch_mode8[memory[ip8]];            //
-/////////////////////////////////////////////////
-__dispatch_mode8__opcode_022__:                // <cmd=PUSH> <arg1=src:m8>
+ ShowDashboard(memory, ip8, sp);    //
+#endif                              //
+ memory[sp--] = memory[ip8+1];      // <arg1=src:i8>
+ ip8 += 2;                          //
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+/////////////////////////////////////////
+__dispatch_mode8__opcode_022__:        // <cmd=PUSH> <arg1=src:m8>
 #ifdef DEBUG
- ShowDashboard(memory, ip8, sp);               //
-#endif                                         //
- memory[sp--] = memory[memory[ip8+1]];         // <arg1=src:m8>
- ip8 += 2;                                     //
- goto *dispatch_mode8[memory[ip8]];            //
+ ShowDashboard(memory, ip8, sp);       //
+#endif                                 //
+ memory[sp--] = memory[memory[ip8+1]]; // <arg1=src:m8>
+ ip8 += 2;                             //
+ goto *dispatch_mode8[memory[ip8]];    //
+/////////////////////////////////////////
 /////////////////////////////////////////////////
 __dispatch_mode8__opcode_023__:                // <cmd=PUSH> <arg1=src:p8>
 #ifdef DEBUG
@@ -447,14 +451,15 @@ __dispatch_mode8__opcode_023__:                // <cmd=PUSH> <arg1=src:p8>
  goto *dispatch_mode8[memory[ip8]];            //
 /////////////////////////////////////////////////
 
-/////////////////////////////////////////////////
-__dispatch_mode8__opcode_024__:                // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+/////////////////////////////////////////
+__dispatch_mode8__opcode_024__:        // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
 #ifdef DEBUG
- ShowDashboard(memory, ip8, sp);               //
-#endif                                         //
- memory[memory[ip8+1]] = memory[++sp];         // <arg1=dst:m8>
- ip8 += 2;                                     //
- goto *dispatch_mode8[memory[ip8]];            //
+ ShowDashboard(memory, ip8, sp);       //
+#endif                                 //
+ memory[memory[ip8+1]] = memory[++sp]; // <arg1=dst:m8>
+ ip8 += 2;                             //
+ goto *dispatch_mode8[memory[ip8]];    //
+/////////////////////////////////////////
 /////////////////////////////////////////////////
 __dispatch_mode8__opcode_025__:                // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
 #ifdef DEBUG
