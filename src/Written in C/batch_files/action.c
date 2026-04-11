@@ -1,3 +1,5 @@
+/**/#define DEBUG/**/
+#ifdef DEBUG
 enum
 {
     inc, // <cmd=INC>
@@ -61,7 +63,6 @@ enum
     /////////////////////////////////
     hlt = 255
 };
-
 static unsigned char memory[256] =
 {
     mov8_ds_mi, 10, 42,   // mem[10] = 42
@@ -77,7 +78,10 @@ static unsigned char memory[256] =
     HLT
     */
 }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
-
+#endif
+#ifndef DEBUG
+static unsigned char memory[0x100];
+#endif
 static inline void Action()
 {
     /*static*/unsigned char ip =       0; // указатель инструкции
@@ -151,7 +155,6 @@ static inline void Action()
         [35 ... 254] = &&___OPERATION_CODE_FROM_036_TO_255,
         [255] = &&___OPERATION_CODE_256 // HLT
     };
-   #define DEBUG
    #ifdef DEBUG
     printf("\n Запуск vCPU.");
    #endif
