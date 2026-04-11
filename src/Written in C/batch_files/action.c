@@ -134,13 +134,13 @@ static inline void Action()
         //
         ////////////////////////////////////
         // Арифметико-логические операции //
-        [12] = &&___OPERATION_CODE_013, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        [12] = &&___OPERATION_CODE_013, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
         //
-        [13] = &&___OPERATION_CODE_014, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        [13] = &&___OPERATION_CODE_014, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
         //
-        [14] = &&___OPERATION_CODE_015, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        [14] = &&___OPERATION_CODE_015, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
         //
-        [15] = &&___OPERATION_CODE_016, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        [15] = &&___OPERATION_CODE_016, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
         //
         ////////////////////////////////////
         // Переход в процедуру (8-bit's)  //
