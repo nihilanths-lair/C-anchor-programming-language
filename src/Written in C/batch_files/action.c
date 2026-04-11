@@ -26,7 +26,7 @@ enum
        div8 = 15, //
 
     // Сопрограмма
-      call8 = 16, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
+      call8 = 16, // <cmd=CALL> <arg1=src:i8/m8/p8>
         ret,      //
        push,      //
         pop = 19, //
@@ -36,16 +36,18 @@ enum
     cmp8_im,      // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
     cmp8_mm = 23, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 
-    // Безусловный переход
-       jmp8 = 24, // <cmd=JMP> <arg1=src:i8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?  (Jump)
+    // Безусловный переход (8-bit's)
+    jmp8_i = 24, // <cmd=JMP> <arg1=src:i8>
+    jmp8_m,      // <cmd=JMP> <arg1=src:m8>
+    jmp8_p = 26, // <cmd=JMP> <arg1=src:p8>
 
     // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-     je8_m = 25,         //      JE addr8  (Jump if Equal)
+     je8_m = 27,         //      JE addr8  (Jump if Equal)
     jne8_m,              //     JNE addr8  (Jump if Not Equal)
      jb8_m,              //      JB addr8  (Jump if Below)
      ja8_m,              //      JA addr8  (Jump if Above)
-    jbe8_m, jna8_m = 29, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-    jae8_m, jnb8_m = 30, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+    jbe8_m, jna8_m = 31, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    jae8_m, jnb8_m = 32, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
 
     hlt = 255
 };
