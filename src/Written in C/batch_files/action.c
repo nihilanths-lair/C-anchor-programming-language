@@ -6,35 +6,38 @@ enum
     INC,
     DEC,
 
-    MOV__DST_MEM8__SRC_IMM8 = 03, // MOV mem8 <~ imm8 (Intel: dst src)
-    MOV__SRC_IMM8__DST_MEM8,      // MOV imm8 ~> mem8 ( AT&T: src dst)
+    // Пересылка данных
+    mov8_ds_mi = 03, // <cmd=MOV mem8 <~ imm8 (Intel: dst src)
+    mov8_sd_im,      // <cmd=MOV imm8 ~> mem8 ( AT&T: src dst)
 
-    MOV__DST_MEM8__SRC_MEM8,      // MOV mem8 <~ mem8 (Intel: dst src)
-    MOV__SRC_MEM8__DST_MEM8,      // MOV mem8 ~> mem8 ( AT&T: src dst)
+    mov8_ds_mm,      // <cmd=MOV mem8 <~ mem8 (Intel: dst src)
+    mov8_sd_mm,      // <cmd=MOV mem8 ~> mem8 ( AT&T: src dst)
 
-    MOV__DST_PTR8__SRC_IMM8,      // MOV ptr8 <~ imm8 (Intel: dst src)
-    MOV__SRC_IMM8__DST_PTR8,      // MOV imm8 ~> ptr8 ( AT&T: src dst)
+    mov8_ds_pi,      // <cmd=MOV ptr8 <~ imm8 (Intel: dst src)
+    mov8_sd_ip,      // <cmd=MOV imm8 ~> ptr8 ( AT&T: src dst)
 
-    MOV__DST_PTR8__SRC_MEM8,      // MOV ptr8 <~ mem8 (Intel: dst src)
-    MOV__SRC_MEM8__DST_PTR8,      // MOV mem8 ~> ptr8 ( AT&T: src dst)
+    mov8_ds_pm,      // <cmd=MOV ptr8 <~ mem8 (Intel: dst src)
+    mov8_sd_mp,      // <cmd=MOV mem8 ~> ptr8 ( AT&T: src dst)
 
-    MOV__DST_MEM8__SRC_PTR8,      // MOV mem8 <~ ptr8 (Intel: dst src)
-    MOV__SRC_PTR8__DST_MEM8 = 12, // MOV ptr8 ~> mem8 ( AT&T: src dst)
+    mov8_ds_mp,      // <cmd=MOV mem8 <~ ptr8 (Intel: dst src)
+    mov8_sd_pm = 12, // <cmd=MOV ptr8 ~> mem8 ( AT&T: src dst)
 
-    ADD,
-    SUB,
-    MUL,
-    DIV,
+    // Арифметико-логические операции
+    add,
+    sub,
+    mul,
+    div,
 
-    CALL,
-    RET,
-    PUSH,
-    POP,
+    // Сопрограмма
+    call8, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
+    ret,
+    push,
+    pop,
 
-    CMP8_II = 21, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-    CMP8_MI,      // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-    CMP8_IM,      // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    CMP8_MM = 24, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    cmp8_ii = 21, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_mi,      // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+    cmp8_im,      // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+    cmp8_mm = 24, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 
     // Условные операторы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
      JE8_m = 25,         //      JE addr8  (Jump if Equal)
@@ -44,14 +47,14 @@ enum
     JBE8_m, JNA8_m = 29, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     JAE8_m, JNB8_m = 30, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
 
-    HLT = 255
+    hlt = 255
 };
 
 static unsigned char memory[256] =
 {
-    MOV__DST_MEM8__SRC_IMM8, 10, 42,   // mem[10] = 42
-    MOV__DST_MEM8__SRC_PTR8, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
-    HLT
+    mov8_ds_mi, 10, 42,   // mem[10] = 42
+    mov8_ds_mp, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
+    hlt
     /*
     CALL, 3,
     HLT,
@@ -116,17 +119,18 @@ static inline void Action()
         [15] = &&___OPERATION_CODE_16, // MUL
         [16] = &&___OPERATION_CODE_17, // DIV
         //
-        [17] = &&___OPERATION_CODE_18, // CALL addr8
+        [17] = &&___OPERATION_CODE_18, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
         [18] = &&___OPERATION_CODE_19, // RET
         [19] = &&___OPERATION_CODE_20, // PUSH
         [20] = &&___OPERATION_CODE_21, // POP
+
         // Оператор сравнения (Specifics: Intel/AT&T: ord-1:src ord-2:src)
         [21] = &&___OPERATION_CODE_22, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
         [22] = &&___OPERATION_CODE_23, // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
         [23] = &&___OPERATION_CODE_24, // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
         [24] = &&___OPERATION_CODE_25, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-        //
-        // Условные операторы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
+
+        // Условный оператор (Specifics: Intel/AT&T: ord-1:src ord-2:src)
         [25] = &&___OPERATION_CODE_26, //      JE addr8  (Jump if Equal)
         [26] = &&___OPERATION_CODE_27, //     JNE addr8  (Jump if Not Equal)
         [27] = &&___OPERATION_CODE_28, //      JB addr8  (Jump if Below)
