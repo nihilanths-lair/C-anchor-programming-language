@@ -41,13 +41,13 @@ enum
     jmp8_m,      // <cmd=JMP> <arg1=src:m8>
     jmp8_p = 26, // <cmd=JMP> <arg1=src:p8>
 
-    // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-     je8_m = 27,         //      JE addr8  (Jump if Equal)
-    jne8_m,              //     JNE addr8  (Jump if Not Equal)
-     jb8_m,              //      JB addr8  (Jump if Below)
-     ja8_m,              //      JA addr8  (Jump if Above)
-    jbe8_m, jna8_m = 31, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-    jae8_m, jnb8_m = 32, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+    // Условные переходы (8-bit's)
+     je8_i = 27,         //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+    jne8_i,              //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
+     jb8_i,              //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
+     ja8_i,              //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
+    jbe8_i, jna8_i = 31, // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    jae8_i, jnb8_i = 32, // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
 
     hlt = 255
 };
@@ -121,20 +121,20 @@ static inline void Action()
         [21] = &&___OPERATION_CODE_022, // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
         [22] = &&___OPERATION_CODE_023, // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
         [23] = &&___OPERATION_CODE_024, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-
-        // Безусловный переход (8-bit's)
-        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8>
-        [25] = &&___OPERATION_CODE_026, // <cmd=JMP> <arg1=src:m8>
-        [26] = &&___OPERATION_CODE_027, // <cmd=JMP> <arg1=src:p8>
-
-        // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-        [27] = &&___OPERATION_CODE_028, //      JE addr8  (Jump if Equal)
-        [28] = &&___OPERATION_CODE_029, //     JNE addr8  (Jump if Not Equal)
-        [29] = &&___OPERATION_CODE_030, //      JB addr8  (Jump if Below)
-        [30] = &&___OPERATION_CODE_031, //      JA addr8  (Jump if Above)
-        [31] = &&___OPERATION_CODE_032, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-        [32] = &&___OPERATION_CODE_033, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
-
+        ///////////////////////////////////
+        // Безусловный переход (8-bit's) //
+        [24] = &&___OPERATION_CODE_025,  // <cmd=JMP> <arg1=src:i8>
+        [25] = &&___OPERATION_CODE_026,  // <cmd=JMP> <arg1=src:m8>
+        [26] = &&___OPERATION_CODE_027,  // <cmd=JMP> <arg1=src:p8>
+        ///////////////////////////////////
+        // Условные переходы (8-bit's)   //
+        [27] = &&___OPERATION_CODE_028,  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+        [28] = &&___OPERATION_CODE_029,  //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
+        [29] = &&___OPERATION_CODE_030,  //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
+        [30] = &&___OPERATION_CODE_031,  //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
+        [31] = &&___OPERATION_CODE_032,  // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+        [32] = &&___OPERATION_CODE_033,  // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+        ///////////////////////////////////
         [33 ... 254] = &&___OPERATION_CODE_FROM_034_TO_255,
         [255] = &&___OPERATION_CODE_256 // HLT
     };
