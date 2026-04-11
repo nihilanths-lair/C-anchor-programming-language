@@ -1,13 +1,10 @@
 enum
 {
-    // Безусловный переход
-    jmp8, // <cmd=JMP> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?  (Jump)
-
     inc, // <cmd=INC>
     dec, // <cmd=DEC>
 
     // Перессылка данных
-    mov8_ds_mi = 03, // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
+    mov8_ds_mi = 02, // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
     mov8_sd_im,      // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
 
     mov8_ds_mm,      // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
@@ -20,24 +17,27 @@ enum
     mov8_sd_mp,      // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
 
     mov8_ds_mp,      // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
-    mov8_sd_pm = 12, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
+    mov8_sd_pm = 11, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
 
     // Арифметико-логические операции
-    add,
-    sub,
-    mul,
-    div,
+       add8 = 12, //
+       sub8,      //
+       mul8,      //
+       div8 = 15, //
 
     // Сопрограмма
-    call8, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
-    ret,
-    push,
-    pop,
+      call8 = 16, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
+        ret,      //
+       push,      //
+        pop = 19, //
 
-    cmp8_ii = 21, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_ii = 20, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     cmp8_mi,      // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     cmp8_im,      // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_mm = 24, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    cmp8_mm = 23, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+
+    // Безусловный переход
+       jmp8 = 24, // <cmd=JMP> <arg1=src:i8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?  (Jump)
 
     // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
      je8_m = 25,         //      JE addr8  (Jump if Equal)
@@ -95,51 +95,52 @@ static inline void Action()
 
     void *action[] =
     {
-        [ 0] = &&___OPERATION_CODE_1, // <cmd=JMP>
+        [ 0] = &&___OPERATION_CODE_001, // <cmd=INC>
+        [ 1] = &&___OPERATION_CODE_002, // <cmd=DEC>
         //
-        [ 1] = &&___OPERATION_CODE_2, // <cmd=INC>
-        [ 2] = &&___OPERATION_CODE_3, // <cmd=DEC>
+        [ 2] = &&___OPERATION_CODE_003, // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
+        [ 3] = &&___OPERATION_CODE_004, // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
         //
-        [ 3] = &&___OPERATION_CODE_4, // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
-        [ 4] = &&___OPERATION_CODE_5, // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
+        [ 4] = &&___OPERATION_CODE_005, // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
+        [ 5] = &&___OPERATION_CODE_006, // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
         //
-        [ 5] = &&___OPERATION_CODE_6, // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
-        [ 6] = &&___OPERATION_CODE_7, // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
+        [ 6] = &&___OPERATION_CODE_007, // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
+        [ 7] = &&___OPERATION_CODE_008, // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
         //
-        [ 7] = &&___OPERATION_CODE_8, // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
-        [ 8] = &&___OPERATION_CODE_9, // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
+        [ 8] = &&___OPERATION_CODE_009, // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
+        [ 9] = &&___OPERATION_CODE_010, // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
         //
-        [ 9] = &&___OPERATION_CODE_10, // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
-        [10] = &&___OPERATION_CODE_11, // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
+        [10] = &&___OPERATION_CODE_011, // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
+        [11] = &&___OPERATION_CODE_012, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
         //
-        [11] = &&___OPERATION_CODE_12, // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
-        [12] = &&___OPERATION_CODE_13, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
+        [12] = &&___OPERATION_CODE_013, // <cmd=ADD>
+        [13] = &&___OPERATION_CODE_014, // <cmd=SUB>
+        [14] = &&___OPERATION_CODE_015, // <cmd=MUL>
+        [15] = &&___OPERATION_CODE_016, // <cmd=DIV>
         //
-        [13] = &&___OPERATION_CODE_14, // <cmd=ADD>
-        [14] = &&___OPERATION_CODE_15, // <cmd=SUB>
-        [15] = &&___OPERATION_CODE_16, // <cmd=MUL>
-        [16] = &&___OPERATION_CODE_17, // <cmd=DIV>
-        //
-        [17] = &&___OPERATION_CODE_18, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
-        [18] = &&___OPERATION_CODE_19, // <cmd=RET>
-        [19] = &&___OPERATION_CODE_20, // <cmd=PUSH>
-        [20] = &&___OPERATION_CODE_21, // <cmd=POP>
+        [16] = &&___OPERATION_CODE_017, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
+        [17] = &&___OPERATION_CODE_018, // <cmd=RET>
+        [18] = &&___OPERATION_CODE_019, // <cmd=PUSH>
+        [19] = &&___OPERATION_CODE_020, // <cmd=POP>
 
         // Оператор сравнения (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-        [21] = &&___OPERATION_CODE_22, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-        [22] = &&___OPERATION_CODE_23, // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-        [23] = &&___OPERATION_CODE_24, // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-        [24] = &&___OPERATION_CODE_25, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+        [20] = &&___OPERATION_CODE_021, // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+        [21] = &&___OPERATION_CODE_022, // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+        [22] = &&___OPERATION_CODE_023, // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+        [23] = &&___OPERATION_CODE_024, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 
-        // Условный оператор (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-        [25] = &&___OPERATION_CODE_26, //      JE addr8  (Jump if Equal)
-        [26] = &&___OPERATION_CODE_27, //     JNE addr8  (Jump if Not Equal)
-        [27] = &&___OPERATION_CODE_28, //      JB addr8  (Jump if Below)
-        [28] = &&___OPERATION_CODE_29, //      JA addr8  (Jump if Above)
-        [29] = &&___OPERATION_CODE_30, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-        [30] = &&___OPERATION_CODE_31, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+        // Безусловный переход
+        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?  (Jump)
 
-        [31 ... 254] = &&___OPERATION_CODE_FROM_32_TO_255,
+        // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
+        [25] = &&___OPERATION_CODE_026, //      JE addr8  (Jump if Equal)
+        [26] = &&___OPERATION_CODE_027, //     JNE addr8  (Jump if Not Equal)
+        [27] = &&___OPERATION_CODE_028, //      JB addr8  (Jump if Below)
+        [28] = &&___OPERATION_CODE_029, //      JA addr8  (Jump if Above)
+        [29] = &&___OPERATION_CODE_030, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+        [30] = &&___OPERATION_CODE_031, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+
+        [31 ... 254] = &&___OPERATION_CODE_FROM_032_TO_255,
         [255] = &&___OPERATION_CODE_256 // HLT
     };
    #define DEBUG
@@ -148,14 +149,7 @@ static inline void Action()
    #endif
     goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_1: // JMP
-    #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     ip = memory[ip+1];
-     goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_2: // INC [инкремент произвольной ячейкой памяти]
+    ___OPERATION_CODE_001: // INC [инкремент произвольной ячейкой памяти]
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -163,7 +157,7 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_3: // DEC [декремент произвольной ячейкой памяти]
+    ___OPERATION_CODE_002: // DEC [декремент произвольной ячейкой памяти]
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -171,7 +165,7 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_4: // MOV mem8 <~ imm8  (Intel: dst, src)
+    ___OPERATION_CODE_003: // MOV mem8 <~ imm8  (Intel: dst, src)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -179,7 +173,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_5: // MOV imm8 ~> mem8  (AT&T: src, dst)
+    ___OPERATION_CODE_004: // MOV imm8 ~> mem8  (AT&T: src, dst)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -187,7 +181,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_6: // MOV mem8 <~ mem8  (Intel)
+    ___OPERATION_CODE_005: // MOV mem8 <~ mem8  (Intel)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -195,7 +189,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_7: // MOV mem8 ~> mem8  (AT&T)
+    ___OPERATION_CODE_006: // MOV mem8 ~> mem8  (AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -203,7 +197,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_8: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+    ___OPERATION_CODE_007: // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -211,7 +205,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_9: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+    ___OPERATION_CODE_008: // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -219,7 +213,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_10: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+    ___OPERATION_CODE_009: // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -227,7 +221,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_11: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+    ___OPERATION_CODE_010: // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -235,7 +229,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_12: // MOV mem8 <~ ptr8  (Intel)
+    ___OPERATION_CODE_011: // MOV mem8 <~ ptr8  (Intel)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -243,7 +237,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_13: // MOV ptr8 ~> mem8  (AT&T)
+    ___OPERATION_CODE_012: // MOV ptr8 ~> mem8  (AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -251,31 +245,31 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_14: // ADD
+    ___OPERATION_CODE_013: // ADD
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_15: // SUB
+    ___OPERATION_CODE_014: // SUB
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_16: // MUL
+    ___OPERATION_CODE_015: // MUL
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_17: // DIV
+    ___OPERATION_CODE_016: // DIV
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_18: // CALL
+    ___OPERATION_CODE_017: // CALL
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -283,14 +277,14 @@ static inline void Action()
      ip = memory[ip+1];
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_19: // RET
+    ___OPERATION_CODE_018: // RET
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_20: // PUSH
+    ___OPERATION_CODE_019: // PUSH
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -298,7 +292,7 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_21: // POP mem8
+    ___OPERATION_CODE_020: // POP mem8
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -306,7 +300,7 @@ static inline void Action()
      ip += 2; // opcode + arg
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_22: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_021: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -319,7 +313,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_23: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_022: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -332,7 +326,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_24: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_023: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8> (подходит и под Intel, и под AT&T)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -345,7 +339,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_25: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    ___OPERATION_CODE_024: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -358,7 +352,14 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_26: //  JE addr8  (Jump if Equal)
+    ___OPERATION_CODE_025: // <cmd=JMP> <arg1=src:i8>
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);
+    #endif
+     ip = memory[ip+1];
+     goto *action[memory[ip]];
+    //////////////////////////////
+    ___OPERATION_CODE_026: //  JE addr8  (Jump if Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -366,7 +367,7 @@ static inline void Action()
      else    ip += 2;           // JE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_27: // JNE addr8  (Jump if Not Equal)
+    ___OPERATION_CODE_027: // JNE addr8  (Jump if Not Equal)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -374,7 +375,7 @@ static inline void Action()
      else     ip += 2;           // JNE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_28: //  JB addr8  (Jump if Below)
+    ___OPERATION_CODE_028: //  JB addr8  (Jump if Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -382,7 +383,7 @@ static inline void Action()
      else    ip += 2;           // JB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_29: //  JA addr8  (Jump if Above)
+    ___OPERATION_CODE_029: //  JA addr8  (Jump if Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -390,7 +391,7 @@ static inline void Action()
      else    ip += 2;           // JA + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_30: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    ___OPERATION_CODE_030: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -398,7 +399,7 @@ static inline void Action()
      else       ip += 2;           // JBE + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_31: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+    ___OPERATION_CODE_031: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -406,7 +407,7 @@ static inline void Action()
      else       ip += 2;           // JAE/JNB + addr8
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_FROM_32_TO_255:
+    ___OPERATION_CODE_FROM_032_TO_255:
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
