@@ -235,99 +235,55 @@ run_block
     // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 
-    //////////////////////////////////
-    /////////  INC (8-bit's) /////////
-    //                              //
-    __dispatch_mode8__opcode_001__:          // <cmd=INC> <arg-1=dst:m8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp); //
-    #endif                          //
-     memory[memory[ip8+1]]++;        // <arg-1=dst:m8> ; Произвольная ЯП
-     ip8 += 2;                       //
-     goto *dispatch_mode8[memory[ip8]];      //
-    //                              //
-    /////////  INC (8-bit's) /////////
-    //////////////////////////////////
+//////////////////////////////////////
+__dispatch_mode8__opcode_001__:     // <cmd=INC> <arg-1=dst:m8>
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);    //
+#endif                              //
+ memory[memory[ip8+1]]++;           // <arg-1=dst:m8> ; Произвольная ЯП
+ ip8 += 2;                          //
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
 
-    //////////////////////////////////
-    /////////  DEC (8-bit's) /////////
-    //                              //
-    __dispatch_mode8__opcode_002__:          // <cmd=DEC> <arg-1=dst:m8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp); //
-    #endif                          //
-     memory[memory[ip8+1]]--;        // <arg-1=dst:m8> ; Произвольная ЯП
-     ip8 += 2;                       //
-     goto *dispatch_mode8[memory[ip8]];      //
-    //                              //
-    /////////  DEC (8-bit's) /////////
-    //////////////////////////////////
-
-    //////////////////////////////
-    __dispatch_mode8__opcode_003__: // MOV mem8 <~ imm8
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp);
-    #endif
-     memory[memory[ip8+1]] = memory[ip8+2];
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
-    //////////////////////////////
-    __dispatch_mode8__opcode_004__: // MOV imm8 ~> mem8
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp);
-    #endif
-     memory[memory[ip8+2]] = memory[ip8+1];
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
-    //////////////////////////////
-    __dispatch_mode8__opcode_005__: // MOV mem8 <~ mem8
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp);
-    #endif
-     memory[memory[ip8+1]] = memory[memory[ip8+2]];
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
-    //////////////////////////////
-    __dispatch_mode8__opcode_006__: // MOV mem8 ~> mem8
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp);
-    #endif
-     memory[memory[ip8+2]] = memory[memory[ip8+1]];
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
+//////////////////////////////////////
+__dispatch_mode8__opcode_002__:     // <cmd=DEC> <arg-1=dst:m8>
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);    //
+#endif                              //
+ memory[memory[ip8+1]]--;           // <arg-1=dst:m8> ; Произвольная ЯП
+ ip8 += 2;                          //
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
 
 //////////////////////////////////////////
-__dispatch_mode8__opcode_007__:         // MOV ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+__dispatch_mode8__opcode_003__:         // <cmd=MOV> mem8 <~ imm8
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);        //
 #endif                                  //
- memory[memory[ip8+1]] = memory[ip8+2]; // ; Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+ memory[memory[ip8+1]] = memory[ip8+2]; //
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
-
 //////////////////////////////////////////
-__dispatch_mode8__opcode_008__:         // MOV imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+__dispatch_mode8__opcode_004__:         // <cmd=MOV> imm8 ~> mem8
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);        //
 #endif                                  //
- memory[memory[ip8+2]] = memory[ip8+1]; // ; То же самое: записать imm8 по адресу из dst_ptr
+ memory[memory[ip8+2]] = memory[ip8+1]; //
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
-
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_009__:                 // MOV ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+__dispatch_mode8__opcode_005__:                 // <cmd=MOV> mem8 <~ mem8
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);                //
 #endif                                          //
- memory[memory[ip8+1]] = memory[memory[ip8+2]]; // ; Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+ memory[memory[ip8+1]] = memory[memory[ip8+2]]; //
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
-
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_010__:                 // MOV mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+__dispatch_mode8__opcode_006__:                 // <cmd=MOV> mem8 ~> mem8
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);                //
 #endif                                          //
@@ -335,9 +291,44 @@ __dispatch_mode8__opcode_010__:                 // MOV mem8 ~> ptr8  (AT&T: src_
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
-
+//////////////////////////////////////////
+__dispatch_mode8__opcode_007__:         // <cmd=MOV> ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);        //
+#endif                                  //
+ memory[memory[ip8+1]] = memory[ip8+2]; // ; Записать imm8 в память по адресу, который лежит в ячейке dst_ptr
+ ip8 += 3;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
+//////////////////////////////////////////
+//////////////////////////////////////////
+__dispatch_mode8__opcode_008__:         // <cmd=MOV> imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);        //
+#endif                                  //
+ memory[memory[ip8+2]] = memory[ip8+1]; // ; То же самое: записать imm8 по адресу из dst_ptr
+ ip8 += 3;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
+//////////////////////////////////////////
+//////////////////////////////////////////////////
+__dispatch_mode8__opcode_009__:                 // <cmd=MOV> ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);                //
+#endif                                          //
+ memory[memory[ip8+1]] = memory[memory[ip8+2]]; // ; Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
+ ip8 += 3;                                      //
+ goto *dispatch_mode8[memory[ip8]];             //
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+__dispatch_mode8__opcode_010__:                 // <cmd=MOV> mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);                //
+#endif                                          //
+ memory[memory[ip8+2]] = memory[memory[ip8+1]]; //
+ ip8 += 3;                                      //
+ goto *dispatch_mode8[memory[ip8]];             //
+//////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
-__dispatch_mode8__opcode_011__:                         // <cmd:MOV> <arg-1=dst:m8> <arg-2=src:p8>
+__dispatch_mode8__opcode_011__:                         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);                        //
 #endif                                                  //
@@ -345,9 +336,8 @@ __dispatch_mode8__opcode_011__:                         // <cmd:MOV> <arg-1=dst:
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
-
 //////////////////////////////////////////////////////////
-__dispatch_mode8__opcode_012__:                         // <cmd:MOV> <arg-1=dst:p8> <arg-2=src:m8>
+__dispatch_mode8__opcode_012__:                         // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);                        //
 #endif                                                  //
@@ -357,7 +347,6 @@ __dispatch_mode8__opcode_012__:                         // <cmd:MOV> <arg-1=dst:
 //////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////
-////////////// ADD (8-bit's) //////////////
 __dispatch_mode8__opcode_013__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);         //
@@ -365,7 +354,6 @@ __dispatch_mode8__opcode_013__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:
  memory[memory[ip8+1]] += memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
  goto *dispatch_mode8[memory[ip8]];      //
-////////////// ADD (8-bit's) //////////////
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
