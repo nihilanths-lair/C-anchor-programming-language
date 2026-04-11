@@ -21,24 +21,25 @@ enum
     MOV__DST_MEM8__SRC_PTR8,      // MOV mem8 <~ ptr8 (Intel: dst src)
     MOV__SRC_PTR8__DST_MEM8 = 12, // MOV ptr8 ~> mem8 ( AT&T: src dst)
 
-    ADD,  // 13
-    SUB,  // 14
-    MUL,  // 15
-    DIV,  // 16
+    ADD,
+    SUB,
+    MUL,
+    DIV,
 
-    CMP,  // 17
-    CALL, // 18
-    RET,  // 19
-    PUSH, // 20
-    POP,  // 21
+    CALL,
+    RET,
+    PUSH,
+    POP,
+
+    CMP8_ii, // CMP imm8 imm8 (Intel/AT&T: src src)
 
     // Условные операторы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
-     JE_8 = 22,        //      JE addr8  (Jump if Equal)
-    JNE_8,             //     JNE addr8  (Jump if Not Equal)
-     JB_8,             //      JB addr8  (Jump if Below)
-    JBE_8, JNA_8 = 25, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-    JAE_8, JNB_8 = 26, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
-     JA_8,             //      JA addr8  (Jump if Above)
+     JE8_m = 22,         //      JE addr8  (Jump if Equal)
+    JNE8_m,              //     JNE addr8  (Jump if Not Equal)
+     JB8_m,              //      JB addr8  (Jump if Below)
+    JBE8_m, JNA8_m = 25, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    JAE8_m, JNB8_m = 26, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+     JA8_m,              //      JA addr8  (Jump if Above)
 
     HLT = 255
 };
@@ -98,12 +99,13 @@ static inline void Action()
         [15] = &&___OPERATION_CODE_16, // MUL
         [16] = &&___OPERATION_CODE_17, // DIV
         //
-        [17] = &&___OPERATION_CODE_18, // CMP
-        [18] = &&___OPERATION_CODE_19, // CALL
-        [19] = &&___OPERATION_CODE_20, // RET
-        [20] = &&___OPERATION_CODE_21, // PUSH
-        [21] = &&___OPERATION_CODE_22, // POP
-
+        [17] = &&___OPERATION_CODE_18, // CALL addr8
+        [18] = &&___OPERATION_CODE_19, // RET
+        [19] = &&___OPERATION_CODE_20, // PUSH
+        [20] = &&___OPERATION_CODE_21, // POP
+        //
+        [21] = &&___OPERATION_CODE_22, // CMP imm8 imm8 (Intel/AT&T: src src)
+        //
         // Условные операторы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
         [22] = &&___OPERATION_CODE_23, //      JE addr8  (Jump if Equal)
         [23] = &&___OPERATION_CODE_24, //     JNE addr8  (Jump if Not Equal)
@@ -248,19 +250,7 @@ static inline void Action()
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_18: // operation:CMP operand-1 operand-2
-    #ifdef DEBUG
-     ShowDashboard(memory, ip, sp, "orn:CMP ord-1 ord-2");
-    #endif
-     static unsigned char a = 0;
-     static unsigned char b = 0;
-     ef = (a == b); // ZF (Zero Flag) в x86
-     af = (a > b);  // JA (Above)
-     bf = (a < b);  // JB (Below)
-     ip += 3;
-     goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_19: // CALL
+    ___OPERATION_CODE_18: // CALL
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CALL");
     #endif
@@ -268,14 +258,14 @@ static inline void Action()
      ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_20: // RET
+    ___OPERATION_CODE_19: // RET
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "RET");
     #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_21: // PUSH
+    ___OPERATION_CODE_20: // PUSH
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "PUSH");
     #endif
@@ -283,12 +273,24 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_22: // POP mem8
+    ___OPERATION_CODE_21: // POP mem8
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "POP");
     #endif
      memory[memory[ip+1]] = memory[++sp];
      ip += 2; // opcode + arg
+     goto *action[memory[ip]];
+    //////////////////////////////
+    ___OPERATION_CODE_22: // CMP imm8 imm8 (Intel/AT&T: src src)
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp, "CMP imm8 imm8 (Intel/AT&T: src src)");
+    #endif
+     unsigned char src1 = memory[ip+1];
+     unsigned char src2 = memory[ip+2];
+     ef = (src1 == src2); // ZF (Zero Flag) в x86
+     af = (src1 > src2);  // JA (Above)
+     bf = (src1 < src2);  // JB (Below)
+     ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_23: //  JE addr8  (Jump if Equal)
