@@ -296,7 +296,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[sp--] = ip + 2;
+     memory[sp--] = ip+2; // Место возврата из процедуры
      ip = memory[ip+1]; // <arg1=src:i8>
      goto *action[memory[ip]];
 
@@ -304,11 +304,17 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
+     memory[sp--] = ip+2; // Место возврата из процедуры
+     ip = memory[memory[ip+1]]; // <arg1=src:m8>
+     goto *action[memory[ip]];
 
     ___OPERATION_CODE_019: // <cmd=CALL> <arg1=src:p8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
+     memory[sp--] = ip+2; // Место возврата из процедуры
+     ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
+     goto *action[memory[ip]];
     ////////// CALL 8-bit's //////////
     //////////////////////////////////
     ___OPERATION_CODE_020: // <cmd=RET>
@@ -334,7 +340,7 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_023: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_023: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -346,7 +352,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_024: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_024: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -358,7 +364,7 @@ static inline void Action()
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_025: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8> (подходит и под Intel, и под AT&T)
+    ___OPERATION_CODE_025: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
