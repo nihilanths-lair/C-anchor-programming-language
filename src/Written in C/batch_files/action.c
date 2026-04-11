@@ -221,7 +221,7 @@ run_block
         [37] = &&__dispatch_mode8__opcode_038__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
         [38 ... 253] = &&__dispatch_mode8__opcode_from_039_to_253__,
-        [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?>
+        [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?> ; переключение режима адресации (с 8 на 16)
         [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
         ///////////////////////////////////
     };
@@ -232,7 +232,12 @@ run_block
     }
     return;
     // Таблица диспетчеризации II (для 16-ти битного режима адресации)
-    void *dispatch_mode16[0x100] = {[0 ... 255] = &&__dispatch_mode8__opcode_256__}; // Пока заглушка
+    void *dispatch_mode16[0x100] =
+    {
+        [0 ... 253] = &&__dispatch_mode16__opcode_from_000_to_253__,
+        [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
+        [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    }; // Пока заглушка
     #ifdef DEBUG
      printf("\n Starting vCPU (8-bit's mode)...");
     #endif
@@ -608,12 +613,19 @@ __dispatch_mode8__opcode_from_039_to_253__: //
  return;                                    // ; Экстремальный выход
  //goto *dispatch_mode8[memory[++ip8]];     // ; //Крутим дальше
 //////////////////////////////////////////////
-
-/////////////////////////////////////////////
+///////////////////////////////////////////////
+// Неопределённые опкоды                     //
+__dispatch_mode16__opcode_from_000_to_253__: //
+#ifdef DEBUG
+ ShowDashboard(memory, ip16, sp);            //
+#endif                                       //
+ return;                                     // ; Экстремальный выход
+ //goto *dispatch_mode8[memory[++ip8]];      // ; //Крутим дальше
+///////////////////////////////////////////////
 
 ///////////////////////////////////////////
 // Перейти в 8-ми битный режим адресации //
-__dispatch_mode8__opcode_254__:          //
+__dispatch_mode16__opcode_255__:         //
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);         //
 #endif                                   //
