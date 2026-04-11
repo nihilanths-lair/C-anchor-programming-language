@@ -63,7 +63,7 @@ enum
     /////////////////////////////////
     hlt = 255
 };
-static unsigned char memory[256] =
+static unsigned char memory[256] = // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 {
     mov8_ds_mi, 10, 42,   // mem[10] = 42
     mov8_ds_mp, 20, 10,   // mem[20] = mem[mem[10]] = mem[42] (мусор)
@@ -77,10 +77,10 @@ static unsigned char memory[256] =
     'C', '$', '\0', // Строка-2
     HLT
     */
-}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
+};
 #endif
 #ifndef DEBUG
-static unsigned char memory[0x100];
+static unsigned char memory[0x100]; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
 static inline void Action()
 {
