@@ -2,94 +2,107 @@
 #ifdef DEBUG
 enum
 {
-    ///////////////
-    inc8_dm = 0, // <cmd=INC> <arg-1=dst:m8>
-    dec8_dm = 1, // <cmd=DEC> <arg-1=dst:m8>
-    ///////////////
+    ///////////
+    inc8_dm, // <cmd=INC> <arg-1=dst:m8>
+    dec8_dm, // <cmd=DEC> <arg-1=dst:m8>
+    ///////////
 
     /////////////////////////////////
     // Перессылка данных (8-bit's) //
-    mov8_dm_si = 2,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
+    mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
     mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
     //                             //
-    mov8_dm_sm = 4,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+    mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
     mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
     //                             //
-    mov8_dp_si = 6,                // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
     //                             //
-    mov8_dp_sm = 8,                // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+    mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
     mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     //                             //
     mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-    mov8_sp_dm = 11,               // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
+    mov8_sp_dm,                    // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
     // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
     //////////////////////////////////////////////
     // Арифметико-логические операции (8-bit's) //
-    //
-    // Сложение
-    add8_dm_si = 12,                            // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
+    //                                          //
+    // Сложение                                 //
+    add8_dm_si,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
     add8_dm_sm,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    add8_dm_sp = 14,                            // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    // Вычитание
-    sub8_dm_si = 15,                            // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
+    add8_dm_sp,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
+    add8_dp_si,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    add8_dp_sm,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    add8_dp_sp,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
+    // Вычитание                                //
+    sub8_dm_si,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
     sub8_dm_sm,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    sub8_dm_sp = 17,                            // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    // Умножение
-    mul8_dm_si = 18,                            // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
+    sub8_dm_sp,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
+    sub8_dp_si,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    sub8_dp_sm,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    sub8_dp_sp,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
+    // Умножение                                //
+    mul8_dm_si,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
     mul8_dm_sm,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    mul8_dm_sp = 20,                            // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    // Деление
-    div8_dm_si = 21,                            // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
+    mul8_dm_sp,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
+    // Деление                                  //
+    div8_dm_si,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
     div8_dm_sm,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    div8_dm_sp = 23,                            // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //
+    div8_dm_sp,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
+    //                                          //
     // Арифметико-логические операции (8-bit's) //
     //////////////////////////////////////////////
 
     ////////////////////////////////////
     // Переход в процедуру (8-bit's)  //
-    call8_si = 24,                    // <cmd=CALL> <arg1=src:i8>
+    call8_si,                         // <cmd=CALL> <arg1=src:i8>
     call8_sm,                         // <cmd=CALL> <arg1=src:m8>
-    call8_sp = 26,                    // <cmd=CALL> <arg1=src:p8>
-    // Возврат из процедуры (8-bit's) //
-    ret = 27,                         // <cmd=RET>
-    // Управление стеком (8-bit's)    //
-    push8_si = 28,                    // <cmd=PUSH> <arg1=src:i8>
-    push8_sm,                         // <cmd=PUSH> <arg1=src:m8>
-    push8_sp = 30,                    // <cmd=PUSH> <arg1=src:p8>
+    call8_sp,                         // <cmd=CALL> <arg1=src:p8>
     //                                //
-    pop8_dm = 31,                     // <cmd=POP> <arg1=dst:m8>
-    pop8_dp = 32,                     // <cmd=POP> <arg1=dst:p8>
+    // Возврат из процедуры (8-bit's) //
+    ret,                              // <cmd=RET>
+    //                                //
+    // Управление стеком (8-bit's)    //
+    push8_si,                         // <cmd=PUSH> <arg1=src:i8>
+    push8_sm,                         // <cmd=PUSH> <arg1=src:m8>
+    push8_sp,                         // <cmd=PUSH> <arg1=src:p8>
+    //                                //
+    pop8_dm,                          // <cmd=POP> <arg1=dst:m8>
+    pop8_dp,                          // <cmd=POP> <arg1=dst:p8>
     ////////////////////////////////////
 
     //////////////////////////
     // Сравнение (8-bit's)  //
-    cmp8_si_si = 33,        // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_si_si,             // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     cmp8_sm_si,             // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     cmp8_si_sm,             // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_sm_sm = 36,        // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    cmp8_sm_sm,             // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     // Сравнение (8-bit's)  //
     //////////////////////////
 
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
-    jmp8_si = 37,                    // <cmd=JMP> <arg1=src:i8>
+    jmp8_si,                         // <cmd=JMP> <arg1=src:i8>
     jmp8_sm,                         // <cmd=JMP> <arg1=src:m8>
-    jmp8_sp = 39,                    // <cmd=JMP> <arg1=src:p8>
+    jmp8_sp,                         // <cmd=JMP> <arg1=src:p8>
     // Безусловный переход (8-bit's) //
     ///////////////////////////////////
 
     /////////////////////////////////
     // Условные переходы (8-bit's) //
-     je8_si = 40,                  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+     je8_si,                       //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
     jne8_si,                       //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
      jb8_si,                       //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
      ja8_si,                       //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-    jbe8_si, jna8_si = 44,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    jae8_si, jnb8_si = 45,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+    jbe8_si, jna8_si = 50,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    jae8_si, jnb8_si = 51,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
 
