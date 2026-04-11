@@ -40,35 +40,37 @@ enum
     // Возврат из процедуры (8-bit's) //
     ret = 19,                         //
     // Управление стеком (8-bit's)    //
-    push = 20,                        //
-     pop = 21,                        //
+    push8_i = 20,                     // <cmd=PUSH> <arg1=src:i8>
+    push8_m,                          // <cmd=PUSH> <arg1=src:m8>
+    push8_p,                          // <cmd=PUSH> <arg1=src:p8>
+    pop8 = 23,                        //
     ////////////////////////////////////
 
     //////////////////////////
     // Сравнение (8-bit's)  //
-    cmp8_ii = 22,           // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_ii = 24,           // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     cmp8_mi,                // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     cmp8_im,                // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_mm = 25,           // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    cmp8_mm = 27,           // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     // Сравнение (8-bit's)  //
     //////////////////////////
 
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
-    jmp8_i = 26,                     // <cmd=JMP> <arg1=src:i8>
+    jmp8_i = 28,                     // <cmd=JMP> <arg1=src:i8>
     jmp8_m,                          // <cmd=JMP> <arg1=src:m8>
-    jmp8_p = 28,                     // <cmd=JMP> <arg1=src:p8>
+    jmp8_p = 30,                     // <cmd=JMP> <arg1=src:p8>
     // Безусловный переход (8-bit's) //
     ///////////////////////////////////
 
     /////////////////////////////////
     // Условные переходы (8-bit's) //
-     je8_i = 29,                   //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+     je8_i = 31,                   //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
     jne8_i,                        //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
      jb8_i,                        //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
      ja8_i,                        //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-    jbe8_i, jna8_i = 33,           // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    jae8_i, jnb8_i = 34,           // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+    jbe8_i, jna8_i = 35,           // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    jae8_i, jnb8_i = 36,           // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
 
@@ -296,7 +298,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[sp--] = ip+2; // Место возврата из процедуры
+     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
      ip = memory[ip+1]; // <arg1=src:i8>
      goto *action[memory[ip]];
 
@@ -304,7 +306,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[sp--] = ip+2; // Место возврата из процедуры
+     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
      ip = memory[memory[ip+1]]; // <arg1=src:m8>
      goto *action[memory[ip]];
 
@@ -312,7 +314,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[sp--] = ip+2; // Место возврата из процедуры
+     memory[sp--] = ip+2; // Запоминаем возврата из процедуры
      ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
      goto *action[memory[ip]];
     ////////// CALL 8-bit's //////////
@@ -324,11 +326,11 @@ static inline void Action()
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_021: // <cmd=PUSH> <arg1=dst:i8>
+    ___OPERATION_CODE_021: // <cmd=PUSH> <arg1=src:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[sp--] = memory[memory[ip+1]];
+     memory[sp--] = memory[memory[ip+1]]; // <arg1=src:m8>
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
@@ -336,7 +338,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
-     memory[memory[ip+1]] = memory[++sp];
+     memory[memory[ip+1]] = memory[++sp]; // <arg1=dst:m8>
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
