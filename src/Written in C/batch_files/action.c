@@ -118,7 +118,9 @@ static inline void Action()
         [14] = &&___OPERATION_CODE_015, // <cmd=MUL>
         [15] = &&___OPERATION_CODE_016, // <cmd=DIV>
         //
-        [16] = &&___OPERATION_CODE_017, // <cmd=CALL> <arg1=src:i8/m8/p8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?
+        [16] = &&___OPERATION_CODE_017, // <cmd=CALL> <arg1=src:i8> / Пример: call addr8 ; mem[0]
+      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:m8> / Пример: call addr8 ; mem[mem[0]]
+      //[??] = &&___OPERATION_CODE_???, // <cmd=CALL> <arg1=src:p8> / Пример: call addr8 ; mem[mem[mem[0]]] ?
         [17] = &&___OPERATION_CODE_018, // <cmd=RET>
         [18] = &&___OPERATION_CODE_019, // <cmd=PUSH>
         [19] = &&___OPERATION_CODE_020, // <cmd=POP>
@@ -130,7 +132,9 @@ static inline void Action()
         [23] = &&___OPERATION_CODE_024, // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 
         // Безусловный переход
-        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8> / Только imm8 или mem8 и ptr8 тоже можно реализовать?  (Jump)
+        [24] = &&___OPERATION_CODE_025, // <cmd=JMP> <arg1=src:i8> / Пример: jmp addr8 ; mem[0]
+      //[??] = &&___OPERATION_CODE_0??, // <cmd=JMP> <arg1=src:m8> / Пример: jmp addr8 ; mem[mem[0]]
+      //[??] = &&___OPERATION_CODE_0??, // <cmd=JMP> <arg1=src:p8> / Пример: jmp addr8 ; mem[mem[mem[0]]] ?
 
         // Условные переходы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
         [25] = &&___OPERATION_CODE_026, //      JE addr8  (Jump if Equal)
