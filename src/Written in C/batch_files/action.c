@@ -132,46 +132,53 @@ static inline void Action()
         [10] = &&___OPERATION_CODE_011, // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
         [11] = &&___OPERATION_CODE_012, // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
         //
-        [12] = &&___OPERATION_CODE_013, // <cmd=ADD>
-        [13] = &&___OPERATION_CODE_014, // <cmd=SUB>
-        [14] = &&___OPERATION_CODE_015, // <cmd=MUL>
-        [15] = &&___OPERATION_CODE_016, // <cmd=DIV>
+        ////////////////////////////////////
+        // Арифметико-логические операции //
+        [12] = &&___OPERATION_CODE_013, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        //
+        [13] = &&___OPERATION_CODE_014, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        //
+        [14] = &&___OPERATION_CODE_015, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        //
+        [15] = &&___OPERATION_CODE_016, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8> (l <~ r)
+        //
         ////////////////////////////////////
         // Переход в процедуру (8-bit's)  //
-        [16] = &&___OPERATION_CODE_017,   //   <cmd=CALL> <arg1=src:i8>
-        [17] = &&___OPERATION_CODE_018,   //   <cmd=CALL> <arg1=src:m8>
-        [18] = &&___OPERATION_CODE_019,   //   <cmd=CALL> <arg1=src:p8>
+        [16] = &&___OPERATION_CODE_017,   //   <cmd=CALL> <arg-1=src:i8>
+        [17] = &&___OPERATION_CODE_018,   //   <cmd=CALL> <arg-1=src:m8>
+        [18] = &&___OPERATION_CODE_019,   //   <cmd=CALL> <arg-1=src:p8>
         // Возврат из процедуры (8-bit's) //
-        [19] = &&___OPERATION_CODE_020,   //   <cmd=RET>                ; Снимает значение-адрес со стека и совершает переход по нему
+        [19] = &&___OPERATION_CODE_020,   //   <cmd=RET>                 ; Снимает значение-адрес со стека и совершает переход по нему
         // Управление стеком (8-bit's)    //
-        [20] = &&___OPERATION_CODE_021,   //   <cmd=PUSH> <arg1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
-        [21] = &&___OPERATION_CODE_022,   //   <cmd=PUSH> <arg1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
-        [22] = &&___OPERATION_CODE_023,   //   <cmd=PUSH> <arg1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
+        [20] = &&___OPERATION_CODE_021,   //   <cmd=PUSH> <arg-1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
+        [21] = &&___OPERATION_CODE_022,   //   <cmd=PUSH> <arg-1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
+        [22] = &&___OPERATION_CODE_023,   //   <cmd=PUSH> <arg-1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
         //                                //
-        [23] = &&___OPERATION_CODE_024,   //   <cmd=POP> <arg1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
-        [24] = &&___OPERATION_CODE_025,   //   <cmd=POP> <arg1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+        [23] = &&___OPERATION_CODE_024,   //   <cmd=POP> <arg-1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+        [24] = &&___OPERATION_CODE_025,   //   <cmd=POP> <arg-1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
         ///////////////////////////////////
         // Сравнение (8-bit's)           //
-        [25] = &&___OPERATION_CODE_026,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-        [26] = &&___OPERATION_CODE_027,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-        [27] = &&___OPERATION_CODE_028,  //     <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-        [28] = &&___OPERATION_CODE_029,  //     <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+        [25] = &&___OPERATION_CODE_026,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
+        [26] = &&___OPERATION_CODE_027,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
+        [27] = &&___OPERATION_CODE_028,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
+        [28] = &&___OPERATION_CODE_029,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
         ///////////////////////////////////
         // Безусловный переход (8-bit's) //
-        [29] = &&___OPERATION_CODE_030,  //     <cmd=JMP> <arg1=src:i8>
-        [30] = &&___OPERATION_CODE_031,  //     <cmd=JMP> <arg1=src:m8>
-        [31] = &&___OPERATION_CODE_032,  //     <cmd=JMP> <arg1=src:p8>
+        [29] = &&___OPERATION_CODE_030,  //     <cmd=JMP> <arg-1=src:i8>
+        [30] = &&___OPERATION_CODE_031,  //     <cmd=JMP> <arg-1=src:m8>
+        [31] = &&___OPERATION_CODE_032,  //     <cmd=JMP> <arg-1=src:p8>
         ///////////////////////////////////
         // Условные переходы (8-bit's)   //
-        [32] = &&___OPERATION_CODE_033,  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
-        [33] = &&___OPERATION_CODE_034,  //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
-        [34] = &&___OPERATION_CODE_035,  //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
-        [35] = &&___OPERATION_CODE_036,  //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-        [36] = &&___OPERATION_CODE_037,  // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-        [37] = &&___OPERATION_CODE_038,  // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+        [32] = &&___OPERATION_CODE_033,  //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
+        [33] = &&___OPERATION_CODE_034,  //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
+        [34] = &&___OPERATION_CODE_035,  //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
+        [35] = &&___OPERATION_CODE_036,  //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
+        [36] = &&___OPERATION_CODE_037,  // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+        [37] = &&___OPERATION_CODE_038,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
         [38 ... 254] = &&___OPERATION_CODE_FROM_039_TO_255,
-        [255] = &&___OPERATION_CODE_256 // HLT
+        [255] = &&___OPERATION_CODE_256  // <cmd=HLT>
+        ///////////////////////////////////
     };
    #ifdef DEBUG
     printf("\n Запуск vCPU.");
@@ -273,13 +280,20 @@ static inline void Action()
      memory[memory[ip+2]] = memory[memory[memory[ip+1]]];
      ip += 3;
      goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_013: // ADD
+
+    /////////////////////////////////////////
+    ///////////// ADD (8-bit's) /////////////
+    //                                     //
+    ___OPERATION_CODE_013:                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     return;
-    //////////////////////////////
+     ShowDashboard(memory, ip, sp);        //
+    #endif                                 //
+     memory[memory[ip+1]] += memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip += 3;                              //
+     goto *action[memory[ip]];             //
+    //                                     //
+    ///////////// ADD (8-bit's) /////////////
+    /////////////////////////////////////////
     ___OPERATION_CODE_014: // SUB
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
@@ -297,6 +311,7 @@ static inline void Action()
      ShowDashboard(memory, ip, sp);
     #endif
      return;
+
     //////////////////////////////////////
     /////////// CALL (8-bit's) ///////////
     //                                  //
