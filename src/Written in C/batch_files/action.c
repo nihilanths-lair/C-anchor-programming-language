@@ -294,11 +294,21 @@ static inline void Action()
     //                                     //
     ///////////// ADD (8-bit's) /////////////
     /////////////////////////////////////////
-    ___OPERATION_CODE_014: // SUB
+
+    /////////////////////////////////////////
+    ///////////// SUB (8-bit's) /////////////
+    //                                     //
+    ___OPERATION_CODE_014:                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     return;
+     ShowDashboard(memory, ip, sp);        //
+    #endif                                 //
+     memory[memory[ip+1]] -= memory[ip+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+     ip += 3;                              //
+     goto *action[memory[ip]];             //
+    //                                     //
+    ///////////// SUB (8-bit's) /////////////
+    /////////////////////////////////////////
+
     //////////////////////////////
     ___OPERATION_CODE_015: // MUL
     #ifdef DEBUG
