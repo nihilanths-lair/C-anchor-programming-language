@@ -188,22 +188,35 @@ static inline void Action()
     printf("\n Запуск vCPU.");
    #endif
     goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_001: // INC [инкремент произвольной ячейкой памяти]
+
+    //////////////////////////////////
+    /////////  INC (8-bit's) /////////
+    //                              //
+    ___OPERATION_CODE_001:          // <cmd=INC> <arg-1=dst:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[memory[ip+1]]++;
-     ip += 2;
-     goto *action[memory[ip]];
-    //////////////////////////////
-    ___OPERATION_CODE_002: // DEC [декремент произвольной ячейкой памяти]
+     ShowDashboard(memory, ip, sp); //
+    #endif                          //
+     memory[memory[ip+1]]++;        // <arg-1=dst:m8> ; Произвольная ЯП
+     ip += 2;                       //
+     goto *action[memory[ip]];      //
+    //                              //
+    /////////  INC (8-bit's) /////////
+    //////////////////////////////////
+
+    //////////////////////////////////
+    /////////  DEC (8-bit's) /////////
+    //                              //
+    ___OPERATION_CODE_002:          // <cmd=DEC> <arg-1=dst:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[memory[ip+1]]--;
-     ip += 2;
-     goto *action[memory[ip]];
+     ShowDashboard(memory, ip, sp); //
+    #endif                          //
+     memory[memory[ip+1]]--;        // <arg-1=dst:m8> ; Произвольная ЯП
+     ip += 2;                       //
+     goto *action[memory[ip]];      //
+    //                              //
+    /////////  DEC (8-bit's) /////////
+    //////////////////////////////////
+
     //////////////////////////////
     ___OPERATION_CODE_003: // MOV mem8 <~ imm8  (Intel: dst, src)
     #ifdef DEBUG
