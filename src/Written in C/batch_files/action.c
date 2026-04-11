@@ -361,7 +361,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
+     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
      ip = memory[ip+1];                 // <arg1=src:i8>
      goto *action[memory[ip]];          //
     //                                  //
@@ -369,7 +369,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
+     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
      ip = memory[memory[ip+1]];         // <arg1=src:m8>
      goto *action[memory[ip]];          //
     //                                  //
@@ -377,7 +377,7 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);     //
     #endif                              //
-     memory[sp--] = ip+2;               // Запоминаем возврата из процедуры
+     memory[sp--] = ip+2;               // Запоминаем адрес возврата из процедуры
      ip = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
      goto *action[memory[ip]];          //
     //                                  //
