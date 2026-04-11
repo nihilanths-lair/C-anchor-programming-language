@@ -262,7 +262,7 @@ static inline void Action()
     #endif
      return;
     //////////////////////////////
-    ___OPERATION_CODE_017: // CALL
+    ___OPERATION_CODE_017: // <cmd=CALL> <arg1=src:i8> ; CALL addr8
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -270,14 +270,14 @@ static inline void Action()
      ip = memory[ip+1];
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_018: // RET
+    ___OPERATION_CODE_018: // <cmd=RET>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_019: // PUSH
+    ___OPERATION_CODE_019: // <cmd=PUSH> <arg1=dst:i8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
@@ -285,12 +285,12 @@ static inline void Action()
      ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
-    ___OPERATION_CODE_020: // POP mem8
+    ___OPERATION_CODE_020: // <cmd=POP> <arg1=dst:m8>
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp);
     #endif
      memory[memory[ip+1]] = memory[++sp];
-     ip += 2; // opcode + arg
+     ip += 2;
      goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_021: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8> (подходит и под Intel, и под AT&T)
