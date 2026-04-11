@@ -219,6 +219,7 @@ static inline void Action()
         [37] = &&___OPERATION_CODE_038,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
         [38 ... 254] = &&___OPERATION_CODE_FROM_039_TO_255,
+        [254] = &&__dispatch_mode8__opcode_255__,
         [255] = &&___OPERATION_CODE_256  // <cmd=HLT>
         ///////////////////////////////////
     };
@@ -612,7 +613,17 @@ static inline void Action()
     #endif
      return; // Экстремальный выход
      //goto *action[memory[++ip8]]; // Крутим дальше
-    //////////////////////////////
+
+    ////////////////////////////////////////////
+    // Перейти в 16-ти битный режим адресации //
+    __dispatch_mode8__opcode_255__:           //
+    #ifdef DEBUG
+     ShowDashboard(memory, ip8, sp);          //
+    #endif                                    //
+     ip16 = ip8;                              //
+     goto *dispatch_mode16[ip16];             //
+    ////////////////////////////////////////////
+
     ___OPERATION_CODE_256: // Остановить/завершить выполнение программы
     #ifdef DEBUG
      ShowDashboard(memory, ip8, sp);
