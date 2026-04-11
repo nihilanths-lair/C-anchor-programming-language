@@ -6,72 +6,73 @@ enum
     dec, // <cmd=DEC>
     /////////////////////////////////
     // Перессылка данных (8-bit's) //
-    mov8_ds_mi = 02,               // <cmd=MOV> mem8 <~ imm8 (Intel: dst src)
-    mov8_sd_im,                    // <cmd=MOV> imm8 ~> mem8 ( AT&T: src dst)
+    mov8_ds_mi = 2,                // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
+    mov8_sd_im,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
     //                             //
-    mov8_ds_mm,                    // <cmd=MOV> mem8 <~ mem8 (Intel: dst src)
-    mov8_sd_mm,                    // <cmd=MOV> mem8 ~> mem8 ( AT&T: src dst)
+    mov8_ds_mm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+    mov8_sd_mm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
     //                             //
-    mov8_ds_pi,                    // <cmd=MOV> ptr8 <~ imm8 (Intel: dst src)
-    mov8_sd_ip,                    // <cmd=MOV> imm8 ~> ptr8 ( AT&T: src dst)
+    mov8_ds_pi,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+    mov8_sd_ip,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
     //                             //
-    mov8_ds_pm,                    // <cmd=MOV> ptr8 <~ mem8 (Intel: dst src)
-    mov8_sd_mp,                    // <cmd=MOV> mem8 ~> ptr8 ( AT&T: src dst)
+    mov8_ds_pm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+    mov8_sd_mp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     //                             //
-    mov8_ds_mp,                    // <cmd=MOV> mem8 <~ ptr8 (Intel: dst src)
-    mov8_sd_pm = 11,               // <cmd=MOV> ptr8 ~> mem8 ( AT&T: src dst)
+    mov8_ds_mp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
+    mov8_sd_pm = 11,               // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
     // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
     //////////////////////////////////////////////
     // Арифметико-логические операции (8-bit's) //
-    add8_ds_mi = 12,                            // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-    sub8_ds_mi,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-    mul8_ds_mi,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-    div8_ds_mi = 15,                            // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
+    add8_dm_si = 12,                            // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
+    sub8_dm_si,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
+    mul8_dm_si,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
+    div8_dm_si = 15,                            // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
     // Арифметико-логические операции (8-bit's) //
     //////////////////////////////////////////////
 
     ////////////////////////////////////
     // Переход в процедуру (8-bit's)  //
-    call8_i = 16,                     // <cmd=CALL> <arg1=src:i8>
-    call8_m,                          // <cmd=CALL> <arg1=src:m8>
-    call8_p = 18,                     // <cmd=CALL> <arg1=src:p8>
+    call8_si = 16,                    // <cmd=CALL> <arg1=src:i8>
+    call8_sm,                         // <cmd=CALL> <arg1=src:m8>
+    call8_sp = 18,                    // <cmd=CALL> <arg1=src:p8>
     // Возврат из процедуры (8-bit's) //
     ret = 19,                         // <cmd=RET>
     // Управление стеком (8-bit's)    //
-    push8_i = 20,                     // <cmd=PUSH> <arg1=src:i8>
-    push8_m,                          // <cmd=PUSH> <arg1=src:m8>
-    push8_p,                          // <cmd=PUSH> <arg1=src:p8>
+    push8_si = 20,                    // <cmd=PUSH> <arg1=src:i8>
+    push8_sm,                         // <cmd=PUSH> <arg1=src:m8>
+    push8_sp = 22,                    // <cmd=PUSH> <arg1=src:p8>
     //                                //
-    pop8 = 23,                        //
+    pop8_dm = 23,                     // <cmd=POP> <arg1=dst:m8>
+    pop8_dp = 24,                     // <cmd=POP> <arg1=dst:p8>
     ////////////////////////////////////
 
     //////////////////////////
     // Сравнение (8-bit's)  //
-    cmp8_ii = 24,           // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-    cmp8_mi,                // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-    cmp8_im,                // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_mm = 27,           // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+    cmp8_si_si = 25,        // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+    cmp8_sm_si,             // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+    cmp8_si_sm,             // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+    cmp8_sm_sm = 28,        // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
     // Сравнение (8-bit's)  //
     //////////////////////////
 
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
-    jmp8_i = 28,                     // <cmd=JMP> <arg1=src:i8>
-    jmp8_m,                          // <cmd=JMP> <arg1=src:m8>
-    jmp8_p = 30,                     // <cmd=JMP> <arg1=src:p8>
+    jmp8_si = 29,                    // <cmd=JMP> <arg1=src:i8>
+    jmp8_sm,                         // <cmd=JMP> <arg1=src:m8>
+    jmp8_sp = 31,                    // <cmd=JMP> <arg1=src:p8>
     // Безусловный переход (8-bit's) //
     ///////////////////////////////////
 
     /////////////////////////////////
     // Условные переходы (8-bit's) //
-     je8_i = 31,                   //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
-    jne8_i,                        //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
-     jb8_i,                        //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
-     ja8_i,                        //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-    jbe8_i, jna8_i = 35,           // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    jae8_i, jnb8_i = 36,           // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+     je8_si = 32,                  //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
+    jne8_si,                       //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
+     jb8_si,                       //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
+     ja8_si,                       //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
+    jbe8_si, jna8_si = 36,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    jae8_si, jnb8_si = 37,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
 
