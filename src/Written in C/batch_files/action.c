@@ -32,17 +32,15 @@ enum
     PUSH, // 20
     POP,  // 21
 
-    // Условные переходы (Specifics: Intel/AT&T: src src)
-     JE_I8 = 22, //  JE imm8 imm8  (Jump if Equal)
-    JNE_I8,      // JNE imm8 imm8  (Jump if Not Equal)
-     JB_I8,      //  JB imm8 imm8  (Jump if Below)
-    JBE_I8,      // JBE imm8 imm8  (Jump if Below or Equal)
-    JNB_I8,      // JNB imm8 imm8  (Jump if Not Below)
-     JA_I8,      //  JA imm8 imm8  (Jump if Above)
-    JAE_I8,      // JAE imm8 imm8  (Jump if Above or Equal)
-    JNA_I8 = 29, // JNA imm8 imm8  (Jump if Not Above)
+    // Условные операторы (Specifics: Intel/AT&T: ord-1:src ord-2:src)
+     JE_8 = 22,        //      JE addr8  (Jump if Equal)
+    JNE_8,             //     JNE addr8  (Jump if Not Equal)
+     JB_8,             //      JB addr8  (Jump if Below)
+    JBE_8, JNA_8 = 25, // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+    JAE_8, JNB_8 = 26, // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+     JA_8,             //      JA addr8  (Jump if Above)
 
-    HLT = 255 //
+    HLT = 255
 };
 
 static unsigned char memory[256] =
