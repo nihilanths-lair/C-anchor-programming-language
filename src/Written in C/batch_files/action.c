@@ -221,7 +221,7 @@ static inline void Action()
         ///////////////////////////////////
     };
     // Таблица диспетчеризации II (для 16-ти битного режима адресации)
-    void *dispatch_mode16[0x100] = {[0 ... 255] = &&___OPERATION_CODE_256};
+    void *dispatch_mode16[0x100] = {[0 ... 255] = &&___OPERATION_CODE_256}; // Пока заглушка
    #ifdef DEBUG
     printf("\n Запуск vCPU.");
    #endif
