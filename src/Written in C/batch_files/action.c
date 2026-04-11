@@ -220,7 +220,7 @@ run_block
         [36] = &&__dispatch_mode8__opcode_037__,  // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
         [37] = &&__dispatch_mode8__opcode_038__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
-        [38 ... 253] = &&__dispatch_mode8__opcode_from_039_to_254__,
+        [38 ... 253] = &&__dispatch_mode8__opcode_from_039_to_253__,
         [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?>
         [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
         ///////////////////////////////////
@@ -601,7 +601,7 @@ __dispatch_mode8__opcode_025__:                // <cmd=POP> <arg1=dst:p8> ; Сн
 
 //////////////////////////////////////////////
 // Неопределённые опкоды                    //
-__dispatch_mode8__opcode_from_039_to_254__: //
+__dispatch_mode8__opcode_from_039_to_253__: //
 #ifdef DEBUG
  ShowDashboard(memory, ip8, sp);            //
 #endif                                      //
@@ -610,6 +610,16 @@ __dispatch_mode8__opcode_from_039_to_254__: //
 //////////////////////////////////////////////
 
 /////////////////////////////////////////////
+
+///////////////////////////////////////////
+// Перейти в 8-ми битный режим адресации //
+__dispatch_mode8__opcode_254__:          //
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp);         //
+#endif                                   //
+ ip8 = ip16;                             //
+ goto *dispatch_mode8[ip8];              //
+///////////////////////////////////////////
 
 ////////////////////////////////////////////
 // Перейти в 16-ти битный режим адресации //
