@@ -73,6 +73,20 @@ static inline void Action()
     //static
     unsigned char af       = 2; // (above) флаг больше
 
+    // регистры общего назначения для хранения промежуточных результатов
+    //static
+    unsigned char a = 0;
+    //static
+    unsigned char b = 0;
+    //static
+    unsigned char c = 0;
+    //static
+    unsigned char d = 0;
+    //static
+    unsigned char e = 0;
+    //static
+    unsigned char f = 0;
+
     void *action[] =
     {
         [ 0] = &&___OPERATION_CODE_1, // JMP
@@ -254,8 +268,8 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CALL");
     #endif
-     memory[sp--] = ip + 2; // Сохраняет адрес следующей команды (текущий ip + 2 байта: опкод + аргумент)
-     ip = memory[ip+1]; // Переход по адресу, указанному в аргументе
+     memory[sp--] = ip + 2;
+     ip = memory[ip+1];
      goto *action[memory[ip]];
     //////////////////////////////
     ___OPERATION_CODE_19: // RET
@@ -285,11 +299,12 @@ static inline void Action()
     #ifdef DEBUG
      ShowDashboard(memory, ip, sp, "CMP imm8 imm8 (Intel/AT&T: src src)");
     #endif
-     unsigned char src1 = memory[ip+1];
-     unsigned char src2 = memory[ip+2];
-     ef = (src1 == src2); // ZF (Zero Flag) в x86
-     af = (src1 > src2);  // JA (Above)
-     bf = (src1 < src2);  // JB (Below)
+     // Вынесли unsigned char за пределы, чтобы каждый раз не создавались переменные, + к микрооптимизации
+     a = memory[ip+1];
+     b = memory[ip+2];
+     ef = (a == b); // ZF (Zero Flag) в x86
+     af = (a > b);  // JA (Above)
+     bf = (a < b);  // JB (Below)
      ip += 3;
      goto *action[memory[ip]];
     //////////////////////////////
