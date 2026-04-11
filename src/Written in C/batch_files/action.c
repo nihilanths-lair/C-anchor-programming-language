@@ -330,57 +330,58 @@ static inline void Action()
     #endif
      ip = memory[++sp]; // Достаёт адрес возврата и ставит ip на него
      goto *action[memory[ip]];
-    //////////////////////////////////////////////
-    /////////////// PUSH (8-bit's) ///////////////
-    //                                          //
-    ___OPERATION_CODE_021:                      // <cmd=PUSH> <arg1=src:i8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);             //
-    #endif                                      //
-     memory[sp--] = memory[ip+1];               // <arg1=src:i8>
-     ip += 2;                                   //
-     goto *action[memory[ip]];                  //
-    //                                          //
-    ___OPERATION_CODE_022:                      // <cmd=PUSH> <arg1=src:m8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);             //
-    #endif                                      //
-     memory[sp--] = memory[memory[ip+1]];       // <arg1=src:m8>
-     ip += 2;                                   //
-     goto *action[memory[ip]];                  //
-    //                                          //
-    ___OPERATION_CODE_023:                      // <cmd=PUSH> <arg1=src:p8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);             //
-    #endif                                      //
-     memory[sp--] = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
-     ip += 2;                                   //
-     goto *action[memory[ip]];                  //
-    //                                          //
-    /////////////// PUSH (8-bit's) ///////////////
-    //////////////////////////////////////////////
 
-    ///////////////////////////////////
-    ////////// POP (8-bit's) //////////
-    //                               //
-    ___OPERATION_CODE_024: // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+    ////////////////////////////////////////////////
+    //////////////// PUSH (8-bit's) ////////////////
+    //                                            //
+    ___OPERATION_CODE_021:                        // <cmd=PUSH> <arg1=src:i8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
-     memory[memory[ip+1]] = memory[++sp]; // <arg1=dst:m8>
-     ip += 2;
-     goto *action[memory[ip]];
-    //                               //
-    ___OPERATION_CODE_025: // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+     ShowDashboard(memory, ip, sp);               //
+    #endif                                        //
+     memory[sp--] = memory[ip+1];                 // <arg1=src:i8>
+     ip += 2;                                     //
+     goto *action[memory[ip]];                    //
+    //                                            //
+    ___OPERATION_CODE_022:                        // <cmd=PUSH> <arg1=src:m8>
     #ifdef DEBUG
-     ShowDashboard(memory, ip, sp);
-    #endif
+     ShowDashboard(memory, ip, sp);               //
+    #endif                                        //
+     memory[sp--] = memory[memory[ip+1]];         // <arg1=src:m8>
+     ip += 2;                                     //
+     goto *action[memory[ip]];                    //
+    //                                            //
+    ___OPERATION_CODE_023:                        // <cmd=PUSH> <arg1=src:p8>
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);               //
+    #endif                                        //
+     memory[sp--] = memory[memory[memory[ip+1]]]; // <arg1=src:p8>
+     ip += 2;                                     //
+     goto *action[memory[ip]];                    //
+    //                                            //
+    //////////////// PUSH (8-bit's) ////////////////
+    ////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////
+    ///////////////// POP (8-bit's) ////////////////
+    //                                            //
+    ___OPERATION_CODE_024:                        // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);               //
+    #endif                                        //
+     memory[memory[ip+1]] = memory[++sp];         // <arg1=dst:m8>
+     ip += 2;                                     //
+     goto *action[memory[ip]];                    //
+    //                                            //
+    ___OPERATION_CODE_025:                        // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+    #ifdef DEBUG
+     ShowDashboard(memory, ip, sp);               //
+    #endif                                        //
      memory[memory[memory[ip+1]]] = memory[++sp]; // <arg1=dst:p8>
-     ip += 2;
-     goto *action[memory[ip]];
-    //                               //
-    ////////// POP (8-bit's) //////////
-    ///////////////////////////////////
+     ip += 2;                                     //
+     goto *action[memory[ip]];                    //
+    //                                            //
+    ///////////////// POP (8-bit's) ////////////////
+    ////////////////////////////////////////////////
 
     //////////////////////////////
     ___OPERATION_CODE_026: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
