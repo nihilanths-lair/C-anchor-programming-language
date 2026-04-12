@@ -97,10 +97,13 @@ enum
 
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
-    jmp8_si,                         // <cmd=JMP> <arg1=src:i8>
-    jmp8_sm,                         // <cmd=JMP> <arg1=src:m8>
-    jmp8_sp,                         // <cmd=JMP> <arg1=src:p8>
-    // Безусловный переход (8-bit's) //
+    jmp8_si,                         // <cmd=JMP> <arg1=src:i8> ; JMP addr8 / JMP XX
+    jmp8_sm,                         // <cmd=JMP> <arg1=src:m8> ; JMP addr8 / JMP XX
+    jmp8_sp,                         // <cmd=JMP> <arg1=src:p8> ; JMP addr8 / JMP XX
+    // Безусловный переход (16-bit's) //
+    jmp16_si,                         // <cmd=JMP> <arg1=src:i16> ; JMP addr16 / JMP XX XX
+    jmp16_sm,                         // <cmd=JMP> <arg1=src:m16> ; JMP addr16 / JMP XX XX
+    jmp16_sp,                         // <cmd=JMP> <arg1=src:p16> ; JMP addr16 / JMP XX XX
     ///////////////////////////////////
 
     /////////////////////////////////
