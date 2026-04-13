@@ -358,8 +358,9 @@ __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:
 
 // SPECIFICATION: AT&T //
 //
-// 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
-// [Inserting abstract C-code]: a = 1; // Копирование значения из (прямого/косвенного?) адреса в прямой
+// 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; Копирование значения из (прямого/косвенного?) адреса в прямой
+// [Inserting abstract ASM-code]: mov a, <?>    ; /!\ Небольшой хак/трюк, это значение если оно не было определено как константное, можно менять через указатель (по адресу)
+// [Inserting abstract   C-code]: a = &1;       ; /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
 //////////////////////////////////////////
 __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"            //
@@ -369,8 +370,8 @@ __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m
 //////////////////////////////////////////
 
 // 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; Копирование значения из (прямого/косвенного?) адреса в косвенный
-// [Inserting abstract ASM-code]: mov [a], 1
-// [Inserting abstract   C-code]: *a = &1; // /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
+// [Inserting abstract ASM-code]: mov [a], <?>  ; /!\ Небольшой хак/трюк, это значение если оно не было определено как константное, можно менять через указатель (по адресу)
+// [Inserting abstract   C-code]: *a = &1;      ; /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_010__:                 // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
@@ -379,8 +380,9 @@ __dispatch_mode8__opcode_010__:                 // <cmd=MOV> <arg-1=src:i8> <arg
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-// 7- 8 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
-// [Inserting abstract C-code]: a = b; // Копирование значения из прямого адреса в прямой
+// 7- 8 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; Копирование значения из прямого адреса в прямой
+// [Inserting abstract ASM-code]: mov a, b
+// [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_008__:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
@@ -389,8 +391,9 @@ __dispatch_mode8__opcode_008__:                 // <cmd=MOV> <arg-1=src:m8> <arg
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-// 11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
-// [Inserting abstract C-code]: *a = b; // Копирование значения из прямого адреса в косвенный
+// 11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; Копирование значения из прямого адреса в косвенный
+// [Inserting abstract ASM-code]: mov [a], b
+// [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_012__:                         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                            //
@@ -399,8 +402,9 @@ __dispatch_mode8__opcode_012__:                         // <cmd=MOV> <arg-1=src:
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
-// 13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-// [Inserting abstract C-code]: a = *b; // Копирование значения из косвенного адреса в прямой
+// 13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; Копирование значения из косвенного адреса в прямой
+// [Inserting abstract ASM-code]: mov a, [b]
+// [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_014__:                         // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                            //
