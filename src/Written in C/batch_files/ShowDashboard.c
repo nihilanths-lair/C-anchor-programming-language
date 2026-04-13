@@ -6,7 +6,7 @@ void ShowDashboard(const unsigned char *memory, int ip, int sp)
 
     static unsigned char count = 0;
     count++;
-    printf("\n >->-> ShowDashboard(): %d - \"%s\"\n", count, memory[ip]); // ŒÚÓ·‡ÁËÚ¸ ÒËÏ‚ÓÎË˜ÂÒÍÛ˛ ÏÌÂÏÓÌËÍÛ ÒÓÓÚ‚ÂÚÒÚ‚Û˛˘Û˛ ÓÔÍÓ‰Û / symbol_mnemonics
+    printf("\n >->-> ShowDashboard(): %d - \"%s\"\n", count, memory[ip]); // –û—Ç–æ–±—Ä–∞–∑–∏—Ç—å —Å–∏–º–≤–æ–ª–∏—á–µ—Å–∫—É—é –º–Ω–µ–º–æ–Ω–∏–∫—É —Å–æ–æ—Ç–≤–µ—Ç—Å—Ç–≤—É—é—â—É—é –æ–ø–∫–æ–¥—É / symbol_mnemonics
     switch (0){
     case 0:
     {
