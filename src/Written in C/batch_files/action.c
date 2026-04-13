@@ -368,8 +368,9 @@ __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
-// [Inserting abstract C-code]: *a = 1; // Копирование значения из (прямого/косвенного?) адреса в косвенный
+// 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; Копирование значения из (прямого/косвенного?) адреса в косвенный
+// [Inserting abstract ASM-code]: mov [a], 1
+// [Inserting abstract   C-code]: *a = &1; // /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_010__:                 // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
