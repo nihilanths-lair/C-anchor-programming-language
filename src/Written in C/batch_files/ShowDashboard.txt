@@ -1,5 +1,5 @@
 //#ifdef DEBUG
-// ShowDashboard(memory, ip8, sp8);
+// ShowDashboard(memory, ip8, sp8, r8);
 //#endif
-if (memory[ip8] >= 41 && memory[ip8] <= 253) printf("\n IP=%02X SP=%02X OP:%02X|%03d /!\\ Unknown", ip8, sp8, memory[ip8], memory[ip8]);
-else printf("\n IP=%02X SP=%02X OP:%02X|%03d", ip8, sp8, memory[ip8], memory[ip8]);
+if (memory[ip8] >= 41 && memory[ip8] <= 253) printf("\n IP=%02X SP=%02X R1=%02X opcode:%02X|%03d /!\\ Unknown", ip8, sp8, r8, memory[ip8], memory[ip8]);
+else printf("\n IP=%02X SP=%02X R1=%02X opcode:%02X|%03d", ip8, sp8, r8, memory[ip8], memory[ip8]);
