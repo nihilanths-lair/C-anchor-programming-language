@@ -2,6 +2,7 @@
 #ifdef DEBUG
 enum
 {
+    mov8_dr_si,  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
     ///////////
     inc8_dm = 1, // <cmd=INC> <arg-1=dst:m8>
     dec8_dm, // <cmd=DEC> <arg-1=dst:m8>
@@ -350,7 +351,7 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 //
 //  ?- ? <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
 // [Inserting abstract ASM-code]: mov <reg_dst>, 1
-// [Inserting abstract   C-code]: -;
+// [Inserting abstract   C-code]: -
 //////////////////////////////////////////
 __dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"            //
