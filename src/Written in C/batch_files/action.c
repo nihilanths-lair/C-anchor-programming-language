@@ -293,33 +293,37 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 /*/
 |*|    (Specification: Intel, dst <~ src)
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:i8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|     4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
 |*|     8- 9 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:m8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:m8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|     6- 7 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
 |*|    10-11 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:p8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:p8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|    12-13 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-|*|     ?- ? <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; /!\ Отсутствует реализация
+|*|     ?- ? <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; /!\ Отсутствует реализация (избыточно?)
 |*|
 |*|    (Specification: AT&T, src ~> dst)
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=src:i8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|     5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
 |*|     9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=src:m8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:m8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|     7- 8 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
 |*|    11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
 |*|
-|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
+|*|          <cmd=MOV> <arg-1=src:p8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
 |*|    13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:p8> ; /!\ Отсутствует реализация
+|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:p8> ; /!\ Отсутствует реализация (избыточно?)
 /*/
 // SPECIFICATION: INTEL //
+//
+// 4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; Копирование непосредственного (константного) значения по прямому адресу
+// [Inserting abstract ASM-code]: mov a, 1
+// [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
 __dispatch_mode8__opcode_005__:         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"            //
@@ -327,6 +331,10 @@ __dispatch_mode8__opcode_005__:         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
+
+// 8- 9 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; Копирование непосредственного (константного) значения по косвенному адресу
+// [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
+// [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_009__:                 // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                    //
@@ -334,6 +342,10 @@ __dispatch_mode8__opcode_009__:                 // <cmd=MOV> <arg-1=dst:p8> <arg
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
+
+// 6- 7 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; Копирование значения из прямого адреса в прямой
+// [Inserting abstract ASM-code]: mov a, b
+// [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_007__:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                    //
@@ -341,6 +353,10 @@ __dispatch_mode8__opcode_007__:                 // <cmd=MOV> <arg-1=dst:m8> <arg
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
+
+// 10-11 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; Копирование значения из прямого адреса в косвенный
+// [Inserting abstract ASM-code]: mov [a], b
+// [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_011__:                         // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                            //
@@ -348,6 +364,10 @@ __dispatch_mode8__opcode_011__:                         // <cmd=MOV> <arg-1=dst:
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
+
+// 12-13 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; Копирование значения из косвенного адреса в прямой
+// [Inserting abstract ASM-code]: mov a, [b]
+// [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                            //
@@ -358,9 +378,9 @@ __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:
 
 // SPECIFICATION: AT&T //
 //
-// 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; Копирование значения из (прямого/косвенного?) адреса в прямой
-// [Inserting abstract ASM-code]: mov a, <?>    ; /!\ Небольшой хак/трюк, это значение если оно не было определено как константное, можно менять через указатель (по адресу)
-// [Inserting abstract   C-code]: a = &1;       ; /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
+// 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; Копирование непосредственного (константного) значения по прямому адресу
+// [Inserting abstract ASM-code]: mov a, 1
+// [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
 __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"            //
@@ -369,9 +389,9 @@ __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; Копирование значения из (прямого/косвенного?) адреса в косвенный
-// [Inserting abstract ASM-code]: mov [a], <?>  ; /!\ Небольшой хак/трюк, это значение если оно не было определено как константное, можно менять через указатель (по адресу)
-// [Inserting abstract   C-code]: *a = &1;      ; /!\ В Си нельзя сразу занести адрес непосредственного (безымянного/неименованного, не константного) значения, где оно расположено в памяти
+// 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; Копирование непосредственного (константного) значения по косвенному адресу
+// [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
+// [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_010__:                 // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
