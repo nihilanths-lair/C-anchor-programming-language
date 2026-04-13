@@ -138,7 +138,7 @@ static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста
     hlt,                  // 19: hlt
     // proc:
     push8_si,   42,       // 21: push 42
-    pop8_dm,    30,       // 23: pop mem[30]
+    pop8_dm,    30,       // 23: pop [30]
     mov8_dr_si, 123,      // 25: mov <r8> 123
     ret                   // 28: ret
 };
