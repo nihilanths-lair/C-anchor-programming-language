@@ -293,25 +293,31 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 /*/
 |*|    (Specification: Intel, dst <~ src)
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:i8> ; /!\ Отсутствует реализация
 |*|     4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
 |*|     8- 9 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:m8> ; /!\ Отсутствует реализация
 |*|     6- 7 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
 |*|    10-11 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=dst:i8> <arg-2=src:p8> ; /!\ Отсутствует реализация
 |*|    12-13 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-|*|     ?- ? <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; Зарезервировано
+|*|     ?- ? <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; /!\ Отсутствует реализация
 |*|
 |*|    (Specification: AT&T, src ~> dst)
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=src:i8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
 |*|     5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
 |*|     9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=src:m8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
 |*|     7- 8 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
 |*|    11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
 |*|
+|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:i8> ; /!\ Отсутствует реализация
 |*|    13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:p8> ; Зарезервировано
+|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:p8> ; /!\ Отсутствует реализация
 /*/
 //////////////////////////////////////////
 __dispatch_mode8__opcode_005__:         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
