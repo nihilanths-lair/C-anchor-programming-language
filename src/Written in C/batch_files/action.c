@@ -11,7 +11,7 @@ enum
     ///////////
 
     /////////////////////////////////
-    // РџРµСЂРµСЃСЃС‹Р»РєР° РґР°РЅРЅС‹С… (8-bit's) //
+    // Перессылка данных (8-bit's) //
     mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
     mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
     //                             //
@@ -26,61 +26,61 @@ enum
     //                             //
     mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
     mov8_sp_dm,                    // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-    // РџРµСЂРµСЃСЃС‹Р»РєР° РґР°РЅРЅС‹С… (8-bit's) //
+    // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
     //////////////////////////////////////////////
-    // РђСЂРёС„РјРµС‚РёРєРѕ-Р»РѕРіРёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё (8-bit's) //
+    // Арифметико-логические операции (8-bit's) //
     //                                          //
-    // РЎР»РѕР¶РµРЅРёРµ                                 //
+    // Сложение                                 //
     add8_dm_si,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-    add8_dm_sm,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    add8_dm_sp,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    add8_dm_sm,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    add8_dm_sp,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    add8_dp_si,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:i8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    add8_dp_sm,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    add8_dp_sp,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    add8_dp_si,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    add8_dp_sm,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    add8_dp_sp,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    // Р’С‹С‡РёС‚Р°РЅРёРµ                                //
+    // Вычитание                                //
     sub8_dm_si,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-    sub8_dm_sm,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    sub8_dm_sp,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    sub8_dm_sm,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    sub8_dm_sp,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    sub8_dp_si,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:i8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    sub8_dp_sm,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    sub8_dp_sp,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    sub8_dp_si,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    sub8_dp_sm,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    sub8_dp_sp,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    // РЈРјРЅРѕР¶РµРЅРёРµ                                //
+    // Умножение                                //
     mul8_dm_si,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-    mul8_dm_sm,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    mul8_dm_sp,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    mul8_dm_sm,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    mul8_dm_sp,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    mul8_dp_si,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:i8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    mul8_dp_sm,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    mul8_dp_sp,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    mul8_dp_si,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    mul8_dp_sm,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    mul8_dp_sp,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    // Р”РµР»РµРЅРёРµ                                  //
+    // Деление                                  //
     div8_dm_si,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
-    div8_dm_sm,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    div8_dm_sp,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    div8_dm_sm,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    div8_dm_sp,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //
-    div8_dp_si,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:i8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    div8_dp_sm,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:m8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
-    div8_dp_sp,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:p8> ; Р—Р°РіР»СѓС€РєР° - СЂРµР·РµСЂРІР°С†РёСЏ РѕРїРєРѕРґР°
+    div8_dp_si,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
+    div8_dp_sm,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
+    div8_dp_sp,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
     //                                          //
-    // РђСЂРёС„РјРµС‚РёРєРѕ-Р»РѕРіРёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё (8-bit's) //
+    // Арифметико-логические операции (8-bit's) //
     //////////////////////////////////////////////
 
     ////////////////////////////////////
-    // РџРµСЂРµС…РѕРґ РІ РїСЂРѕС†РµРґСѓСЂСѓ (8-bit's)  //
+    // Переход в процедуру (8-bit's)  //
     call8_si,                         // <cmd=CALL> <arg1=src:i8>
     call8_sm,                         // <cmd=CALL> <arg1=src:m8>
     call8_sp,                         // <cmd=CALL> <arg1=src:p8>
     //                                //
-    // Р’РѕР·РІСЂР°С‚ РёР· РїСЂРѕС†РµРґСѓСЂС‹ (8-bit's) //
+    // Возврат из процедуры (8-bit's) //
     ret,                              // <cmd=RET>
     //                                //
-    // РЈРїСЂР°РІР»РµРЅРёРµ СЃС‚РµРєРѕРј (8-bit's)    //
+    // Управление стеком (8-bit's)    //
     push8_si,                         // <cmd=PUSH> <arg1=src:i8>
     push8_sm,                         // <cmd=PUSH> <arg1=src:m8>
     push8_sp,                         // <cmd=PUSH> <arg1=src:p8>
@@ -90,56 +90,56 @@ enum
     ////////////////////////////////////
 
     //////////////////////////
-    // РЎСЂР°РІРЅРµРЅРёРµ (8-bit's)  //
+    // Сравнение (8-bit's)  //
     cmp8_si_si,             // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
     cmp8_sm_si,             // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
     cmp8_si_sm,             // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
     cmp8_sm_sm,             // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-    // РЎСЂР°РІРЅРµРЅРёРµ (8-bit's)  //
+    // Сравнение (8-bit's)  //
     //////////////////////////
 
     ///////////////////////////////////
-    // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ (8-bit's) //
+    // Безусловный переход (8-bit's) //
     jmp8_si,                         // <cmd=JMP> <arg1=src:i8> ; JMP addr8 / JMP XX
     jmp8_sm,                         // <cmd=JMP> <arg1=src:m8> ; JMP addr8 / JMP XX
     jmp8_sp,                         // <cmd=JMP> <arg1=src:p8> ; JMP addr8 / JMP XX
-    // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ (16-bit's) //
+    // Безусловный переход (16-bit's) //
     jmp16_si,                         // <cmd=JMP> <arg1=src:i16> ; JMP addr16 / JMP XX XX
     jmp16_sm,                         // <cmd=JMP> <arg1=src:m16> ; JMP addr16 / JMP XX XX
     jmp16_sp,                         // <cmd=JMP> <arg1=src:p16> ; JMP addr16 / JMP XX XX
     ///////////////////////////////////
 
     /////////////////////////////////
-    // РЈСЃР»РѕРІРЅС‹Рµ РїРµСЂРµС…РѕРґС‹ (8-bit's) //
+    // Условные переходы (8-bit's) //
      je8_si,                       //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
     jne8_si,                       //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
      jb8_si,                       //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
      ja8_si,                       //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
     jbe8_si, jna8_si = 56,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
     jae8_si, jnb8_si = 57,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
-    // РЈСЃР»РѕРІРЅС‹Рµ РїРµСЂРµС…РѕРґС‹ (8-bit's) //
+    // Условные переходы (8-bit's) //
     /////////////////////////////////
 
     hlt = 255
 };
-static unsigned char memory[0xFFFF+0x01] = // Р”Р»СЏ Р±С‹СЃС‚СЂРѕРіРѕ С‚РµСЃС‚Р°/РїСЂРѕРІРµСЂРєРё СЂР°Р±РѕС‚РѕСЃРїРѕР±РЅРѕСЃС‚Рё РґРІРёР¶РєР°
+static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста/проверки работоспобности движка
 {
     mov8_dm_si, 10, 42, // mem[10] = 42
-    mov8_dm_sp, 20, 10, // mem[20] = mem[mem[10]] = mem[42] (РјСѓСЃРѕСЂ)
+    mov8_dm_sp, 20, 10, // mem[20] = mem[mem[10]] = mem[42] (мусор)
     hlt
     /*
     CALL, 3,
     HLT,
     RET,
     HLT,
-    'C', '$', '\0', // РЎС‚СЂРѕРєР°-1
-    'C', '$', '\0', // РЎС‚СЂРѕРєР°-2
+    'C', '$', '\0', // Строка-1
+    'C', '$', '\0', // Строка-2
     HLT
     */
 };
 #endif
 #ifndef DEBUG
-static unsigned char memory[0xFFFF+0x01] = {/*Р—Р°РіР»СѓС€РєР°=*/hlt}; // РћС‚РІРµРґС‘РЅРЅР°СЏ РїР°РјСЏС‚СЊ РґР»СЏ Р·Р°РіСЂСѓР·С‡РёРєР°, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ СЂР°Р·РјРµС‰РµРЅР°/РїРѕРјРµС‰РµРЅР° РїСЂРѕРіСЂР°РјРјР° РґР»СЏ РёСЃРїРѕР»РЅРµРЅРёСЏ
+static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/hlt}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
 #define run_block {
 #define end_block }
@@ -155,11 +155,11 @@ run_block
     /*static*/unsigned char  ss8  = 0x00; // Stack segment 8-bit's
     /*static*/unsigned char  ds8  = 0x00; // Data segment 8-bit's
 
-    /*static*/unsigned char ef/*zf*/ = 0; // С„Р»Р°Рі СЂР°РІРµРЅСЃС‚РІР°
-    /*static*/unsigned char bf       = 0; // (below) С„Р»Р°Рі РјРµРЅСЊС€Рµ / РІ x86 РєР°РєРѕР№ С„Р»Р°Рі?
-    /*static*/unsigned char af       = 0; // (above) С„Р»Р°Рі Р±РѕР»СЊС€Рµ / РІ x86 РєР°РєРѕР№ С„Р»Р°Рі?
+    /*static*/unsigned char ef/*zf*/ = 0; // флаг равенства
+    /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
+    /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
 
-    // РЎРєСЂС‹С‚С‹Рµ СЂРµРіРёСЃС‚СЂС‹ РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+    // Скрытые регистры общего назначения для хранения промежуточных результатов
     /*static*/unsigned char a = 0;
     /*static*/unsigned char b = 0;
     /*static*/unsigned char c = 0;
@@ -167,7 +167,7 @@ run_block
     /*static*/unsigned char e = 0;
     /*static*/unsigned char f = 0;
 
-    // РўР°Р±Р»РёС†Р° РґРёСЃРїРµС‚С‡РµСЂРёР·Р°С†РёРё I (РґР»СЏ 8-С‚Рё Р±РёС‚РЅРѕРіРѕ СЂРµР¶РёРјР° Р°РґСЂРµСЃР°С†РёРё)
+    // Таблица диспетчеризации I (для 8-ти битного режима адресации)
     void *dispatch_mode8[0x100] =
     {
         [ 0] = &&__dispatch_mode8__opcode_001__, // <cmd=INC> <arg-1=dst:m8>
@@ -192,7 +192,7 @@ run_block
         [13] = &&__dispatch_mode8__opcode_014__, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
         //
         ////////////////////////////////////
-        // РђСЂРёС„РјРµС‚РёРєРѕ-Р»РѕРіРёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё //
+        // Арифметико-логические операции //
         [14] = &&__dispatch_mode8__opcode_015__, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
         //
         [15] = &&__dispatch_mode8__opcode_016__, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
@@ -202,32 +202,32 @@ run_block
         [17] = &&__dispatch_mode8__opcode_018__, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
         //
         ////////////////////////////////////
-        // РџРµСЂРµС…РѕРґ РІ РїСЂРѕС†РµРґСѓСЂСѓ (8-bit's)  //
+        // Переход в процедуру (8-bit's)  //
         [18] = &&__dispatch_mode8__opcode_019__,   //   <cmd=CALL> <arg-1=src:i8>
         [19] = &&__dispatch_mode8__opcode_020__,   //   <cmd=CALL> <arg-1=src:m8>
         [20] = &&__dispatch_mode8__opcode_021__,   //   <cmd=CALL> <arg-1=src:p8>
-        // Р’РѕР·РІСЂР°С‚ РёР· РїСЂРѕС†РµРґСѓСЂС‹ (8-bit's) //
-        [21] = &&__dispatch_mode8__opcode_022__,   //   <cmd=RET>                 ; РЎРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ-Р°РґСЂРµСЃ СЃРѕ СЃС‚РµРєР° Рё СЃРѕРІРµСЂС€Р°РµС‚ РїРµСЂРµС…РѕРґ РїРѕ РЅРµРјСѓ
-        // РЈРїСЂР°РІР»РµРЅРёРµ СЃС‚РµРєРѕРј (8-bit's)    //
-        [22] = &&__dispatch_mode8__opcode_023__,   //   <cmd=PUSH> <arg-1=src:i8> ; Р—Р°РЅРѕСЃРёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ РІ СЃС‚РµРє РїРѕР№РґС‘С‚ РёР· РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРіРѕ РёСЃС‚РѕС‡РЅРёРєР°
-        [23] = &&__dispatch_mode8__opcode_024__,   //   <cmd=PUSH> <arg-1=src:m8> ; Р—Р°РЅРѕСЃРёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ РІ СЃС‚РµРє РїРѕР№РґС‘С‚ РёР· РїР°РјСЏС‚Рё РїРѕ РїСЂСЏРјРѕРјСѓ Р°РґСЂРµСЃСѓ
-        [24] = &&__dispatch_mode8__opcode_025__,   //   <cmd=PUSH> <arg-1=src:p8> ; Р—Р°РЅРѕСЃРёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ РІ СЃС‚РµРє РїРѕР№РґС‘С‚ РёР· РїР°РјСЏС‚Рё РїРѕ РєРѕСЃРІРµРЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ
+        // Возврат из процедуры (8-bit's) //
+        [21] = &&__dispatch_mode8__opcode_022__,   //   <cmd=RET>                 ; Снимает значение-адрес со стека и совершает переход по нему
+        // Управление стеком (8-bit's)    //
+        [22] = &&__dispatch_mode8__opcode_023__,   //   <cmd=PUSH> <arg-1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
+        [23] = &&__dispatch_mode8__opcode_024__,   //   <cmd=PUSH> <arg-1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
+        [24] = &&__dispatch_mode8__opcode_025__,   //   <cmd=PUSH> <arg-1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
         //                                //
-        [25] = &&__dispatch_mode8__opcode_026__,   //   <cmd=POP> <arg-1=dst:m8>  ; РЎРЅРёРјР°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ СЃРѕ СЃС‚РµРєР° РѕС‚РїСЂР°РІРёС‚СЃСЏ РїРѕ РїСЂСЏРјРѕРјСѓ Р°РґСЂРµСЃСѓ
-        [26] = &&__dispatch_mode8__opcode_027__,   //   <cmd=POP> <arg-1=dst:p8>  ; РЎРЅРёРјР°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ СЃРѕ СЃС‚РµРєР° РѕС‚РїСЂР°РІРёС‚СЃСЏ РїРѕ РєРѕСЃРІРµРЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ
+        [25] = &&__dispatch_mode8__opcode_026__,   //   <cmd=POP> <arg-1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+        [26] = &&__dispatch_mode8__opcode_027__,   //   <cmd=POP> <arg-1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
         ///////////////////////////////////
-        // РЎСЂР°РІРЅРµРЅРёРµ (8-bit's)           //
+        // Сравнение (8-bit's)           //
         [27] = &&__dispatch_mode8__opcode_028__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
         [28] = &&__dispatch_mode8__opcode_029__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
         [29] = &&__dispatch_mode8__opcode_030__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
         [30] = &&__dispatch_mode8__opcode_031__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
         ///////////////////////////////////
-        // Р‘РµР·СѓСЃР»РѕРІРЅС‹Р№ РїРµСЂРµС…РѕРґ (8-bit's) //
+        // Безусловный переход (8-bit's) //
         [31] = &&__dispatch_mode8__opcode_032__,  //     <cmd=JMP> <arg-1=src:i8>
         [32] = &&__dispatch_mode8__opcode_033__,  //     <cmd=JMP> <arg-1=src:m8>
         [33] = &&__dispatch_mode8__opcode_034__,  //     <cmd=JMP> <arg-1=src:p8>
         ///////////////////////////////////
-        // РЈСЃР»РѕРІРЅС‹Рµ РїРµСЂРµС…РѕРґС‹ (8-bit's)   //
+        // Условные переходы (8-bit's)   //
         [34] = &&__dispatch_mode8__opcode_035__,  //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
         [35] = &&__dispatch_mode8__opcode_036__,  //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
         [36] = &&__dispatch_mode8__opcode_037__,  //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
@@ -236,147 +236,124 @@ run_block
         [39] = &&__dispatch_mode8__opcode_040__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
         [40 ... 253] = &&__dispatch_mode8__opcode_from_041_to_253__,
-        [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?> ; РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЂРµР¶РёРјР° Р°РґСЂРµСЃР°С†РёРё (СЃ 8 РЅР° 16)
+        [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?> ; переключение режима адресации (с 8 на 16)
         [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
         ///////////////////////////////////
     };
-    /* Р“РµРЅРµСЂР°С‚РѕСЂ
+    /* Генератор
     for (unsigned char i = 39; i <= 254; i++)
     {
         //printf("\n[%d] = &&__dispatch_mode8__opcode_%03d__,", i-1, i);
         //printf("\n__dispatch_mode8__opcode_%03d__:", i);
     }
     */
-    // РўР°Р±Р»РёС†Р° РґРёСЃРїРµС‚С‡РµСЂРёР·Р°С†РёРё II (РґР»СЏ 16-С‚Рё Р±РёС‚РЅРѕРіРѕ СЂРµР¶РёРјР° Р°РґСЂРµСЃР°С†РёРё)
+    // Таблица диспетчеризации II (для 16-ти битного режима адресации)
     void *dispatch_mode16[0x100] =
     {
         [0 ... 253] = &&__dispatch_mode16__opcode_from_000_to_253__,
-        [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЂРµР¶РёРјР° Р°РґСЂРµСЃР°С†РёРё (СЃ 16 РЅР° 8)
+        [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
         [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
-    }; // РџРѕРєР° Р·Р°РіР»СѓС€РєР°
+    }; // Пока заглушка
     #ifdef DEBUG
-     printf("\n Starting vCPU (8-bit's mode)...");
+     printf("\n Starting vCPU (8-bit's mode)..."); // 1--2, 2--4, 3--8, 4 - 16, 5 - 32, 6 - 64, 7 - 128, 8 - 256, 9 - 512, 10 - 1024
     #endif
-    // РЎС‚Р°СЂС‚СѓРµРј РІ 8-РјРё Р±РёС‚РЅРѕРј СЂРµР¶РёРјРµ Р°РґСЂРµСЃР°С†РёРё! (РћРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№ VM)
+    // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode8[memory[ip8]];
-    // РЎС‚Р°СЂС‚СѓРµРј РІ 16-С‚Рё Р±РёС‚РЅРѕРј СЂРµР¶РёРјРµ Р°РґСЂРµСЃР°С†РёРё! (РћРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№ VM)
-    goto *dispatch_mode16[memory[ip16]]; // РџРѕРєР° Р·Р°РіР»СѓС€РєР°
+    // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
+    goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 
 //////////////////////////////////////
 __dispatch_mode8__opcode_001__:     // <cmd=INC> <arg-1=dst:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
- memory[memory[ip8+1]]++;           // <arg-1=dst:m8> ; РџСЂРѕРёР·РІРѕР»СЊРЅР°СЏ РЇРџ
+#include "ShowDashboard.txt"        // Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
+ memory[memory[ip8+1]]++;           // <arg-1=dst:m8> ; Произвольная ЯП
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 
 //////////////////////////////////////
 __dispatch_mode8__opcode_002__:     // <cmd=DEC> <arg-1=dst:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
- memory[memory[ip8+1]]--;           // <arg-1=dst:m8> ; РџСЂРѕРёР·РІРѕР»СЊРЅР°СЏ РЇРџ
+#include "ShowDashboard.txt"        // Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
+ memory[memory[ip8+1]]--;           // <arg-1=dst:m8> ; Произвольная ЯП
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 
 //////////////////////////////////////////
-__dispatch_mode8__opcode_003__: // <cmd=INC> <arg-1=dst:p8>
+__dispatch_mode8__opcode_003__:         // <cmd=INC> <arg-1=dst:p8>
+#include "ShowDashboard.txt"            // Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
 //////////////////////////////////////////
 
 //////////////////////////////////////////
-__dispatch_mode8__opcode_004__: // <cmd=DEC> <arg-1=dst:p8>
+__dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
+#include "ShowDashboard.txt"            // Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
 //////////////////////////////////////////
-
 
 //////////////////////////////////////////
 __dispatch_mode8__opcode_005__:         // <cmd=MOV> mem8 <~ imm8
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
+#include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = memory[ip8+2]; //
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
 __dispatch_mode8__opcode_006__:         // <cmd=MOV> imm8 ~> mem8
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
+#include "ShowDashboard.txt"            //
  memory[memory[ip8+2]] = memory[ip8+1]; //
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_007__:                 // <cmd=MOV> mem8 <~ mem8
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
+#include "ShowDashboard.txt"                    //
  memory[memory[ip8+1]] = memory[memory[ip8+2]]; //
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_008__:                 // <cmd=MOV> mem8 ~> mem8
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
+__dispatch_mode8__opcode_008__:                 // <cmd=MOV> <arg-1=mem8 ~> mem8
+#include "ShowDashboard.txt"                    //
  memory[memory[ip8+2]] = memory[memory[ip8+1]]; //
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 //////////////////////////////////////////
-__dispatch_mode8__opcode_009__:         // <cmd=MOV> ptr8 <~ imm8  (Intel: dst_ptr, src_imm)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
- memory[memory[ip8+1]] = memory[ip8+2]; // ; Р—Р°РїРёСЃР°С‚СЊ imm8 РІ РїР°РјСЏС‚СЊ РїРѕ Р°РґСЂРµСЃСѓ, РєРѕС‚РѕСЂС‹Р№ Р»РµР¶РёС‚ РІ СЏС‡РµР№РєРµ dst_ptr
+__dispatch_mode8__opcode_009__:         // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+#include "ShowDashboard.txt"            //
+ memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:p8> <arg-2=src:i8>
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-__dispatch_mode8__opcode_010__:         // <cmd=MOV> imm8 ~> ptr8  (AT&T: src_imm, dst_ptr)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
- memory[memory[ip8+2]] = memory[ip8+1]; // ; РўРѕ Р¶Рµ СЃР°РјРѕРµ: Р·Р°РїРёСЃР°С‚СЊ imm8 РїРѕ Р°РґСЂРµСЃСѓ РёР· dst_ptr
+__dispatch_mode8__opcode_010__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
+#include "ShowDashboard.txt"            //
+ memory[memory[ip8+2]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:p8>
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_011__:                 // <cmd=MOV> ptr8 <~ mem8  (Intel: dst_ptr, src_mem)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
- memory[memory[ip8+1]] = memory[memory[ip8+2]]; // ; Р’Р·СЏС‚СЊ Р·РЅР°С‡РµРЅРёРµ РёР· src_mem Рё Р·Р°РїРёСЃР°С‚СЊ РµРіРѕ РїРѕ Р°РґСЂРµСЃСѓ, С…СЂР°РЅСЏС‰РµРјСѓСЃСЏ РІ dst_ptr
+#include "ShowDashboard.txt"                    //
+ memory[memory[ip8+1]] = memory[memory[ip8+2]]; // ; Взять значение из src_mem и записать его по адресу, хранящемуся в dst_ptr
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_012__:                 // <cmd=MOV> mem8 ~> ptr8  (AT&T: src_mem, dst_ptr)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
+#include "ShowDashboard.txt"                    //
  memory[memory[ip8+2]] = memory[memory[ip8+1]]; //
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);                       //
-#endif                                                  //
+#include "ShowDashboard.txt"                            //
  memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]]; //
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_014__:                         // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);                       //
-#endif                                                  //
+#include "ShowDashboard.txt"                            //
  memory[memory[ip8+2]] = memory[memory[memory[ip8+1]]]; // <arg-1=dst:p8> <arg-2=src:m8>
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
@@ -384,9 +361,7 @@ __dispatch_mode8__opcode_014__:                         // <cmd=MOV> <arg-1=dst:
 
 ///////////////////////////////////////////
 __dispatch_mode8__opcode_015__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);        //
-#endif                                   //
+#include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] += memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
  goto *dispatch_mode8[memory[ip8]];      //
@@ -394,9 +369,7 @@ __dispatch_mode8__opcode_015__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:
 
 ///////////////////////////////////////////
 __dispatch_mode8__opcode_016__:          // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);        //
-#endif                                   //
+#include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] -= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
  goto *dispatch_mode8[memory[ip8]];      //
@@ -404,9 +377,7 @@ __dispatch_mode8__opcode_016__:          // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:
 
 ///////////////////////////////////////////
 __dispatch_mode8__opcode_017__:          // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);        //
-#endif                                   //
+#include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] *= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
  goto *dispatch_mode8[memory[ip8]];      //
@@ -414,9 +385,7 @@ __dispatch_mode8__opcode_017__:          // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:
 
 ///////////////////////////////////////////
 __dispatch_mode8__opcode_018__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);        //
-#endif                                   //
+#include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] /= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
  goto *dispatch_mode8[memory[ip8]];      //
@@ -424,255 +393,198 @@ __dispatch_mode8__opcode_018__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:
 
 //////////////////////////////////////
 __dispatch_mode8__opcode_019__:     // <cmd=CALL> <arg1=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
- memory[sp8--] = ip8+2;             // Р—Р°РїРѕРјРёРЅР°РµРј Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р° РёР· РїСЂРѕС†РµРґСѓСЂС‹
+#include "ShowDashboard.txt"        //
+ memory[sp8--] = ip8+2;             // Запоминаем адрес возврата из процедуры
  ip8 = memory[ip8+1];               // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
 __dispatch_mode8__opcode_020__:     // <cmd=CALL> <arg1=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
- memory[sp8--] = ip8+2;             // Р—Р°РїРѕРјРёРЅР°РµРј Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р° РёР· РїСЂРѕС†РµРґСѓСЂС‹
+#include "ShowDashboard.txt"        //
+ memory[sp8--] = ip8+2;             // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[ip8+1]];       // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 ////////////////////////////////////////
 __dispatch_mode8__opcode_021__:       // <cmd=CALL> <arg1=src:p8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);     //
-#endif                                //
- memory[sp8--] = ip8+2;               // Р—Р°РїРѕРјРёРЅР°РµРј Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р° РёР· РїСЂРѕС†РµРґСѓСЂС‹
+#include "ShowDashboard.txt"          //
+ memory[sp8--] = ip8+2;               // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  goto *dispatch_mode8[memory[ip8]];   //
 ////////////////////////////////////////
 
 //////////////////////////////////////
 __dispatch_mode8__opcode_022__:     // <cmd=RET>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
- ip8 = memory[++sp8];               // Р”РѕСЃС‚Р°С‘С‚ Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р° Рё СЃС‚Р°РІРёС‚ ip8 РЅР° РЅРµРіРѕ
+#include "ShowDashboard.txt"        //
+ ip8 = memory[++sp8];               // Достаёт адрес возврата и ставит ip8 на него
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 
 //////////////////////////////////////
 __dispatch_mode8__opcode_023__:     // <cmd=PUSH> <arg1=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);   //
-#endif                              //
+#include "ShowDashboard.txt"        //
  memory[sp8--] = memory[ip8+1];     // <arg1=src:i8>
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////////
 __dispatch_mode8__opcode_024__:         // <cmd=PUSH> <arg1=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
+#include "ShowDashboard.txt"            //
  memory[sp8--] = memory[memory[ip8+1]]; // <arg1=src:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
 __dispatch_mode8__opcode_025__:                 // <cmd=PUSH> <arg1=src:p8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
+#include "ShowDashboard.txt"                    //
  memory[sp8--] = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  ip8 += 2;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
 //////////////////////////////////////////
-__dispatch_mode8__opcode_026__:         // <cmd=POP> <arg1=dst:m8> ; РЎРЅРёРјР°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ СЃРѕ СЃС‚РµРєР° РѕС‚РїСЂР°РІРёС‚СЃСЏ РїРѕ РїСЂСЏРјРѕРјСѓ Р°РґСЂРµСЃСѓ
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);       //
-#endif                                  //
+__dispatch_mode8__opcode_026__:         // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+#include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = memory[++sp8]; // <arg1=dst:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_027__:                 // <cmd=POP> <arg1=dst:p8> ; РЎРЅРёРјР°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ-Р°СЂРіСѓРјРµРЅС‚ СЃРѕ СЃС‚РµРєР° РѕС‚РїСЂР°РІРёС‚СЃСЏ РїРѕ РєРѕСЃРІРµРЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);               //
-#endif                                          //
+__dispatch_mode8__opcode_027__:                 // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+#include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[++sp8]; // <arg1=dst:p8>
  ip8 += 2;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-    //////////////////////////////
-    __dispatch_mode8__opcode_028__: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp8);
-    #endif
-     a = memory[ip8+1]; // <arg1=src:i8>
-     b = memory[ip8+2]; // <arg2=src:i8>
-     ef = (a == b); // ZF (Zero Flag) РІ x86
-     af = (a > b);  // JA (Above) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     bf = (a < b);  // JB (Below) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
-    //////////////////////////////
+//////////////////////////////
+__dispatch_mode8__opcode_028__: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+#include "ShowDashboard.txt"                    //
+ a = memory[ip8+1]; // <arg1=src:i8>
+ b = memory[ip8+2]; // <arg2=src:i8>
+ ef = (a == b); // ZF (Zero Flag) в x86
+ af = (a > b);  // JA (Above) / тут какой флаг в x86???
+ bf = (a < b);  // JB (Below) / тут какой флаг в x86???
+ ip8 += 3;
+ goto *dispatch_mode8[memory[ip8]];
+//////////////////////////////
 
-    __dispatch_mode8__opcode_029__: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp8);
-    #endif
-     a = memory[memory[ip8+1]]; // <arg1=src:m8>
-     b = memory[ip8+2];         // <arg2=src:i8>
-     ef = (a == b); // ZF (Zero Flag) РІ x86
-     af = (a > b);  // JA (Above) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     bf = (a < b);  // JB (Below) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
-    //////////////////////////////
+__dispatch_mode8__opcode_029__: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+#include "ShowDashboard.txt"                    //
+ a = memory[memory[ip8+1]]; // <arg1=src:m8>
+ b = memory[ip8+2];         // <arg2=src:i8>
+ ef = (a == b); // ZF (Zero Flag) в x86
+ af = (a > b);  // JA (Above) / тут какой флаг в x86???
+ bf = (a < b);  // JB (Below) / тут какой флаг в x86???
+ ip8 += 3;
+ goto *dispatch_mode8[memory[ip8]];
+//////////////////////////////
 
-    __dispatch_mode8__opcode_030__: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    #ifdef DEBUG
-     ShowDashboard(memory, ip8, sp8);
-    #endif
-     a = memory[ip8+1];         // <arg1=src:i8>
-     b = memory[memory[ip8+2]]; // <arg2=src:m8>
-     ef = (a == b); // ZF (Zero Flag) РІ x86
-     af = (a > b);  // JA (Above) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     bf = (a < b);  // JB (Below) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
-     ip8 += 3;
-     goto *dispatch_mode8[memory[ip8]];
+__dispatch_mode8__opcode_030__: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+#include "ShowDashboard.txt"    //
+ a = memory[ip8+1];         // <arg1=src:i8>
+ b = memory[memory[ip8+2]]; // <arg2=src:m8>
+ ef = (a == b); // ZF (Zero Flag) в x86
+ af = (a > b);  // JA (Above) / тут какой флаг в x86???
+ bf = (a < b);  // JB (Below) / тут какой флаг в x86???
+ ip8 += 3;
+ goto *dispatch_mode8[memory[ip8]];
 
 //////////////////////////////
 __dispatch_mode8__opcode_031__: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
+#include "ShowDashboard.txt"    //
  a = memory[memory[ip8+1]]; // <arg1=src:m8>
  b = memory[memory[ip8+2]]; // <arg2=src:m8>
- ef = (a == b); // ZF (Zero Flag) РІ x86
- af = (a > b);  // JA (Above) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
- bf = (a < b);  // JB (Below) / С‚СѓС‚ РєР°РєРѕР№ С„Р»Р°Рі РІ x86???
+ ef = (a == b); // ZF (Zero Flag) в x86
+ af = (a > b);  // JA (Above) / тут какой флаг в x86???
+ bf = (a < b);  // JB (Below) / тут какой флаг в x86???
  ip8 += 3;
  goto *dispatch_mode8[memory[ip8]];
 /////////////////////////////////
 ////////// JMP 8-bit's //////////
 __dispatch_mode8__opcode_032__: // <cmd=JMP> <arg1=src:i8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
+#include "ShowDashboard.txt"    //
 ip8 = memory[ip8+1]; // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]];
-
+//////////////////////////////
 __dispatch_mode8__opcode_033__: // <cmd=JMP> <arg1=src:m8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
+#include "ShowDashboard.txt"    //
  ip8 = memory[memory[ip8+1]]; // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]];
-
+//////////////////////////////
 __dispatch_mode8__opcode_034__: // <cmd=JMP> <arg1=src:p8>
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
+#include "ShowDashboard.txt"    //
  ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  goto *dispatch_mode8[memory[ip8]];
 ////////// JMP 8-bit's //////////
-/////////////////////////////////
-__dispatch_mode8__opcode_035__: //  JE addr8  (Jump if Equal)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (ef) ip8 = memory[ip8+1]; // JE (Jump if Equal): РџСЂС‹РіР°РµРј, РµСЃР»Рё ef == 1
- else    ip8 += 2;            // JE + addr8
- goto *dispatch_mode8[memory[ip8]];
-//////////////////////////////
-__dispatch_mode8__opcode_036__: // JNE addr8  (Jump if Not Equal)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (!ef) ip8 = memory[ip8+1]; // JNE (Jump if Not Equal): РџСЂС‹РіР°РµРј, РµСЃР»Рё ef == 0
- else     ip8 += 2;            // JNE + addr8
- goto *dispatch_mode8[memory[ip8]];
-//////////////////////////////
-__dispatch_mode8__opcode_037__: //  JB addr8  (Jump if Below)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (bf) ip8 = memory[ip8+1]; // JB (Jump if Below): РџСЂС‹РіР°РµРј, РµСЃР»Рё bf == 1 (РїРµСЂРІРѕРµ РјРµРЅСЊС€Рµ РІС‚РѕСЂРѕРіРѕ)
- else    ip8 += 2;            // JB + addr8
- goto *dispatch_mode8[memory[ip8]];
-//////////////////////////////
-__dispatch_mode8__opcode_038__: //  JA addr8  (Jump if Above)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (af) ip8 = memory[ip8+1]; // JA (Jump if Above): РџСЂС‹РіР°РµРј, РµСЃР»Рё af == 1 (РїРµСЂРІРѕРµ Р±РѕР»СЊС€Рµ РІС‚РѕСЂРѕРіРѕ)
- else    ip8 += 2;            // JA + addr8
- goto *dispatch_mode8[memory[ip8]];
-//////////////////////////////
-__dispatch_mode8__opcode_039__: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (bf||ef) ip8 = memory[ip8+1]; // JBE (Jump if Below or Equal)
- else       ip8 += 2;            // JBE + addr8
- goto *dispatch_mode8[memory[ip8]];
-//////////////////////////////
-__dispatch_mode8__opcode_040__: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);
-#endif
- if (af||ef) ip8 = memory[ip8+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
- else       ip8 += 2;            // JAE/JNB + addr8
- goto *dispatch_mode8[memory[ip8]];
+//////////////////////////////////////
+__dispatch_mode8__opcode_035__:     //  JE addr8  (Jump if Equal)
+#include "ShowDashboard.txt"        //
+ if (ef) ip8 = memory[ip8+1];       // JE (Jump if Equal): Прыгаем, если ef == 1
+ else    ip8 += 2;                  // JE + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+__dispatch_mode8__opcode_036__:     // JNE addr8  (Jump if Not Equal)
+#include "ShowDashboard.txt"        //
+ if (!ef) ip8 = memory[ip8+1];      // JNE (Jump if Not Equal): Прыгаем, если ef == 0
+ else     ip8 += 2;                 // JNE + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+__dispatch_mode8__opcode_037__:     //  JB addr8  (Jump if Below)
+#include "ShowDashboard.txt"        //
+ if (bf) ip8 = memory[ip8+1];       // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
+ else    ip8 += 2;                  // JB + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+__dispatch_mode8__opcode_038__:     //  JA addr8  (Jump if Above)
+#include "ShowDashboard.txt"        //
+ if (af) ip8 = memory[ip8+1];       // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
+ else    ip8 += 2;                  // JA + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+__dispatch_mode8__opcode_039__:     // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+#include "ShowDashboard.txt"        //
+ if (bf||ef) ip8 = memory[ip8+1];   // JBE (Jump if Below or Equal)
+ else       ip8 += 2;               // JBE + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+__dispatch_mode8__opcode_040__:     // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+#include "ShowDashboard.txt"        //
+ if (af||ef) ip8 = memory[ip8+1];   // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
+ else       ip8 += 2;               // JAE/JNB + addr8
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
 
 //////////////////////////////////////////////
-// РќРµРѕРїСЂРµРґРµР»С‘РЅРЅС‹Рµ РѕРїРєРѕРґС‹                    //
-__dispatch_mode8__opcode_from_041_to_253__: //
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);           //
-#endif                                      //
- return;                                    // ; Р­РєСЃС‚СЂРµРјР°Р»СЊРЅС‹Р№ РІС‹С…РѕРґ
- //goto *dispatch_mode8[memory[++ip8]];     // ; //РљСЂСѓС‚РёРј РґР°Р»СЊС€Рµ
+__dispatch_mode8__opcode_from_041_to_253__: // ; Неопределённые опкоды
+#include "ShowDashboard.txt"                //
+ return;                                    // ; Экстремальный выход
+ //goto *dispatch_mode8[memory[++ip8]];     // ; Крутим дальше
 //////////////////////////////////////////////
 ///////////////////////////////////////////////
-// РќРµРѕРїСЂРµРґРµР»С‘РЅРЅС‹Рµ РѕРїРєРѕРґС‹                     //
-__dispatch_mode16__opcode_from_000_to_253__: //
-#ifdef DEBUG
- ShowDashboard(memory, ip16, sp8);           //
-#endif                                       //
- return;                                     // ; Р­РєСЃС‚СЂРµРјР°Р»СЊРЅС‹Р№ РІС‹С…РѕРґ
- //goto *dispatch_mode8[memory[++ip8]];      // ; //РљСЂСѓС‚РёРј РґР°Р»СЊС€Рµ
+__dispatch_mode16__opcode_from_000_to_253__: // ; Неопределённые опкоды
+#include "ShowDashboard.txt"                 //
+ return;                                     // ; Экстремальный выход
+ //goto *dispatch_mode8[memory[++ip8]];      // ; Крутим дальше
 ///////////////////////////////////////////////
 
 ///////////////////////////////////////////
-// РџРµСЂРµР№С‚Рё РІ 8-РјРё Р±РёС‚РЅС‹Р№ СЂРµР¶РёРј Р°РґСЂРµСЃР°С†РёРё //
-__dispatch_mode16__opcode_255__:         //
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);        //
-#endif                                   //
+__dispatch_mode16__opcode_255__:         // <cmd=?> ; Переключение на 8-ми битный режим адресации
+#include "ShowDashboard.txt"             //
  ip8 = ip16;                             //
  goto *dispatch_mode8[ip8];              //
 ///////////////////////////////////////////
 
 ////////////////////////////////////////////
-// РџРµСЂРµР№С‚Рё РІ 16-С‚Рё Р±РёС‚РЅС‹Р№ СЂРµР¶РёРј Р°РґСЂРµСЃР°С†РёРё //
-__dispatch_mode8__opcode_255__:           //
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8);         //
-#endif                                    //
+__dispatch_mode8__opcode_255__:           // <cmd=?> ; Переключение на 16-ти битный режим адресации
+#include "ShowDashboard.txt"              //
  ip16 = ip8;                              //
  goto *dispatch_mode16[ip16];             //
 ////////////////////////////////////////////
 
 ////////////////////////////////////
-__dispatch_mode8__opcode_256__:   // <cmd=hlt> ; РћСЃС‚Р°РЅРѕРІРёС‚СЊ/Р·Р°РІРµСЂС€РёС‚СЊ РІС‹РїРѕР»РЅРµРЅРёРµ РїСЂРѕРіСЂР°РјРјС‹
-#ifdef DEBUG
- ShowDashboard(memory, ip8, sp8); //
-#endif                            //
+__dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
+#include "ShowDashboard.txt"      //
  return;                          //
 ////////////////////////////////////
 end_block
