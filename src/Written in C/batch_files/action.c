@@ -124,18 +124,21 @@ enum
 };
 static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста/проверки работоспобности движка
 {
-    mov8_dm_si, 10, 42, // mem[10] = 42
-    mov8_dm_sp, 20, 10, // mem[20] = mem[mem[10]] = mem[42] (мусор)
-    hlt
-    /*
-    CALL, 3,
-    HLT,
-    RET,
-    HLT,
-    'C', '$', '\0', // Строка-1
-    'C', '$', '\0', // Строка-2
-    HLT
-    */
+    // start:
+    mov8_dm_si, 10, 5,    // 0: mov mem[10], 5
+    inc8_dm,    10,       // 3: inc mem[10]
+    mov8_dm_sm, 20, 10,   // 5: mov mem[20], mem[10]
+    add8_dm_si, 20, 3,    // 8: add mem[20], 3
+    cmp8_sm_si, 20, 9,    // 11: cmp mem[20], 9
+    je8_si,     19,       // 14: je  equal (адрес 19)
+    hlt,                  // 16: hlt (если не равно)
+    // equal:
+    call8_si,   21,       // 17: call proc (адрес 21)
+    hlt,                  // 19: hlt после возврата
+    // proc:
+    push8_si,   42,       // 21: push 42
+    pop8_dm,    30,       // 23: pop mem[30]
+    ret                   // 25: ret
 };
 #endif
 #ifndef DEBUG
