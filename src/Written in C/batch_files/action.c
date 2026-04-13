@@ -263,6 +263,12 @@ run_block
     //goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 
 // #include "ShowDashboard.txt" ; Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
+/*/
+|*|    (Specification: Intel/AT&T, dst)
+|*|
+|*|     0- 1 <cmd=INC> <arg-1=dst:m8>
+|*|     2- 3 <cmd=INC> <arg-1=dst:p8>
+/*/
 //////////////////////////////////////
 __dispatch_mode8__opcode_001__:     // <cmd=INC> <arg-1=dst:m8>
 #include "ShowDashboard.txt"        //
@@ -270,7 +276,19 @@ __dispatch_mode8__opcode_001__:     // <cmd=INC> <arg-1=dst:m8>
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
-
+//////////////////////////////////////
+__dispatch_mode8__opcode_003__:     // <cmd=INC> <arg-1=dst:p8>
+#include "ShowDashboard.txt"        //
+ memory[memory[memory[ip8+1]]]++;   // <arg-1=dst:p8> ; Произвольная ЯП
+ ip8 += 2;                          //
+ goto *dispatch_mode8[memory[ip8]]; //
+//////////////////////////////////////
+/*/
+|*|    (Specification: Intel/AT&T, dst)
+|*|
+|*|     1- 2 <cmd=DEC> <arg-1=dst:m8>
+|*|     3- 4 <cmd=DEC> <arg-1=dst:p8>
+/*/
 //////////////////////////////////////
 __dispatch_mode8__opcode_002__:     // <cmd=DEC> <arg-1=dst:m8>
 #include "ShowDashboard.txt"        //
@@ -278,17 +296,12 @@ __dispatch_mode8__opcode_002__:     // <cmd=DEC> <arg-1=dst:m8>
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
-
-//////////////////////////////////////////
-__dispatch_mode8__opcode_003__:         // <cmd=INC> <arg-1=dst:p8>
-#include "ShowDashboard.txt"            //
- return;                                // ; Заглушка
-//////////////////////////////////////////
-
 //////////////////////////////////////////
 __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 #include "ShowDashboard.txt"            //
- return;                                // ; Заглушка
+ memory[memory[memory[ip8+1]]]--;       // <arg-1=dst:p8> ; Произвольная ЯП
+ ip8 += 2;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 /*/
 |*|    (Specification: Intel, dst <~ src)
