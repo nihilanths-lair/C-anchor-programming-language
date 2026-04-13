@@ -1,9 +1,9 @@
-/**/#define DEBUG/**/
+#define DEBUG 1
 #ifdef DEBUG
 enum
 {
     ///////////
-    inc8_dm, // <cmd=INC> <arg-1=dst:m8>
+    inc8_dm = 1, // <cmd=INC> <arg-1=dst:m8>
     dec8_dm, // <cmd=DEC> <arg-1=dst:m8>
 
     inc8_dp, // <cmd=INC> <arg-1=dst:p8>
@@ -258,7 +258,7 @@ run_block
         [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
     }; // Пока заглушка
     #ifdef DEBUG
-     printf("\n Starting vCPU (8-bit's mode)..."); // 1--2, 2--4, 3--8, 4 - 16, 5 - 32, 6 - 64, 7 - 128, 8 - 256, 9 - 512, 10 - 1024
+     printf("\n Starting vCPU (8-bit's mode)...\n"); // 1--2, 2--4, 3--8, 4 - 16, 5 - 32, 6 - 64, 7 - 128, 8 - 256, 9 - 512, 10 - 1024
     #endif
     // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode8[memory[ip8]];
@@ -647,6 +647,7 @@ __dispatch_mode8__opcode_040__:     // JAE/JNB addr8  (Jump if Above or Equal / 
 //////////////////////////////////////////////
 __dispatch_mode8__opcode_from_041_to_253__: // ; Неопределённые опкоды
 #include "ShowDashboard.txt"                //
+ putchar('\n');
  return;                                    // ; Экстремальный выход
  //goto *dispatch_mode8[memory[++ip8]];     // ; Крутим дальше
 //////////////////////////////////////////////
