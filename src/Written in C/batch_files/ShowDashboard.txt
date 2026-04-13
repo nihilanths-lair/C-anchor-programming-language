@@ -1,0 +1,3 @@
+#ifdef DEBUG
+ ShowDashboard(memory, ip8, sp8);
+#endif
