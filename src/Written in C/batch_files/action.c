@@ -390,13 +390,16 @@ __dispatch_mode8__opcode_008__:                 // <cmd=MOV> <arg-1=src:m8> <arg
 
 // 11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
 // [Inserting abstract C-code]: *a = b; // Копирование значения из прямого адреса в косвенный
-//////////////////////////////////////////////////
-__dispatch_mode8__opcode_012__:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
-#include "ShowDashboard.txt"                    // Копирование значения из прямого адреса в косвенный
- memory[memory[ip8+2]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:p8>
- ip8 += 3;                                      //
- goto *dispatch_mode8[memory[ip8]];             //
-//////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+__dispatch_mode8__opcode_012__:                         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
+#include "ShowDashboard.txt"                            //
+ memory[memory[memory[ip8+2]]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:p8>
+ ip8 += 3;                                              //
+ goto *dispatch_mode8[memory[ip8]];                     //
+//////////////////////////////////////////////////////////
+
+// 13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
+// [Inserting abstract C-code]: a = *b; // Копирование значения из косвенного адреса в прямой
 //////////////////////////////////////////////////////////
 __dispatch_mode8__opcode_014__:                         // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                            //
