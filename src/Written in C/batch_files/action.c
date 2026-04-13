@@ -162,6 +162,16 @@ run_block
     /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
     /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
 
+    // Видимые (8-bit's) регистры общего назначения
+    /*static*/unsigned char reg_dst = 0x00;
+    /*static*/unsigned char a8 = 0x00;
+    /*static*/unsigned char b8 = 0x00;
+    /*static*/unsigned char c8 = 0x00;
+    /*static*/unsigned char d8 = 0x00;
+    // Дополнительные
+    /*static*/unsigned char e8 = 0x00;
+    /*static*/unsigned char f8 = 0x00;
+
     // Скрытые регистры общего назначения для хранения промежуточных результатов
     /*static*/unsigned char a = 0;
     /*static*/unsigned char b = 0;
@@ -310,6 +320,7 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 |*|    (Specification: Intel, dst <~ src)
 |*|
 |*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
+|*|          <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
 |*|     4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
 |*|     8- 9 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
 |*|
@@ -337,6 +348,17 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 /*/
 // SPECIFICATION: INTEL //
 //
+//  ?- ? <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
+// [Inserting abstract ASM-code]: mov <reg_dst>, 1
+// [Inserting abstract   C-code]: -;
+//////////////////////////////////////////
+__dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; L <~ R (Intel)
+#include "ShowDashboard.txt"            //
+ reg_dst = memory[ip8+1];               // <arg-1=dst:r8> <arg-2=src:i8>
+ ip8 += 2;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
+//////////////////////////////////////////
+
 // 4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; Копирование непосредственного (константного) значения по прямому адресу
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
