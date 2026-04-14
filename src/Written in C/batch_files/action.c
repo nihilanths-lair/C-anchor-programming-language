@@ -171,13 +171,22 @@ void *dispatch_mode64[0x100] =
  printf("\n Starting vCPU (8-bit's mode)...\n");
 #endif
 // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
-goto *dispatch_mode8[memory[ip8]];
+ goto *dispatch_mode8[memory[ip8]];
+#ifdef DEBUG
+ printf("\n Starting vCPU (16-bit's mode)...\n");
+#endif
 // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
-goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+ goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+#ifdef DEBUG
+ printf("\n Starting vCPU (32-bit's mode)...\n");
+#endif
 // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
-goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
+ goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
+#ifdef DEBUG
+ printf("\n Starting vCPU (64-bit's mode)...\n");
+#endif
 // Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
-goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
+ goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
 
 /*for (unsigned char i = 39; i <= 254; i++) // Генератор
 {
