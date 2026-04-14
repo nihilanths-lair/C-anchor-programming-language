@@ -1,128 +1,6 @@
 #define DEBUG 1
 #ifdef DEBUG
-enum
-{
-    mov8_dr_si,  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
-    ///////////
-    inc8_dm = 1, // <cmd=INC> <arg-1=dst:m8>
-    dec8_dm, // <cmd=DEC> <arg-1=dst:m8>
-
-    inc8_dp, // <cmd=INC> <arg-1=dst:p8>
-    dec8_dp, // <cmd=DEC> <arg-1=dst:p8>
-    ///////////
-
-    /////////////////////////////////
-    // Перессылка данных (8-bit's) //
-    mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
-    mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
-    //                             //
-    mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
-    mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
-    //                             //
-    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
-    mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
-    //                             //
-    mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
-    mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
-    //                             //
-    mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-    mov8_sp_dm,                    // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-    // Перессылка данных (8-bit's) //
-    /////////////////////////////////
-
-    //////////////////////////////////////////////
-    // Арифметико-логические операции (8-bit's) //
-    //                                          //
-    // Сложение                                 //
-    add8_dm_si,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-    add8_dm_sm,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    add8_dm_sp,                                 // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    add8_dp_si,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
-    add8_dp_sm,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    add8_dp_sp,                                 // <cmd=ADD> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    // Вычитание                                //
-    sub8_dm_si,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-    sub8_dm_sm,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    sub8_dm_sp,                                 // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    sub8_dp_si,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
-    sub8_dp_sm,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    sub8_dp_sp,                                 // <cmd=SUB> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    // Умножение                                //
-    mul8_dm_si,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-    mul8_dm_sm,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    mul8_dm_sp,                                 // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    mul8_dp_si,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
-    mul8_dp_sm,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    mul8_dp_sp,                                 // <cmd=MUL> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    // Деление                                  //
-    div8_dm_si,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
-    div8_dm_sm,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    div8_dm_sp,                                 // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //
-    div8_dp_si,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:i8> ; Заглушка - резервация опкода
-    div8_dp_sm,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:m8> ; Заглушка - резервация опкода
-    div8_dp_sp,                                 // <cmd=DIV> <arg-1=dst:p8> <arg-2=src:p8> ; Заглушка - резервация опкода
-    //                                          //
-    // Арифметико-логические операции (8-bit's) //
-    //////////////////////////////////////////////
-
-    ////////////////////////////////////
-    // Переход в процедуру (8-bit's)  //
-    call8_si,                         // <cmd=CALL> <arg1=src:i8>
-    call8_sm,                         // <cmd=CALL> <arg1=src:m8>
-    call8_sp,                         // <cmd=CALL> <arg1=src:p8>
-    //                                //
-    // Возврат из процедуры (8-bit's) //
-    ret,                              // <cmd=RET>
-    //                                //
-    // Управление стеком (8-bit's)    //
-    push8_si,                         // <cmd=PUSH> <arg1=src:i8>
-    push8_sm,                         // <cmd=PUSH> <arg1=src:m8>
-    push8_sp,                         // <cmd=PUSH> <arg1=src:p8>
-    //                                //
-    pop8_dm,                          // <cmd=POP> <arg1=dst:m8>
-    pop8_dp,                          // <cmd=POP> <arg1=dst:p8>
-    ////////////////////////////////////
-
-    //////////////////////////
-    // Сравнение (8-bit's)  //
-    cmp8_si_si,             // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
-    cmp8_sm_si,             // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
-    cmp8_si_sm,             // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
-    cmp8_sm_sm,             // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
-    // Сравнение (8-bit's)  //
-    //////////////////////////
-
-    ///////////////////////////////////
-    // Безусловный переход (8-bit's) //
-    jmp8_si,                         // <cmd=JMP> <arg1=src:i8> ; JMP addr8 / JMP XX
-    jmp8_sm,                         // <cmd=JMP> <arg1=src:m8> ; JMP addr8 / JMP XX
-    jmp8_sp,                         // <cmd=JMP> <arg1=src:p8> ; JMP addr8 / JMP XX
-    // Безусловный переход (16-bit's) //
-    jmp16_si,                         // <cmd=JMP> <arg1=src:i16> ; JMP addr16 / JMP XX XX
-    jmp16_sm,                         // <cmd=JMP> <arg1=src:m16> ; JMP addr16 / JMP XX XX
-    jmp16_sp,                         // <cmd=JMP> <arg1=src:p16> ; JMP addr16 / JMP XX XX
-    ///////////////////////////////////
-
-    /////////////////////////////////
-    // Условные переходы (8-bit's) //
-     je8_si,                       //      <cmd=JE> <arg1=src:i8>  (Jump if Equal)
-    jne8_si,                       //     <cmd=JNE> <arg1=src:i8>  (Jump if Not Equal)
-     jb8_si,                       //      <cmd=JB> <arg1=src:i8>  (Jump if Below)
-     ja8_si,                       //      <cmd=JA> <arg1=src:i8>  (Jump if Above)
-    jbe8_si, jna8_si = 56,         // <cmd=JBE/JNA> <arg1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    jae8_si, jnb8_si = 57,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
-    // Условные переходы (8-bit's) //
-    /////////////////////////////////
-
-    hlt = 255
-};
+#include "enum_opcode.txt"
 static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста/проверки работоспобности движка
 {
     // start:
@@ -150,6 +28,7 @@ static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/hlt}; // Отв
 #define end_block }
 static inline void Action()
 run_block
+// Указатель на сектор / sector pointer //
     /*static*/unsigned char      ip8  = 0x00;               // Instruction pointer  8-bit's
     /*static*/unsigned short     ip16 = 0x0000;             // Instruction pointer 16-bit's
     /*static*/unsigned int       ip32 = 0x00000000;         // Instruction pointer 32-bit's
@@ -186,7 +65,7 @@ run_block
     /*static*/unsigned char f8 = 0x00; // пока не используется
 
     // Скрытые (8-bit's) регистры общего назначения
-    /*static*/unsigned char a, b, c, d, e, f = 0; // используются системой (изменить нельзя)
+    /*static*/unsigned char temp8_1, temp8_2 = 0; // используются системой (изменить нельзя)
 
     // Таблица диспетчеризации I (для 8-ти битного режима адресации)
     void *dispatch_mode8[0x100] =
@@ -580,41 +459,41 @@ __dispatch_mode8__opcode_027__:                 // <cmd=POP> <arg1=dst:p8> ; С�
 //////////////////////////////////////
 __dispatch_mode8__opcode_028__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
 #include "ShowDashboard.txt"        //
- a = memory[ip8+1];                 // <arg1=src:i8>
- b = memory[ip8+2];                 // <arg2=src:i8>
- ef = (a == b);                     // ZF (Zero Flag) в x86
- af = (a > b);                      // JA (Above) / тут какой флаг в x86???
- bf = (a < b);                      // JB (Below) / тут какой флаг в x86???
+ temp8_1 = memory[ip8+1];           // <arg1=src:i8>
+ temp8_2 = memory[ip8+2];           // <arg2=src:i8>
+ ef = (temp8_1 == temp8_2);         // ZF (Zero Flag) в x86
+ af = (temp8_1 > temp8_2);          // JA (Above) / тут какой флаг в x86???
+ bf = (temp8_1 < temp8_2);          // JB (Below) / тут какой флаг в x86???
  ip8 += 3;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 __dispatch_mode8__opcode_029__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
 #include "ShowDashboard.txt"        //
- a = memory[memory[ip8+1]];         // <arg1=src:m8>
- b = memory[ip8+2];                 // <arg2=src:i8>
- ef = (a == b);                     // ZF (Zero Flag) в x86
- af = (a > b);                      // JA (Above) / тут какой флаг в x86???
- bf = (a < b);                      // JB (Below) / тут какой флаг в x86???
+ temp8_1 = memory[memory[ip8+1]];   // <arg1=src:m8>
+ temp8_2 = memory[ip8+2];           // <arg2=src:i8>
+ ef = (temp8_1 == temp8_2);         // ZF (Zero Flag) в x86
+ af = (temp8_1 > temp8_2);          // JA (Above) / тут какой флаг в x86???
+ bf = (temp8_1 < temp8_2);          // JB (Below) / тут какой флаг в x86???
  ip8 += 3;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 __dispatch_mode8__opcode_030__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
 #include "ShowDashboard.txt"        //
- a = memory[ip8+1];                 // <arg1=src:i8>
- b = memory[memory[ip8+2]];         // <arg2=src:m8>
- ef = (a == b);                     // ZF (Zero Flag) в x86
- af = (a > b);                      // JA (Above) / тут какой флаг в x86???
- bf = (a < b);                      // JB (Below) / тут какой флаг в x86???
+ temp8_1 = memory[ip8+1];           // <arg1=src:i8>
+ temp8_2 = memory[memory[ip8+2]];   // <arg2=src:m8>
+ ef = (temp8_1 == temp8_2);         // ZF (Zero Flag) в x86
+ af = (temp8_1 > temp8_2);          // JA (Above) / тут какой флаг в x86???
+ bf = (temp8_1 < temp8_2);          // JB (Below) / тут какой флаг в x86???
  ip8 += 3;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 __dispatch_mode8__opcode_031__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 #include "ShowDashboard.txt"        //
- a = memory[memory[ip8+1]];         // <arg1=src:m8>
- b = memory[memory[ip8+2]];         // <arg2=src:m8>
- ef = (a == b);                     // ZF (Zero Flag) в x86
- af = (a > b);                      // JA (Above) / тут какой флаг в x86???
- bf = (a < b);                      // JB (Below) / тут какой флаг в x86???
+ temp8_1 = memory[memory[ip8+1]];   // <arg1=src:m8>
+ temp8_2 = memory[memory[ip8+2]];   // <arg2=src:m8>
+ ef = (temp8_1 == temp8_2);         // ZF (Zero Flag) в x86
+ af = (temp8_1 > temp8_2);          // JA (Above) / тут какой флаг в x86???
+ bf = (temp8_1 < temp8_2);          // JB (Below) / тут какой флаг в x86???
  ip8 += 3;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
