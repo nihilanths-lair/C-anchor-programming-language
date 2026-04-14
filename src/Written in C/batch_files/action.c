@@ -150,26 +150,32 @@ static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/hlt}; // Отв
 #define end_block }
 static inline void Action()
 run_block
-    /*static*/unsigned char  ip8  = 0x00;       // Instruction pointer  8-bit's
-    /*static*/unsigned short ip16 = 0x0000;     // Instruction pointer 16-bit's
-    /*static*/unsigned int   ip32 = 0x00000000; // Instruction pointer 32-bit's
+    /*static*/unsigned char      ip8  = 0x00;               // Instruction pointer  8-bit's
+    /*static*/unsigned short     ip16 = 0x0000;             // Instruction pointer 16-bit's
+    /*static*/unsigned int       ip32 = 0x00000000;         // Instruction pointer 32-bit's
+    /*static*/unsigned long long ip64 = 0x0000000000000000; // Instruction pointer 64-bit's
 
-    /*static*/unsigned char  sp8  = 0xFF;       // Stack pointer  8-bit's
-    /*static*/unsigned short sp16 = 0xFFFF;     // Stack pointer 16-bit's
-    /*static*/unsigned int   sp32 = 0xFFFFFFFF; // Stack pointer 32-bit's
+    /*static*/unsigned char      sp8  = 0xFF;               // Stack pointer  8-bit's
+    /*static*/unsigned short     sp16 = 0xFFFF;             // Stack pointer 16-bit's
+    /*static*/unsigned int       sp32 = 0xFFFFFFFF;         // Stack pointer 32-bit's
+    /*static*/unsigned long long sp64 = 0xFFFFFFFFFFFFFFFF; // Stack pointer 64-bit's
 
     /*static*/unsigned char  cs8  = 0x00; // Code segment 8-bit's
     /*static*/unsigned char  ss8  = 0x00; // Stack segment 8-bit's
     /*static*/unsigned char  ds8  = 0x00; // Data segment 8-bit's
 
+    // Скорее всего переделаю на работу с битовыми операциями (т.е. один 8-bit's регистр, вместо нескольких) ; [Заметки]: Как скажется на производительности?
     /*static*/unsigned char ef/*zf*/ = 0; // флаг равенства
     /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
     /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
+    /*static*/unsigned char   flag8  = 0; // Объединяет все флаги (которые выше) в один 8-bit's регистр (для удобности манипулирования можно добавить макросы)
+    /*static*/unsigned short flags16 = 0; // Расширенный 16-bit's регистр флагов
 
     // Основные видимые (8/16/32-bit's) регистры общего назначения
-    /*static*/unsigned char r8  = 0x00;
-    /*static*/unsigned char r16 = 0x0000;
-    /*static*/unsigned char r32 = 0x00000000;
+    /*static*/unsigned char      r8  = 0x00;
+    /*static*/unsigned short     r16 = 0x0000;
+    /*static*/unsigned int       r32 = 0x00000000;
+    /*static*/unsigned long long r64 = 0x0000000000000000;
     // [Под x86] В будущем понадобятся для генерации из байт-кода в машинный код (вынос в отдельные программы, в эмулятор/компилятор)
     /*static*/unsigned char       a8,  b8,  c8,  d8 = 0x00;               // аналог  8-bit's GPR, как на старых (ранних) процессорах, один 8-bit's регистр, вместо двух как в 16-bit's
     /*static*/unsigned short     a16, b16, c16, d16 = 0x0000;             // аналог 16-bit's GPR ( ax,  bx,  cx,  dx), можно обращаться к отдельным младшим 8-bit's половинам
