@@ -150,11 +150,13 @@ static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/hlt}; // Отв
 #define end_block }
 static inline void Action()
 run_block
-    /*static*/unsigned char  ip8  = 0x00;   // Instruction pointer 8-bit's
-    /*static*/unsigned short ip16 = 0x0000; // Instruction pointer 16-bit's
+    /*static*/unsigned char  ip8  = 0x00;       // Instruction pointer  8-bit's
+    /*static*/unsigned short ip16 = 0x0000;     // Instruction pointer 16-bit's
+    /*static*/unsigned int   ip32 = 0x00000000; // Instruction pointer 32-bit's
 
-    /*static*/unsigned char  sp8  = 0xFF;   // Stack pointer 8-bit's
-    /*static*/unsigned short sp16 = 0xFFFF; // Stack pointer 16-bit's
+    /*static*/unsigned char  sp8  = 0xFF;       // Stack pointer  8-bit's
+    /*static*/unsigned short sp16 = 0xFFFF;     // Stack pointer 16-bit's
+    /*static*/unsigned int   sp32 = 0xFFFFFFFF; // Stack pointer 32-bit's
 
     /*static*/unsigned char  cs8  = 0x00; // Code segment 8-bit's
     /*static*/unsigned char  ss8  = 0x00; // Stack segment 8-bit's
@@ -164,23 +166,21 @@ run_block
     /*static*/unsigned char bf       = 0; // (below) флаг меньше / в x86 какой флаг?
     /*static*/unsigned char af       = 0; // (above) флаг больше / в x86 какой флаг?
 
-    // Видимые (8-bit's) регистры общего назначения
-    /*static*/unsigned char r8 = 0x00;
-    /*static*/unsigned char a8 = 0x00;
-    /*static*/unsigned char b8 = 0x00;
-    /*static*/unsigned char c8 = 0x00;
-    /*static*/unsigned char d8 = 0x00;
+    // Основные видимые (8/16/32-bit's) регистры общего назначения
+    /*static*/unsigned char r8  = 0x00;
+    /*static*/unsigned char r16 = 0x0000;
+    /*static*/unsigned char r32 = 0x00000000;
+    // [Под x86] В будущем понадобятся для генерации из байт-кода в машинный код (вынос в отдельные программы, в эмулятор/компилятор)
+    /*static*/unsigned char       a8,  b8,  c8,  d8 = 0x00;               // аналог  8-bit's GPR, как на старых (ранних) процессорах, один 8-bit's регистр, вместо двух как в 16-bit's
+    /*static*/unsigned short     a16, b16, c16, d16 = 0x0000;             // аналог 16-bit's GPR ( ax,  bx,  cx,  dx), можно обращаться к отдельным младшим 8-bit's половинам
+    /*static*/unsigned int       a32, b32, c32, d32 = 0x00000000;         // аналог 32-bit's GPR (eax, ebx, ecx, edx), можно обращаться к отдельным младшим 16/8-bit's половинам
+    /*static*/unsigned long long a64, b64, c64, d64 = 0x0000000000000000; // аналог 64-bit's GPR (rax, rbx, rcx, rdx), можно обращаться к отдельным младшим 32/16/8-bit's половинам
     // Дополнительные
-    /*static*/unsigned char e8 = 0x00;
-    /*static*/unsigned char f8 = 0x00;
+    /*static*/unsigned char e8 = 0x00; // пока не используется
+    /*static*/unsigned char f8 = 0x00; // пока не используется
 
-    // Скрытые регистры общего назначения для хранения промежуточных результатов
-    /*static*/unsigned char a = 0;
-    /*static*/unsigned char b = 0;
-    /*static*/unsigned char c = 0;
-    /*static*/unsigned char d = 0;
-    /*static*/unsigned char e = 0;
-    /*static*/unsigned char f = 0;
+    // Скрытые (8-bit's) регистры общего назначения
+    /*static*/unsigned char a, b, c, d, e, f = 0; // используются системой (изменить нельзя)
 
     // Таблица диспетчеризации I (для 8-ти битного режима адресации)
     void *dispatch_mode8[0x100] =
