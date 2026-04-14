@@ -133,7 +133,7 @@ run_block
         [38] = &&__dispatch_mode8__opcode_039__,  // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
         [39] = &&__dispatch_mode8__opcode_040__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
         ///////////////////////////////////
-        [40 ... 253] = &&__dispatch_mode8__opcode_from_041_to_253__,
+        [40 ... 253] = &&__dispatch_mode8__opcode_from_041_to_254__,
         [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?> ; переключение режима адресации (с 8 на 16)
         [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
         ///////////////////////////////////
@@ -149,12 +149,20 @@ run_block
     // Таблица диспетчеризации III (для 32-х битного режима адресации)
     void *dispatch_mode32[0x100] =
     {
-        [0 ... 253] = &&__dispatch_mode32__opcode_from_001_to_254__,
-        [254] = &&__dispatch_mode32__opcode_255__, // <cmd=?> ; переключение режима адресации (с 32 на 16)
+        [0 ... 252] = &&__dispatch_mode32__opcode_from_001_to_253__,
+        [253] = &&__dispatch_mode32__opcode_254__, // <cmd=?> ; переключение режима адресации (с 32 на 16)
+        [254] = &&__dispatch_mode32__opcode_255__, // <cmd=?> ; переключение режима адресации (с 32 на 64)
+        [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    }; // Пока заглушка
+    // Таблица диспетчеризации IV (для 64-х битного режима адресации)
+    void *dispatch_mode64[0x100] =
+    {
+        [0 ... 253] = &&__dispatch_mode64__opcode_from_001_to_254__,
+        [254] = &&__dispatch_mode64__opcode_255__, // <cmd=?> ; переключение режима адресации (с 64 на 32)
         [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
     }; // Пока заглушка
     #ifdef DEBUG
-     printf("\n Starting vCPU (8-bit's mode)...\n"); // 1--2, 2--4, 3--8, 4 - 16, 5 - 32, 6 - 64, 7 - 128, 8 - 256, 9 - 512, 10 - 1024
+     printf("\n Starting vCPU (8-bit's mode)...\n");
     #endif
     // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode8[memory[ip8]];
@@ -162,6 +170,8 @@ run_block
     goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
     // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
+    // Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
+    goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
 
 /* Генератор
 for (unsigned char i = 39; i <= 254; i++)
@@ -563,7 +573,7 @@ __dispatch_mode8__opcode_040__:     // JAE/JNB addr8  (Jump if Above or Equal / 
 //////////////////////////////////////
 
 //////////////////////////////////////////////
-__dispatch_mode8__opcode_from_041_to_253__: // <id_op=41~253> ; Неопределённые опкоды
+__dispatch_mode8__opcode_from_041_to_254__: // <id_op=41~254> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                //
  putchar('\n');                             //
  return;                                    // ; Экстремальный выход
@@ -574,14 +584,20 @@ __dispatch_mode16__opcode_from_001_to_253__: // <id_op=1~253> ; Неопреде
 #include "ShowDashboard.txt"                 //
  putchar('\n');                              //
  return;                                     // ; Экстремальный выход
- //goto *dispatch_mode8[memory[++ip16]];     // ; В режиме отладки, для просмотра след. опкода
+ //goto *dispatch_mode16[memory[++ip16]];    // ; В режиме отладки, для просмотра след. опкода
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-__dispatch_mode32__opcode_from_001_to_254__: // <id_op=1~254> ; Неопределённые опкоды
+__dispatch_mode32__opcode_from_001_to_253__: // <id_op=1~253> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                 //
  putchar('\n');                              //
  return;                                     // ; Экстремальный выход
-//goto *dispatch_mode8[memory[++ip32]];      // ; В режиме отладки, для просмотра след. опкода
+//goto *dispatch_mode32[memory[++ip32]];     // ; В режиме отладки, для просмотра след. опкода
+///////////////////////////////////////////////
+__dispatch_mode64__opcode_from_001_to_254__: // <id_op=1~254> ; Неопределённые опкоды
+#include "ShowDashboard.txt"                 //
+ putchar('\n');                              //
+ return;                                     // ; Экстремальный выход
+//goto *dispatch_mode64[memory[++ip64]];     // ; В режиме отладки, для просмотра след. опкода
 ///////////////////////////////////////////////
 
 //////////////////////////////////
@@ -603,10 +619,22 @@ __dispatch_mode16__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 1
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
 ///////////////////////////////////
-__dispatch_mode32__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 16-ти битный режим адресации
+__dispatch_mode32__opcode_254__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 16-ти битный режим адресации
 #include "ShowDashboard.txt"     //
  ip16 = ip32;                    //
  goto *dispatch_mode16[ip16];    //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode32__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 64-х битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip64 = ip32;                    //
+ goto *dispatch_mode64[ip64];    //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 64-х в 32-х битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip32 = ip64;                    //
+ goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
 
 ////////////////////////////////////
