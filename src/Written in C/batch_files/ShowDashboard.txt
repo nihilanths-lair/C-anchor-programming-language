@@ -3,17 +3,18 @@
 //#endif
 if (memory[ip8] >= 41 && memory[ip8] <= 253)
 {
-    printf("\n\n opcode:%02X|%03d|%c     -> %d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
-    printf("\n       HEX|DEC|ASCII");
+    printf("\n id_op: %02X|_%03d_|'%c' -> %d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
+    printf("\n       HEX| DEC |ASCII");
     printf("\n IP8: [%02X]|[%03d]|[%c] -> %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
     printf("\n SP8: [%02X]|[%03d]|[%c] -> %d", sp8, sp8, ProcAsciiChr(sp8), sp8);
     printf("\n  R8: [%02X]|[%03d]|[%c] -> %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
 }
 else
 {
-    printf("\n\n opcode:%02X|%03d|%c     -> %d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
-    printf("\n       HEX|DEC|ASCII");
+    printf("\n id_op: %02X|_%03d_|'%c' -> %d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
+    printf("\n       HEX| DEC |ASCII");
     printf("\n IP8: [%02X]|[%03d]|[%c] -> %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
     printf("\n SP8: [%02X]|[%03d]|[%c] -> %d", sp8, sp8, ProcAsciiChr(sp8), ip8);
     printf("\n  R8: [%02X]|[%03d]|[%c] -> %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
 }
+putchar('\n');
