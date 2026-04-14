@@ -39,11 +39,11 @@ run_block
 /*static*/unsigned long long ip64 = 0; // Instruction pointer 64-bit's
 /*static*/unsigned long long ip   = 0; // Один общий `ip` для каждого режима битности адресов (битовые операции)
 
-/*static*/unsigned char      sp8  = 0xFF;               // Stack pointer  8-bit's
-/*static*/unsigned short     sp16 = 0xFFFF;             // Stack pointer 16-bit's
-/*static*/unsigned int       sp32 = 0xFFFFFFFF;         // Stack pointer 32-bit's
-/*static*/unsigned long long sp64 = 0xFFFFFFFFFFFFFFFF; // Stack pointer 64-bit's
-/*static*/unsigned long long sp   = 0xFFFFFFFFFFFFFFFF; // Один общий `sp` для каждого режима битности адресов (битовые операции)
+/*static*/unsigned char      sp8  = 0-1; // Stack pointer  8-bit's
+/*static*/unsigned short     sp16 = 0-1; // Stack pointer 16-bit's
+/*static*/unsigned int       sp32 = 0-1; // Stack pointer 32-bit's
+/*static*/unsigned long long sp64 = 0-1; // Stack pointer 64-bit's
+/*static*/unsigned long long sp   = 0-1; // Один общий `sp` для каждого режима битности адресов (битовые операции)
 
 /*static*/unsigned char  cs8  = 0; //  Code segment 8-bit's
 /*static*/unsigned char  ss8  = 0; // Stack segment 8-bit's
@@ -171,22 +171,22 @@ void *dispatch_mode64[0x100] =
     [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
 }; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (8-bit's mode)...");
+ printf("\n Starting vCPU (8-bit's mode)...\n");
 #endif
  // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode8[memory[ip8]];
 #ifdef DEBUG
- printf("\n Starting vCPU (16-bit's mode)...");
+ printf("\n Starting vCPU (16-bit's mode)...\n");
 #endif
  // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (32-bit's mode)...");
+ printf("\n Starting vCPU (32-bit's mode)...\n");
 #endif
  // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (64-bit's mode)...");
+ printf("\n Starting vCPU (64-bit's mode)...\n");
 #endif
  // Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
@@ -672,8 +672,7 @@ __dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 6
 ////////////////////////////////////
 __dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
 #include "ShowDashboard.txt"      //
- putchar('\n');                   //
- return;                          //
+ return;                          // ; Заглушка
 ////////////////////////////////////
 //
 end_block
