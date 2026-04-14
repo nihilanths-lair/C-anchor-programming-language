@@ -604,36 +604,42 @@ __dispatch_mode64__opcode_from_001_to_254__: // <id_op=1~254> ; Неопреде
 __dispatch_mode8__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 8-ми на 16-ти битный режим адресации
 #include "ShowDashboard.txt"    //
  ip16 = ip8;                    //
+ sp16 = sp8;                    //
  goto *dispatch_mode16[ip16];   //
 //////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode16__opcode_254__: // <id_op=254, smb_mnc=?> ; Переход с 16-ти в 8-ми битный режим адресации
 #include "ShowDashboard.txt"     //
  ip8 = ip16;                     //
+ sp8 = sp16;                     //
  goto *dispatch_mode8[ip8];      //
 ///////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode16__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 16-ти в 32-х битный режим адресации
 #include "ShowDashboard.txt"     //
  ip32 = ip16;                    //
+ sp32 = sp16;                    //
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode32__opcode_254__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 16-ти битный режим адресации
 #include "ShowDashboard.txt"     //
  ip16 = ip32;                    //
+ sp16 = sp32;                    //
  goto *dispatch_mode16[ip16];    //
 ///////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode32__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 64-х битный режим адресации
 #include "ShowDashboard.txt"     //
  ip64 = ip32;                    //
+ sp64 = sp32;                    //
  goto *dispatch_mode64[ip64];    //
 ///////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 64-х в 32-х битный режим адресации
 #include "ShowDashboard.txt"     //
  ip32 = ip64;                    //
+ sp32 = sp64;                    //
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
 
