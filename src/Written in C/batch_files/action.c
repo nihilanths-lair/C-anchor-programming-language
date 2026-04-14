@@ -75,30 +75,28 @@ run_block
 
         [ 2] = &&__dispatch_mode8__opcode_003__, // <cmd=INC> <arg-1=dst:p8>
         [ 3] = &&__dispatch_mode8__opcode_004__, // <cmd=DEC> <arg-1=dst:p8>
-        //
+        ///////////////////////
+        // Перессылка данных //
         [ 4] = &&__dispatch_mode8__opcode_005__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
         [ 5] = &&__dispatch_mode8__opcode_006__, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
-        //
+
         [ 6] = &&__dispatch_mode8__opcode_007__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
         [ 7] = &&__dispatch_mode8__opcode_008__, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
-        //
+
         [ 8] = &&__dispatch_mode8__opcode_009__, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
         [ 9] = &&__dispatch_mode8__opcode_010__, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
-        //
+
         [10] = &&__dispatch_mode8__opcode_011__, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
         [11] = &&__dispatch_mode8__opcode_012__, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
-        //
+
         [12] = &&__dispatch_mode8__opcode_013__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
         [13] = &&__dispatch_mode8__opcode_014__, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
-        //
+        // Перессылка данных //
         ////////////////////////////////////
         // Арифметико-логические операции //
         [14] = &&__dispatch_mode8__opcode_015__, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-        //
         [15] = &&__dispatch_mode8__opcode_016__, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-        //
         [16] = &&__dispatch_mode8__opcode_017__, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-        //
         [17] = &&__dispatch_mode8__opcode_018__, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
         //
         ////////////////////////////////////
@@ -140,18 +138,19 @@ run_block
         [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
         ///////////////////////////////////
     };
-    /* Генератор
-    for (unsigned char i = 39; i <= 254; i++)
-    {
-        //printf("\n[%d] = &&__dispatch_mode8__opcode_%03d__,", i-1, i);
-        //printf("\n__dispatch_mode8__opcode_%03d__:", i);
-    }
-    */
     // Таблица диспетчеризации II (для 16-ти битного режима адресации)
     void *dispatch_mode16[0x100] =
     {
-        [0 ... 253] = &&__dispatch_mode16__opcode_from_000_to_253__,
-        [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
+        [0 ... 252] = &&__dispatch_mode16__opcode_from_001_to_253__,
+        [253] = &&__dispatch_mode16__opcode_254__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
+        [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 32)
+        [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    }; // Пока заглушка
+    // Таблица диспетчеризации III (для 32-х битного режима адресации)
+    void *dispatch_mode32[0x100] =
+    {
+        [0 ... 253] = &&__dispatch_mode32__opcode_from_001_to_254__,
+        [254] = &&__dispatch_mode32__opcode_255__, // <cmd=?> ; переключение режима адресации (с 32 на 16)
         [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
     }; // Пока заглушка
     #ifdef DEBUG
@@ -160,7 +159,17 @@ run_block
     // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
     goto *dispatch_mode8[memory[ip8]];
     // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
-    //goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+    goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+    // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
+    goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
+
+/* Генератор
+for (unsigned char i = 39; i <= 254; i++)
+{
+    //printf("\n[%d] = &&__dispatch_mode8__opcode_%03d__,", i-1, i);
+    //printf("\n__dispatch_mode8__opcode_%03d__:", i);
+}
+*/
 
 // #include "ShowDashboard.txt" ; Режим отладки вынесен в отдельный файл через #ifdef DEBUG тело #endif
 /*/
@@ -554,32 +563,51 @@ __dispatch_mode8__opcode_040__:     // JAE/JNB addr8  (Jump if Above or Equal / 
 //////////////////////////////////////
 
 //////////////////////////////////////////////
-__dispatch_mode8__opcode_from_041_to_253__: // ; Неопределённые опкоды
+__dispatch_mode8__opcode_from_041_to_253__: // <id_op=41~253> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                //
- putchar('\n');
+ putchar('\n');                             //
  return;                                    // ; Экстремальный выход
- //goto *dispatch_mode8[memory[++ip8]];     // ; Крутим дальше
+ //goto *dispatch_mode8[memory[++ip8]];     // ; В режиме отладки, для просмотра след. опкода
 //////////////////////////////////////////////
 ///////////////////////////////////////////////
-__dispatch_mode16__opcode_from_000_to_253__: // ; Неопределённые опкоды
+__dispatch_mode16__opcode_from_001_to_253__: // <id_op=1~253> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                 //
+ putchar('\n');                              //
  return;                                     // ; Экстремальный выход
- //goto *dispatch_mode8[memory[++ip8]];      // ; Крутим дальше
+ //goto *dispatch_mode8[memory[++ip16]];     // ; В режиме отладки, для просмотра след. опкода
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+__dispatch_mode32__opcode_from_001_to_254__: // <id_op=1~254> ; Неопределённые опкоды
+#include "ShowDashboard.txt"                 //
+ putchar('\n');                              //
+ return;                                     // ; Экстремальный выход
+//goto *dispatch_mode8[memory[++ip32]];      // ; В режиме отладки, для просмотра след. опкода
 ///////////////////////////////////////////////
 
-///////////////////////////////////////////
-__dispatch_mode16__opcode_255__:         // <cmd=?> ; Переключение на 8-ми битный режим адресации
-#include "ShowDashboard.txt"             //
- ip8 = ip16;                             //
- goto *dispatch_mode8[ip8];              //
-///////////////////////////////////////////
-
-////////////////////////////////////////////
-__dispatch_mode8__opcode_255__:           // <cmd=?> ; Переключение на 16-ти битный режим адресации
-#include "ShowDashboard.txt"              //
- ip16 = ip8;                              //
- goto *dispatch_mode16[ip16];             //
-////////////////////////////////////////////
+//////////////////////////////////
+__dispatch_mode8__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 8-ми на 16-ти битный режим адресации
+#include "ShowDashboard.txt"    //
+ ip16 = ip8;                    //
+ goto *dispatch_mode16[ip16];   //
+//////////////////////////////////
+///////////////////////////////////
+__dispatch_mode16__opcode_254__: // <id_op=254, smb_mnc=?> ; Переход с 16-ти в 8-ми битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip8 = ip16;                     //
+ goto *dispatch_mode8[ip8];      //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode16__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 16-ти в 32-х битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip32 = ip16;                    //
+ goto *dispatch_mode32[ip32];    //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode32__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 16-ти битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip16 = ip32;                    //
+ goto *dispatch_mode16[ip16];    //
+///////////////////////////////////
 
 ////////////////////////////////////
 __dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
