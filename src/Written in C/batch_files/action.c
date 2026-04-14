@@ -5,6 +5,8 @@ static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста
 {
     // start:
     mov8_dm_si, 10, 5,    // 0: mov [10] 5
+    hlt
+    /*
     inc8_dm,    10,       // 3: inc [10]
     mov8_dm_sm, 20, 10,   // 5: mov [20] [10]
     add8_dm_si, 20, 3,    // 8: add [20], 3
@@ -19,6 +21,7 @@ static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста
     pop8_dm,    30,       // 23: pop [30]
     mov8_dr_si, 123,      // 25: mov <r8> 123
     ret                   // 28: ret
+    */
 };
 #endif
 #ifndef DEBUG
@@ -168,24 +171,24 @@ void *dispatch_mode64[0x100] =
     [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
 }; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (8-bit's mode)...\n");
+ printf("\n Starting vCPU (8-bit's mode)...");
 #endif
-// Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
+ // Стартуем в 8-ми битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode8[memory[ip8]];
 #ifdef DEBUG
- printf("\n Starting vCPU (16-bit's mode)...\n");
+ printf("\n Starting vCPU (16-bit's mode)...");
 #endif
-// Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
+ // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (32-bit's mode)...\n");
+ printf("\n Starting vCPU (32-bit's mode)...");
 #endif
-// Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
+ // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
 #ifdef DEBUG
- printf("\n Starting vCPU (64-bit's mode)...\n");
+ printf("\n Starting vCPU (64-bit's mode)...");
 #endif
-// Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
+ // Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
 
 /*for (unsigned char i = 39; i <= 254; i++) // Генератор
@@ -669,6 +672,7 @@ __dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 6
 ////////////////////////////////////
 __dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
 #include "ShowDashboard.txt"      //
+ putchar('\n');                   //
  return;                          //
 ////////////////////////////////////
 //
