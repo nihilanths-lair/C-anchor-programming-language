@@ -1,20 +1,99 @@
-//#ifdef DEBUG
+#ifdef DEBUG
 // ShowDashboard(memory, ip8, sp8, r8);
 //#endif
-if (memory[ip8] >= 41 && memory[ip8] <= 253)
+// 1 - Полный цикл дизассемблирования
+switch (swh){
+case 1:
 {
-    printf("\n id_op: %02X|_%03d_|'%c' -> %d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
-    printf("\n       HEX| DEC |ASCII");
-    printf("\n IP8: [%02X]|[%03d]|[%c] -> %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
-    printf("\n SP8: [%02X]|[%03d]|[%c] -> %d", sp8, sp8, ProcAsciiChr(sp8), sp8);
-    printf("\n  R8: [%02X]|[%03d]|[%c] -> %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+    // Одноразово
+    int temp = ip8;
+    printf("\n << Дизассемблирование VM C$ начато >>\n");
+    printf("\n Syntax: Intel/AT&T (двухнаправленный)\n");
+    for (int i = 0; i < 256; i++)
+    {
+        switch (memory[ip8]){
+        case   4: printf("\n %02X: %02X %02X %02X | MOV %02X << %02X ; Intel", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
+        case   5: printf("\n %02X: %02X %02X %02X | MOV %02X >> %02X ; AT&T", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
+        case 255: printf("\n %02X: %02X       | HLT", ip8, memory[ip8]); ip8 += 1; break;
+        default: i = 255;
+        }
+    }
+    putchar('\n');
+    ip8 = temp; // Возвращаем исходную позицию
+    for (int i = 0; i < 256; i++)
+    {
+        switch (memory[ip8]){
+        case   4: printf("\n %03d: %03d %03d %03d | MOV %03d << %03d ; Intel", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
+        case   5: printf("\n %03d: %03d %03d %03d | MOV %03d >> %03d ; AT&T", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
+        case 255: printf("\n %03d: %03d         | HLT", ip8, memory[ip8]); ip8 += 1; break;
+        default: i = 255;
+        }
+    }
+    printf("\n\n << Дизассемблирование VM C$ окончено >>\n");
+    ip8 = temp; // Возвращаем исходную позицию
+    swh = 2; // Переход к отладчику
+    printf("\n << Отладка VM C$ начата >>\n");
+    //break;
 }
-else
+case 2:
 {
-    printf("\n id_op: %02X|_%03d_|'%c' -> %d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
-    printf("\n       HEX| DEC |ASCII");
-    printf("\n IP8: [%02X]|[%03d]|[%c] -> %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
-    printf("\n SP8: [%02X]|[%03d]|[%c] -> %d", sp8, sp8, ProcAsciiChr(sp8), ip8);
-    printf("\n  R8: [%02X]|[%03d]|[%c] -> %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+    //if (memory[ip8] == 255) printf("\n << Отладка VM C$ закончена >>\n"); swh = 0;
+    if (memory[ip8] >= 41 && memory[ip8] <= 253)
+    {
+        printf("\n id_op: %02X|_%03d_|'%c' = %d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
+        printf("\n       HEX| DEC |ASCII");
+        printf("\n IP8: [%02X]|[%03d]|[%c] = %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
+        printf("\n SP8: [%02X]|[%03d]|[%c] = %d", sp8, sp8, ProcAsciiChr(sp8), sp8);
+        printf("\n  R8: [%02X]|[%03d]|[%c] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+    }
+    else
+    {
+        printf("\n id_op: %02X|_%03d_|'%c' = %d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
+        printf("\n       HEX| DEC |ASCII");
+        printf("\n IP8: [%02X]|[%03d]|[%c] = %d", ip8, ip8, ProcAsciiChr(ip8), ip8);
+        printf("\n SP8: [%02X]|[%03d]|[%c] = %d", sp8, sp8, ProcAsciiChr(sp8), ip8);
+        printf("\n  R8: [%02X]|[%03d]|[%c] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+    }
+    putchar('\n');
+    switch (1){
+    case 1:
+    {
+        printf("\n MEMORY (HEX | DEC | ASCII)\n    ");
+        for (int i = 0; i < 0x0F+1; i++) printf("[%02X]", i);
+        printf("        ");
+        for (int i = 0; i < 0x0F+1; i++) printf("[%03d]", i);
+        //printf("        ");
+        //for (int i = 0; i < 0x0F + 1; i++) printf("[%c]", i);
+        for (int j = 0; j < 0x0F+1; j++)
+        {
+            printf("\n[%02X]", j*0x10);
+            for (int i = 0; i < 0x0F+1; i++) printf(" %02X ", memory[j*0x10+i]);
+            printf("   ");
+            printf("[%03d]", j*0x10);
+            for (int i = 0; i < 0x0F+1; i++) printf(" %03d ", memory[j*0x10+i]);
+            printf("   ");
+            for (int i = 0; i < 0x0F+1; i++) printf("%c", ProcAsciiChr(memory[j*0x10+i]));
+        }
+        break;
+    }
+    case 2:
+    {
+        printf("\n MEMORY (HEX | DEC | ASCII)\n    ");
+        for (int i = 0; i < 11; i++) printf("\n [%02X] %02X ", i, memory[i]);
+        break;
+    }
+    default:
+    {
+        // ... //
+    }}
+    putchar('\n');
+    //printf("\n      %03d - %03d\n", 0xFFFFFFFF, 0xFF);
+    //printf(" %02X - %02X\n", -1, 255);
+    //printf("      '%c' - '%c'\n", 0xFFFFFFFF, 0xFF);
+    break;
 }
-putchar('\n');
+default:
+{
+    // ... //
+}}
+#endif
