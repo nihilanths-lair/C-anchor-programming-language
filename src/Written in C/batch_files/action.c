@@ -1,11 +1,15 @@
-#define DEBUG 1
+/**/#define DEBUG/**/
 #ifdef DEBUG
+unsigned char swh = 1;
 #include "enum_opcode.txt"
 static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста/проверки работоспобности движка
 {
     // start:
-    mov8_dm_si, 10, 5,    // 0: mov [10] 5
-    hlt
+    mov8_dm_si, 240, 'C', // 0: mov [240] 'C'
+    mov8_dm_si, 241, '$', // 3: mov [241] '$'
+
+    mov8_si_dm, 5, 242,   // 6: mov 5 [242]
+    hlt                   // 9: hlt
     /*
     inc8_dm,    10,       // 3: inc [10]
     mov8_dm_sm, 20, 10,   // 5: mov [20] [10]
@@ -25,7 +29,7 @@ static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста
 };
 #endif
 #ifndef DEBUG
-static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/hlt}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
+static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/0xFF}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
 #define run_block {
 #define end_block }
@@ -45,13 +49,13 @@ run_block
 /*static*/unsigned long long sp64 = 0-1; // Stack pointer 64-bit's
 /*static*/unsigned long long sp   = 0-1; // Один общий `sp` для каждого режима битности адресов (битовые операции)
 
-/*static*/unsigned char  cs8  = 0; //  Code segment 8-bit's
-/*static*/unsigned char  ss8  = 0; // Stack segment 8-bit's
-/*static*/unsigned char  ds8  = 0; //  Data segment 8-bit's
+/*static*/unsigned char cs8  = 0; //  Code segment 8-bit's
+/*static*/unsigned char ss8  = 0; // Stack segment 8-bit's
+/*static*/unsigned char ds8  = 0; //  Data segment 8-bit's
 
-/*static*/unsigned short  cs16 = 0; //  Code segment 16-bit's
-/*static*/unsigned short  ss16 = 0; // Stack segment 16-bit's
-/*static*/unsigned short  ds16 = 0; //  Data segment 16-bit's
+/*static*/unsigned short cs16 = 0; //  Code segment 16-bit's
+/*static*/unsigned short ss16 = 0; // Stack segment 16-bit's
+/*static*/unsigned short ds16 = 0; //  Data segment 16-bit's
 
 // Скорее всего переделаю на работу с битовыми операциями (т.е. один 8-bit's регистр, вместо нескольких) ; [Заметки]: Как скажется на производительности?
 /*static*/unsigned char     ef8  = 0; // флаг равенства (zf в x86)
@@ -286,8 +290,9 @@ __dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
 __dispatch_mode8__opcode_005__:         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
-#include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
+#include "ShowDashboard.txt"            //
+ printf("\n [DEBUG] __dispatch_mode8__opcode_005__: [%d] = %d ; Intel\n", memory[ip8+1], memory[memory[ip8+1]]);
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
@@ -343,8 +348,9 @@ __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
 __dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
-#include "ShowDashboard.txt"            //
  memory[memory[ip8+2]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:m8>
+#include "ShowDashboard.txt"            //
+ printf("\n [DEBUG] __dispatch_mode8__opcode_006__: [%d] = %d ; AT&T\n", memory[ip8+2], memory[memory[ip8+2]]);
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
