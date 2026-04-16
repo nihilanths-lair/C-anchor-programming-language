@@ -42,17 +42,17 @@ case 2:
     {
         printf("\n   id_op:    %02X  |   %03d   |'%c' = %d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
         printf("\n            HEX  |   DEC   |  ASCII");
-        printf("\n CS8:IP8: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
-        printf("\n CS8:SP8: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
-        printf("\n      R8:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+        printf("\n <CS8:IP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
+        printf("\n <CS8:SP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
+        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
     }
     else
     {
         printf("\n   id_op:    %02X  |   %03d   |'%c' = %d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
         printf("\n            HEX  |   DEC   |  ASCII");
-        printf("\n CS8:IP8: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
-        printf("\n CS8:SP8: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
-        printf("\n      R8:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+        printf("\n <CS8:IP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
+        printf("\n <CS8:SP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
+        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
     }
     putchar('\n');
     switch (1){
