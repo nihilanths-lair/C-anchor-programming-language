@@ -39,12 +39,14 @@ run_block
 // Указатель на сектор / sector pointer //
 /*static*/unsigned char      ip8  = 0; // Instruction pointer  8-bit's
 /*static*/unsigned short     ip16 = 0; // Instruction pointer 16-bit's
+/*static*/unsigned int       ip24 = 0; // Instruction pointer 24-bit's
 /*static*/unsigned int       ip32 = 0; // Instruction pointer 32-bit's
 /*static*/unsigned long long ip64 = 0; // Instruction pointer 64-bit's
 /*static*/unsigned long long ip   = 0; // Один общий `ip` для каждого режима битности адресов (битовые операции)
 
 /*static*/unsigned char      sp8  = 0-1; // Stack pointer  8-bit's
 /*static*/unsigned short     sp16 = 0-1; // Stack pointer 16-bit's
+/*static*/unsigned int       sp24 = 0-1; // Stack pointer 24-bit's
 /*static*/unsigned int       sp32 = 0-1; // Stack pointer 32-bit's
 /*static*/unsigned long long sp64 = 0-1; // Stack pointer 64-bit's
 /*static*/unsigned long long sp   = 0-1; // Один общий `sp` для каждого режима битности адресов (битовые операции)
@@ -156,18 +158,26 @@ void *dispatch_mode16[0x100] =
 {
     [0 ... 252] = &&__dispatch_mode16__opcode_from_001_to_253__,
     [253] = &&__dispatch_mode16__opcode_254__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
-    [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 32)
+    [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 24) [!]
     [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
 }; // Пока заглушка
-// Таблица диспетчеризации III (для 32-х битного режима адресации)
+// Таблица диспетчеризации III (для 24-х битного режима адресации)
+void *dispatch_mode24[0x100] =
+{
+    [0 ... 252] = &&__dispatch_mode24__opcode_from_001_to_253__,
+    [253] = &&__dispatch_mode24__opcode_254__, // <cmd=?> ; переключение режима адресации (с 24 на 16) [!]
+    [254] = &&__dispatch_mode24__opcode_255__, // <cmd=?> ; переключение режима адресации (с 24 на 32) [!]
+    [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+}; // Пока заглушка
+// Таблица диспетчеризации IV (для 32-х битного режима адресации)
 void *dispatch_mode32[0x100] =
 {
     [0 ... 252] = &&__dispatch_mode32__opcode_from_001_to_253__,
-    [253] = &&__dispatch_mode32__opcode_254__, // <cmd=?> ; переключение режима адресации (с 32 на 16)
+    [253] = &&__dispatch_mode32__opcode_254__, // <cmd=?> ; переключение режима адресации (с 32 на 24) [!]
     [254] = &&__dispatch_mode32__opcode_255__, // <cmd=?> ; переключение режима адресации (с 32 на 64)
     [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
 }; // Пока заглушка
-// Таблица диспетчеризации IV (для 64-х битного режима адресации)
+// Таблица диспетчеризации V (для 64-х битного режима адресации)
 void *dispatch_mode64[0x100] =
 {
     [0 ... 253] = &&__dispatch_mode64__opcode_from_001_to_254__,
@@ -184,6 +194,11 @@ void *dispatch_mode64[0x100] =
 #endif
  // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
  goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+#ifdef DEBUG
+ printf("\n Starting vCPU (24-bit's mode)...\n");
+#endif
+ // Стартуем в 24-х битном режиме адресации! (Определяется конфигурацией VM)
+ goto *dispatch_mode24[memory[ip24]]; // Пока заглушка
 #ifdef DEBUG
  printf("\n Starting vCPU (32-bit's mode)...\n");
 #endif
@@ -619,6 +634,13 @@ __dispatch_mode16__opcode_from_001_to_253__: // <id_op=1~253> ; Неопреде
  //goto *dispatch_mode16[memory[++ip16]];    // ; В режиме отладки, для просмотра след. опкода
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
+__dispatch_mode24__opcode_from_001_to_253__: // <id_op=1~253> ; Неопределённые опкоды
+#include "ShowDashboard.txt"                 //
+ putchar('\n');                              //
+ return;                                     // ; Экстремальный выход
+ //goto *dispatch_mode24[memory[++ip24]];    // ; В режиме отладки, для просмотра след. опкода
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 __dispatch_mode32__opcode_from_001_to_253__: // <id_op=1~253> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                 //
  putchar('\n');                              //
@@ -633,7 +655,7 @@ __dispatch_mode64__opcode_from_001_to_254__: // <id_op=1~254> ; Неопреде
 ///////////////////////////////////////////////
 
 //////////////////////////////////
-__dispatch_mode8__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 8-ми на 16-ти битный режим адресации
+__dispatch_mode8__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 8-ми в 16-ти битный режим адресации
 #include "ShowDashboard.txt"    //
  ip16 = ip8;                    //
  sp16 = sp8;                    //
@@ -647,18 +669,32 @@ __dispatch_mode16__opcode_254__: // <id_op=254, smb_mnc=?> ; Переход с 1
  goto *dispatch_mode8[ip8];      //
 ///////////////////////////////////
 ///////////////////////////////////
-__dispatch_mode16__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 16-ти в 32-х битный режим адресации
+__dispatch_mode16__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 16-ти в 24-х битный режим адресации
 #include "ShowDashboard.txt"     //
- ip32 = ip16;                    //
- sp32 = sp16;                    //
+ ip24 = ip16;                    //
+ sp24 = sp16;                    //
+ goto *dispatch_mode24[ip24];    //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode24__opcode_254__: // <id_op=255, smb_mnc=?> ; Переход с 24-х в 16-х битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip16 = ip24;                    //
+ sp16 = sp24;                    //
+ goto *dispatch_mode16[ip16];    //
+///////////////////////////////////
+///////////////////////////////////
+__dispatch_mode24__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 24-х в 32-х битный режим адресации
+#include "ShowDashboard.txt"     //
+ ip32 = ip24;                    //
+ sp32 = sp24;                    //
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
 ///////////////////////////////////
-__dispatch_mode32__opcode_254__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 16-ти битный режим адресации
+__dispatch_mode32__opcode_254__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 24-х битный режим адресации
 #include "ShowDashboard.txt"     //
- ip16 = ip32;                    //
- sp16 = sp32;                    //
- goto *dispatch_mode16[ip16];    //
+ ip24 = ip32;                    //
+ sp24 = sp32;                    //
+ goto *dispatch_mode24[ip24];    //
 ///////////////////////////////////
 ///////////////////////////////////
 __dispatch_mode32__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 32-х в 64-х битный режим адресации
@@ -674,7 +710,6 @@ __dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 6
  sp32 = sp64;                    //
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
-
 ////////////////////////////////////
 __dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
 #include "ShowDashboard.txt"      //
