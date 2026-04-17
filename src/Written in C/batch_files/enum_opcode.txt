@@ -5,9 +5,9 @@ enum
 
     inc8_dp, // <cmd=INC> <arg-1=dst:p8>
     dec8_dp, // <cmd=DEC> <arg-1=dst:p8>
-    ///////////
 
-    // Перессылка данных (Intel)
+    /////////////////////////////////
+    // Перессылка данных (Intel)   //
     // mov8_si_si,                 // <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; Недопустимо!
     mov8_dr_si,                    // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; l-op << r-op
     mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; l-op << r-op
@@ -31,9 +31,9 @@ enum
     mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; l-op >> r-op
     //                             //
     mov8_sp_dm,                    // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; l-op >> r-op
+    //                             //
     /////////////////////////////////
-
-    //////////////////////////////////////////////
+    //
     // Арифметико-логические операции (8-bit's) //
     //                                          //
     // Сложение                                 //
