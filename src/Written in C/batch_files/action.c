@@ -133,39 +133,38 @@ void *dispatch_mode8[0x100] =
     [44 ... 253] = &&dispatch__mode_8__identifier_opcode_from_45_to_254, // Неопределённые/неизвестные опкоды
     [254] = &&dispatch__mode_8__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 8 на 16)
     [255] = &&dispatch__mode_8__identifier_opcode_256  // <cmd=HLT>
-    /////////////////////////////////////////////////////
 };
 // Таблица диспетчеризации II (для 16-ти битного режима адресации)
 void *dispatch_mode16[0x100] =
 {
     [0 ... 252] = &&dispatch__mode_16__identifier_opcode_from_1_to_253, // Неопределённые/неизвестные опкоды
-    [253] = &&dispatch__mode_16__identifier_opcode_254,                 // <cmd=?> ; переключение режима адресации (с 16 на 8)
-    [254] = &&dispatch__mode_16__identifier_opcode_255,                 // <cmd=?> ; переключение режима адресации (с 16 на 24) [!]
-    [255] = &&dispatch__mode_8__identifier_opcode_256                   // <cmd=HLT>
-}; // Пока заглушка
+    [253] = &&dispatch__mode_16__identifier_opcode_254, // <cmd=?> ; переключение режима адресации (с 16 на 8)
+    [254] = &&dispatch__mode_16__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 16 на 24)
+    [255] = &&dispatch__mode_8__identifier_opcode_256   // <cmd=HLT>
+};
 // Таблица диспетчеризации III (для 24-х битного режима адресации)
 void *dispatch_mode24[0x100] =
 {
     [0 ... 252] = &&dispatch__mode_24__identifier_opcode_from_1_to_253, // Неопределённые/неизвестные опкоды
-    [253] = &&dispatch__mode_24__identifier_opcode_254,                 // <cmd=?> ; переключение режима адресации (с 24 на 16) [!]
-    [254] = &&dispatch__mode_24__identifier_opcode_255,                 // <cmd=?> ; переключение режима адресации (с 24 на 32) [!]
-    [255] = &&dispatch__mode_8__identifier_opcode_256                   // <cmd=HLT>
-}; // Пока заглушка
+    [253] = &&dispatch__mode_24__identifier_opcode_254, // <cmd=?> ; переключение режима адресации (с 24 на 16)
+    [254] = &&dispatch__mode_24__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 24 на 32)
+    [255] = &&dispatch__mode_8__identifier_opcode_256   // <cmd=HLT>
+};
 // Таблица диспетчеризации IV (для 32-х битного режима адресации)
 void *dispatch_mode32[0x100] =
 {
     [0 ... 252] = &&dispatch__mode_32__identifier_opcode_from_1_to_253, // Неопределённые/неизвестные опкоды
-    [253] = &&dispatch__mode_32__identifier_opcode_254,                 // <cmd=?> ; переключение режима адресации (с 32 на 24) [!]
-    [254] = &&dispatch__mode_32__identifier_opcode_255,                 // <cmd=?> ; переключение режима адресации (с 32 на 64)
-    [255] = &&dispatch__mode_8__identifier_opcode_256                   // <cmd=HLT>
-}; // Пока заглушка
+    [253] = &&dispatch__mode_32__identifier_opcode_254, // <cmd=?> ; переключение режима адресации (с 32 на 24)
+    [254] = &&dispatch__mode_32__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 32 на 64)
+    [255] = &&dispatch__mode_8__identifier_opcode_256   // <cmd=HLT>
+};
 // Таблица диспетчеризации V (для 64-х битного режима адресации)
 void *dispatch_mode64[0x100] =
 {
     [0 ... 253] = &&dispatch__mode_64__identifier_opcode_from_1_to_254, // Неопределённые/неизвестные опкоды
-    [254] = &&dispatch__mode_64__identifier_opcode_255,                 // <cmd=?> ; переключение режима адресации (с 64 на 32)
-    [255] = &&dispatch__mode_8__identifier_opcode_256                   // <cmd=HLT>
-}; // Пока заглушка
+    [254] = &&dispatch__mode_64__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 64 на 32)
+    [255] = &&dispatch__mode_8__identifier_opcode_256   // <cmd=HLT>
+};
 #ifdef DEBUG
  printf("\n Starting vCPU (8-bit's mode)...\n");
 #endif
@@ -175,22 +174,22 @@ void *dispatch_mode64[0x100] =
  printf("\n Starting vCPU (16-bit's mode)...\n");
 #endif
  // Стартуем в 16-ти битном режиме адресации! (Определяется конфигурацией VM)
- goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
+ //goto *dispatch_mode16[memory[ip16]]; // Пока заглушка
 #ifdef DEBUG
  printf("\n Starting vCPU (24-bit's mode)...\n");
 #endif
  // Стартуем в 24-х битном режиме адресации! (Определяется конфигурацией VM)
- goto *dispatch_mode24[memory[ip24]]; // Пока заглушка
+ //goto *dispatch_mode24[memory[ip24]]; // Пока заглушка
 #ifdef DEBUG
  printf("\n Starting vCPU (32-bit's mode)...\n");
 #endif
  // Стартуем в 32-х битном режиме адресации! (Определяется конфигурацией VM)
- goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
+ //goto *dispatch_mode32[memory[ip32]]; // Пока заглушка
 #ifdef DEBUG
  printf("\n Starting vCPU (64-bit's mode)...\n");
 #endif
  // Стартуем в 64-х битном режиме адресации! (Определяется конфигурацией VM)
- goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
+ //goto *dispatch_mode64[memory[ip64]]; // Пока заглушка
 
 /*for (unsigned char i = 39; i <= 254; i++) // Генератор
 {
