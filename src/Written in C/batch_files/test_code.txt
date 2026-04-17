@@ -1,0 +1,25 @@
+static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста/проверки работоспобности движка
+{
+    // start:
+    mov8_dm_si, 240, 'C', // 0: mov [240] 'C'
+    mov8_dm_si, 241, '$', // 3: mov [241] '$'
+
+    mov8_si_dm, 5, 242,   // 6: mov 5 [242]
+    hlt                   // 9: hlt
+    /*
+    inc8_dm,    10,       // 3: inc [10]
+    mov8_dm_sm, 20, 10,   // 5: mov [20] [10]
+    add8_dm_si, 20, 3,    // 8: add [20], 3
+    cmp8_sm_si, 20, 9,    // 11: cmp [20], 9
+    je8_si,     19,       // 14: je  equal (адрес 19)
+    hlt,                  // 16: hlt (если не равно)
+    // equal:
+    call8_si,   21,       // 17: call proc (адрес 21)
+    hlt,                  // 19: hlt
+    // proc:
+    push8_si,   42,       // 21: push 42
+    pop8_dm,    30,       // 23: pop [30]
+    mov8_dr_si, 123,      // 25: mov <r8> 123
+    ret                   // 28: ret
+    */
+};
