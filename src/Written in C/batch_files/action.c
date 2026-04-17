@@ -240,55 +240,13 @@ dispatch__mode_8__identifier_opcode_4: // <cmd=DEC> <arg-1=dst:p8>
  ip8 += 2;                             //
  goto *dispatch_mode8[memory[ip8]];    //
 /////////////////////////////////////////
-/*/
-|*|    (Specification: Intel, dst <~ src)
-|*|
-|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|     4- 5 <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
-|*|     5- 6 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
-|*|     6- 7 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
-|*|
-|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:m8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|     7- 8 <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
-|*|     8- 9 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
-|*|     9-10 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
-|*|
-|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:p8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|    10-11 <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8>
-|*|    11-12 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
-|*|     ?- ? <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; /!\ Избыточно
-|*|
-|*|    (Specification: AT&T, src ~> dst)
-|*|
-|*|          <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|     5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:r8>
-|*|     6- 7 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
-|*|     7- 8 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
-|*|
-|*|          <cmd=MOV> <arg-1=src:m8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|     8- 9 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
-|*|     9-10 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
-|*|
-|*|          <cmd=MOV> <arg-1=src:p8> <arg-2=src:i8> ; /!\ Недопустимо: src =! src (Semantic error)
-|*|    10-11 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-|*|     ?- ? <cmd=MOV> <arg-1=src:p8> <arg-2=dst:p8> ; /!\ Избыточно
-/*/
-// SPECIFICATION: INTEL //
-//
-// [Inserting abstract ASM-code]: mov <r8>, 1 ; Копирование непосредственного (константного) значения в регистр
-// [Inserting abstract   C-code]: -
-//////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; l-op << r-op (Intel)
-#include "ShowDashboard.txt"            //
- r8 = memory[ip8+1];                    // <arg-1=dst:r8> <arg-2=src:i8>
- ip8 += 2;                              //
- goto *dispatch_mode8[memory[ip8]];     //
-//////////////////////////////////////////
 
+/// SPECIFICATION: INTEL //
+//
 // [Inserting abstract ASM-code]: mov a, 1 ; Копирование непосредственного (константного) значения по прямому адресу
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; l-op << r-op (Intel)
  memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"            //
  ip8 += 3;                              //
@@ -298,7 +256,7 @@ dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i
 // [Inserting abstract ASM-code]: mov [a], b ; Копирование непосредственного (константного) значения по косвенному адресу
 // [Inserting abstract   C-code]: *a = b;    ; Предполагается, что в `b` уже находится какое-либо значение
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_6:          // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[ip8+2]; // <arg-1=dst:p8> <arg-2=src:i8>
  ip8 += 3;                                      //
@@ -308,7 +266,7 @@ dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:p8> <arg
 // [Inserting abstract ASM-code]: mov <r8>, [m8] ; Копирование значения из прямого адреса в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_8:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_7:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"            //
  r8 = memory[memory[ip8+1]];            // <arg-1=dst:r8> <arg-2=src:m8>
  ip8 += 2;                              //
@@ -318,7 +276,7 @@ dispatch__mode_8__identifier_opcode_8:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m
 // [Inserting abstract ASM-code]: mov a, b ; Копирование значения из прямого адреса в прямой
 // [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_9:          // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_8:          // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[ip8+1]] = memory[memory[ip8+2]]; // <arg-1=dst:m8> <arg-2=src:m8>
  ip8 += 3;                                      //
@@ -328,7 +286,7 @@ dispatch__mode_8__identifier_opcode_9:          // <cmd=MOV> <arg-1=dst:m8> <arg
 // [Inserting abstract ASM-code]: mov [a], b ; Копирование значения из прямого адреса в косвенный
 // [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_9:                 // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+1]]] = memory[memory[ip8+2]]; // <arg-1=dst:p8> <arg-2=src:m8>
  ip8 += 3;                                              //
@@ -338,7 +296,7 @@ dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov <r8>, [[p8]] ; Копирование значения из косвенного адреса в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_11:                 // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  r8 = memory[memory[memory[ip8+1]]];                    // <arg-1=dst:r8> <arg-2=src:p8>
  ip8 += 2;                                              //
@@ -348,74 +306,71 @@ dispatch__mode_8__identifier_opcode_11:                 // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov a, [b] ; Копирование значения из косвенного адреса в прямой
 // [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_12:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_11:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]]; // <arg-1=dst:m8> <arg-2=src:p8>
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
-// SPECIFICATION: AT&T //
+/// SPECIFICATION: INTEL/AT&T
 //
 // [Inserting abstract ASM-code]: mov <r8>, 1 ; Копирование непосредственного (константного) значения в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_13: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:r8>
+dispatch__mode_8__identifier_opcode_12: // <cmd=MOV dst:r8> <arg-1=src:i8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
- r8 = memory[ip8+1];                    // <arg-1=src:i8> <arg-2=dst:r8>
+ r8 = memory[ip8+1];                    // <arg-1=src:i8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; Копирование непосредственного (константного) значения по прямому адресу
-// [Inserting abstract ASM-code]: mov a, 1
+/// SPECIFICATION: AT&T
+//
+// [Inserting abstract ASM-code]: mov a, 1 ; Копирование непосредственного (константного) значения по прямому адресу
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_14: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_13: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; l-op >> r-op (AT&T)
  memory[memory[ip8+2]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:m8>
 #include "ShowDashboard.txt"            //
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 9-10 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; Копирование непосредственного (константного) значения по косвенному адресу
-// [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
-// [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
+// [Inserting abstract ASM-code]: mov [a], b ; Копирование непосредственного (константного) значения по косвенному адресу
+// [Inserting abstract   C-code]: *a = b;    ; Предполагается, что в `b` уже находится какое-либо значение
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_15:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_14:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; l-op >> r-op (AT&T)
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+2]]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:p8>
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-// 7- 8 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; Копирование значения из прямого адреса в прямой
-// [Inserting abstract ASM-code]: mov a, b
+// [Inserting abstract ASM-code]: mov a, b ; Копирование значения из прямого адреса в прямой
 // [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_16:         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_15:         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; l-op >> r-op (AT&T)
 #include "ShowDashboard.txt"                    //
  memory[memory[ip8+2]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:m8>
  ip8 += 3;                                      //
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-// 11-12 <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; Копирование значения из прямого адреса в косвенный
-// [Inserting abstract ASM-code]: mov [a], b
+// [Inserting abstract ASM-code]: mov [a], b ; Копирование значения из прямого адреса в косвенный
 // [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_17:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_16:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; l-op >> r-op (AT&T)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+2]]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:p8>
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
-// 13-14 <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; Копирование значения из косвенного адреса в прямой
-// [Inserting abstract ASM-code]: mov a, [b]
+// [Inserting abstract ASM-code]: mov a, [b] ; Копирование значения из косвенного адреса в прямой
 // [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_18:                 // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_17:                 // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; l-op >> r-op (AT&T)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+2]] = memory[memory[memory[ip8+1]]]; // <arg-1=src:p8> <arg-2=dst:m8>
  ip8 += 3;                                              //
@@ -423,7 +378,7 @@ dispatch__mode_8__identifier_opcode_18:                 // <cmd=MOV> <arg-1=src:
 //////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_19:  // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
+dispatch__mode_8__identifier_opcode_18:  // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] += memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -431,7 +386,7 @@ dispatch__mode_8__identifier_opcode_19:  // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_20:  // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
+dispatch__mode_8__identifier_opcode_19:  // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] -= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -439,7 +394,7 @@ dispatch__mode_8__identifier_opcode_20:  // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_21:  // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
+dispatch__mode_8__identifier_opcode_20:  // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] *= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -447,7 +402,7 @@ dispatch__mode_8__identifier_opcode_21:  // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_22:  // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
+dispatch__mode_8__identifier_opcode_21:  // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] /= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -455,21 +410,21 @@ dispatch__mode_8__identifier_opcode_22:  // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_23: // <cmd=CALL> <arg1=src:i8>
+dispatch__mode_8__identifier_opcode_22: // <cmd=CALL> <arg1=src:i8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = ip8+2;                 // Запоминаем адрес возврата из процедуры
  ip8 = memory[ip8+1];                   // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_24: // <cmd=CALL> <arg1=src:m8>
+dispatch__mode_8__identifier_opcode_23: // <cmd=CALL> <arg1=src:m8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = ip8+2;                 // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[ip8+1]];           // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_25: // <cmd=CALL> <arg1=src:p8>
+dispatch__mode_8__identifier_opcode_24: // <cmd=CALL> <arg1=src:p8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = ip8+2;                 // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[memory[ip8+1]]];   // <arg1=src:p8>
@@ -477,28 +432,28 @@ dispatch__mode_8__identifier_opcode_25: // <cmd=CALL> <arg1=src:p8>
 //////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_26: // <cmd=RET>
+dispatch__mode_8__identifier_opcode_25: // <cmd=RET>
 #include "ShowDashboard.txt"            //
  ip8 = memory[++sp8];                   // Достаёт адрес возврата и ставит ip8 на него
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_27: // <cmd=PUSH> <arg1=src:i8>
+dispatch__mode_8__identifier_opcode_26: // <cmd=PUSH> <arg1=src:i8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = memory[ip8+1];         // <arg1=src:i8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_28: // <cmd=PUSH> <arg1=src:m8>
+dispatch__mode_8__identifier_opcode_27: // <cmd=PUSH> <arg1=src:m8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = memory[memory[ip8+1]]; // <arg1=src:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_29:         // <cmd=PUSH> <arg1=src:p8>
+dispatch__mode_8__identifier_opcode_28:         // <cmd=PUSH> <arg1=src:p8>
 #include "ShowDashboard.txt"                    //
  memory[sp8--] = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  ip8 += 2;                                      //
@@ -506,14 +461,14 @@ dispatch__mode_8__identifier_opcode_29:         // <cmd=PUSH> <arg1=src:p8>
 //////////////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_30: // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+dispatch__mode_8__identifier_opcode_29: // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
 #include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = memory[++sp8]; // <arg1=dst:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_31:         // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+dispatch__mode_8__identifier_opcode_30:         // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[++sp8]; // <arg1=dst:p8>
  ip8 += 2;                                      //
@@ -521,7 +476,7 @@ dispatch__mode_8__identifier_opcode_31:         // <cmd=POP> <arg1=dst:p8> ; С�
 //////////////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_32: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+dispatch__mode_8__identifier_opcode_31: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
 #include "ShowDashboard.txt"            //
  temp8_1 = memory[ip8+1];               // <arg1=src:i8>
  temp8_2 = memory[ip8+2];               // <arg2=src:i8>
@@ -532,7 +487,7 @@ dispatch__mode_8__identifier_opcode_32: // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_33: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+dispatch__mode_8__identifier_opcode_32: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
 #include "ShowDashboard.txt"            //
  temp8_1 = memory[memory[ip8+1]];       // <arg1=src:m8>
  temp8_2 = memory[ip8+2];               // <arg2=src:i8>
@@ -543,7 +498,7 @@ dispatch__mode_8__identifier_opcode_33: // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_34: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+dispatch__mode_8__identifier_opcode_33: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
 #include "ShowDashboard.txt"            //
  temp8_1 = memory[ip8+1];               // <arg1=src:i8>
  temp8_2 = memory[memory[ip8+2]];       // <arg2=src:m8>
@@ -554,7 +509,7 @@ dispatch__mode_8__identifier_opcode_34: // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_35: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+dispatch__mode_8__identifier_opcode_34: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 #include "ShowDashboard.txt"            //
  temp8_1 = memory[memory[ip8+1]];       // <arg1=src:m8>
  temp8_2 = memory[memory[ip8+2]];       // <arg2=src:m8>
@@ -566,61 +521,61 @@ dispatch__mode_8__identifier_opcode_35: // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 //////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_36: // <cmd=JMP> <arg1=src:i8>
+dispatch__mode_8__identifier_opcode_35: // <cmd=JMP> <arg1=src:i8>
 #include "ShowDashboard.txt"            //
  ip8 = memory[ip8+1];                   // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_37: // <cmd=JMP> <arg1=src:m8>
+dispatch__mode_8__identifier_opcode_36: // <cmd=JMP> <arg1=src:m8>
 #include "ShowDashboard.txt"            //
  ip8 = memory[memory[ip8+1]];           // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_38: // <cmd=JMP> <arg1=src:p8>
+dispatch__mode_8__identifier_opcode_37: // <cmd=JMP> <arg1=src:p8>
 #include "ShowDashboard.txt"            //
  ip8 = memory[memory[memory[ip8+1]]];   // <arg1=src:p8>
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_39: //  JE addr8  (Jump if Equal)
+dispatch__mode_8__identifier_opcode_38: //  JE addr8  (Jump if Equal)
 #include "ShowDashboard.txt"            //
  if (ef8) ip8 = memory[ip8+1];          // JE (Jump if Equal): Прыгаем, если ef == 1
  else ip8 += 2;                         // JE + addr8
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_40: // JNE addr8  (Jump if Not Equal)
+dispatch__mode_8__identifier_opcode_39: // JNE addr8  (Jump if Not Equal)
 #include "ShowDashboard.txt"            //
  if (!ef8) ip8 = memory[ip8+1];         // JNE (Jump if Not Equal): Прыгаем, если ef == 0
  else ip8 += 2;                         // JNE + addr8
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_41: //  JB addr8  (Jump if Below)
+dispatch__mode_8__identifier_opcode_40: //  JB addr8  (Jump if Below)
 #include "ShowDashboard.txt"            //
  if (bf8) ip8 = memory[ip8+1];          // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
  else ip8 += 2;                         // JB + addr8
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_42: //  JA addr8  (Jump if Above)
+dispatch__mode_8__identifier_opcode_41: //  JA addr8  (Jump if Above)
 #include "ShowDashboard.txt"            //
  if (af8) ip8 = memory[ip8+1];          // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
  else ip8 += 2;                         // JA + addr8
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_43: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+dispatch__mode_8__identifier_opcode_42: // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
 #include "ShowDashboard.txt"            //
  if (bf8 || ef8) ip8 = memory[ip8+1];   // JBE (Jump if Below or Equal)
  else ip8 += 2;                         // JBE + addr8
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_44: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+dispatch__mode_8__identifier_opcode_43: // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
 #include "ShowDashboard.txt"            //
  if (af8 || ef8) ip8 = memory[ip8+1];   // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
  else ip8 += 2;                         // JAE/JNB + addr8
