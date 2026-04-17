@@ -1,8 +1,6 @@
 enum
 {
-    mov8_dr_si,  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
-    ///////////
-    inc8_dm = 0, // <cmd=INC> <arg-1=dst:m8>
+    inc8_dm, // <cmd=INC> <arg-1=dst:m8>
     dec8_dm, // <cmd=DEC> <arg-1=dst:m8>
 
     inc8_dp, // <cmd=INC> <arg-1=dst:p8>
@@ -11,6 +9,7 @@ enum
 
     /////////////////////////////////
     // Перессылка данных (Intel)   //
+    mov8_dr_si,                    // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
     mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
     mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     //                             //
