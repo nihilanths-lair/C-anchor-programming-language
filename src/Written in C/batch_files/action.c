@@ -73,21 +73,22 @@ void *dispatch_mode8[0x100] =
     [ 5] = &&dispatch__mode_8__identifier_opcode_6,  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; l-op << r-op
     // Перессылка данных (Intel)                     //
     //[ ?] = &&dispatch__mode_8__identifier_opcode_?,// ; <cmd=MOV>       <dst:r8> <arg-1=src:m8> ; l-op = r-op
-    [ 6] = &&dispatch__mode_8__identifier_opcode_8,  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op
-    [ 7] = &&dispatch__mode_8__identifier_opcode_9,  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op
+    [ 6] = &&dispatch__mode_8__identifier_opcode_7,  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op
+    [ 7] = &&dispatch__mode_8__identifier_opcode_8,  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op
     // Перессылка данных (Intel)                     //
-    [ 8] = &&dispatch__mode_8__identifier_opcode_10, // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op
-    [ 9] = &&dispatch__mode_8__identifier_opcode_11, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op
+    //[ ?] = &&dispatch__mode_8__identifier_opcode_?,// ; <cmd=MOV>       <dst:r8> <arg-1=src:p8> ; l-op = r-op
+    [ 8] = &&dispatch__mode_8__identifier_opcode_9,  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op
     //                                               //
     // Перессылка данных (Intel/AT&T)                //
-    [10] = &&dispatch__mode_8__identifier_opcode_12, // <cmd=MOV> <arg-1=src:i8>       <dst:r8> ; l-op = r-op (Intel/AT&T)
-    [11] = &&dispatch__mode_8__identifier_opcode_13, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; l-op >> r-op (AT&T)
-    [12] = &&dispatch__mode_8__identifier_opcode_14, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; l-op >> r-op (AT&T)
+    [ 9] = &&dispatch__mode_8__identifier_opcode_10, // <cmd=MOV> <arg-1=src:i8>       <dst:r8> ; l-op = r-op
+    [10] = &&dispatch__mode_8__identifier_opcode_11, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; l-op >> r-op
+    [11] = &&dispatch__mode_8__identifier_opcode_12, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; l-op >> r-op
     // Перессылка данных (AT&T)                      //
-    [13] = &&dispatch__mode_8__identifier_opcode_15, // <cmd=MOV> <arg-1=src:m8>       <dst:r8> ; l-op >> r-op
-    [14] = &&dispatch__mode_8__identifier_opcode_15, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; l-op >> r-op
-    [15] = &&dispatch__mode_8__identifier_opcode_16, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; l-op >> r-op
+    [12] = &&dispatch__mode_8__identifier_opcode_13, // <cmd=MOV> <arg-1=src:m8>       <dst:r8> ; l-op = r-op
+    [13] = &&dispatch__mode_8__identifier_opcode_14, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; l-op >> r-op
+    [14] = &&dispatch__mode_8__identifier_opcode_15, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; l-op >> r-op
     // Перессылка данных (AT&T)                      //
+    [15] = &&dispatch__mode_8__identifier_opcode_16, // <cmd=MOV> <arg-1=src:p8>       <dst:r8> ; l-op = r-op
     [16] = &&dispatch__mode_8__identifier_opcode_17, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; l-op >> r-op
 
     // Арифметико-логические операции
@@ -276,27 +277,17 @@ dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:m8> <arg
 // [Inserting abstract ASM-code]: mov [a], b ; Копирование значения из прямого адреса в косвенный
 // [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_8:                 // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_8:                  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+1]]] = memory[memory[ip8+2]]; // <arg-1=dst:p8> <arg-2=src:m8>
  ip8 += 3;                                              //
- goto *dispatch_mode8[memory[ip8]];                     //
-//////////////////////////////////////////////////////////
- 
-// [Inserting abstract ASM-code]: mov <r8>, [[p8]] ; Копирование значения из косвенного адреса в регистр
-// [Inserting abstract   C-code]: -
-//////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_9:                 // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op (Intel)
-#include "ShowDashboard.txt"                            //
- r8 = memory[memory[memory[ip8+1]]];                    // <arg-1=dst:r8> <arg-2=src:p8>
- ip8 += 2;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
 // [Inserting abstract ASM-code]: mov a, [b] ; Копирование значения из косвенного адреса в прямой
 // [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op (Intel)
+dispatch__mode_8__identifier_opcode_9:                  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]]; // <arg-1=dst:m8> <arg-2=src:p8>
  ip8 += 3;                                              //
@@ -305,10 +296,10 @@ dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:
 
 /// SPECIFICATION: INTEL/AT&T
 //
-// [Inserting abstract ASM-code]: mov <r8>, 0 ; Копирование непосредственного (константного) значения в регистр
+// [Inserting abstract ASM-code]: mov <r8>, i8 ; Копирование непосредственного (константного) значения в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <dst:r8> <arg-1=src:i8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_10: // <cmd=MOV> <dst:r8> <arg-1=src:i8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  r8 = memory[ip8+1];                    // <dst:r8> <arg-1=src:i8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
@@ -318,9 +309,19 @@ dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <dst:r8> <arg-1=src:i8> ; l
 // [Inserting abstract ASM-code]: mov <r8>, [m8] ; Копирование значения из прямого адреса в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_12: // <cmd=MOV> <dst:r8> <arg-1=src:m8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <dst:r8> <arg-1=src:m8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  r8 = memory[memory[ip8+1]];            // <dst:r8> <arg-1=src:m8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
+ ip8 += 2;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
+//////////////////////////////////////////
+
+// [Inserting abstract ASM-code]: mov <r8>, [[p8]] ; Копирование значения из косвенного адреса в регистр
+// [Inserting abstract   C-code]: -
+//////////////////////////////////////////
+dispatch__mode_8__identifier_opcode_12: // <cmd=MOV> <dst:r8> <arg-1=src:p8> ; l-op = r-op (Intel/AT&T)
+#include "ShowDashboard.txt"            //
+ r8 = memory[memory[memory[ip8+1]]];    // <dst:r8> <arg-1=src:p8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
