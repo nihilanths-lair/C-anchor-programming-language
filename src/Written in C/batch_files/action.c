@@ -296,10 +296,9 @@ dispatch__mode_8__identifier_opcode_4: // <cmd=DEC> <arg-1=dst:p8>
 /*/
 // SPECIFICATION: INTEL //
 //
-//  ?- ? <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
 // [Inserting abstract ASM-code]: mov <r8>, 1
 // [Inserting abstract   C-code]: -
-//////////////////////////////////////////
+////////////////////////////////////////// ; Копирование непосредственного (константного) значения в регистр
 dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"            //
  r8 = memory[ip8+1];                    // <arg-1=dst:r8> <arg-2=src:i8>
@@ -307,10 +306,9 @@ dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 4- 5 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; Копирование непосредственного (константного) значения по прямому адресу
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
-//////////////////////////////////////////
+////////////////////////////////////////// ; Копирование непосредственного (константного) значения по прямому адресу
 dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; l-op << r-op (Intel)
  memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"            //
@@ -318,10 +316,9 @@ dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 8- 9 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; Копирование непосредственного (константного) значения по косвенному адресу
 // [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
 // [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
-//////////////////////////////////////////////////
+////////////////////////////////////////////////// ; Копирование непосредственного (константного) значения по косвенному адресу
 dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[ip8+2]; // <arg-1=dst:p8> <arg-2=src:i8>
@@ -329,10 +326,9 @@ dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:p8> <arg
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-//  ?- ? <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8>
 // [Inserting abstract ASM-code]: mov <r8>, [m8]
 // [Inserting abstract   C-code]: -
-//////////////////////////////////////////
+////////////////////////////////////////// ; Копирование значения из прямого адреса в регистр
 dispatch__mode_8__identifier_opcode_8:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"            //
  r8 = memory[memory[ip8+1]];            // <arg-1=dst:r8> <arg-2=src:m8>
@@ -340,10 +336,9 @@ dispatch__mode_8__identifier_opcode_8:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
-// 6- 7 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; Копирование значения из прямого адреса в прямой
 // [Inserting abstract ASM-code]: mov a, b
 // [Inserting abstract   C-code]: a = b;
-//////////////////////////////////////////////////
+////////////////////////////////////////////////// ; Копирование значения из прямого адреса в прямой
 dispatch__mode_8__identifier_opcode_9:          // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[ip8+1]] = memory[memory[ip8+2]]; // <arg-1=dst:m8> <arg-2=src:m8>
@@ -351,28 +346,28 @@ dispatch__mode_8__identifier_opcode_9:          // <cmd=MOV> <arg-1=dst:m8> <arg
  goto *dispatch_mode8[memory[ip8]];             //
 //////////////////////////////////////////////////
 
-// 10-11 <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; Копирование значения из прямого адреса в косвенный
 // [Inserting abstract ASM-code]: mov [a], b
 // [Inserting abstract   C-code]: *a = b;
-//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////// ; Копирование значения из прямого адреса в косвенный
 dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+1]]] = memory[memory[ip8+2]]; // <arg-1=dst:p8> <arg-2=src:m8>
  ip8 += 3;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
-
-// [Inserting abstract ASM-code]: ?
-// [Inserting abstract   C-code]: ?
-//////////////////////////////////////////////////////////
+ 
+// [Inserting abstract ASM-code]: mov <r8>, [[p8]]
+// [Inserting abstract   C-code]: -
+////////////////////////////////////////////////////////// ; Копирование значения из косвенного адреса в регистр
 dispatch__mode_8__identifier_opcode_11:                 // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op (Intel)
- return;                                                // ; Заглушка
+#include "ShowDashboard.txt"                            //
+ r8 = memory[memory[memory[ip8+1]]];                    // <arg-1=dst:r8> <arg-2=src:p8>
+ goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
-// 12-13 <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; Копирование значения из косвенного адреса в прямой
 // [Inserting abstract ASM-code]: mov a, [b]
 // [Inserting abstract   C-code]: a = *b;
-//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////// ; Копирование значения из косвенного адреса в прямой
 dispatch__mode_8__identifier_opcode_12:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]]; // <arg-1=dst:m8> <arg-2=src:p8>
