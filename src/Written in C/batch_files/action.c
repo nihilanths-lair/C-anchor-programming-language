@@ -85,27 +85,27 @@ run_block
 // Таблица диспетчеризации I (для 8-ти битного режима адресации)
 void *dispatch_mode8[0x100] =
 {
-    [ 0] = &&__dispatch_mode8__opcode_001__, // <cmd=INC> <arg-1=dst:m8>
-    [ 1] = &&__dispatch_mode8__opcode_002__, // <cmd=DEC> <arg-1=dst:m8>
+    [ 0] = &&__dispatch_mode8__opcode_001__,        // <cmd=INC> <arg-1=dst:m8>
+    [ 1] = &&__dispatch_mode8__opcode_002__,        // <cmd=DEC> <arg-1=dst:m8>
 
-    [ 2] = &&__dispatch_mode8__opcode_003__, // <cmd=INC> <arg-1=dst:p8>
-    [ 3] = &&__dispatch_mode8__opcode_004__, // <cmd=DEC> <arg-1=dst:p8>
+    [ 2] = &&__dispatch_mode8__opcode_003__,        // <cmd=INC> <arg-1=dst:p8>
+    [ 3] = &&__dispatch_mode8__opcode_004__,        // <cmd=DEC> <arg-1=dst:p8>
     ///////////////////////
     // Перессылка данных //
-    [ 4] = &&__dispatch_mode8__opcode_005__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
-    [ 5] = &&__dispatch_mode8__opcode_006__, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
+    [5-1] = &&dispatch__mode_8__identifier_opcode_5, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
+    [6-1] = &&dispatch__mode_8__identifier_opcode_6, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
 
-    [ 6] = &&__dispatch_mode8__opcode_007__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
-    [ 7] = &&__dispatch_mode8__opcode_008__, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
+    [ 6] = &&__dispatch_mode8__opcode_007__,        // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
+    [ 7] = &&__dispatch_mode8__opcode_008__,        // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
 
-    [ 8] = &&__dispatch_mode8__opcode_009__, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
-    [ 9] = &&__dispatch_mode8__opcode_010__, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
+    [ 8] = &&__dispatch_mode8__opcode_009__,        // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
+    [ 9] = &&__dispatch_mode8__opcode_010__,        // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
 
-    [10] = &&__dispatch_mode8__opcode_011__, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
-    [11] = &&__dispatch_mode8__opcode_012__, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
+    [10] = &&__dispatch_mode8__opcode_011__,        // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
+    [11] = &&__dispatch_mode8__opcode_012__,        // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
 
-    [12] = &&__dispatch_mode8__opcode_013__, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
-    [13] = &&__dispatch_mode8__opcode_014__, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
+    [12] = &&__dispatch_mode8__opcode_013__,        // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
+    [13] = &&__dispatch_mode8__opcode_014__,        // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
     // Перессылка данных //
     ////////////////////////////////////
     // Арифметико-логические операции //
@@ -149,40 +149,40 @@ void *dispatch_mode8[0x100] =
     [39] = &&__dispatch_mode8__opcode_040__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     ///////////////////////////////////
     [40 ... 253] = &&__dispatch_mode8__opcode_from_041_to_254__,
-    [254] = &&__dispatch_mode8__opcode_255__, // <cmd=?> ; переключение режима адресации (с 8 на 16)
-    [255] = &&__dispatch_mode8__opcode_256__  // <cmd=HLT>
+    [254] = &&__dispatch_mode8__opcode_255__,                    // <cmd=?> ; переключение режима адресации (с 8 на 16)
+    [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
     ///////////////////////////////////
 };
 // Таблица диспетчеризации II (для 16-ти битного режима адресации)
 void *dispatch_mode16[0x100] =
 {
     [0 ... 252] = &&__dispatch_mode16__opcode_from_001_to_253__,
-    [253] = &&__dispatch_mode16__opcode_254__, // <cmd=?> ; переключение режима адресации (с 16 на 8)
-    [254] = &&__dispatch_mode16__opcode_255__, // <cmd=?> ; переключение режима адресации (с 16 на 24) [!]
-    [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    [253] = &&__dispatch_mode16__opcode_254__,                   // <cmd=?> ; переключение режима адресации (с 16 на 8)
+    [254] = &&__dispatch_mode16__opcode_255__,                   // <cmd=?> ; переключение режима адресации (с 16 на 24) [!]
+    [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
 }; // Пока заглушка
 // Таблица диспетчеризации III (для 24-х битного режима адресации)
 void *dispatch_mode24[0x100] =
 {
     [0 ... 252] = &&__dispatch_mode24__opcode_from_001_to_253__,
-    [253] = &&__dispatch_mode24__opcode_254__, // <cmd=?> ; переключение режима адресации (с 24 на 16) [!]
-    [254] = &&__dispatch_mode24__opcode_255__, // <cmd=?> ; переключение режима адресации (с 24 на 32) [!]
-    [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    [253] = &&__dispatch_mode24__opcode_254__,                   // <cmd=?> ; переключение режима адресации (с 24 на 16) [!]
+    [254] = &&__dispatch_mode24__opcode_255__,                   // <cmd=?> ; переключение режима адресации (с 24 на 32) [!]
+    [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
 }; // Пока заглушка
 // Таблица диспетчеризации IV (для 32-х битного режима адресации)
 void *dispatch_mode32[0x100] =
 {
     [0 ... 252] = &&__dispatch_mode32__opcode_from_001_to_253__,
-    [253] = &&__dispatch_mode32__opcode_254__, // <cmd=?> ; переключение режима адресации (с 32 на 24) [!]
-    [254] = &&__dispatch_mode32__opcode_255__, // <cmd=?> ; переключение режима адресации (с 32 на 64)
-    [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    [253] = &&__dispatch_mode32__opcode_254__,                   // <cmd=?> ; переключение режима адресации (с 32 на 24) [!]
+    [254] = &&__dispatch_mode32__opcode_255__,                   // <cmd=?> ; переключение режима адресации (с 32 на 64)
+    [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
 }; // Пока заглушка
 // Таблица диспетчеризации V (для 64-х битного режима адресации)
 void *dispatch_mode64[0x100] =
 {
     [0 ... 253] = &&__dispatch_mode64__opcode_from_001_to_254__,
-    [254] = &&__dispatch_mode64__opcode_255__, // <cmd=?> ; переключение режима адресации (с 64 на 32)
-    [255] = &&__dispatch_mode8__opcode_256__   // <cmd=HLT>
+    [254] = &&__dispatch_mode64__opcode_255__,                   // <cmd=?> ; переключение режима адресации (с 64 на 32)
+    [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
 }; // Пока заглушка
 #ifdef DEBUG
  printf("\n Starting vCPU (8-bit's mode)...\n");
@@ -304,10 +304,9 @@ __dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-__dispatch_mode8__opcode_005__:         // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
  memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"            //
- printf("\n [DEBUG] __dispatch_mode8__opcode_005__: [%d] = %d ; Intel\n", memory[ip8+1], memory[memory[ip8+1]]);
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
@@ -362,10 +361,9 @@ __dispatch_mode8__opcode_013__:                         // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-__dispatch_mode8__opcode_006__:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
  memory[memory[ip8+2]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:m8>
 #include "ShowDashboard.txt"            //
- printf("\n [DEBUG] __dispatch_mode8__opcode_006__: [%d] = %d ; AT&T\n", memory[ip8+2], memory[memory[ip8+2]]);
  ip8 += 3;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
@@ -710,10 +708,10 @@ __dispatch_mode64__opcode_255__: // <id_op=255, smb_mnc=?> ; Переход с 6
  sp32 = sp64;                    //
  goto *dispatch_mode32[ip32];    //
 ///////////////////////////////////
-////////////////////////////////////
-__dispatch_mode8__opcode_256__:   // <cmd=hlt> ; Остановить/завершить выполнение программы
-#include "ShowDashboard.txt"      //
- return;                          // ; Заглушка
-////////////////////////////////////
+///////////////////////////////////////////
+dispatch__mode_8__identifier_opcode_256: // <cmd=hlt> ; Остановить/завершить выполнение программы
+#include "ShowDashboard.txt"             //
+ return;                                 // ; Заглушка
+///////////////////////////////////////////
 //
 end_block
