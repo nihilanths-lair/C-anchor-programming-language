@@ -10,22 +10,22 @@ enum
     ///////////
 
     /////////////////////////////////
-    // Перессылка данных (8-bit's) //
+    // Перессылка данных (Intel)   //
     mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
-    mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
+    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     //                             //
     mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
-    mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
-    //                             //
-    mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
-    mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
-    //                             //
     mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
-    mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     //                             //
     mov8_dm_sp,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
+    // Перессылка данных (AT&T)    //
+    mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
+    mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
+    //                             //
+    mov8_sm_dm,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
+    mov8_sm_dp,                    // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
+    //                             //
     mov8_sp_dm,                    // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
-    // Перессылка данных (8-bit's) //
     /////////////////////////////////
 
     //////////////////////////////////////////////
