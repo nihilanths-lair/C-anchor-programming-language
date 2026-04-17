@@ -92,64 +92,65 @@ void *dispatch_mode8[0x100] =
     [ 3] = &&__dispatch_mode8__opcode_004__,        // <cmd=DEC> <arg-1=dst:p8>
 
     // Перессылка данных (Intel)
-    [ 5-1] = &&dispatch__mode_8__identifier_opcode_5, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
-    [ 6-1] = &&dispatch__mode_8__identifier_opcode_6, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
+    [ 4] = &&dispatch__mode_8__identifier_opcode_5, // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8>
+    [ 5] = &&dispatch__mode_8__identifier_opcode_6, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
+    [ 6] = &&dispatch__mode_8__identifier_opcode_7, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     // Перессылка данных (Intel)
-    [ 7-1] = &&dispatch__mode_8__identifier_opcode_7, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
-    [ 8-1] = &&dispatch__mode_8__identifier_opcode_8, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
+    [ 7] = &&dispatch__mode_8__identifier_opcode_8, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
+    [ 8] = &&dispatch__mode_8__identifier_opcode_9, // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
     // Перессылка данных (Intel)
-    [ 9-1] = &&dispatch__mode_8__identifier_opcode_9, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
+    [ 9] = &&dispatch__mode_8__identifier_opcode_10, // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8>
     // Перессылка данных (AT&T)
-    [10-1] = &&dispatch__mode_8__identifier_opcode_10, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
-    [11-1] = &&dispatch__mode_8__identifier_opcode_11, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
+    [10] = &&dispatch__mode_8__identifier_opcode_11, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8>
+    [11] = &&dispatch__mode_8__identifier_opcode_12, // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8>
     // Перессылка данных (AT&T)
-    [12-1] = &&dispatch__mode_8__identifier_opcode_12, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
-    [13-1] = &&dispatch__mode_8__identifier_opcode_13, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
+    [12] = &&dispatch__mode_8__identifier_opcode_13, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8>
+    [13] = &&dispatch__mode_8__identifier_opcode_14, // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8>
     // Перессылка данных (AT&T)
-    [14-1] = &&dispatch__mode_8__identifier_opcode_14, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
+    [14] = &&dispatch__mode_8__identifier_opcode_15, // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8>
 
     ////////////////////////////////////
     // Арифметико-логические операции //
-    [14] = &&__dispatch_mode8__opcode_015__, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
-    [15] = &&__dispatch_mode8__opcode_016__, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
-    [16] = &&__dispatch_mode8__opcode_017__, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
-    [17] = &&__dispatch_mode8__opcode_018__, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
+    [15] = &&__dispatch_mode8__opcode_016__, // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
+    [16] = &&__dispatch_mode8__opcode_017__, // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
+    [17] = &&__dispatch_mode8__opcode_018__, // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
+    [18] = &&__dispatch_mode8__opcode_019__, // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
     //
     ////////////////////////////////////
     // Переход в процедуру (8-bit's)  //
-    [18] = &&__dispatch_mode8__opcode_019__,   //   <cmd=CALL> <arg-1=src:i8>
-    [19] = &&__dispatch_mode8__opcode_020__,   //   <cmd=CALL> <arg-1=src:m8>
-    [20] = &&__dispatch_mode8__opcode_021__,   //   <cmd=CALL> <arg-1=src:p8>
+    [19] = &&__dispatch_mode8__opcode_020__,   //   <cmd=CALL> <arg-1=src:i8>
+    [20] = &&__dispatch_mode8__opcode_021__,   //   <cmd=CALL> <arg-1=src:m8>
+    [21] = &&__dispatch_mode8__opcode_022__,   //   <cmd=CALL> <arg-1=src:p8>
     // Возврат из процедуры (8-bit's) //
-    [21] = &&__dispatch_mode8__opcode_022__,   //   <cmd=RET>                 ; Снимает значение-адрес со стека и совершает переход по нему
+    [22] = &&__dispatch_mode8__opcode_023__,   //   <cmd=RET>                 ; Снимает значение-адрес со стека и совершает переход по нему
     // Управление стеком (8-bit's)    //
-    [22] = &&__dispatch_mode8__opcode_023__,   //   <cmd=PUSH> <arg-1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
-    [23] = &&__dispatch_mode8__opcode_024__,   //   <cmd=PUSH> <arg-1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
-    [24] = &&__dispatch_mode8__opcode_025__,   //   <cmd=PUSH> <arg-1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
+    [23] = &&__dispatch_mode8__opcode_024__,   //   <cmd=PUSH> <arg-1=src:i8> ; Заносимое значение-аргумент в стек пойдёт из непосредственного источника
+    [24] = &&__dispatch_mode8__opcode_025__,   //   <cmd=PUSH> <arg-1=src:m8> ; Заносимое значение-аргумент в стек пойдёт из памяти по прямому адресу
+    [25] = &&__dispatch_mode8__opcode_026__,   //   <cmd=PUSH> <arg-1=src:p8> ; Заносимое значение-аргумент в стек пойдёт из памяти по косвенному адресу
     //                                //
-    [25] = &&__dispatch_mode8__opcode_026__,   //   <cmd=POP> <arg-1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
-    [26] = &&__dispatch_mode8__opcode_027__,   //   <cmd=POP> <arg-1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+    [26] = &&__dispatch_mode8__opcode_027__,   //   <cmd=POP> <arg-1=dst:m8>  ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+    [27] = &&__dispatch_mode8__opcode_028__,   //   <cmd=POP> <arg-1=dst:p8>  ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
     ///////////////////////////////////
     // Сравнение (8-bit's)           //
-    [27] = &&__dispatch_mode8__opcode_028__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
-    [28] = &&__dispatch_mode8__opcode_029__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
-    [29] = &&__dispatch_mode8__opcode_030__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
-    [30] = &&__dispatch_mode8__opcode_031__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
+    [28] = &&__dispatch_mode8__opcode_029__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
+    [29] = &&__dispatch_mode8__opcode_030__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
+    [30] = &&__dispatch_mode8__opcode_031__,  //     <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
+    [31] = &&__dispatch_mode8__opcode_032__,  //     <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
     ///////////////////////////////////
     // Безусловный переход (8-bit's) //
-    [31] = &&__dispatch_mode8__opcode_032__,  //     <cmd=JMP> <arg-1=src:i8>
-    [32] = &&__dispatch_mode8__opcode_033__,  //     <cmd=JMP> <arg-1=src:m8>
-    [33] = &&__dispatch_mode8__opcode_034__,  //     <cmd=JMP> <arg-1=src:p8>
+    [32] = &&__dispatch_mode8__opcode_033__,  //     <cmd=JMP> <arg-1=src:i8>
+    [33] = &&__dispatch_mode8__opcode_034__,  //     <cmd=JMP> <arg-1=src:m8>
+    [34] = &&__dispatch_mode8__opcode_035__,  //     <cmd=JMP> <arg-1=src:p8>
     ///////////////////////////////////
     // Условные переходы (8-bit's)   //
-    [34] = &&__dispatch_mode8__opcode_035__,  //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
-    [35] = &&__dispatch_mode8__opcode_036__,  //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
-    [36] = &&__dispatch_mode8__opcode_037__,  //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
-    [37] = &&__dispatch_mode8__opcode_038__,  //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
-    [38] = &&__dispatch_mode8__opcode_039__,  // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-    [39] = &&__dispatch_mode8__opcode_040__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+    [35] = &&__dispatch_mode8__opcode_036__,  //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
+    [36] = &&__dispatch_mode8__opcode_037__,  //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
+    [37] = &&__dispatch_mode8__opcode_038__,  //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
+    [38] = &&__dispatch_mode8__opcode_039__,  //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
+    [39] = &&__dispatch_mode8__opcode_040__,  // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+    [40] = &&__dispatch_mode8__opcode_041__,  // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     ///////////////////////////////////
-    [40 ... 253] = &&__dispatch_mode8__opcode_from_041_to_254__,
+    [41 ... 253] = &&dispatch__mode_8__identifier_opcode_from_042_to_254__, // Неопределённые/неизвестные опкоды
     [254] = &&__dispatch_mode8__opcode_255__,                    // <cmd=?> ; переключение режима адресации (с 8 на 16)
     [255] = &&dispatch__mode_8__identifier_opcode_256            // <cmd=HLT>
     ///////////////////////////////////
@@ -294,7 +295,7 @@ __dispatch_mode8__opcode_004__:         // <cmd=DEC> <arg-1=dst:p8>
 // [Inserting abstract ASM-code]: mov <r8>, 1
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-__dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"            //
  r8 = memory[ip8+1];                    // <arg-1=dst:r8> <arg-2=src:i8>
  ip8 += 2;                              //
@@ -305,7 +306,7 @@ __dispatch_mode8__opcode_000__:         // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:i
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_6:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; L <~ R (Intel)
  memory[memory[ip8+1]] = memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"            //
  ip8 += 3;                              //
@@ -316,7 +317,7 @@ dispatch__mode_8__identifier_opcode_5:  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i
 // [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
 // [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_6:          // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[ip8+2]; // <arg-1=dst:p8> <arg-2=src:i8>
  ip8 += 3;                                      //
@@ -327,7 +328,7 @@ dispatch__mode_8__identifier_opcode_6:          // <cmd=MOV> <arg-1=dst:p8> <arg
 // [Inserting abstract ASM-code]: mov a, b
 // [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_8:          // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                    //
  memory[memory[ip8+1]] = memory[memory[ip8+2]]; // <arg-1=dst:m8> <arg-2=src:m8>
  ip8 += 3;                                      //
@@ -338,7 +339,7 @@ dispatch__mode_8__identifier_opcode_7:          // <cmd=MOV> <arg-1=dst:m8> <arg
 // [Inserting abstract ASM-code]: mov [a], b
 // [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_8:                  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_9:                  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+1]]] = memory[memory[ip8+2]]; // <arg-1=dst:p8> <arg-2=src:m8>
  ip8 += 3;                                              //
@@ -349,7 +350,7 @@ dispatch__mode_8__identifier_opcode_8:                  // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov a, [b]
 // [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_9:                  // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
+dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; L <~ R (Intel)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+1]] = memory[memory[memory[ip8+2]]]; // <arg-1=dst:m8> <arg-2=src:p8>
  ip8 += 3;                                              //
@@ -362,7 +363,7 @@ dispatch__mode_8__identifier_opcode_9:                  // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov a, 1
 // [Inserting abstract   C-code]: a = 1;
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_10: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; L ~> R (AT&T)
  memory[memory[ip8+2]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:m8>
 #include "ShowDashboard.txt"            //
  ip8 += 3;                              //
@@ -373,7 +374,7 @@ dispatch__mode_8__identifier_opcode_10: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m
 // [Inserting abstract ASM-code]: mov [a], b    ; Предполагается, что в `b` уже находится `1`
 // [Inserting abstract   C-code]: *a = b;       ; Предполагается, что в `b` уже находится `1`
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_11:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_12:         // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+2]]] = memory[ip8+1]; // <arg-1=src:i8> <arg-2=dst:p8>
  ip8 += 3;                                      //
@@ -384,7 +385,7 @@ dispatch__mode_8__identifier_opcode_11:         // <cmd=MOV> <arg-1=src:i8> <arg
 // [Inserting abstract ASM-code]: mov a, b
 // [Inserting abstract   C-code]: a = b;
 //////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_12:         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_13:         // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                    //
  memory[memory[ip8+2]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:m8>
  ip8 += 3;                                      //
@@ -395,7 +396,7 @@ dispatch__mode_8__identifier_opcode_12:         // <cmd=MOV> <arg-1=src:m8> <arg
 // [Inserting abstract ASM-code]: mov [a], b
 // [Inserting abstract   C-code]: *a = b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_13:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_14:                 // <cmd=MOV> <arg-1=src:m8> <arg-2=dst:p8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                            //
  memory[memory[memory[ip8+2]]] = memory[memory[ip8+1]]; // <arg-1=src:m8> <arg-2=dst:p8>
  ip8 += 3;                                              //
@@ -406,7 +407,7 @@ dispatch__mode_8__identifier_opcode_13:                 // <cmd=MOV> <arg-1=src:
 // [Inserting abstract ASM-code]: mov a, [b]
 // [Inserting abstract   C-code]: a = *b;
 //////////////////////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_14:                 // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
+dispatch__mode_8__identifier_opcode_15:                 // <cmd=MOV> <arg-1=src:p8> <arg-2=dst:m8> ; L ~> R (AT&T)
 #include "ShowDashboard.txt"                            //
  memory[memory[ip8+2]] = memory[memory[memory[ip8+1]]]; // <arg-1=src:p8> <arg-2=dst:m8>
  ip8 += 3;                                              //
@@ -414,7 +415,7 @@ dispatch__mode_8__identifier_opcode_14:                 // <cmd=MOV> <arg-1=src:
 //////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////
-__dispatch_mode8__opcode_015__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
+__dispatch_mode8__opcode_016__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] += memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -422,7 +423,7 @@ __dispatch_mode8__opcode_015__:          // <cmd=ADD> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-__dispatch_mode8__opcode_016__:          // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
+__dispatch_mode8__opcode_017__:          // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] -= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -430,7 +431,7 @@ __dispatch_mode8__opcode_016__:          // <cmd=SUB> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-__dispatch_mode8__opcode_017__:          // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
+__dispatch_mode8__opcode_018__:          // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] *= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -438,7 +439,7 @@ __dispatch_mode8__opcode_017__:          // <cmd=MUL> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 ///////////////////////////////////////////
-__dispatch_mode8__opcode_018__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
+__dispatch_mode8__opcode_019__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:i8>
 #include "ShowDashboard.txt"             //
  memory[memory[ip8+1]] /= memory[ip8+2]; // <arg-1=dst:m8> <arg-2=src:i8>
  ip8 += 3;                               //
@@ -446,21 +447,21 @@ __dispatch_mode8__opcode_018__:          // <cmd=DIV> <arg-1=dst:m8> <arg-2=src:
 ///////////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_019__:     // <cmd=CALL> <arg1=src:i8>
+__dispatch_mode8__opcode_020__:     // <cmd=CALL> <arg1=src:i8>
 #include "ShowDashboard.txt"        //
  memory[sp8--] = ip8+2;             // Запоминаем адрес возврата из процедуры
  ip8 = memory[ip8+1];               // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_020__:     // <cmd=CALL> <arg1=src:m8>
+__dispatch_mode8__opcode_021__:     // <cmd=CALL> <arg1=src:m8>
 #include "ShowDashboard.txt"        //
  memory[sp8--] = ip8+2;             // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[ip8+1]];       // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 ////////////////////////////////////////
-__dispatch_mode8__opcode_021__:       // <cmd=CALL> <arg1=src:p8>
+__dispatch_mode8__opcode_022__:       // <cmd=CALL> <arg1=src:p8>
 #include "ShowDashboard.txt"          //
  memory[sp8--] = ip8+2;               // Запоминаем адрес возврата из процедуры
  ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
@@ -468,28 +469,28 @@ __dispatch_mode8__opcode_021__:       // <cmd=CALL> <arg1=src:p8>
 ////////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_022__:     // <cmd=RET>
+__dispatch_mode8__opcode_023__:     // <cmd=RET>
 #include "ShowDashboard.txt"        //
  ip8 = memory[++sp8];               // Достаёт адрес возврата и ставит ip8 на него
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_023__:     // <cmd=PUSH> <arg1=src:i8>
+__dispatch_mode8__opcode_024__:     // <cmd=PUSH> <arg1=src:i8>
 #include "ShowDashboard.txt"        //
  memory[sp8--] = memory[ip8+1];     // <arg1=src:i8>
  ip8 += 2;                          //
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////////
-__dispatch_mode8__opcode_024__:         // <cmd=PUSH> <arg1=src:m8>
+__dispatch_mode8__opcode_025__:         // <cmd=PUSH> <arg1=src:m8>
 #include "ShowDashboard.txt"            //
  memory[sp8--] = memory[memory[ip8+1]]; // <arg1=src:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_025__:                 // <cmd=PUSH> <arg1=src:p8>
+__dispatch_mode8__opcode_026__:                 // <cmd=PUSH> <arg1=src:p8>
 #include "ShowDashboard.txt"                    //
  memory[sp8--] = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  ip8 += 2;                                      //
@@ -497,14 +498,14 @@ __dispatch_mode8__opcode_025__:                 // <cmd=PUSH> <arg1=src:p8>
 //////////////////////////////////////////////////
 
 //////////////////////////////////////////
-__dispatch_mode8__opcode_026__:         // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
+__dispatch_mode8__opcode_027__:         // <cmd=POP> <arg1=dst:m8> ; Снимаемое значение-аргумент со стека отправится по прямому адресу
 #include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = memory[++sp8]; // <arg1=dst:m8>
  ip8 += 2;                              //
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 //////////////////////////////////////////////////
-__dispatch_mode8__opcode_027__:                 // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
+__dispatch_mode8__opcode_028__:                 // <cmd=POP> <arg1=dst:p8> ; Снимаемое значение-аргумент со стека отправится по косвенному адресу
 #include "ShowDashboard.txt"                    //
  memory[memory[memory[ip8+1]]] = memory[++sp8]; // <arg1=dst:p8>
  ip8 += 2;                                      //
@@ -512,7 +513,7 @@ __dispatch_mode8__opcode_027__:                 // <cmd=POP> <arg1=dst:p8> ; С�
 //////////////////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_028__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
+__dispatch_mode8__opcode_029__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
 #include "ShowDashboard.txt"        //
  temp8_1 = memory[ip8+1];           // <arg1=src:i8>
  temp8_2 = memory[ip8+2];           // <arg2=src:i8>
@@ -523,7 +524,7 @@ __dispatch_mode8__opcode_028__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:i8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_029__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
+__dispatch_mode8__opcode_030__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
 #include "ShowDashboard.txt"        //
  temp8_1 = memory[memory[ip8+1]];   // <arg1=src:m8>
  temp8_2 = memory[ip8+2];           // <arg2=src:i8>
@@ -534,7 +535,7 @@ __dispatch_mode8__opcode_029__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:i8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_030__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
+__dispatch_mode8__opcode_031__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
 #include "ShowDashboard.txt"        //
  temp8_1 = memory[ip8+1];           // <arg1=src:i8>
  temp8_2 = memory[memory[ip8+2]];   // <arg2=src:m8>
@@ -545,7 +546,7 @@ __dispatch_mode8__opcode_030__:     // <cmd=CMP> <arg1=src:i8> <arg2=src:m8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_031__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
+__dispatch_mode8__opcode_032__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 #include "ShowDashboard.txt"        //
  temp8_1 = memory[memory[ip8+1]];   // <arg1=src:m8>
  temp8_2 = memory[memory[ip8+2]];   // <arg2=src:m8>
@@ -557,74 +558,74 @@ __dispatch_mode8__opcode_031__:     // <cmd=CMP> <arg1=src:m8> <arg2=src:m8>
 //////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_032__:     // <cmd=JMP> <arg1=src:i8>
+__dispatch_mode8__opcode_033__:     // <cmd=JMP> <arg1=src:i8>
 #include "ShowDashboard.txt"        //
  ip8 = memory[ip8+1];               // <arg1=src:i8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_033__:     // <cmd=JMP> <arg1=src:m8>
+__dispatch_mode8__opcode_034__:     // <cmd=JMP> <arg1=src:m8>
 #include "ShowDashboard.txt"        //
  ip8 = memory[memory[ip8+1]];       // <arg1=src:m8>
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 ////////////////////////////////////////
-__dispatch_mode8__opcode_034__:       // <cmd=JMP> <arg1=src:p8>
+__dispatch_mode8__opcode_035__:       // <cmd=JMP> <arg1=src:p8>
 #include "ShowDashboard.txt"          //
  ip8 = memory[memory[memory[ip8+1]]]; // <arg1=src:p8>
  goto *dispatch_mode8[memory[ip8]];   //
 ////////////////////////////////////////
 
 //////////////////////////////////////
-__dispatch_mode8__opcode_035__:     //  JE addr8  (Jump if Equal)
+__dispatch_mode8__opcode_036__:     //  JE addr8  (Jump if Equal)
 #include "ShowDashboard.txt"        //
  if (ef8) ip8 = memory[ip8+1];      // JE (Jump if Equal): Прыгаем, если ef == 1
  else ip8 += 2;                     // JE + addr8
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_036__:     // JNE addr8  (Jump if Not Equal)
+__dispatch_mode8__opcode_037__:     // JNE addr8  (Jump if Not Equal)
 #include "ShowDashboard.txt"        //
  if (!ef8) ip8 = memory[ip8+1];     // JNE (Jump if Not Equal): Прыгаем, если ef == 0
  else ip8 += 2;                     // JNE + addr8
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_037__:     //  JB addr8  (Jump if Below)
+__dispatch_mode8__opcode_038__:     //  JB addr8  (Jump if Below)
 #include "ShowDashboard.txt"        //
  if (bf8) ip8 = memory[ip8+1];      // JB (Jump if Below): Прыгаем, если bf == 1 (первое меньше второго)
  else ip8 += 2;                     // JB + addr8
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 //////////////////////////////////////
-__dispatch_mode8__opcode_038__:     //  JA addr8  (Jump if Above)
+__dispatch_mode8__opcode_039__:     //  JA addr8  (Jump if Above)
 #include "ShowDashboard.txt"        //
  if (af8) ip8 = memory[ip8+1];      // JA (Jump if Above): Прыгаем, если af == 1 (первое больше второго)
  else ip8 += 2;                     // JA + addr8
  goto *dispatch_mode8[memory[ip8]]; //
 //////////////////////////////////////
 ////////////////////////////////////////
-__dispatch_mode8__opcode_039__:       // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
+__dispatch_mode8__opcode_040__:       // JBE/JNA addr8  (Jump if Below or Equal / Jump if Not Above)
 #include "ShowDashboard.txt"          //
  if (bf8 || ef8) ip8 = memory[ip8+1]; // JBE (Jump if Below or Equal)
  else ip8 += 2;                       // JBE + addr8
  goto *dispatch_mode8[memory[ip8]];   //
 ////////////////////////////////////////
 ////////////////////////////////////////
-__dispatch_mode8__opcode_040__:       // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
+__dispatch_mode8__opcode_041__:       // JAE/JNB addr8  (Jump if Above or Equal / Jump if Not Below)
 #include "ShowDashboard.txt"          //
  if (af8 || ef8) ip8 = memory[ip8+1]; // JAE/JNB (Jump if Above or Equal / Jump if Not Below)
  else ip8 += 2;                       // JAE/JNB + addr8
  goto *dispatch_mode8[memory[ip8]];   //
 ////////////////////////////////////////
 
-//////////////////////////////////////////////
-__dispatch_mode8__opcode_from_041_to_254__: // <id_op=41~254> ; Неопределённые опкоды
-#include "ShowDashboard.txt"                //
- putchar('\n');                             //
- return;                                    // ; Экстремальный выход
- //goto *dispatch_mode8[memory[++ip8]];     // ; В режиме отладки, для просмотра след. опкода
-//////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+dispatch__mode_8__identifier_opcode_from_042_to_254__: // <id_op=41~254> ; Неопределённые опкоды
+#include "ShowDashboard.txt"                           //
+ putchar('\n');                                        //
+ return;                                               // ; Экстремальный выход
+ //goto *dispatch_mode8[memory[++ip8]];                // ; В режиме отладки, для просмотра след. опкода
+/////////////////////////////////////////////////////////
 ///////////////////////////////////////////////
 __dispatch_mode16__opcode_from_001_to_253__: // <id_op=1~253> ; Неопределённые опкоды
 #include "ShowDashboard.txt"                 //
