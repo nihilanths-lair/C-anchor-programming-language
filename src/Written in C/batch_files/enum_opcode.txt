@@ -24,6 +24,7 @@ enum
     //mov8_dp_sp,                  // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; Избыточно...
     //                             //
     // Перессылка данных (AT&T)    //
+    mov8_si_dr,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:r8> ; l-op >> r-op
     mov8_si_dm,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; l-op >> r-op
     mov8_si_dp,                    // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; l-op >> r-op
     //                             //
