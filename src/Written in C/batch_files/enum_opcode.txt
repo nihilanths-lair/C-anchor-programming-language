@@ -13,6 +13,7 @@ enum
     mov8_dm_si,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8>
     mov8_dp_si,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8>
     //                             //
+    mov8_dr_sm,                    // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8>
     mov8_dm_sm,                    // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8>
     mov8_dp_sm,                    // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8>
     //                             //
