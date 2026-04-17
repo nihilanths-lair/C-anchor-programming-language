@@ -339,6 +339,7 @@ dispatch__mode_8__identifier_opcode_10:                 // <cmd=MOV> <arg-1=dst:
 dispatch__mode_8__identifier_opcode_11:                 // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op (Intel)
 #include "ShowDashboard.txt"                            //
  r8 = memory[memory[memory[ip8+1]]];                    // <arg-1=dst:r8> <arg-2=src:p8>
+ ip8 += 2;                                              //
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
