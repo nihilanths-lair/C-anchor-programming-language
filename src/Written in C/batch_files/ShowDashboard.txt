@@ -9,7 +9,7 @@ case 1:
     int temp = ip8;
     printf("\n << Дизассемблирование VM C$ начато >>\n");
     printf("\n Syntax: Intel/AT&T (двухнаправленный)\n");
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++) // В шестнадцатеричной СС
     {
         switch (memory[ip8]){
         case   4: printf("\n %02X: %02X %02X %02X | MOV [%d] =. %d ; l-opd: (dst: mem8), r-op: (src: imm8)", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
@@ -20,7 +20,7 @@ case 1:
     }
     putchar('\n');
     ip8 = temp; // Возвращаем исходную позицию
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++) // В десятичной СС
     {
         switch (memory[ip8]){
         case   4: printf("\n %03d: %03d %03d %03d | MOV [%d] =. %d ; l-op: (dst: mem8), r-op: (src: imm8)", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], memory[ip8+2]); ip8 += 3; break;
