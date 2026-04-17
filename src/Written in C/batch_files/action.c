@@ -358,9 +358,11 @@ dispatch__mode_8__identifier_opcode_12:                 // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov <r8>, 1 ; Копирование непосредственного (константного) значения в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_13: //
+dispatch__mode_8__identifier_opcode_13: // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:r8>
 #include "ShowDashboard.txt"            //
- return;                                // ; Заглушка
+ r8 = memory[ip8+1];                    // <arg-1=src:i8> <arg-2=dst:r8>
+ ip8 += 2;                              //
+ goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
 // 5- 6 <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; Копирование непосредственного (константного) значения по прямому адресу
