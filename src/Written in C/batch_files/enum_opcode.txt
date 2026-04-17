@@ -8,22 +8,20 @@ enum
 
     ////////////////////////////////////
     // Перессылка данных (Intel)      //
-    //mov8_si_si,                     // <cmd=MOV> <arg-1=src:i8> <arg-2=src:i8> ; [!] Недопустимо
     mov8_dm_si,                       // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:i8> ; l-op << r-op
     mov8_dp_si,                       // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:i8> ; l-op << r-op
     //                                //
-    //mov8_si_sm,                     // <cmd=MOV> <arg-1=src:i8> <arg-2=src:m8> ; [!] Недопустимо
-    mov8_dr_sm,                       // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:m8> ; l-op << r-op
     mov8_dm_sm,                       // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:m8> ; l-op << r-op
     mov8_dp_sm,                       // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:m8> ; l-op << r-op
     //                                //
-    //mov8_si_sp,                     // <cmd=MOV> <arg-1=src:i8> <arg-2=src:p8> ; [!] Недопустимо
-    mov8_dr_sp,                       // <cmd=MOV> <arg-1=dst:r8> <arg-2=src:p8> ; l-op << r-op
     mov8_dm_sp,                       // <cmd=MOV> <arg-1=dst:m8> <arg-2=src:p8> ; l-op << r-op
-    //mov8_dp_sp,                     // <cmd=MOV> <arg-1=dst:p8> <arg-2=src:p8> ; [~] Избыточно
-    //                                //
     // Перессылка данных (Intel/AT&T) //
-    mov8_dr_si, mov8_si_dr = 11,      // <cmd=MOV dst:r8> <arg-1=src:i8> ; l-op = r-op
+    mov8_dr_si, mov8_si_dr =  9,      // <cmd=MOV dst:r8> <arg-1=src:i8> ; l-op = r-op
+    mov8_dr_sm, mov8_sm_dr = 10,      // <cmd=MOV dst:r8> <arg-1=src:m8> ; l-op = r-op
+    mov8_dr_sp, mov8_sp_dr = 11,      // <cmd=MOV dst:r8> <arg-1=src:p8> ; l-op = r-op
+    //                                //
+    mov8_sr_dm, mov8_dm_sr = 12,      // <cmd=MOV src:r8> <arg-1=dst:m8> ; l-op = r-op
+    mov8_sr_dp, mov8_dp_sr = 13,      // <cmd=MOV src:r8> <arg-1=dst:p8> ; l-op = r-op
     // Перессылка данных (AT&T)       //
     mov8_si_dm,                       // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:m8> ; l-op >> r-op
     mov8_si_dp,                       // <cmd=MOV> <arg-1=src:i8> <arg-2=dst:p8> ; l-op >> r-op
