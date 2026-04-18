@@ -35,6 +35,25 @@ const char ProcAsciiChr(unsigned char chr)
     default: return chr;
     }
 }
+const char * valstr(unsigned char val)
+{
+    unsigned char val_str[3+1];
+    unsigned char *ptr__val_str = val_str;
+    switch (val){
+    case 0: strcpy(val_str, "0"); break;
+    case 1: strcpy(val_str, "1"); break;
+    case 2: strcpy(val_str, "2"); break;
+    case 3: strcpy(val_str, "3"); break;
+    case 4: strcpy(val_str, "4"); break;
+    case 5: strcpy(val_str, "5"); break;
+    case 6: strcpy(val_str, "6"); break;
+    case 7: strcpy(val_str, "7"); break;
+    case 8: strcpy(val_str, "8"); break;
+    case 9: strcpy(val_str, "9"); break;
+    case 10: strcpy(val_str, "10"); break;
+    }
+    return ptr__val_str;
+}
 // --
 const char GetDebuggingInformation(const unsigned char *memory, const unsigned char ip8)
 {
