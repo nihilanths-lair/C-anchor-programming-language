@@ -2,9 +2,11 @@
 
 #include <locale.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "..\..\batch_files\ProcAsciiChr.c"
 #include "..\..\batch_files\ShowDashboard.c"
+#include "..\..\batch_files\Permutation.c"
 
 #include "..\..\batch_files\action.c"
 
