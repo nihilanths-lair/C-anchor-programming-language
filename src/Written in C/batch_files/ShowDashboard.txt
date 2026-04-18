@@ -15,13 +15,12 @@ case 1:
         case   4: printf("\n %02X: %02X %02X %02X | MOV [%d] << '%c'", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], ProcAsciiChr(memory[ip8+2])); ip8 += 3; break;
         case   9: printf("\n %02X: %02X %02X    | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  12: printf("\n %02X: %02X %02X %02X | MOV '%c' >> [%d]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], ProcAsciiChr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
-        //case  15: printf("\n %02X: %02X %02X %02X | MOV '%c' >> [%d]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], ProcAsciiChr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
         case  36: printf("\n %02X: %02X %02X    | JMP %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
-        case  72: printf("\n %02X: %02X       |", ip8, memory[ip8]); ip8 += 1; break;
-        case 101: printf("\n %02X: %02X       |", ip8, memory[ip8]); ip8 += 1; break;
-        case 108: printf("\n %02X: %02X       |", ip8, memory[ip8]); ip8 += 1; break;
-        case 111: printf("\n %02X: %02X       |", ip8, memory[ip8]); ip8 += 1; break;
-        case 255: printf("\n %02X: %02X       | HLT", ip8, memory[ip8]); ip8 += 1; break;
+        case  72: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
+        case 101: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
+        case 108: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
+        case 111: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
+        case 255: printf("\n %02X: %02X       | HLT", ip8, memory[ip8]); ++ip8; break;
         default: i = 255;
         }
     }
@@ -33,13 +32,12 @@ case 1:
         case   4: printf("\n %03d: %03d %03d %03d | MOV [%d] << '%c'", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], ProcAsciiChr(memory[ip8+2])); ip8 += 3; break;
         case   9: printf("\n %03d: %03d %03d     | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  12: printf("\n %03d: %03d %03d %03d | MOV '%c' >> [%d]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], ProcAsciiChr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
-        //case  15: printf("\n %03d: %03d %03d %03d | MOV %s >> [[%d]]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], valstr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
         case  36: printf("\n %03d: %03d %03d     | JMP %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
-        case  72: printf("\n %03d: %03d         |", ip8, memory[ip8]); ip8 += 1; break;
-        case 101: printf("\n %03d: %03d         |", ip8, memory[ip8]); ip8 += 1; break;
-        case 108: printf("\n %03d: %03d         |", ip8, memory[ip8]); ip8 += 1; break;
-        case 111: printf("\n %03d: %03d         |", ip8, memory[ip8]); ip8 += 1; break;
-        case 255: printf("\n %03d: %03d         | HLT", ip8, memory[ip8]); ip8 += 1; break;
+        case  72: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
+        case 101: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
+        case 108: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
+        case 111: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
+        case 255: printf("\n %03d: %03d         | HLT", ip8, memory[ip8]); ++ip8; break;
         default: i = 255;
         }
     }
