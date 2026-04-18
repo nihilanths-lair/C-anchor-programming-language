@@ -63,17 +63,18 @@ void _()
         &&opcode_identifier_4,
         &&opcode_identifier_5
     }; // Таблица идентификаторов опкодов (кодов операций)
-    goto _0;
-    opcode_identifier_1: printf("\n <%%1> = %d", 1); goto _0;
-    opcode_identifier_2: printf("\n <%%2> = %d", 2); goto _0;
-    opcode_identifier_3: printf("\n <%%3> = %d", 3); goto _0;
-    opcode_identifier_4: printf("\n <%%4> = %d", 4); goto _0;
-    opcode_identifier_5: printf("\n <%%5> = %d", 5); goto _0;
+    //goto _0;
+    opcode_identifier_1: printf("\n %p: <%%1> = 0x%02X", opcode_identifier_table[0], 1); //goto _0;
+    opcode_identifier_2: printf("\n %p: <%%2> = 0x%02X", opcode_identifier_table[1], 2); //goto _0;
+    opcode_identifier_3: printf("\n %p: <%%3> = 0x%02X", opcode_identifier_table[2], 3); //goto _0;
+    opcode_identifier_4: printf("\n %p: <%%4> = 0x%02X", opcode_identifier_table[3], 4); //goto _0;
+    opcode_identifier_5: printf("\n %p: <%%5> = 0x%02X", opcode_identifier_table[4], 5); //goto _0;
     _0:
+    putchar('\n');
     // Пермутация (внедряется в мета-компиляторы и мета-программируемые виртуальные машины, для сборки и привязки динамически модифицируемых/меняющихся опкодов к единой таблице идентификаторов)
-    Permutation(opcode_identifier_table,/*opcode_table,*/"");
+    //Permutation(opcode_identifier_table,/*opcode_table,*/"");
 
-    Action();
+    //Action();
     //#include "..\..\batch_files\action.txt"
 }
 int main(int argc, char *argv[]) { _(argc, argv); }
