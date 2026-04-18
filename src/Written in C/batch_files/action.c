@@ -133,8 +133,9 @@ void *dispatch_mode8[0x100] =
     [42] = &&dispatch__mode_8__identifier_opcode_43, //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
     [43] = &&dispatch__mode_8__identifier_opcode_44, // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
     [44] = &&dispatch__mode_8__identifier_opcode_45, // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
-    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
     [45 ... 253] = &&dispatch__mode_8__identifier_opcode_from_46_to_254, // Неопределённые/неизвестные опкоды
+    ///////////////////////////////////////////////////////////////////////
     [254] = &&dispatch__mode_8__identifier_opcode_255, // <cmd=?> ; переключение режима адресации (с 8 на 16)
     [255] = &&dispatch__mode_8__identifier_opcode_256  // <cmd=HLT>
 };
@@ -301,7 +302,7 @@ dispatch__mode_8__identifier_opcode_9:                  // <cmd=MOV> <arg-1=dst:
 // [Inserting abstract ASM-code]: mov <r8>, i8 ; Копирование непосредственного (константного) значения в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_10: // <cmd=MOV> <arg-1=src:i8> <arg-0=dst:r8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_10: // <cmd=MOV dst:r8> <arg-1=src:i8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  r8 = memory[ip8+1];                    // <arg-0=dst:r8> <arg-1=src:i8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
@@ -311,7 +312,7 @@ dispatch__mode_8__identifier_opcode_10: // <cmd=MOV> <arg-1=src:i8> <arg-0=dst:r
 // [Inserting abstract ASM-code]: mov <r8>, [m8] ; Копирование значения из прямого адреса в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <arg-1=src:m8> <arg-0=dst:r8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_11: // <cmd=MOV dst:r8> <arg-1=src:m8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  r8 = memory[memory[ip8+1]];            // <arg-0=dst:r8> <arg-1=src:m8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
@@ -321,7 +322,7 @@ dispatch__mode_8__identifier_opcode_11: // <cmd=MOV> <arg-1=src:m8> <arg-0=dst:r
 // [Inserting abstract ASM-code]: mov <r8>, [[p8]] ; Копирование значения из косвенного адреса в регистр
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_12: // <cmd=MOV> <arg-1=src:p8> <arg-0=dst:r8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_12: // <cmd=MOV dst:r8> <arg-1=src:p8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  r8 = memory[memory[memory[ip8+1]]];    // <arg-0=dst:r8> <arg-1=src:p8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
@@ -331,7 +332,7 @@ dispatch__mode_8__identifier_opcode_12: // <cmd=MOV> <arg-1=src:p8> <arg-0=dst:r
 // [Inserting abstract ASM-code]: mov [m8], <r8> ; Копирование значения из регистра по прямому адресу
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_13: // <cmd=MOV> <arg-1=dst:m8> <arg-0=src:r8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_13: // <cmd=MOV src:r8> <arg-1=dst:m8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  memory[memory[ip8+1]] = r8;            // <arg-1=dst:m8> <arg-0=src:r8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
@@ -341,7 +342,7 @@ dispatch__mode_8__identifier_opcode_13: // <cmd=MOV> <arg-1=dst:m8> <arg-0=src:r
 // [Inserting abstract ASM-code]: mov [[p8]], <r8> ; Копирование значения из регистра по косвенному адресу
 // [Inserting abstract   C-code]: -
 //////////////////////////////////////////
-dispatch__mode_8__identifier_opcode_14: // <cmd=MOV> <arg-1=dst:p8> <arg-0=src:r8> ; l-op = r-op (Intel/AT&T)
+dispatch__mode_8__identifier_opcode_14: // <cmd=MOV src:r8> <arg-1=dst:p8> ; l-op = r-op (Intel/AT&T)
 #include "ShowDashboard.txt"            //
  memory[memory[memory[ip8+1]]] = r8;    // <arg-1=dst:p8> <arg-0=src:r8> ; Для VM в данной реализации не важно, будет это Intel или AT&T-syntax, т.к. аргумент-значение (опкод) един под оба варианта
  ip8 += 2;                              //
