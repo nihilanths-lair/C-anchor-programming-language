@@ -171,12 +171,12 @@ void *dispatch_mode64[0x100] =
     [255] = &&dispatch__mode_8__identifier_opcode_256   // <cmd=HLT>
 };
 
-unsigned char opcode_table[0x100];
-for (unsigned char i = 0; i < 0xFF; i++) opcode_table[i] = i;
-opcode_table[0xFF] = 0xFF;
-CheckTableStatus(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, 1);
-Permutation(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, "");
-CheckTableStatus(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, 2);
+ unsigned char opcode_table[0x100];
+ for (unsigned char i = 0; i < 0xFF; i++) opcode_table[i] = i;
+ opcode_table[0xFF] = 0xFF;
+ CheckTableStatus(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, 1);
+ Permutation(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, "");
+ CheckTableStatus(dispatch_mode8, opcode_table, sizeof (opcode_table)-1, 2);
 
 #ifdef DEBUG
  printf("\n Starting vCPU (8-bit's mode)...\n");
