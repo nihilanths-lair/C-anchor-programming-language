@@ -81,7 +81,7 @@ void _()
         &&opcode_identifier_4,
         &&opcode_identifier_5
     }; // Таблица идентификаторов опкодов (или кодов операций)
-    printf("\n [До]: Эталонная таблица идентификаторов опкодов (кодов операций), до процесса запуска пермутации\n");
+    printf("\n [До]: Эталонная таблица идентификаторов опкодов (кодов операций), начальное состояние\n");
     for (unsigned char i = 0; i < MACRO__TABLE_SIZE; i++) {
         printf("\n %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
     }
