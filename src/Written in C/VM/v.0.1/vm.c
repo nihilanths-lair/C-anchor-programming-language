@@ -85,13 +85,6 @@ void _()
     for (unsigned char i = 0; i < MACRO__TABLE_SIZE; i++) {
         printf("\n %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
     }
-    goto _0;
-    opcode_identifier_1: printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[0], 1, opcode_table[0], opcode_table[0], opcode_table[0]); goto _0;
-    opcode_identifier_2: printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[1], 2, opcode_table[1], opcode_table[1], opcode_table[1]); goto _0;
-    opcode_identifier_3: printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[2], 3, opcode_table[2], opcode_table[2], opcode_table[2]); goto _0;
-    opcode_identifier_4: printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[3], 4, opcode_table[3], opcode_table[3], opcode_table[3]); goto _0;
-    opcode_identifier_5: printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[4], 5, opcode_table[4], opcode_table[4], opcode_table[4]); goto _0;
-    _0:
     // Пермутация (внедряется в мета-компиляторы и мета-программируемые виртуальные машины, для сборки и привязки динамически модифицируемых/меняющихся опкодов к единой таблице идентификаторов)
     Permutation(opcode_identifier_table, opcode_table, MACRO__TABLE_SIZE, meta_description);
     printf("\n [После]: Эталонная таблица идентификаторов опкодов (кодов операций)\n");
@@ -99,7 +92,14 @@ void _()
         printf("\n %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
     }
     putchar('\n');
-
+    unsigned char opcode = 0;
+    goto *opcode_identifier_table[opcode];
+    opcode_identifier_1: printf("\n opcode_identifier_1 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[0], 1, opcode_table[0], opcode_table[0], opcode_table[0]); goto *opcode_identifier_table[1];
+    opcode_identifier_2: printf("\n opcode_identifier_2 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[1], 2, opcode_table[1], opcode_table[1], opcode_table[1]); goto *opcode_identifier_table[2];
+    opcode_identifier_3: printf("\n opcode_identifier_3 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[2], 3, opcode_table[2], opcode_table[2], opcode_table[2]); goto *opcode_identifier_table[3];
+    opcode_identifier_4: printf("\n opcode_identifier_4 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[3], 4, opcode_table[3], opcode_table[3], opcode_table[3]); goto *opcode_identifier_table[4];
+    opcode_identifier_5: printf("\n opcode_identifier_5 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[4], 5, opcode_table[4], opcode_table[4], opcode_table[4]);
+    putchar('\n');
     //Action();
     //#include "..\..\batch_files\action.txt"
 }
