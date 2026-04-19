@@ -13,17 +13,18 @@
 // Мета-описание для привязки опкодов к своим уникальным адресам/ключам/индексам)
 // <%?> - является идентификатором опкода (кода операции)
 // ? - является самим опкодом (может задаваться в ascii/hex/dec/bin формах)
-char meta_description[] = "\
-<%1> = 1\
-<%2> = 2\
-<%3> = 3\
-<%4> = 4\
-<%5> = 5\
-";
+char meta_description[] =
+    " <%1> = 1\n"
+    " <%2> = 2\n"
+    " <%3> = 3\n"
+    " <%4> = 4\n"
+    " <%5> = 5\n"
+;
 // Пермутация (внедряется в мета-компиляторы и мета-программируемые виртуальные машины, для сборки и привязки динамически модифицируемых/меняющихся опкодов к единой таблице идентификаторов)
-/*static inline*/void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, unsigned char table_size, const char *meta_description)
+/*static inline*/void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, const unsigned char table_size, const char *meta_description)
 {
     //printf("\n <DEBUG>: CALL Permutation\n"); // Эталонный
+    printf("\n\n meta_description: \n%s", meta_description);
     //unsigned char opcode_table[0xFF+1];
     // Парсинг `meta_description` в DOM-структуру: таблица соотношений [идентификатор опкода :: значение опкода]
     unsigned char opcode_configuration_table[0xFF+1][2]; // Первый index идентификатор опкода, второй - значение опкода
@@ -95,7 +96,7 @@ void _()
     opcode_identifier_5: goto _0;
     _0:
     // Пермутация (внедряется в мета-компиляторы и мета-программируемые виртуальные машины, для сборки и привязки динамически модифицируемых/меняющихся опкодов к единой таблице идентификаторов)
-    Permutation(opcode_identifier_table, opcode_table, MACRO__TABLE_SIZE, "");
+    Permutation(opcode_identifier_table, opcode_table, MACRO__TABLE_SIZE, meta_description);
     printf("\n [После]: Эталонная таблица идентификаторов опкодов (кодов операций)\n");
     for (unsigned char i = 0; i < MACRO__TABLE_SIZE; i++) {
         printf("\n %ph: <%%%d> = %d | \\h%02X | \\d%03d", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
