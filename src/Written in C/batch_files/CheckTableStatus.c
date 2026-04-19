@@ -1,5 +1,5 @@
 // Проверить статус таблицы
-void CheckTableStatus(void *opcode_identifier_table[], unsigned char *opcode_table, const unsigned char table_size)
+void CheckTableStatus(void *opcode_identifier_table[], const unsigned char *opcode_table, const unsigned char table_size)
 {
     FILE *file = fopen("output.txt", "wb");
     for (unsigned char i = 0; i < table_size; i++) {
