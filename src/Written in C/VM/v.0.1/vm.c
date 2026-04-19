@@ -94,12 +94,12 @@ void _()
     putchar('\n');
     unsigned char opcode = 0;
     goto *opcode_identifier_table[opcode];
-    opcode_identifier_1: printf("\n opcode_identifier_1 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[0], 1, opcode_table[0], opcode_table[0], opcode_table[0]); goto *opcode_identifier_table[1];
-    opcode_identifier_2: printf("\n opcode_identifier_2 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[1], 2, opcode_table[1], opcode_table[1], opcode_table[1]); goto *opcode_identifier_table[2];
-    opcode_identifier_3: printf("\n opcode_identifier_3 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[2], 3, opcode_table[2], opcode_table[2], opcode_table[2]); goto *opcode_identifier_table[3];
-    opcode_identifier_4: printf("\n opcode_identifier_4 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[3], 4, opcode_table[3], opcode_table[3], opcode_table[3]); goto *opcode_identifier_table[4];
-    opcode_identifier_5: printf("\n opcode_identifier_5 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[4], 5, opcode_table[4], opcode_table[4], opcode_table[4]);
-    putchar('\n');
+    opcode_identifier_1: printf("\n opcode_identifier_1 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[0], 1, opcode_table[0], opcode_table[0], opcode_table[0]); goto *opcode_identifier_table[++opcode];
+    opcode_identifier_2: printf("\n opcode_identifier_2 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[1], 2, opcode_table[1], opcode_table[1], opcode_table[1]); goto *opcode_identifier_table[++opcode];
+    opcode_identifier_3: printf("\n opcode_identifier_3 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[2], 3, opcode_table[2], opcode_table[2], opcode_table[2]); goto *opcode_identifier_table[++opcode];
+    opcode_identifier_4: printf("\n opcode_identifier_4 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[3], 4, opcode_table[3], opcode_table[3], opcode_table[3]); goto *opcode_identifier_table[++opcode];
+    opcode_identifier_5: printf("\n opcode_identifier_5 = %ph: <%%%d> = %3d | \\h%02X | \\d%03d", opcode_identifier_table[4], 5, opcode_table[4], opcode_table[4], opcode_table[4]); putchar('\n'); return;
+
     //Action();
     //#include "..\..\batch_files\action.txt"
 }
