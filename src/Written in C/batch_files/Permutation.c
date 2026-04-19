@@ -3,28 +3,29 @@ void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, c
 {
     //printf("\n\n meta_description: \n%s", meta_description);
 
-    #define HLT 0x01
-    #define JMP 0x02
-    #define INC 0x03
-
-    opcode_table[0] = INC;
-    opcode_table[1] = JMP;
-    opcode_table[2] = HLT;
-
     // Парсинг `meta_description` в DOM-структуру: таблица соотношений [идентификатор опкода = значение опкода]
     #define MACRO__TABLE 2
     unsigned char opcode_configuration_table[0xFF+1][MACRO__TABLE]; // Первый index идентификатор опкода, второй - значение опкода
 
     enum {identifier, value};
 
-    opcode_configuration_table[0][identifier] = 1;
-    opcode_configuration_table[0][value] = INC; // <%1> = 3
+    FILE *file = fopen("output.txt", "ab");
+    fprintf(file, "\n\n\n [До пермутации]:\n");
+    for (unsigned char i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
+    fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[table_size], table_size+1, opcode_table[table_size], opcode_table[table_size], opcode_table[table_size]);
 
-    opcode_configuration_table[1][identifier] = 2;
-    opcode_configuration_table[1][value] = JMP; // <%2> = 2
+    for (unsigned char i = 0; i < 0xFF; i++)
+    {
+        opcode_table[i] = 0xFF-i;
 
-    opcode_configuration_table[2][identifier] = 3;
-    opcode_configuration_table[2][value] = HLT; // <%3> = 1
+        opcode_configuration_table[i][identifier] = i;
+        opcode_configuration_table[i][value] = 0xFF-i;
+    }
+
+    opcode_table[0xFF] = 0;
+
+    opcode_configuration_table[0xFF][identifier] = 0xFF;
+    opcode_configuration_table[0xFF][value] = 0;
 
     void *opcode_identifier_table_address[0xFF+1];
     for (unsigned char i = 0; i < table_size; i++){
@@ -32,12 +33,10 @@ void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, c
         opcode_identifier_table_address[i] = opcode_identifier_table[i];
     }
     // Временно пропустим данный этап и предположим у нас уже есть готовая таблица, воспользуемся ей
-    FILE *file = fopen("output.txt", "ab");
-    fprintf(file, "\n\n\n [До пермутации]:\n");
-    for (int i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, i, i, i);
-    for (int i = 0; i < table_size; i++) opcode_identifier_table[opcode_table[i]] = opcode_identifier_table_address[i]; // теперь спокойно можем производить замену, не боясь затереть данные
+    for (unsigned char i = 0; i < table_size; i++) opcode_identifier_table[opcode_table[i]] = opcode_identifier_table_address[i]; // теперь спокойно можем производить замену, не боясь затереть данные
     fprintf(file, "\n\n\n [После пермутации]:\n");
-    for (int i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
+    for (unsigned char i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
+    fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[table_size], table_size+1, opcode_table[table_size], opcode_table[table_size], opcode_table[table_size]);
     fprintf(file, "\n\n");
     fclose(file);
     putchar('\n');
