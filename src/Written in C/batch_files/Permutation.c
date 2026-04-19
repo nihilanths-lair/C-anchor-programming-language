@@ -1,8 +1,6 @@
 // Пермутация (внедряется в мета-компиляторы и мета-программируемые виртуальные машины, для сборки и привязки динамически модифицируемых/меняющихся опкодов к единой таблице идентификаторов)
-/*static/*inline*/void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, const unsigned char table_size, const char *meta_description)
+void Permutation(void *opcode_identifier_table[], unsigned char *opcode_table, const unsigned char table_size, const char *meta_description)
 {
-    //printf("\n <DEBUG>: CALL Permutation\n"); // Эталонный
-    //
     //printf("\n\n meta_description: \n%s", meta_description);
 
     #define HLT 0x01
@@ -30,20 +28,21 @@
 
     void *opcode_identifier_table_address[0xFF+1];
     for (unsigned char i = 0; i < table_size; i++){
-        // делаем резервное копирование перед внесением изменений (на всякий случай, если потребуется хранить первичное состояние)
+        // производим копирование для предотвращения затирки/повреждения данных
         opcode_identifier_table_address[i] = opcode_identifier_table[i];
     }
     // Временно пропустим данный этап и предположим у нас уже есть готовая таблица, воспользуемся ей
-    printf("\n\n [До пермутации]:");
-    for (int i = 0; i < table_size; i++) printf("\n %ph, <%%%d> = %3d | %02Xh | %03dd", opcode_identifier_table[i], i+1, i, i, i);
+    FILE *file = fopen("output.txt", "ab");
+    fprintf(file, "\n\n\n [До пермутации]:\n");
+    for (int i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, i, i, i);
+    for (int i = 0; i < table_size; i++) opcode_identifier_table[opcode_table[i]] = opcode_identifier_table_address[i]; // теперь спокойно можем производить замену, не боясь затереть данные
+    fprintf(file, "\n\n\n [После пермутации]:\n");
+    for (int i = 0; i < table_size; i++) fprintf(file, "\n %ph, <%%%d> = %d | %02Xh | %03dd", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
+    fprintf(file, "\n\n");
+    fclose(file);
     putchar('\n');
-    for (int i = 0; i < table_size; i++) opcode_identifier_table[opcode_table[i]] = opcode_identifier_table_address[i];
-    printf("\n [После пермутации]:");
-    for (int i = 0; i < table_size; i++) printf("\n %ph, <%%%d> = %3d | %02Xh | %03dd", opcode_identifier_table[i], i+1, opcode_table[i], opcode_table[i], opcode_table[i]);
-    putchar('\n');
-
-    //printf("\n\n <DEBUG>: RET Permutation\n");
 }
+
 /* -*-[Набросок]-*-
     #define MACRO__TABLE_SIZE 5
     unsigned char opcode_table[MACRO__TABLE_SIZE] = {
