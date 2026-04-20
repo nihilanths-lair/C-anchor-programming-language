@@ -5,18 +5,18 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "..\..\batch_files\ProcAsciiChr.c"
-#include "..\..\batch_files\ShowDashboard.c"
-#include "..\..\batch_files\GetDebuggingInformation.c"
+#include "..\..\..\batch_files\ProcAsciiChr.c"
+#include "..\..\..\batch_files\ShowDashboard.c"
+#include "..\..\..\batch_files\GetDebuggingInformation.c"
 
-#include "..\..\batch_files\Permutation.c"
-#include "..\..\batch_files\CheckTableStatus.c"
+#include "..\..\..\batch_files\Permutation.c"
+#include "..\..\..\batch_files\CheckTableStatus.c"
 
-#include "..\..\batch_files\Action.c"
+#include "..\..\..\batch_files\architecture\8-bit's\dispatching.c"
 
-// Мета-описание для привязки опкодов к своим уникальным адресам/ключам/индексам)
-// <%?> - является идентификатором опкода (кода операции)
-// ? - является самим опкодом (может задаваться в ascii/hex/dec/bin формах)
+// РњРµС‚Р°-РѕРїРёСЃР°РЅРёРµ РґР»СЏ РїСЂРёРІСЏР·РєРё РѕРїРєРѕРґРѕРІ Рє СЃРІРѕРёРј СѓРЅРёРєР°Р»СЊРЅС‹Рј Р°РґСЂРµСЃР°Рј/РєР»СЋС‡Р°Рј/РёРЅРґРµРєСЃР°Рј)
+// <%?> - СЏРІР»СЏРµС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РѕРїРєРѕРґР° (РєРѕРґР° РѕРїРµСЂР°С†РёРё)
+// ? - СЏРІР»СЏРµС‚СЃСЏ СЃР°РјРёРј РѕРїРєРѕРґРѕРј (РјРѕР¶РµС‚ Р·Р°РґР°РІР°С‚СЊСЃСЏ РІ ascii/hex/dec/bin С„РѕСЂРјР°С…)
 char meta_description[] =
     " <%1> = 1\n"
     " <%2> = 2\n"
@@ -29,7 +29,7 @@ void _(int argc, char *argv[])
 {
     setlocale(0, "");
     //
-    Action();
+    Dispatching();
     //#include "..\..\batch_files\action.txt"
 }
 int main(int argc, char *argv[]) { _(argc, argv); }
