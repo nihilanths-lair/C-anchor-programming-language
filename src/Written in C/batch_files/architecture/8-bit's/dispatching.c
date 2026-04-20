@@ -10,12 +10,15 @@ static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/0xFF}; // От�
 
 static inline void Dispatching()
 {
- /*static*/uint8_t ip8 = 0;   // Instruction Pointer
- /*static*/uint8_t sp8 = 0-1; // Stack Pointer
- /*static*/uint8_t bp8 = 0;   // Base Pointer
+ /*static*/uint8_t ip8 = 0; // Instruction Pointer
+ /*static*/uint8_t dp8 = 0; // Data Pointer
+ /*static*/uint8_t sp8 = 0; // Stack Pointer
+ /*static*/uint8_t bp8 = 0; // Base Pointer
 
- /*static*/uint8_t si8 = 0;   // Source Index
- /*static*/uint8_t di8 = 0;   // Destination Index
+ /*static*/uint8_t si8 = 0; // Source Index
+ /*static*/uint8_t di8 = 0; // Destination Index
+ /*static*/uint8_t sd8 = 0; // Source Data (аналог SI)
+ /*static*/uint8_t dd8 = 0; // Destination Data (аналог DI)
 
  /*static*/uint8_t cs8 = 0; // Code Segment
  /*static*/uint8_t ss8 = 0; // Stack Segment
