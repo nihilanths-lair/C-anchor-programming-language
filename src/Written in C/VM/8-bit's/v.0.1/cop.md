@@ -143,12 +143,12 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Условные переходы
-<cmd=JE> <arg-1=src:i8>  (Jump if Equal)
-<cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
-<cmd=JB> <arg-1=src:i8>  (Jump if Below)
-<cmd=JA> <arg-1=src:i8>  (Jump if Above)
-<cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-<cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+60 | 096 | JE      | src:i8 | (Jump if Equal)
+61 | 097 | JNE     | src:i8 | (Jump if Not Equal)
+62 | 098 | JB      | src:i8 | (Jump if Below)
+63 | 099 | JA      | src:i8 | (Jump if Above)
+64 | 100 | JBE/JNA | src:i8 | (Jump if Below or Equal / Jump if Not Above)
+65 | 101 | JAE/JNB | src:i8 | (Jump if Above or Equal / Jump if Not Below)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FF           | 255          | NOP
 100          | 256          | HLT
