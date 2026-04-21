@@ -126,7 +126,8 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 52 XX        | 082 XXX      | POP [X]          | dst:m8 |
 53 XX        | 083 XXX      | POP [[X]]        | dst:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-100          | 256          | HLT              |        |
+FF           | 255          | NOP
+100          | 256          | HLT
 ```
     // Сравнение (8-bit's)
 33 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
