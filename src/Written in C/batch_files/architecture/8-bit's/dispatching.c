@@ -44,7 +44,7 @@ static inline void Dispatching()
 void *dispatch_mode8[0x100] =
 {
     ///////////////////////////////////////////////////
-    [ 0] = &&dispatch__mode_8__identifier_opcode_1,  // <cmd=INC> <arg-1=dst:r8> ; Инкремент регистра
+    [ 0] = &&dispatch__mode_8__identifier_opcode_1,  // <cmd=INC>       <dst:r8> ; Инкремент регистра
     [ 1] = &&dispatch__mode_8__identifier_opcode_2,  // <cmd=INC> <arg-1=dst:m8> ; Инкремент произвольной ячейки памяти через прямую адресацию
     [ 2] = &&dispatch__mode_8__identifier_opcode_3,  // <cmd=INC> <arg-1=dst:p8> ; Инкремент произвольной ячейки памяти через косвенную адресацию
     ///////////////////////////////////////////////////
