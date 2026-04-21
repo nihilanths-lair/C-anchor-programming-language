@@ -117,20 +117,24 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 47 XX XX     | 071 XXX XXX  | DIV [[X]], [[X]] | dst:p8 << src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 48 XX        | 072 XXX      | CALL X           | src:i8 |
-49 XX        | 073 XXX      | CALL [X]         | src:m8 |
-4A XX        | 074 XXX      | CALL [[X]]       | src:p8 |
+49           | 073          | CALL r8          | src:r8 |
+4A XX        | 074 XXX      | CALL X           | src:m8 |
+4B XX        | 075 XXX      | CALL [X]         | src:p8 |
 
-4B           | 075          | RET              |        |
-4C XX        | 076 XXX      | RET X            | src:i8 |
-4D XX        | 077 XXX      | RET [X]          | dst:m8 |
-4E XX        | 078 XXX      | RET [[X]]        | dst:p8 |
+4C           | 076          | RET              |        |
+4D XX        | 077 XXX      | RET X            | src:i8 |
+4E           | 078          | RET r8           | dst:r8 |
+4F XX        | 079 XXX      | RET X            | dst:m8 |
+50 XX        | 080 XXX      | RET [X]          | dst:p8 |
 
-4F XX        | 079 XXX      | PUSH X           | src:i8 |
-50 XX        | 080 XXX      | PUSH [X]         | src:m8 |
-51 XX        | 081 XXX      | PUSH [[X]]       | src:p8 |
+51 XX        | 081 XXX      | PUSH X           | src:i8 |
+51           | 081          | PUSH r8          | src:r8 |
+52 XX        | 082 XXX      | PUSH X           | src:m8 |
+53 XX        | 083 XXX      | PUSH [X]         | src:p8 |
 
-52 XX        | 082 XXX      | POP [X]          | dst:m8 |
-53 XX        | 083 XXX      | POP [[X]]        | dst:p8 |
+54           | 084          | POP r8           | dst:r8 |
+54 XX        | 084 XXX      | POP X            | dst:m8 |
+55 XX        | 085 XXX      | POP [X]          | dst:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 54 XX XX     | 084 XXX XXX  | CMP r8, X        | src:r8, src:i8 |
 55 XX XX     | 085 XXX XXX  | CMP r8, [X]      | src:r8, src:m8 |
