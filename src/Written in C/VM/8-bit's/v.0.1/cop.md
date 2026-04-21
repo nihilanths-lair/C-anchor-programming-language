@@ -128,13 +128,15 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 50 XX        | 080 XXX      | RET [X]          | dst:p8 |
 
 51 XX        | 081 XXX      | PUSH X           | src:i8 |
-51           | 081          | PUSH r8          | src:r8 |
-52 XX        | 082 XXX      | PUSH X           | src:m8 |
-53 XX        | 083 XXX      | PUSH [X]         | src:p8 |
+52           | 082          | PUSH r8          | src:r8 |
+53 XX        | 083 XXX      | PUSH X           | src:m8 |
+54 XX        | 084 XXX      | PUSH [X]         | src:p8 |
 
-54           | 084          | POP r8           | dst:r8 |
-54 XX        | 084 XXX      | POP X            | dst:m8 |
-55 XX        | 085 XXX      | POP [X]          | dst:p8 |
+55           | 085          | POP r8           | dst:r8 |
+56 XX        | 086 XXX      | POP X            | dst:m8 |
+57 XX        | 087 XXX      | POP [X]          | dst:p8 |
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Ниже не верно, обновляется!
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 54 XX XX     | 084 XXX XXX  | CMP r8, X        | src:r8, src:i8 |
 55 XX XX     | 085 XXX XXX  | CMP r8, [X]      | src:r8, src:m8 |
