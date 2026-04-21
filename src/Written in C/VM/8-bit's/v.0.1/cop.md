@@ -108,5 +108,5 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASM  | SEMANTICS        | DESCRIPTION
 45 XX XX     | 069 XXX XXX  | DIV [[X]], X     | dst:p8 << src:i8 |
 46 XX XX     | 070 XXX XXX  | DIV [[X]], [X]   | dst:p8 << src:m8 |
 47 XX XX     | 071 XXX XXX  | DIV [[X]], [[X]] | dst:p8 << src:p8 |
-```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+```
