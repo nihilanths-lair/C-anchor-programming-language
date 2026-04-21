@@ -1,5 +1,5 @@
 ```
-Виртуальная машина (Гибридная: Регистровая + Память-в-память), в духе x86
+Виртуальная машина (Гибридная: Регистровая + Память-в-память), в стиле (духе) x86
 
 OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 ```
@@ -126,14 +126,25 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 52 XX        | 082 XXX      | POP [X]          | dst:m8 |
 53 XX        | 083 XXX      | POP [[X]]        | dst:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+54 XX XX     | 084 XXX XXX  | CMP r8, X        | src:r8, src:i8 |
+55 XX XX     | 085 XXX XXX  | CMP r8, [X]      | src:r8, src:m8 |
+56 XX XX     | 086 XXX XXX  | CMP r8, [[X]]    | src:r8, src:p8 |
+
+57 XX XX     | 087 XXX XXX  | CMP X, X         | src:i8, src:i8 |
+58 XX XX     | 088 XXX XXX  | CMP X, [X]       | src:i8, src:m8 |
+59 XX XX     | 089 XXX XXX  | CMP X, [[X]]     | src:i8, src:p8 |
+
+5A XX XX     | 090 XXX XXX  | CMP [X], X       | src:m8, src:i8 |
+5B XX XX     | 091 XXX XXX  | CMP [X], [X]     | src:m8, src:m8 |
+5C XX XX     | 092 XXX XXX  | CMP [X], [[X]]   | src:m8, src:p8 |
+
+5D XX XX     | 093 XXX XXX  | CMP [[X]], X     | src:p8, src:i8 |
+5E XX XX     | 094 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
+5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FF           | 255          | NOP
 100          | 256          | HLT
 ```
-    // Сравнение (8-bit's)
-33 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
-34 // <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
-35 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
-36 // <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
 
     // Условные переходы (8-bit's)
 40 //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
