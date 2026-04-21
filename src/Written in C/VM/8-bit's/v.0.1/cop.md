@@ -142,14 +142,14 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 5E XX XX     | 094 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
 5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Условные переходы (8-bit's)
+<cmd=JE> <arg-1=src:i8>  (Jump if Equal)
+<cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
+<cmd=JB> <arg-1=src:i8>  (Jump if Below)
+<cmd=JA> <arg-1=src:i8>  (Jump if Above)
+<cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
+<cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FF           | 255          | NOP
 100          | 256          | HLT
 ```
-
-    // Условные переходы (8-bit's)
-40 //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
-41 //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
-42 //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
-43 //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
-44 // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-45 // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
