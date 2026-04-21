@@ -27,23 +27,3 @@
 2| DP         - 256 байт, DS:DP               - 65'536 байт (65 Kb.)
 3| SP         - 256 байт, SS:SP               - 65'536 байт (65 Kb.)
 ```
-```
--
---
-    // Сравнение (8-bit's)
-33 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
-34 // <cmd=CMP> <arg-1=src:m8> <arg-2=src:i8>
-35 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
-36 // <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
-
-    // Условные переходы (8-bit's)
-40 //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
-41 //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
-42 //      <cmd=JB> <arg-1=src:i8>  (Jump if Below)
-43 //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
-44 // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
-45 // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
-
-46~255, // Неопределённые/неизвестные опкоды
-256  // <cmd=HLT>
-```
