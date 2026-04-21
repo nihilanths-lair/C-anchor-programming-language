@@ -36,11 +36,6 @@
 35 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:m8>
 36 // <cmd=CMP> <arg-1=src:m8> <arg-2=src:m8>
 
-    // Безусловный переход (8-bit's)
-37 // <cmd=JMP> <arg-1=src:i8>
-38 // <cmd=JMP> <arg-1=src:m8>
-39 // <cmd=JMP> <arg-1=src:p8>
-
     // Условные переходы (8-bit's)
 40 //      <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
 41 //     <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
