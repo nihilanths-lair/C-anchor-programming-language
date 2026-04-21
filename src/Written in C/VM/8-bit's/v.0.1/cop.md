@@ -110,4 +110,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 46 XX XX     | 070 XXX XXX  | DIV [[X]], [X]   | dst:p8 << src:m8 |
 47 XX XX     | 071 XXX XXX  | DIV [[X]], [[X]] | dst:p8 << src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+48 XX        | 072 XXX      | CALL X           | src:i8 |
+49 XX        | 073 XXX      | CALL [X]         | src:m8 |
+4A XX        | 074 XXX      | CALL [[X]]       | src:p8 |
 ```
