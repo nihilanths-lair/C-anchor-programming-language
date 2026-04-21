@@ -126,6 +126,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 52 XX        | 082 XXX      | POP [X]          | dst:m8 |
 53 XX        | 083 XXX      | POP [[X]]        | dst:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+100          | 256          | HLT              |        |
 ```
     // Сравнение (8-bit's)
 33 // <cmd=CMP> <arg-1=src:i8> <arg-2=src:i8>
@@ -140,6 +141,3 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 43 //      <cmd=JA> <arg-1=src:i8>  (Jump if Above)
 44 // <cmd=JBE/JNA> <arg-1=src:i8>  (Jump if Below or Equal / Jump if Not Above)
 45 // <cmd=JAE/JNB> <arg-1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
-
-46~255, // Неопределённые/неизвестные опкоды
-256  // <cmd=HLT>
