@@ -142,13 +142,26 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 5E XX XX     | 094 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
 5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Условные переходы
-60 | 096 | JE      | src:i8 | (Jump if Equal)
-61 | 097 | JNE     | src:i8 | (Jump if Not Equal)
-62 | 098 | JB      | src:i8 | (Jump if Below)
-63 | 099 | JA      | src:i8 | (Jump if Above)
-64 | 100 | JBE/JNA | src:i8 | (Jump if Below or Equal / Jump if Not Above)
-65 | 101 | JAE/JNB | src:i8 | (Jump if Above or Equal / Jump if Not Below)
+60 XX        | 096 XXX      | JE X             | src:i8 |
+61 XX        | 097 XXX      | JNE X            | src:i8 |
+62 XX        | 098 XXX      | JB X             | src:i8 | (Jump if Below)
+63 XX        | 099 XXX      | JA X             | src:i8 | (Jump if Above)
+64 XX        | 100 XXX      | JBE/JNA X        | src:i8 | (Jump if Below or Equal / Jump if Not Above)
+65 XX        | 101 XXX      | JAE/JNB X        | src:i8 | (Jump if Above or Equal / Jump if Not Below)
+
+66 XX        | 102 XXX      | JE [X]           | src:m8 |
+67 XX        | 103 XXX      | JNE [X]          | src:m8 |
+68 XX        | 104 XXX      | JB [X]           | src:m8 | (Jump if Below)
+69 XX        | 105 XXX      | JA [X]           | src:m8 | (Jump if Above)
+6A XX        | 106 XXX      | JBE/JNA [X]      | src:m8 | (Jump if Below or Equal / Jump if Not Above)
+6B XX        | 107 XXX      | JAE/JNB [X]      | src:m8 | (Jump if Above or Equal / Jump if Not Below)
+
+6C XX        | 108 XXX      | JE [[X]]         | src:p8 |
+6D XX        | 109 XXX      | JNE [[X]]        | src:p8 |
+6E XX        | 110 XXX      | JB [[X]]         | src:p8 | (Jump if Below)
+6F XX        | 111 XXX      | JA [[X]]         | src:p8 | (Jump if Above)
+70 XX        | 112 XXX      | JBE/JNA [[X]]    | src:p8 | (Jump if Below or Equal / Jump if Not Above)
+71 XX        | 113 XXX      | JAE/JNB [[X]]    | src:p8 | (Jump if Above or Equal / Jump if Not Below)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FF           | 255          | NOP
 100          | 256          | HLT
