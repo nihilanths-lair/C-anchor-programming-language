@@ -118,4 +118,12 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 4C XX        | 076 XXX      | RET X            | src:i8 |
 4D XX        | 077 XXX      | RET [X]          | dst:m8 |
 4E XX        | 078 XXX      | RET [[X]]        | dst:p8 |
+
+4F XX        | 079 XXX      | PUSH X           | src:i8 |
+50 XX        | 080 XXX      | PUSH [X]         | src:m8 |
+51 XX        | 081 XXX      | PUSH [[X]]       | src:p8 |
+
+52 XX        | 082 XXX      | POP [X]          | dst:m8 |
+53 XX        | 083 XXX      | POP [[X]]        | dst:p8 |
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ```
