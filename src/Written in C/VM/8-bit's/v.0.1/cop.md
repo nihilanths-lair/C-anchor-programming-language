@@ -46,8 +46,9 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASM  | SEMANTICS        | DESCRIPTION
 1B XX XX     | 027 XXX XXX  | MOV [[X]], [[X]] | dst:p8 << src:p8 | .- памяти косвенной адресации в память косвенной адресации
 ```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+```
  Арифметико-логические операции
+```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ```
 1C XX        | 028 XXX      | ADD r8, X        | dst:r8 << src:i8 |
@@ -64,9 +65,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASM  | SEMANTICS        | DESCRIPTION
 24 XX XX     | 036 XXX XXX  | ADD [[X]], X     | dst:p8 << src:i8 |
 25 XX XX     | 037 XXX XXX  | ADD [[X]], [X]   | dst:p8 << src:m8 |
 26 XX XX     | 038 XXX XXX  | ADD [[X]], [[X]] | dst:p8 << src:p8 |
-```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-```
 27 XX        | 039 XXX      | SUB r8, X        | dst:r8 << src:i8 |
 28 XX        | 040 XXX      | SUB r8, [X]      | dst:r8 << src:m8 |
 29 XX        | 041 XXX      | SUB r8, [[X]]    | dst:r8 << src:p8 |
@@ -81,9 +80,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASM  | SEMANTICS        | DESCRIPTION
 2F XX XX     | 047 XXX XXX  | SUB [[X]], X     | dst:p8 << src:i8 |
 30 XX XX     | 048 XXX XXX  | SUB [[X]], [X]   | dst:p8 << src:m8 |
 31 XX XX     | 049 XXX XXX  | SUB [[X]], [[X]] | dst:p8 << src:p8 |
-```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-```
 32 XX        | 050 XXX      | MUL r8, X        | dst:r8 << src:i8 |
 33 XX        | 051 XXX      | MUL r8, [X]      | dst:r8 << src:m8 |
 34 XX        | 052 XXX      | MUL r8, [[X]]    | dst:r8 << src:p8 |
@@ -98,9 +95,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASM  | SEMANTICS        | DESCRIPTION
 3A XX XX     | 058 XXX XXX  | MUL [[X]], X     | dst:p8 << src:i8 |
 3B XX XX     | 059 XXX XXX  | MUL [[X]], [X]   | dst:p8 << src:m8 |
 3C XX XX     | 060 XXX XXX  | MUL [[X]], [[X]] | dst:p8 << src:p8 |
-```
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-```
 3D XX        | 061 XXX      | DIV r8, X        | dst:r8 << src:i8 |
 3E XX        | 062 XXX      | DIV r8, [X]      | dst:r8 << src:m8 |
 3F XX        | 063 XXX      | DIV r8, [[X]]    | dst:r8 << src:p8 |
