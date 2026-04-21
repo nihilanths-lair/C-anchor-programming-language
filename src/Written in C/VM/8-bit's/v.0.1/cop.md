@@ -114,5 +114,5 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 49 XX        | 073 XXX      | CALL [X]         | src:m8 |
 4A XX        | 074 XXX      | CALL [[X]]       | src:p8 |
 
-4B XX        | 075          | RET              |        | Снять адрес со стека и совершить переход по нему (возврат из процедуры)
+4B           | 075          | RET              |        | Снять адрес со стека и совершить переход по нему (возврат из процедуры)
 ```
