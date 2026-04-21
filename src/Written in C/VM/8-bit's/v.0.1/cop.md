@@ -142,7 +142,7 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 5E XX XX     | 094 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
 5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Условные переходы (8-bit's)
+// Условные переходы
 <cmd=JE> <arg-1=src:i8>  (Jump if Equal)
 <cmd=JNE> <arg-1=src:i8>  (Jump if Not Equal)
 <cmd=JB> <arg-1=src:i8>  (Jump if Below)
