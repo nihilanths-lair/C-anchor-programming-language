@@ -13,11 +13,14 @@ void GetDebuggingInformation(const unsigned char *memory, const unsigned char ip
     case   8: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; Intel", memory[ip8]+1); break; // 9
     // MOV (AT&T)
     case   9: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; AT&T", memory[ip8]+1); break; // 10
-    case  10: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; AT&T", memory[ip8]+1); break; // 11
+    case  10: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d:", memory[ip8]+1); break; // 11
     case  11: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; AT&T", memory[ip8]+1); break; // 12
     case  12: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; AT&T", memory[ip8]+1); break; // 13
     case  13: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d: MEMORY [%d] = %d ; AT&T", memory[ip8]+1); break; // 14
+    // INT
+    case  37: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d:", memory[ip8]+1); break; // 52
     //
-    case 255: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d", memory[ip8]+1); // 256
+    case 255: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_%d", memory[ip8]+1); break; // 256
+    default: printf("\n [DEBUG] dispatch__mode_8__identifier_opcode_from_37_to_255:"); break;
     }
 }
