@@ -46,12 +46,12 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
                             | MOV X, X         | src:i8 << src:m8 | 0 = cell[0];         | /!\ Запрещено!
 16 XX        | 022 XXX      | MOV r8, X        | dst:r8 << src:m8 |                      | .- памяти прямой адресации в регистр r8
 17 XX        | 023 XXX      | MOV X, X         | dst:m8 << src:m8 | cell[0] = cell[1];   | .- памяти прямой адресации в память прямой адресации
-18 XX XX     | 024 XXX XXX  | MOV [X], X       | dst:p8 << src:m8 | *cell[0] = &cell[1]; | .- памяти прямой адресации в память косвенной адресации
+18 XX XX     | 024 XXX XXX  | MOV [X], X       | dst:p8 << src:m8 | cell[0] = cell[1];   | .- памяти прямой адресации в память косвенной адресации
 
                             | MOV X, [X]       | src:i8 << src:p8 | 0 = *cell[0];        | /!\ Запрещено!
 19 XX        | 025 XXX      | MOV r8, [X]      | dst:r8 << src:p8 |                      | .- памяти косвенной адресации в регистр r8
 2A XX        | 026 XXX      | MOV X, [X]       | dst:m8 << src:p8 | cell[0] = *cell[1];  | .- памяти косвенной адресации в память прямой адресации
-2B XX XX     | 027 XXX XXX  | MOV [X], [X]     | dst:p8 << src:p8 | *cell[0] = &cell[1]; | .- памяти косвенной адресации в память косвенной адресации
+2B XX XX     | 027 XXX XXX  | MOV [X], [X]     | dst:p8 << src:p8 | cell[0] = cell[1];   | .- памяти косвенной адресации в память косвенной адресации
 ```
 ```
  Арифметико-логические операции
