@@ -121,6 +121,6 @@ enum
     jae8_si, jnb8_si = 57,         // <cmd=JAE/JNB> <arg1=src:i8>  (Jump if Above or Equal / Jump if Not Below)
     // Условные переходы (8-bit's) //
     /////////////////////////////////
-
-    hlt = 255
+    INT = 37,
+    HLT = 255
 };
