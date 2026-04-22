@@ -152,35 +152,33 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 62 XX XX     | 098 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
 63 XX XX     | 099 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Ниже не верно, обновляется!
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-60 XX        | 096 XXX      | JE r8            | src:r8 |
-61 XX        | 097 XXX      | JNE r8           | src:r8 |
-62 XX        | 098 XXX      | JB r8            | src:r8 | (Jump if Below)
-63 XX        | 099 XXX      | JA r8            | src:r8 | (Jump if Above)
-64 XX        | 100 XXX      | JBE/JNA r8       | src:r8 | (Jump if Below or Equal / Jump if Not Above)
-65 XX        | 101 XXX      | JAE/JNB r8       | src:r8 | (Jump if Above or Equal / Jump if Not Below)
+64 XX        | 100 XXX      | JE r8            | src:r8 |
+65 XX        | 101 XXX      | JNE r8           | src:r8 |
+66 XX        | 102 XXX      | JB r8            | src:r8 | (Jump if Below)
+67 XX        | 103 XXX      | JA r8            | src:r8 | (Jump if Above)
+68 XX        | 104 XXX      | JBE/JNA r8       | src:r8 | (Jump if Below or Equal / Jump if Not Above)
+69 XX        | 105 XXX      | JAE/JNB r8       | src:r8 | (Jump if Above or Equal / Jump if Not Below)
 
-66 XX        | 102 XXX      | JE X             | src:i8 |
-67 XX        | 103 XXX      | JNE X            | src:i8 |
-68 XX        | 104 XXX      | JB X             | src:i8 | (Jump if Below)
-69 XX        | 105 XXX      | JA X             | src:i8 | (Jump if Above)
-6A XX        | 106 XXX      | JBE/JNA X        | src:i8 | (Jump if Below or Equal / Jump if Not Above)
-6B XX        | 107 XXX      | JAE/JNB X        | src:i8 | (Jump if Above or Equal / Jump if Not Below)
+6A XX        | 106 XXX      | JE X             | src:i8 |
+6B XX        | 107 XXX      | JNE X            | src:i8 |
+6C XX        | 108 XXX      | JB X             | src:i8 | (Jump if Below)
+6D XX        | 109 XXX      | JA X             | src:i8 | (Jump if Above)
+6E XX        | 110 XXX      | JBE/JNA X        | src:i8 | (Jump if Below or Equal / Jump if Not Above)
+6F XX        | 111 XXX      | JAE/JNB X        | src:i8 | (Jump if Above or Equal / Jump if Not Below)
 
-6C XX        | 108 XXX      | JE [X]           | src:m8 |
-6D XX        | 109 XXX      | JNE [X]          | src:m8 |
-6E XX        | 110 XXX      | JB [X]           | src:m8 | (Jump if Below)
-6F XX        | 111 XXX      | JA [X]           | src:m8 | (Jump if Above)
-70 XX        | 112 XXX      | JBE/JNA [X]      | src:m8 | (Jump if Below or Equal / Jump if Not Above)
-71 XX        | 113 XXX      | JAE/JNB [X]      | src:m8 | (Jump if Above or Equal / Jump if Not Below)
+70 XX        | 112 XXX      | JE [X]           | src:m8 |
+71 XX        | 113 XXX      | JNE [X]          | src:m8 |
+72 XX        | 114 XXX      | JB [X]           | src:m8 | (Jump if Below)
+73 XX        | 115 XXX      | JA [X]           | src:m8 | (Jump if Above)
+74 XX        | 116 XXX      | JBE/JNA [X]      | src:m8 | (Jump if Below or Equal / Jump if Not Above)
+75 XX        | 117 XXX      | JAE/JNB [X]      | src:m8 | (Jump if Above or Equal / Jump if Not Below)
 
-72 XX        | 114 XXX      | JE [[X]]         | src:p8 |
-73 XX        | 115 XXX      | JNE [[X]]        | src:p8 |
-74 XX        | 116 XXX      | JB [[X]]         | src:p8 | (Jump if Below)
-75 XX        | 117 XXX      | JA [[X]]         | src:p8 | (Jump if Above)
-76 XX        | 118 XXX      | JBE/JNA [[X]]    | src:p8 | (Jump if Below or Equal / Jump if Not Above)
-77 XX        | 119 XXX      | JAE/JNB [[X]]    | src:p8 | (Jump if Above or Equal / Jump if Not Below)
+76 XX        | 118 XXX      | JE [[X]]         | src:p8 |
+77 XX        | 119 XXX      | JNE [[X]]        | src:p8 |
+78 XX        | 120 XXX      | JB [[X]]         | src:p8 | (Jump if Below)
+79 XX        | 121 XXX      | JA [[X]]         | src:p8 | (Jump if Above)
+7A XX        | 122 XXX      | JBE/JNA [[X]]    | src:p8 | (Jump if Below or Equal / Jump if Not Above)
+7B XX        | 123 XXX      | JAE/JNB [[X]]    | src:p8 | (Jump if Above or Equal / Jump if Not Below)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FF           | 255          | NOP
 100          | 256          | HLT
