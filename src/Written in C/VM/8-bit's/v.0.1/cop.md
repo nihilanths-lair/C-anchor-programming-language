@@ -136,23 +136,23 @@ OPCODE (HEX) | OPCODE (DEC) | BASE SYNTAX ASSEMBLER | SEMANTICS | DESCRIPTION
 56 XX        | 086 XXX      | POP X            | dst:m8 |
 57 XX        | 087 XXX      | POP [X]          | dst:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Ниже не верно, обновляется!
+58 XX XX     | 088 XXX XXX  | CMP r8, X        | src:r8, src:i8 |
+59 XX XX     | 089 XXX XXX  | CMP r8, [X]      | src:r8, src:m8 |
+5A XX XX     | 090 XXX XXX  | CMP r8, [[X]]    | src:r8, src:p8 |
+
+5B XX XX     | 091 XXX XXX  | CMP X, X         | src:i8, src:i8 |
+5C XX XX     | 092 XXX XXX  | CMP X, [X]       | src:i8, src:m8 |
+5D XX XX     | 093 XXX XXX  | CMP X, [[X]]     | src:i8, src:p8 |
+
+5E XX XX     | 094 XXX XXX  | CMP [X], X       | src:m8, src:i8 |
+5F XX XX     | 095 XXX XXX  | CMP [X], [X]     | src:m8, src:m8 |
+60 XX XX     | 096 XXX XXX  | CMP [X], [[X]]   | src:m8, src:p8 |
+
+61 XX XX     | 097 XXX XXX  | CMP [[X]], X     | src:p8, src:i8 |
+62 XX XX     | 098 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
+63 XX XX     | 099 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-54 XX XX     | 084 XXX XXX  | CMP r8, X        | src:r8, src:i8 |
-55 XX XX     | 085 XXX XXX  | CMP r8, [X]      | src:r8, src:m8 |
-56 XX XX     | 086 XXX XXX  | CMP r8, [[X]]    | src:r8, src:p8 |
-
-57 XX XX     | 087 XXX XXX  | CMP X, X         | src:i8, src:i8 |
-58 XX XX     | 088 XXX XXX  | CMP X, [X]       | src:i8, src:m8 |
-59 XX XX     | 089 XXX XXX  | CMP X, [[X]]     | src:i8, src:p8 |
-
-5A XX XX     | 090 XXX XXX  | CMP [X], X       | src:m8, src:i8 |
-5B XX XX     | 091 XXX XXX  | CMP [X], [X]     | src:m8, src:m8 |
-5C XX XX     | 092 XXX XXX  | CMP [X], [[X]]   | src:m8, src:p8 |
-
-5D XX XX     | 093 XXX XXX  | CMP [[X]], X     | src:p8, src:i8 |
-5E XX XX     | 094 XXX XXX  | CMP [[X]], [X]   | src:p8, src:m8 |
-5F XX XX     | 095 XXX XXX  | CMP [[X]], [[X]] | src:p8, src:p8 |
+Ниже не верно, обновляется!
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 60 XX        | 096 XXX      | JE r8            | src:r8 |
 61 XX        | 097 XXX      | JNE r8           | src:r8 |
