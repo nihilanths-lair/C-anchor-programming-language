@@ -72,48 +72,10 @@ static void CodeGenerator(const char *lang)
     else goto x86;
     vm_c$:
     {
-        if (!strcmp("asm->bin", "asm->bin"))
-        {
-            unsigned int i = 0-1;
-            unsigned char j = 0-1;
-            unsigned char loop = 1;
-            while (loop)
-            {
-                switch (lang[i]){
-                case '\n': // парсим полученную конструкцию
-                {
-                    printf("\n Сочная :)"); return;
-                    //
-
-                    //
-                } break;
-                case ' ':
-                {
-                    for (int k = 0; k < MACRO__SUBSTITUTION; k++)
-                    {
-                        if (!strcmp(settling_tank, macro_substitution[l].symbolic_mnemonics)) // MOV/mov
-                        {
-                            printf("\nMOV");
-                            while (loop)
-                            {
-                            switch (lang[i]){
-                            case ' ':
-                            {
-
-                            } break;
-                            default: settling_tank[++j] = lang[i]; // аккумулируем/копим символы
-                            }
-                        }
-                        else printf("\n settling_tank = \"%s\", macro_substitution[k=%d].symbolic_mnemonics = \"%s\"", settling_tank, k, macro_substitution[k].symbolic_mnemonics);
-                    }
-                } break;
-                default: settling_tank[++j] = lang[i]; // аккумулируем/копим символы
-                }
-            }
-        }
+        //if (!strcmp("asm->bin", "asm->bin")){}
         // StupidCompiler //
-        unsigned char k = 0;
-        
+        unsigned char k = 0-1;
+        unsigned char j = 0-1;
         unsigned short i = 0-1;
         settling_tank[0] = '\0';
         while (lang[++i] != '\0')
@@ -126,28 +88,32 @@ static void CodeGenerator(const char *lang)
                 {
                     printf("\n settling_tank = \"%s\", macro_substitution[l=%d].symbolic_mnemonics = \"%s\"", settling_tank, l, macro_substitution[l].symbolic_mnemonics);
                     ///////////////////////////////////////////////////////////////////////////////
-                    if (!strcmp(settling_tank, macro_substitution[l].symbolic_mnemonics)) // MOV/mov
+                    if (!strcmp(settling_tank, "MOV")) // MOV/mov
                     {
                         settling_tank[0] = '\0';
                         j = 0-1;
-                        for (int p = 0; p < MACRO__SUBSTITUTION; p++)
+                        while (lang[++i] != '\0') // идём далее
                         {
-                            printf("\n settling_tank = \"%s\", macro_substitution[p=%d].operand_1 = \"%s\"", settling_tank, p, macro_substitution[p].operand_1);
-                            if (lang[i] != ' ') settling_tank[++j] = lang[i]; // аккумулируем (копим/собираем след. слово)
-                            else
+                            if (lang[i] != '\n') settling_tank[++j] = lang[i]; // аккумулируем (копим/собираем след. слово)
+                            else // разделитель найден
                             {
-                                ///////////////////////////////////////////////////////////////////////////////
-                                if (!strcmp(settling_tank, macro_substitution[p].operand_1)) // R8/r8
+                                settling_tank[++j] = '\0';
+                                for (int p = 0; p < MACRO__SUBSTITUTION; p++)
                                 {
                                     printf("\n settling_tank = \"%s\", macro_substitution[p=%d].operand_1 = \"%s\"", settling_tank, p, macro_substitution[p].operand_1);
+                                    ///////////////////////////////////////////////////////////////////////////////
+                                    if (!strcmp(settling_tank, "R8")) memory[++k] = macro_substitution[p].opcode; // R8/r8
+                                    ///////////////////////////////////////////////////////////////////////////////
+                                    else printf("\n /!\\ Unknown word!");
                                 }
-                                ///////////////////////////////////////////////////////////////////////////////
-                                else printf("\n /!\\ Unknown word!");
                             }
                         }
                     }
                     ///////////////////////////////////////////////////////////////////////////////
-                    //else if () // INT
+                    else if (!strcmp(settling_tank, "INT")) // INT
+                    {
+                        // ... //
+                    }
                     ///////////////////////////////////////////////////////////////////////////////
                     else printf("\n /!\\ Unknown word!");
                 }
