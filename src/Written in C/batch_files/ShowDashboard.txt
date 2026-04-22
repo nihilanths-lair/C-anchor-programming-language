@@ -1,11 +1,16 @@
 #ifdef DEBUG
 // ShowDashboard(memory, ip8, sp8, r8);
 //#endif
+//GetDebuggingInformation(memory, ip8);
 // 1 - Полный цикл дизассемблирования
+// 2 - Отладка
+//printf(" swh = %d", swh);
 switch (swh){
+//case 0: printf("\ncase 0: _"); return;
 case 1:
 {
-    // Одноразово
+    // Полный цикл за один проход
+    //Permutation();
     int temp = ip8;
     printf("\n << Дизассемблирование в Extra Assembler (EASM) начато .\\ >>\n");
     printf("\n Syntax: Intel/AT&T (двухнаправленный)\n");
@@ -14,8 +19,10 @@ case 1:
         switch (memory[ip8]){
         case   4: printf("\n %02X: %02X %02X %02X | MOV [%d] << '%c'", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], ProcAsciiChr(memory[ip8+2])); ip8 += 3; break;
         case   9: printf("\n %02X: %02X %02X    | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
+        case  10: printf("\n %02X: %02X %02X    | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  12: printf("\n %02X: %02X %02X %02X | MOV '%c' >> [%d]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], ProcAsciiChr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
         case  36: printf("\n %02X: %02X %02X    | JMP %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
+        case  37: printf("\n %02X: %02X %02X    | INT %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  72: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
         case 101: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
         case 108: printf("\n %02X: %02X       |", ip8, memory[ip8]); ++ip8; break;
@@ -31,8 +38,10 @@ case 1:
         switch (memory[ip8]){
         case   4: printf("\n %03d: %03d %03d %03d | MOV [%d] << '%c'", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], memory[ip8+1], ProcAsciiChr(memory[ip8+2])); ip8 += 3; break;
         case   9: printf("\n %03d: %03d %03d     | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
+        case  10: printf("\n %03d: %03d %03d     | MOV r8, %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  12: printf("\n %03d: %03d %03d %03d | MOV '%c' >> [%d]", ip8, memory[ip8], memory[ip8+1], memory[ip8+2], ProcAsciiChr(memory[ip8+1]), memory[ip8+2]); ip8 += 3; break;
         case  36: printf("\n %03d: %03d %03d     | JMP %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
+        case  37: printf("\n %03d: %03d %03d     | INT %d", ip8, memory[ip8], memory[ip8+1], memory[ip8+1]); ip8 += 2; break;
         case  72: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
         case 101: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
         case 108: printf("\n %03d: %03d         |", ip8, memory[ip8]); ++ip8; break;
@@ -47,27 +56,27 @@ case 1:
     printf("\n << Отладка VM C$ начата >>\n");
     //break;
 }
-case 2:
+case 2: // Отладка
 {
-    //if (memory[ip8] == 255) printf("\n << Отладка VM C$ закончена >>\n"); swh = 0;
-    if (memory[ip8] >= 45 && memory[ip8] <= 253)
+    GetDebuggingInformation(memory, ip8);
+    if (memory[ip8] >= 38 && memory[ip8] <= 254)
     {
-        GetDebuggingInformation(memory, ip8);
+        //GetDebuggingInformation(memory, ip8);
         printf("\n  opcode:    %02X  |   %03d   | '%c' = %3d  /!\\ Unknown", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
         printf("\n            HEX  |   DEC   |  ASCII");
         printf("\n <CS8:IP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d ; Включена 8-bit's сегментация памяти для IP, объём доступной памяти увеличен с 256 byte до 65'536 byte.", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
         printf("\n <CS8:SP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %d ; Включена 8-bit's сегментация памяти для SP, объём доступной памяти увеличен с 256 byte до 65'536 byte.", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
-        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %3d",  r8,  r8,  ProcAsciiChr(r8),  r8);
         //goto *dispatch_mode8[memory[++ip8]];
     }
     else
     {
-        GetDebuggingInformation(memory, ip8);
+        //GetDebuggingInformation(memory, ip8);
         printf("\n  opcode:    %02X  |   %03d   | '%c' = %3d", memory[ip8], memory[ip8], ProcAsciiChr(memory[ip8]), memory[ip8]);
         printf("\n            HEX  |   DEC   |  ASCII");
         printf("\n <CS8:IP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %3d ; Включена 8-bit's сегментация памяти для IP, объём доступной памяти увеличен с 256 byte до 65'536 byte.", cs8, ip8, cs8, ip8, ProcAsciiChr(cs8), ProcAsciiChr(ip8), (cs8 << 8) + ip8);
         printf("\n <CS8:SP8>: [%02X:%02X]|[%03d:%03d]|['%c':'%c'] = %3d ; Включена 8-bit's сегментация памяти для SP, объём доступной памяти увеличен с 256 byte до 65'536 byte.", cs8, sp8, cs8, sp8, ProcAsciiChr(cs8), ProcAsciiChr(sp8), (cs8 << 8) + sp8);
-        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %d",  r8,  r8,  ProcAsciiChr(r8),  r8);
+        printf("\n      <R8>:    [%02X]|    [%03d]|    ['%c'] = %3d",  r8,  r8,  ProcAsciiChr(r8),  r8);
     }
     putchar('\n');
     switch (1){
@@ -89,7 +98,9 @@ case 2:
             printf("   ");
             for (int i = 0; i < 0x0F+1; i++) printf("%c", ProcAsciiChr(memory[j*0x10+i]));
         }
-        break; // goto *dispatch_mode8[memory[++ip8]];
+        //printf("\n-- 1");
+        break;
+        //goto *dispatch_mode8[memory[ip8]];
     }
     case 2:
     {
@@ -97,18 +108,17 @@ case 2:
         for (int i = 0; i < 11; i++) printf("\n [%02X] %02X ", i, memory[i]);
         break;
     }
-    default:
-    {
-        // ... //
-    }}
+    default: printf("\n-- 2");
+    }
+    //printf("\n-- 3");
     putchar('\n');
+    if (memory[ip8] == 255) { printf("\n << Отладка VM C$ закончена >>\n"); swh = 0; }
     //printf("\n      %03d - %03d\n", 0xFFFFFFFF, 0xFF);
     //printf(" %02X - %02X\n", -1, 255);
     //printf("      '%c' - '%c'\n", 0xFFFFFFFF, 0xFF);
     break;
 }
-default:
-{
-    // ... //
-}}
+default: /*printf("default: _");*/return;
+}
+//printf("\n-- 4");
 #endif
