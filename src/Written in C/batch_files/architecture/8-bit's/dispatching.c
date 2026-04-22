@@ -1,15 +1,174 @@
-/**/#define DEBUG/**/
+/*/#define DEBUG/**/
 #ifdef DEBUG
 unsigned char swh = 1;
 #include "..\..\enum_opcode.txt"
 #include "..\..\test_code.txt"
 #endif
 #ifndef DEBUG
-static unsigned char memory[0xFFFF+0x01] = {/*Заглушка=*/0xFF}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
+
+#define MACRO__SUBSTITUTION 3
+struct MacroSubstitution {
+    char symbolic_mnemonics[20+1];
+    char operand_1[20+1];
+    unsigned char opcode;
+} macro_substitution[MACRO__SUBSTITUTION] = {
+    "MOV", "R8", 10,
+    "INT", "", 37,
+    "HLT", "", 0xFF
+};
+
+char settling_tank[20+1];
+
+static unsigned char memory[0xFFFF+0x01] =
+{
+    37, 2,                                                                           // INT 2 - вывести строку на консоль
+    ' ', 'C', '$', ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '\0', // "C$ is awesome!"
+    0xFF                                                                             // HLT
+    //#include "..\..\test_code.txt"
+    /*
+    10, '\n', // MOV R8 = '\n'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, ' ', // MOV R8 = ' '
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'C', // MOV R8 = 'C'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, '$', // MOV R8 = '$'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, ' ', // MOV R8 = ' '
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'i', // MOV R8 = 'i'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 's', // MOV R8 = 's'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, ' ', // MOV R8 = ' '
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'a', // MOV R8 = 'a'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'w', // MOV R8 = 'w'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'e', // MOV R8 = 'e'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 's', // MOV R8 = 's'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'o', // MOV R8 = 'o'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'm', // MOV R8 = 'm'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, 'e', // MOV R8 = 'e'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, '!', // MOV R8 = '!'
+    37, 1,   // INT 1 - вывести символ на консоль
+    10, '\n', // MOV R8 = '\n'
+    37, 1,   // INT 1 - вывести символ на консоль
+    */
+    //0xFF     // HLT
+}; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
+
+static void CodeGenerator(const char *lang)
+{
+    //printf(lang);
+    if ('$') goto vm_c$;
+    else goto x86;
+    vm_c$:
+    {
+        // StupidCompiler //
+        unsigned char k = 0;
+        unsigned char j = 0-1;
+        unsigned short i = 0-1;
+        settling_tank[0] = '\0';
+        while (lang[++i] != '\0')
+        {
+            if (lang[i] != ' ') settling_tank[++j] = lang[i]; // аккумулируем (копим/собираем след. слово)
+            else // разделитель найден
+            {
+                settling_tank[++j] = '\0';
+                for (int l = 0; l < MACRO__SUBSTITUTION; l++)
+                {
+                    printf("\n settling_tank = \"%s\", macro_substitution[l=%d].symbolic_mnemonics = \"%s\"", settling_tank, l, macro_substitution[l].symbolic_mnemonics);
+                    ///////////////////////////////////////////////////////////////////////////////
+                    if (!strcmp(settling_tank, macro_substitution[l].symbolic_mnemonics)) // MOV/mov
+                    {
+                        settling_tank[0] = '\0';
+                        j = 0-1;
+                        for (int p = 0; p < MACRO__SUBSTITUTION; p++)
+                        {
+                            printf("\n settling_tank = \"%s\", macro_substitution[p=%d].operand_1 = \"%s\"", settling_tank, p, macro_substitution[p].operand_1);
+                            if (lang[i] != ' ') settling_tank[++j] = lang[i]; // аккумулируем (копим/собираем след. слово)
+                            else
+                            {
+                                ///////////////////////////////////////////////////////////////////////////////
+                                if (!strcmp(settling_tank, macro_substitution[p].operand_1)) // R8/r8
+                                {
+                                    printf("\n settling_tank = \"%s\", macro_substitution[p=%d].operand_1 = \"%s\"", settling_tank, p, macro_substitution[p].operand_1);
+                                }
+                                ///////////////////////////////////////////////////////////////////////////////
+                                else printf("\n /!\\ Unknown word!");
+                            }
+                        }
+                    }
+                    ///////////////////////////////////////////////////////////////////////////////
+                    //else if () // INT
+                    ///////////////////////////////////////////////////////////////////////////////
+                    else printf("\n /!\\ Unknown word!");
+                }
+            }
+        }
+    }
+    goto exit;
+    x86:
+    {
+        // ... //
+    }
+    //goto exit;
+    exit:
+      putchar('\n');
+}
+
+static void Compile(const char *lang) { CodeGenerator(lang); }
+//void Execute() { Dispatching(); }
 
 static inline void Dispatching()
 {
+
+    Compile(
+     //"; INT 1 | прерывание номер 1 выводит символ в консоль"
+     "MOV R8\n"
+     "INT 1\n"
+     "MOV R8 = ' '\n"
+     "INT 1\n"
+     "MOV R8 = 'C'\n"
+     "INT 1\n"
+     "MOV R8 = '$'\n"
+     "INT 1\n"
+     "MOV R8 = ' '\n"
+     "INT 1\n"
+     "MOV R8 = 'i'\n"
+     "INT 1\n"
+     "MOV R8 = 's'\n"
+     "INT 1\n"
+     "MOV R8 = ' '\n"
+     "INT 1\n"
+     "MOV R8 = 'a'\n"
+     "INT 1\n"
+     "MOV R8 = 'w'\n"
+     "INT 1\n"
+     "MOV R8 = 'e'\n"
+     "INT 1\n"
+     "MOV R8 = 's'\n"
+     "INT 1\n"
+     "MOV R8 = 'o'\n"
+     "INT 1\n"
+     "MOV R8 = 'm'\n"
+     "INT 1\n"
+     "MOV R8 = 'e'\n"
+     "INT 1\n"
+     "MOV R8 = '!'\n"
+     "INT 1\n"
+     "MOV R8 = '\n'"
+     "INT 1\n"
+     "HLT"
+    );
  /*static*/uint8_t ip8 = 0; // Instruction Pointer
  /*static*/uint8_t dp8 = 0; // Data Pointer
  /*static*/uint8_t sp8 = 0; // Stack Pointer
@@ -288,16 +447,12 @@ dispatch__mode_8__identifier_opcode_150:                 // <cmd=MOV> <arg-1=dst
  goto *dispatch_mode8[memory[ip8]];                     //
 //////////////////////////////////////////////////////////
 
-/// SPECIFICATION: INTEL/AT&T
+///** */ SPECIFICATION: INTEL/AT&T
 //////////////////////////////////////////
 dispatch__mode_8__identifier_opcode_11: // arg-1=MOV, dst:r8 << arg-2=src:i8
 #include "..\..\ShowDashboard.txt"      //
- //printf("\n 1-- r8 = %d", r8);
  r8 = memory[ip8+1];                    //
- //printf("\n 2-- r8 = %d", r8);
- printf("\n %d = memory[%d=ip8]", memory[ip8], ip8);
  ip8 += 2;                              //
- printf("\n %d = memory[%d=ip8]", memory[ip8], ip8);
  goto *dispatch_mode8[memory[ip8]];     //
 //////////////////////////////////////////
 
@@ -619,11 +774,15 @@ dispatch__mode_8__identifier_opcode_38:  // <arg-1=INT, arg-2=src:i8>
 #include "..\..\ShowDashboard.txt"       //
  switch(memory[ip8+1]){                  // ; arg-2=src:i8>
  case 1:                                 //
-   printf("\n r8 = %d\n ", r8);          //
    putchar(r8);                          //
+   ip8 += 2;                             //
+ break;                                  //
+ case 2:                                 //
+   //printf(memory);                     //
+   ip8 += 2;                             //
+   while (memory[ip8] != '\0') { putchar(memory[ip8]); ip8++; }
  break;                                  //
  }                                       //
- ip8 += 2;                               //
  goto *dispatch_mode8[memory[ip8]];      //
 ///////////////////////////////////////////
 
