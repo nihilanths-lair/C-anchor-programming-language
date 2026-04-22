@@ -16,8 +16,11 @@ static unsigned char memory[0xFFFF+0x01] = // Для быстрого теста
     INC r8                     ; увеличиваем указатель назначения
     ... повтор 5 раз
     */
-    jmp8_si, 7,              // 0: jmp 7
-    'H', 'e', 'l', 'l', 'o', // 2: Hello
-    9, 2,                    // 7: mov r8 << i8 ; mov i8 >> r8
-    hlt                      // 9: hlt
+    //jmp8_si, 7,              // 0: jmp 7
+    //'H', 'e', 'l', 'l', 'o', // 2: Hello
+    //9, 2,                    // 7: mov r8 << i8 ; mov i8 >> r8
+    //hlt                      // 9: hlt
+    10, 5,
+    INT, 1, // 33 - 51
+    HLT     // FF - 255
 };
