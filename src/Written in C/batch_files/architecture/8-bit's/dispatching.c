@@ -65,12 +65,75 @@ static unsigned char memory[0xFFFF+0x01] =
 }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
 
-static void CodeGenerator(const char *lang)
+#define  MACRO__PAWN        0
+#define  MACRO__LUA         1
+#define  MACRO__PYTHON      2
+#define  MACRO__C           3
+#define  MACRO__C_PP        4
+#define  MACRO__C_DLR       5
+#define  MACRO__EASM        6
+#define  MACRO__ASM_VM_C$   7
+#define  MACRO__X86         8
+#define  MACRO__VM_C$       9
+
+static void CodeGenerator(const char *lang, const char back_end)
 {
     //printf(lang);
-    if ('$') goto vm_c$;
-    else goto x86;
-    vm_c$:
+
+    // --*[Back end]*--
+    // Компиляция в: VM_C$ (байт-код), x86 (маш. код); Транспиляция в: C/PAWN, Python/Lua (исходный код) и т.д., всё что угодно :)
+    // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
+
+    switch (back_end){
+    case MACRO__PAWN:      {/* код */} break;
+    case MACRO__LUA:       {/* код */} break;
+    case MACRO__PYTHON:    {/* код */} break;
+    case MACRO__C:         {/* код */} break;
+    case MACRO__C_PP:      {/* код */} break;
+    case MACRO__C_DLR:     {/* код */} break;
+    case MACRO__EASM:      {/* код */} break;
+    case MACRO__ASM_VM_C$: {/* код */} break;
+    case MACRO__VM_C$:     {/* код */} break;
+    case MACRO__X86:       {/* код */} break;
+    default: printf("\n /!\\ Unidentified back end | Неопознанная задняя часть");
+    }
+
+    /*
+    if ((!strcmp(back_end, ""MACRO__PAWN""))) goto Pawn;
+    else if (!strcmp(back_end, ""MACRO__LUA"")) goto Lua;
+    else if (!strcmp(back_end, ""MACRO__PYTHON"")) goto Python;
+
+    else if (!strcmp(back_end, ""MACRO__C"")) goto C;
+    else if (!strcmp(back_end, ""MACRO__C_PP"")) goto C_pp;
+    else if (!strcmp(back_end, ""MACRO__C_DLR"")) goto C_dlr; //-/ alias
+
+    else if (!strcmp(back_end, ""MACRO__EASM"")) goto EASM;
+    else if (!strcmp(back_end, ""MACRO__ASM_VM_C$"")) goto ASM_VM_C$;
+
+    else if (!strcmp(back_end, ""MACRO__X86"")) goto x86; // machine (native) code
+    else if (!strcmp(back_end, ""MACRO__VM_C$"")) goto VM_C$; // byte-code
+
+    else printf("\n /!\\ Unidentified back end | Неопознанная задняя часть");
+    goto exit;
+    */
+
+    // Транспиляция в ...
+    Pawn:      {/* код */} goto exit; // .. язык Pawn (генерация исходного кода)
+    Lua:       {/* код */} goto exit; // .. язык Lua (генерация исходного кода)
+    Python:    {/* код */} goto exit; // .. язык Python (генерация исходного кода)
+
+    C:         {/* код */} goto exit; // .. язык C (генерация исходного кода)
+    C_pp:      {/* код */} goto exit; // .. язык C++ (генерация исходного кода)
+    C_dlr: C$: {/* код */} goto exit; // .. язык C$ (генерация исходного кода)
+
+    EASM:      {/* код */} goto exit; // .. язык E(xtra)ASM (генерация исходного кода)
+    ASM_VM_C$: {/* код */} goto exit; // .. язык ASM VM$ (генерация исходного кода)
+
+    // C$/EASM -> .exe/.dll (x86), прямая AOT-компиляция, после написания E(xtra)ASM, в самую последнюю очередь (высокая уровень сложности)
+    // Компиляция в ...
+    x86:       {/* код */} goto exit; // .. маш. (нативный) код
+    VM_C$:     {/* код */} goto exit; // .. байт-код виртуальной машины C$
+
     {
         //if (!strcmp("asm->bin", "asm->bin")){}
         // StupidCompiler //
@@ -119,18 +182,12 @@ static void CodeGenerator(const char *lang)
                 }
             }
         }
-    }
-    goto exit;
-    x86:
-    {
-        // ... //
-    }
-    //goto exit;
+    } goto exit;
     exit:
       putchar('\n');
 }
 
-static void Compile(const char *lang) { CodeGenerator(lang); }
+static void Compile(const char *lang) { CodeGenerator(lang, MACRO__VM_C$); }
 //void Execute() { Dispatching(); }
 
 static inline void Dispatching()
