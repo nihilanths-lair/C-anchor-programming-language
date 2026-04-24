@@ -26,39 +26,39 @@ static unsigned char memory[0xFFFF+0x01] =
     0xFF                                                                             // HLT
     //#include "..\..\test_code.txt"
     /*
-    10, '\n', // MOV R8 = '\n'
+    10, '\n', // MOV R8, '\n'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, ' ', // MOV R8 = ' '
+    10, ' ', // MOV R8, ' '
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'C', // MOV R8 = 'C'
+    10, 'C', // MOV R8, 'C'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, '$', // MOV R8 = '$'
+    10, '$', // MOV R8, '$'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, ' ', // MOV R8 = ' '
+    10, ' ', // MOV R8, ' '
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'i', // MOV R8 = 'i'
+    10, 'i', // MOV R8, 'i'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 's', // MOV R8 = 's'
+    10, 's', // MOV R8, 's'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, ' ', // MOV R8 = ' '
+    10, ' ', // MOV R8, ' '
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'a', // MOV R8 = 'a'
+    10, 'a', // MOV R8, 'a'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'w', // MOV R8 = 'w'
+    10, 'w', // MOV R8, 'w'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'e', // MOV R8 = 'e'
+    10, 'e', // MOV R8, 'e'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 's', // MOV R8 = 's'
+    10, 's', // MOV R8, 's'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'o', // MOV R8 = 'o'
+    10, 'o', // MOV R8, 'o'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'm', // MOV R8 = 'm'
+    10, 'm', // MOV R8, 'm'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, 'e', // MOV R8 = 'e'
+    10, 'e', // MOV R8, 'e'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, '!', // MOV R8 = '!'
+    10, '!', // MOV R8, '!'
     37, 1,   // INT 1 - вывести символ на консоль
-    10, '\n', // MOV R8 = '\n'
+    10, '\n', // MOV R8, '\n'
     37, 1,   // INT 1 - вывести символ на консоль
     */
     //0xFF     // HLT
@@ -78,8 +78,6 @@ static unsigned char memory[0xFFFF+0x01] =
 
 static void CodeGenerator(const char *lang, const char back_end)
 {
-    //printf(lang);
-
     // --*[Back end]*--
     // Компиляция в: VM_C$ (байт-код), x86 (маш. код); Транспиляция в: C/PAWN, Python/Lua (исходный код) и т.д., всё что угодно :)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
@@ -93,7 +91,114 @@ static void CodeGenerator(const char *lang, const char back_end)
     case MACRO__C_DLR:        {/* код */} break;
     case MACRO__EASM:         {/* код */} break;
     case MACRO__ASM_VM_C_DLR: {/* код */} break;
-    case MACRO__VM_C_DLR:     {/* код */} break;
+    case MACRO__VM_C_DLR:
+    {
+        switch_run_1:
+        switch (*lang){
+        case '\n':
+        {
+            //printf("\n -> \\n");
+            ++lang;
+            goto switch_run_1;
+        } break;
+        case '\r':
+        {
+            printf("\n -> \\r");
+        } break;
+        case 'I':
+        {
+            //printf("\n -> I");
+            switch (*++lang){
+            case 'N':
+            {
+                //printf("\n -> N");
+                switch (*++lang){
+                case 'T':
+                {
+                    //printf("\n -> T");
+                    // 37
+                    switch (*++lang){
+                    case ' ':
+                    {
+                        //printf("\n ->  ");
+                        if_run_1:
+                        ++lang;
+                        if (*lang >= '0' && *lang <= '9')
+                        {
+                            //printf("\n -> %c", *lang);
+                            // аккумулируем
+                            goto if_run_1;
+                        }
+                        printf("\n --> SYMBOL_MNEMONICS: INT %c\t\tOPCODE: 25\\h|037\\d, %02X\\h|%03d\\d", *(lang-1), *(lang-1), *(lang-1));
+                        goto switch_run_1;
+                    } break;
+                    }
+                } break;
+                }
+            } break;
+            }
+        } break;
+        case 'M':
+        {
+            //printf("\n -> M");
+            switch (*++lang){
+            case 'O':
+            {
+                //printf("\n -> O");
+                switch (*++lang){
+                case 'V':
+                {
+                    //printf("\n -> V");
+                    switch (*++lang){
+                    case ' ':
+                    {
+                        //printf("\n ->  ");
+                        switch (*++lang){
+                        case 'R':
+                        {
+                            //printf("\n -> R");
+                            switch (*++lang){
+                            case '8':
+                            {
+                                //printf("\n -> 8");
+                                switch (*++lang){
+                                case ',':
+                                {
+                                    //printf("\n -> ,");
+                                    switch (*++lang){
+                                    case ' ':
+                                    {
+                                        //printf("\n ->  ");
+                                        switch (*++lang){
+                                        case '\'':
+                                        {
+                                            //printf("\n -> '", *lang);
+                                            ++lang;
+                                            //printf("\n -> %c", *lang);
+                                            ++lang;
+                                            //printf("\n -> '", *lang);
+                                            printf("\n --> SYMBOL_MNEMONICS: MOV R8, '%c'\tOPCODE: 0A\\h|010\\d, %02X\\h|%03d\\d", *(lang-1), *(lang-1), *(lang-1));
+                                            ++lang;
+                                            goto switch_run_1;
+                                        } break;
+                                        }
+                                    } break;
+                                    }
+                                } break;
+                                }
+                            } break;
+                            }
+                        } break;
+                        }
+                    } break;
+                    }
+                } break;
+                }
+            } break;
+            }
+        } break;
+        }
+    } break;
     case MACRO__X86:          {/* код */} break;
     default: printf("\n /!\\ Unidentified back end | Неопознанная задняя часть");
     }
@@ -195,39 +300,37 @@ static inline void Dispatching()
 
     Compile(
      //"; INT 1 | прерывание номер 1 выводит символ в консоль"
-     "MOV R8\n"
+     "MOV R8, ' '\n"
      "INT 1\n"
-     "MOV R8 = ' '\n"
+     "MOV R8, 'C'\n"
      "INT 1\n"
-     "MOV R8 = 'C'\n"
+     "MOV R8, '$'\n"
      "INT 1\n"
-     "MOV R8 = '$'\n"
+     "MOV R8, ' '\n"
      "INT 1\n"
-     "MOV R8 = ' '\n"
+     "MOV R8, 'i'\n"
      "INT 1\n"
-     "MOV R8 = 'i'\n"
+     "MOV R8, 's'\n"
      "INT 1\n"
-     "MOV R8 = 's'\n"
+     "MOV R8, ' '\n"
      "INT 1\n"
-     "MOV R8 = ' '\n"
+     "MOV R8, 'a'\n"
      "INT 1\n"
-     "MOV R8 = 'a'\n"
+     "MOV R8, 'w'\n"
      "INT 1\n"
-     "MOV R8 = 'w'\n"
+     "MOV R8, 'e'\n"
      "INT 1\n"
-     "MOV R8 = 'e'\n"
+     "MOV R8, 's'\n"
      "INT 1\n"
-     "MOV R8 = 's'\n"
+     "MOV R8, 'o'\n"
      "INT 1\n"
-     "MOV R8 = 'o'\n"
+     "MOV R8, 'm'\n"
      "INT 1\n"
-     "MOV R8 = 'm'\n"
+     "MOV R8, 'e'\n"
      "INT 1\n"
-     "MOV R8 = 'e'\n"
+     "MOV R8, '!'\n"
      "INT 1\n"
-     "MOV R8 = '!'\n"
-     "INT 1\n"
-     "MOV R8 = '\n'"
+     "MOV R8, '\n'"
      "INT 1\n"
      "HLT"
     );
