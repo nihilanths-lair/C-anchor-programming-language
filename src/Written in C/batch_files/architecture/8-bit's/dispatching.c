@@ -65,16 +65,16 @@ static unsigned char memory[0xFFFF+0x01] =
 }; // Отведённая память для загрузчика, в которую будет размещена/помещена программа для исполнения
 #endif
 
-#define  MACRO__PAWN        0
-#define  MACRO__LUA         1
-#define  MACRO__PYTHON      2
-#define  MACRO__C           3
-#define  MACRO__C_PP        4
-#define  MACRO__C_DLR       5
-#define  MACRO__EASM        6
-#define  MACRO__ASM_VM_C$   7
-#define  MACRO__X86         8
-#define  MACRO__VM_C$       9
+#define  MACRO__PAWN           1
+#define  MACRO__LUA            2
+#define  MACRO__PYTHON         3
+#define  MACRO__C              4
+#define  MACRO__C_PP           5
+#define  MACRO__C_DLR          6
+#define  MACRO__EASM           7
+#define  MACRO__ASM_VM_C_DLR   8
+#define  MACRO__X86            9
+#define  MACRO__VM_C_DLR       10
 
 static void CodeGenerator(const char *lang, const char back_end)
 {
@@ -85,16 +85,16 @@ static void CodeGenerator(const char *lang, const char back_end)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
 
     switch (back_end){
-    case MACRO__PAWN:      {/* код */} break;
-    case MACRO__LUA:       {/* код */} break;
-    case MACRO__PYTHON:    {/* код */} break;
-    case MACRO__C:         {/* код */} break;
-    case MACRO__C_PP:      {/* код */} break;
-    case MACRO__C_DLR:     {/* код */} break;
-    case MACRO__EASM:      {/* код */} break;
-    case MACRO__ASM_VM_C$: {/* код */} break;
-    case MACRO__VM_C$:     {/* код */} break;
-    case MACRO__X86:       {/* код */} break;
+    case MACRO__PAWN:         {/* код */} break;
+    case MACRO__LUA:          {/* код */} break;
+    case MACRO__PYTHON:       {/* код */} break;
+    case MACRO__C:            {/* код */} break;
+    case MACRO__C_PP:         {/* код */} break;
+    case MACRO__C_DLR:        {/* код */} break;
+    case MACRO__EASM:         {/* код */} break;
+    case MACRO__ASM_VM_C_DLR: {/* код */} break;
+    case MACRO__VM_C_DLR:     {/* код */} break;
+    case MACRO__X86:          {/* код */} break;
     default: printf("\n /!\\ Unidentified back end | Неопознанная задняя часть");
     }
 
@@ -187,7 +187,7 @@ static void CodeGenerator(const char *lang, const char back_end)
       putchar('\n');
 }
 
-static void Compile(const char *lang) { CodeGenerator(lang, MACRO__VM_C$); }
+static void Compile(const char *lang) { CodeGenerator(lang, MACRO__VM_C_DLR); }
 //void Execute() { Dispatching(); }
 
 static inline void Dispatching()
