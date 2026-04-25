@@ -79,7 +79,7 @@ static unsigned char memory[0xFFFF+0x01] =
 void mem_dbg(char *m)
 {
     //static buf[0xFF];
-    putchar('\n');
+    printf("\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tДекодированный текст\n\n");
     for (int j = 0, j2; j < 16; j++)
     {
         j2 = j*16;
@@ -90,6 +90,15 @@ void mem_dbg(char *m)
             else if (i2 >= 10 && i2 < 100) printf("  [·%d]=%s", i2, ProcAsciiChrEx(m[i2]));
             else if (i2 < 10) printf("  [··%d]=%s", i2, ProcAsciiChrEx(m[i2]));
         }
+        putchar('\t');
+        // ASCII (декодированный текст)
+        for (int i = 0, i2; i < 8; i++)
+        {
+            i2 = j2+i;
+            if (i2 >= 100 && i2 < 1000) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
+            else if (i2 >= 10 && i2 < 100) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
+            else if (i2 < 10) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
+        }
         putchar('\n');
         for (int i = 8, i2; i < 16; i++)
         {
@@ -97,6 +106,15 @@ void mem_dbg(char *m)
             if (i2 >= 100 && i2 < 1000) printf("  [%d]=%s", i2, ProcAsciiChrEx(m[i2]));
             else if (i2 >= 10 && i2 < 100) printf("  [·%d]=%s", i2, ProcAsciiChrEx(m[i2]));
             else if (i2 < 10) printf("  [··%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+        }
+        putchar('\t');
+        // ASCII (декодированный текст)
+        for (int i = 8, i2; i < 16; i++)
+        {
+            i2 = j2+i;
+            if (i2 >= 100 && i2 < 1000) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
+            else if (i2 >= 10 && i2 < 100) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
+            else if (i2 < 10) printf(" %s", ProcAsciiChrDecodedText(m[i2]));
         }
         putchar('\n');
     }
@@ -122,6 +140,10 @@ unsigned char * heap_mem_alloc(unsigned char cell)
     #define MACRO__FREE 0
     goto * (m[0]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE];
 
+    search_for_free_memory: printf("\n /!\\/!\\ search_for_free_memory"); // поиск свободной памяти
+      printf("\n dp = %d", dp+1); // заглядываем в след. ячейку, чтобы понять, где начинается след. блок памяти
+      goto * (m[++dp]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE]; // 51
+
     memory_allocation:
       printf("\n /!\\ memory_allocation"); // занимаем свободную память
       m[dp] = 1;
@@ -130,14 +152,16 @@ unsigned char * heap_mem_alloc(unsigned char cell)
       printf(" # dp = %d", dp);
       return &m[dp-cell+1];
 
-    search_for_free_memory: printf("\n /!\\ search_for_free_memory"); // поиск свободной памяти
-      printf("\n dp = %d", dp+1); // заглядываем в след. ячейку, чтобы понять, где начинается след. блок памяти
-      goto * (m[++dp]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE]; // 51
-
     exit:
 }
 
-void heap_mem_free(void *mem) {/* future code */}
+void heap_mem_free(char *m)
+{
+    printf("\n mem = %p:%d", m, *m);
+    printf("\n mem-2 = %p:%d", m-2, *(m-2));
+    *(m-2) = 0; // освобождаем память
+    printf("\n mem-2 = %p:%d", m-2, *(m-2));
+}
 
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
 void mem_free(void *mem) {/* future code */}
@@ -151,13 +175,25 @@ static void CodeGenerator(const char *lang, const char back_end)
     //-/
     mem_dbg(m);
     char * str1 = heap_mem_alloc(15);
-    printf("\n mem_alloc = <%p>: \"%s\"", str1, str1);
-    //strcpy(str1, "C$ is awesome!");
-    printf("\n mem_alloc = <%p>: \"%s\"\n", str1, str1);
+    printf("\n heap_mem_alloc_1_0 = <%p>: \"%s\"", str1, str1);
+    strcpy(str1, "C$ is awesome!");
+    printf("\n heap_mem_alloc_1_1 = <%p>: \"%s\"\n", str1, str1);
     //
-    char * str2 = heap_mem_alloc(20);
-    //str1[20] = '\0';
-    printf("\n mem_alloc = <%p>: \"%s\"\n", str2, str2);
+    char * str2 = heap_mem_alloc(35);
+    //printf("\n mem_alloc = <%p>: \"%s\"\n", str2, str2);
+    strcpy(str2, "Никитос играет в Entropy Universe.");
+    printf("\n heap_mem_alloc_2 = <%p>: \"%s\"\n", str2, str2);
+
+    char * str3 = heap_mem_alloc(40);
+    strcpy(str3, "Аллоцирование памяти происходит в куче.");
+    printf("\n heap_mem_alloc_3 = <%p>: \"%s\"\n", str3, str3);
+
+    char * str4 = heap_mem_alloc(15);
+    strcpy(str4, "Spufing croll!");
+    printf("\n heap_mem_free = <%p>: \"%s\"\n", str4, str4);
+    mem_dbg(m);
+
+    heap_mem_free(str2);
     mem_dbg(m);
     //-/
     switch (back_end){
