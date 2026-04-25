@@ -35,6 +35,47 @@ const char ProcAsciiChr(unsigned char chr)
     default: return chr;
     }
 }
+const char * ProcAsciiChrEx(const char chr)
+{
+    char * res = "····";
+    switch (chr){
+    case 0: res = "'\\0'"; break;
+    default: res = "'$' ";
+    }
+    return res;
+}
+#include <stdarg.h>
+const char * format(const char *str_fmt, ...)
+{
+    va_list args;
+    va_start(args, str_fmt);
+    while (*str_fmt != '\0')
+    {
+        switch (*++str_fmt){
+        //
+        case '%':
+          //printf("\n ^^= %%");
+          switch (*++str_fmt){
+          //
+          case 'd':
+            printf("\n ^= %%d");
+            int arg = va_arg(args, int);
+            printf("\n va_arg = %d\n", arg);
+            break;
+          }
+          break;
+        }
+    }
+    va_end(args);
+    //printf("\n str_fmt = \"%s\"", str_fmt);
+    putchar('\n');
+    printf("\n ~~~ %d\n", sizeof (str_fmt));
+    int i;
+    for (i = 0; str_fmt[i+1] != '\0'; i++) printf(" '%c',", str_fmt[i]);
+    printf(" '%c'", str_fmt[i]);
+    //sprintf(buf, "", );
+    return str_fmt;
+}
 const char * valstr(unsigned char val)
 {
     unsigned char val_str[3+1];
