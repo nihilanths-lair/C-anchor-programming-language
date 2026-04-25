@@ -98,16 +98,72 @@ const char * ProcAsciiChrEx(const char chr)
     case '!': res = "'!'  "; break;
     //
     case 'А': res = "'А'  "; break;
-    case 'л': res = "'л'  "; break;
-    case 'о': res = "'о'  "; break;
-    case 'к': res = "'к'  "; break;
-    case 'ц': res = "'ц'  "; break;
-    case 'и': res = "'и'  "; break;
-    case 'я': res = "'я'  "; break;
-    case 'п': res = "'п'  "; break;
+    case 'Б': res = "'Б'  "; break;
+    case 'В': res = "'В'  "; break;
+    case 'Г': res = "'Г'  "; break;
+    case 'Д': res = "'Д'  "; break;
+    case 'Е': res = "'Е'  "; break;
+    case 'Ё': res = "'Ё'  "; break;
+    case 'Ж': res = "'Ж'  "; break;
+    case 'З': res = "'З'  "; break;
+    case 'И': res = "'И'  "; break;
+    case 'Й': res = "'Й'  "; break;
+    case 'К': res = "'К'  "; break;
+    case 'Л': res = "'Л'  "; break;
+    case 'М': res = "'М'  "; break;
+    case 'Н': res = "'Н'  "; break;
+    case 'О': res = "'О'  "; break;
+    case 'П': res = "'П'  "; break;
+    case 'Р': res = "'Р'  "; break;
+    case 'С': res = "'С'  "; break;
+    case 'Т': res = "'Т'  "; break;
+    case 'У': res = "'У'  "; break;
+    case 'Ф': res = "'Ф'  "; break;
+    case 'Х': res = "'Х'  "; break;
+    case 'Ц': res = "'Ц'  "; break;
+    case 'Ч': res = "'Ч'  "; break;
+    case 'Ш': res = "'Ш'  "; break;
+    case 'Щ': res = "'Щ'  "; break;
+    // Слов, начинающихся с заглавного твёрдого знака не существует
+    case 'Ы': res = "'Ы'  "; break; // Спорно..
+    // Слов, начинающихся с заглавного мягкого знака не существует
+    case 'Э': res = "'Э'  "; break;
+    case 'Ю': res = "'Ю'  "; break;
+    case 'Я': res = "'Я'  "; break;
+    //
     case 'а': res = "'а'  "; break;
+    case 'б': res = "'б'  "; break;
+    case 'в': res = "'в'  "; break;
+    case 'г': res = "'г'  "; break;
+    case 'д': res = "'д'  "; break;
+    case 'е': res = "'е'  "; break;
+    case 'ё': res = "'ё'  "; break;
+    case 'ж': res = "'ж'  "; break;
+    case 'з': res = "'з'  "; break;
+    case 'и': res = "'и'  "; break;
+    case 'й': res = "'й'  "; break;
+    case 'к': res = "'к'  "; break;
+    case 'л': res = "'л'  "; break;
     case 'м': res = "'м'  "; break;
+    case 'н': res = "'н'  "; break;
+    case 'о': res = "'о'  "; break;
+    case 'п': res = "'п'  "; break;
+    case 'р': res = "'р'  "; break;
+    case 'с': res = "'с'  "; break;
     case 'т': res = "'т'  "; break;
+    case 'у': res = "'у'  "; break;
+    case 'ф': res = "'ф'  "; break;
+    case 'х': res = "'х'  "; break;
+    case 'ц': res = "'ц'  "; break;
+    case 'ч': res = "'ч'  "; break;
+    case 'ш': res = "'ш'  "; break;
+    case 'щ': res = "'щ'  "; break;
+    case 'ъ': res = "'ъ'  "; break;
+    case 'ы': res = "'ы'  "; break;
+    case 'ь': res = "'ь'  "; break;
+    case 'э': res = "'э'  "; break;
+    case 'ю': res = "'ю'  "; break;
+    case 'я': res = "'я'  "; break;
     //
     default: printf("\n res = '%c'", chr); break;
     }
@@ -119,8 +175,8 @@ const char * ProcAsciiChrDecodedText(const char chr)
     /*static*/char * res = "\0\0\0\0";
     switch (chr){
     //
-    case 0: res = "\\? "; break; // Спец. символы
-    case 1: res = "\\? "; break; // Спец. символы
+    case 0: res = "\\00"; break; // Спец. символы
+    case 1: res = "\\01"; break; // Спец. символы
     case 2: res = "\\02"; break; // Спец. символы
     case 3: res = "\\03"; break; // Спец. символы
     case 4: res = "\\04"; break; // Спец. символы
@@ -134,9 +190,9 @@ const char * ProcAsciiChrDecodedText(const char chr)
     case 0x0C: res = "\\0C"; break; // Спец. символы
     case 0x0D: res = "\\0D"; break; // Спец. символы
     case 0x0E: res = "\\0E"; break; // Спец. символы
-    case 0x0F: res = "\\? "; break; // Спец. символы
+    case 0x0F: res = "\\0F"; break; // Спец. символы
     case 16: res = "\\10"; break; // Спец. символы
-    case 17: res = "\\? "; break; // Спец. символы
+    case 17: res = "\\11"; break; // Спец. символы
     case 18: res = "\\12"; break; // Спец. символы
     case 19: res = "\\13"; break; // Спец. символы
     case 20: res = "\\14"; break; // Спец. символы
@@ -177,16 +233,72 @@ const char * ProcAsciiChrDecodedText(const char chr)
     case '!': res = " ! "; break;
     //
     case 'А': res = " А "; break;
-    case 'л': res = " л "; break;
-    case 'о': res = " о "; break;
-    case 'к': res = " к "; break;
-    case 'ц': res = " ц "; break;
-    case 'и': res = " и "; break;
-    case 'я': res = " я "; break;
-    case 'п': res = " п "; break;
+    case 'Б': res = " Б "; break;
+    case 'В': res = " В "; break;
+    case 'Г': res = " Г "; break;
+    case 'Д': res = " Д "; break;
+    case 'Е': res = " Е "; break;
+    case 'Ё': res = " Ё "; break;
+    case 'Ж': res = " Ж "; break;
+    case 'З': res = " З "; break;
+    case 'И': res = " И "; break;
+    case 'Й': res = " Й "; break;
+    case 'К': res = " К "; break;
+    case 'Л': res = " Л "; break;
+    case 'М': res = " М "; break;
+    case 'Н': res = " Н "; break;
+    case 'О': res = " О "; break;
+    case 'П': res = " П "; break;
+    case 'Р': res = " Р "; break;
+    case 'С': res = " С "; break;
+    case 'Т': res = " Т "; break;
+    case 'У': res = " У "; break;
+    case 'Ф': res = " Ф "; break;
+    case 'Х': res = " Х "; break;
+    case 'Ц': res = " Ц "; break;
+    case 'Ч': res = " Ч "; break;
+    case 'Ш': res = " Ш "; break;
+    case 'Щ': res = " Щ "; break;
+    // Слов, начинающихся с заглавного твёрдого знака не существует
+    case 'Ы': res = " Ы "; break; // Спорно..
+    // Слов, начинающихся с заглавного мягкого знака не существует
+    case 'Э': res = " Э "; break;
+    case 'Ю': res = " Ю "; break;
+    case 'Я': res = " Я "; break;
+    //
     case 'а': res = " а "; break;
+    case 'б': res = " б "; break;
+    case 'в': res = " в "; break;
+    case 'г': res = " г "; break;
+    case 'д': res = " д "; break;
+    case 'е': res = " е "; break;
+    case 'ё': res = " ё "; break;
+    case 'ж': res = " ж "; break;
+    case 'з': res = " з "; break;
+    case 'и': res = " и "; break;
+    case 'й': res = " й "; break;
+    case 'к': res = " к "; break;
+    case 'л': res = " л "; break;
     case 'м': res = " м "; break;
+    case 'н': res = " н "; break;
+    case 'о': res = " о "; break;
+    case 'п': res = " п "; break;
+    case 'р': res = " р "; break;
+    case 'с': res = " с "; break;
     case 'т': res = " т "; break;
+    case 'у': res = " у "; break;
+    case 'ф': res = " ф "; break;
+    case 'х': res = " х "; break;
+    case 'ц': res = " ц "; break;
+    case 'ч': res = " ч "; break;
+    case 'ш': res = " ш "; break;
+    case 'щ': res = " щ "; break;
+    case 'ъ': res = " ъ "; break;
+    case 'ы': res = " ы "; break;
+    case 'ь': res = " ь "; break;
+    case 'э': res = " э "; break;
+    case 'ю': res = " ю "; break;
+    case 'я': res = " я "; break;
     //
     default: printf("\n res = %c", chr); break;
     }
