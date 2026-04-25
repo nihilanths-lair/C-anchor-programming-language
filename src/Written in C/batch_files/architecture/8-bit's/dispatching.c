@@ -76,21 +76,99 @@ static unsigned char memory[0xFFFF+0x01] =
 #define  MACRO__X86            9
 #define  MACRO__VM_C_DLR       10
 
+void mem_dbg(char *m)
+{
+    //static buf[0xFF];
+    putchar('\n');
+    for (int j = 0, j2; j < 16; j++)
+    {
+        j2 = j*16;
+        for (int i = 0, i2; i < 8; i++)
+        {
+            i2 = j2+i;
+            if (i2 >= 100 && i2 < 1000) printf("  [%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+            else if (i2 >= 10 && i2 < 100) printf("  [·%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+            else if (i2 < 10) printf("  [··%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+        }
+        putchar('\n');
+        for (int i = 8, i2; i < 16; i++)
+        {
+            i2 = j2+i;
+            if (i2 >= 100 && i2 < 1000) printf("  [%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+            else if (i2 >= 10 && i2 < 100) printf("  [·%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+            else if (i2 < 10) printf("  [··%d]=%s", i2, ProcAsciiChrEx(m[i2]));
+        }
+        putchar('\n');
+    }
+}
+
+// correspondence_table // таблица соответствия
+int allocation_table; // таблица распределения
+
+char m[0x100] = {0}; // memory tape // лента памяти
+unsigned char dp = 0;
+//heap memory allocation
+unsigned char * heap_mem_alloc(unsigned char cell)
+{
+    static void * heap[0x100] = {[0] = &&memory_allocation, [1] = &&search_for_free_memory, [2 ... 0xFF] = &&exit};
+    // ищем в куче свободный подходящий участок/кусок памяти
+    // проверим занят ли данный участок памяти или нет; 0 - свободен, 1 - занят
+    // если свободен, то аллоцируем его, если нет, продолжаем искать дальше, прыгая по кускам памяти
+    // аллокация происходит следующим образом (вар.-1), в след. ячейке указывается размер данных, тем самым, мы знаем где его конец, чтобы перейти к след. куску
+    // (вар.-2), в след. ячейке указывается где начинается след. кусок/блок памяти
+    // syntax: [1][2][3 ...][?]
+    // первых два байта в каждом куске занимает таблица аллокаций (слот занят или свободен, размер данных/размер данных, слот занят или свободен) 
+    #define MACRO__ALLOC 1
+    #define MACRO__FREE 0
+    goto * (m[0]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE];
+
+    memory_allocation:
+      printf("\n /!\\ memory_allocation"); // занимаем свободную память
+      m[dp] = 1;
+      m[++dp] = cell;
+      dp += cell; // зона занимаемой памяти
+      printf(" # dp = %d", dp);
+      return &m[dp-cell+1];
+
+    search_for_free_memory: printf("\n /!\\ search_for_free_memory"); // поиск свободной памяти
+      printf("\n dp = %d", dp+1); // заглядываем в след. ячейку, чтобы понять, где начинается след. блок памяти
+      goto * (m[++dp]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE]; // 51
+
+    exit:
+}
+
+void heap_mem_free(void *mem) {/* future code */}
+
+unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
+void mem_free(void *mem) {/* future code */}
+
 static void CodeGenerator(const char *lang, const char back_end)
 {
     // --*[Back end]*--
     // Компиляция в: VM_C$ (байт-код), x86 (маш. код); Транспиляция в: C/PAWN, Python/Lua (исходный код) и т.д., всё что угодно :)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
 
+    //-/
+    mem_dbg(m);
+    char * str1 = heap_mem_alloc(15);
+    printf("\n mem_alloc = <%p>: \"%s\"", str1, str1);
+    //strcpy(str1, "C$ is awesome!");
+    printf("\n mem_alloc = <%p>: \"%s\"\n", str1, str1);
+    //
+    char * str2 = heap_mem_alloc(20);
+    //str1[20] = '\0';
+    printf("\n mem_alloc = <%p>: \"%s\"\n", str2, str2);
+    mem_dbg(m);
+    //-/
     switch (back_end){
-    case MACRO__PAWN:         {/* код */} break;
-    case MACRO__LUA:          {/* код */} break;
-    case MACRO__PYTHON:       {/* код */} break;
-    case MACRO__C:            {/* код */} break;
-    case MACRO__C_PP:         {/* код */} break;
-    case MACRO__C_DLR:        {/* код */} break;
-    case MACRO__EASM:         {/* код */} break;
-    case MACRO__ASM_VM_C_DLR: {/* код */} break;
+    case MACRO__PAWN:         {/* future code */} break;
+    case MACRO__LUA:          {/* future code */} break;
+    case MACRO__PYTHON:       {/* future code */} break;
+    case MACRO__C:            {/* future code */} break;
+    case MACRO__C_PP:         {/* future code */} break;
+    case MACRO__C_DLR:        {/* future code */} break;
+    case MACRO__EASM:         {/* future code */} break;
+    case MACRO__ASM_VM_C_DLR: {/* future code */} break;
     case MACRO__VM_C_DLR:
     {
         switch_run_1:
