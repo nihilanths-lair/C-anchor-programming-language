@@ -37,7 +37,7 @@ const char ProcAsciiChr(unsigned char chr)
 }
 const char * ProcAsciiChrEx(const char chr)
 {
-    char * res = "····";
+    static char * res = "\0\0\0\0";
     switch (chr){
     case 0: res = "'\\0'"; break;
     default: res = "'$' ";
