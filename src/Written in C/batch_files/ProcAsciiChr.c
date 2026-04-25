@@ -37,13 +37,162 @@ const char ProcAsciiChr(unsigned char chr)
 }
 const char * ProcAsciiChrEx(const char chr)
 {
-    static char * res = "\0\0\0\0";
+    /*static*/char * res = "\0\0\0\0";
     switch (chr){
-    case 0: res = "'\\0'"; break;
-    default: res = "'$' ";
+    //
+    case 0: res = "'\\0' "; break; // Спец. символы
+    case 1: res = "'\\1' "; break; // Спец. символы
+    case 2: res = "'\\2' "; break; // Спец. символы
+    case 3: res = "'\\3' "; break; // Спец. символы
+    case 4: res = "'\\4' "; break; // Спец. символы
+    case 5: res = "'\\5' "; break; // Спец. символы
+    case 6: res = "'\\6' "; break; // Спец. символы
+    case 7: res = "'\\7' "; break; // Спец. символы
+    case 8: res = "'\\8' "; break; // Спец. символы
+    case 9: res = "'\\9' "; break; // Спец. символы
+    case 10: res = "'\\10'"; break; // Спец. символы
+    case 11: res = "'\\11'"; break; // Спец. символы
+    case 12: res = "'\\12'"; break; // Спец. символы
+    case 13: res = "'\\13'"; break; // Спец. символы
+    case 14: res = "'\\14'"; break; // Спец. символы
+    case 15: res = "'\\15'"; break; // Спец. символы
+    case 16: res = "'\\16'"; break; // Спец. символы
+    case 17: res = "'\\17'"; break; // Спец. символы
+    case 18: res = "'\\18'"; break; // Спец. символы
+    case 19: res = "'\\19'"; break; // Спец. символы
+    case 20: res = "'\\20'"; break; // Спец. символы
+    case 21: res = "'\\21'"; break; // Спец. символы
+    case 22: res = "'\\22'"; break; // Спец. символы
+    case 23: res = "'\\23'"; break; // Спец. символы
+    case 24: res = "'\\24'"; break; // Спец. символы
+    case 25: res = "'\\25'"; break; // Спец. символы
+    case 26: res = "'\\26'"; break; // Спец. символы
+    case 27: res = "'\\27'"; break; // Спец. символы
+    case 28: res = "'\\28'"; break; // Спец. символы
+    case 29: res = "'\\29'"; break; // Спец. символы
+    case 30: res = "'\\30'"; break; // Спец. символы
+    case 31: res = "'\\31'"; break; // Спец. символы
+    //
+    case 'A': res = "'A'  "; break;
+    case 'B': res = "'B'  "; break;
+    case 'C': res = "'C'  "; break;
+    case 'D': res = "'D'  "; break;
+    case 'E': res = "'E'  "; break;
+    case 'F': res = "'F'  "; break;
+    //
+    case '$': res = "'$'  "; break;
+    case ' ': res = "' '  "; break;
+    case 'i': res = "'i'  "; break;
+    case 's': res = "'s'  "; break;
+    //
+    case 'a': res = "'a'  "; break;
+    case 'b': res = "'b'  "; break;
+    case 'c': res = "'c'  "; break;
+    case 'd': res = "'d'  "; break;
+    case 'e': res = "'e'  "; break;
+    case 'f': res = "'f'  "; break;
+    //
+    case 'w': res = "'w'  "; break;
+    case 'o': res = "'o'  "; break;
+    case 'm': res = "'m'  "; break;
+    case '!': res = "'!'  "; break;
+    //
+    case 'А': res = "'А'  "; break;
+    case 'л': res = "'л'  "; break;
+    case 'о': res = "'о'  "; break;
+    case 'к': res = "'к'  "; break;
+    case 'ц': res = "'ц'  "; break;
+    case 'и': res = "'и'  "; break;
+    case 'я': res = "'я'  "; break;
+    case 'п': res = "'п'  "; break;
+    case 'а': res = "'а'  "; break;
+    case 'м': res = "'м'  "; break;
+    case 'т': res = "'т'  "; break;
+    //
+    default: printf("\n res = '%c'", chr); break;
     }
     return res;
 }
+
+const char * ProcAsciiChrDecodedText(const char chr)
+{
+    /*static*/char * res = "\0\0\0\0";
+    switch (chr){
+    //
+    case 0: res = "\\? "; break; // Спец. символы
+    case 1: res = "\\? "; break; // Спец. символы
+    case 2: res = "\\02"; break; // Спец. символы
+    case 3: res = "\\03"; break; // Спец. символы
+    case 4: res = "\\04"; break; // Спец. символы
+    case 5: res = "\\05"; break; // Спец. символы
+    case 6: res = "\\06"; break; // Спец. символы
+    case 7: res = "\\07"; break; // Спец. символы
+    case 8: res = "\\08"; break; // Спец. символы
+    case 9: res = "\\09"; break; // Спец. символы
+    case 0x0A: res = "\\0A"; break; // Спец. символы
+    case 0x0B: res = "\\0B"; break; // Спец. символы
+    case 0x0C: res = "\\0C"; break; // Спец. символы
+    case 0x0D: res = "\\0D"; break; // Спец. символы
+    case 0x0E: res = "\\0E"; break; // Спец. символы
+    case 0x0F: res = "\\? "; break; // Спец. символы
+    case 16: res = "\\10"; break; // Спец. символы
+    case 17: res = "\\? "; break; // Спец. символы
+    case 18: res = "\\12"; break; // Спец. символы
+    case 19: res = "\\13"; break; // Спец. символы
+    case 20: res = "\\14"; break; // Спец. символы
+    case 21: res = "\\15"; break; // Спец. символы
+    case 22: res = "\\16"; break; // Спец. символы
+    case 23: res = "\\17"; break; // Спец. символы
+    case 24: res = "\\18"; break; // Спец. символы
+    case 25: res = "\\19"; break; // Спец. символы
+    case 0x1A: res = "\\1A"; break; // Спец. символы
+    case 0x1B: res = "\\1B"; break; // Спец. символы
+    case 0x1C: res = "\\1C"; break; // Спец. символы
+    case 0x1D: res = "\\1D"; break; // Спец. символы
+    case 0x1E: res = "\\1E"; break; // Спец. символы
+    case 0x1F: res = "\\1F"; break; // Спец. символы
+    case ' ': res = "   "; break;
+    //
+    case 'A': res = " A "; break;
+    case 'B': res = " B "; break;
+    case 'C': res = " C "; break;
+    case 'D': res = " D "; break;
+    case 'E': res = " E "; break;
+    case 'F': res = " F "; break;
+    //
+    case '$': res = " $ "; break;
+    case 'i': res = " i "; break;
+    case 's': res = " s "; break;
+    //
+    case 'a': res = " a "; break;
+    case 'b': res = " b "; break;
+    case 'c': res = " c "; break;
+    case 'd': res = " d "; break;
+    case 'e': res = " e "; break;
+    case 'f': res = " f "; break;
+    //
+    case 'w': res = " w "; break;
+    case 'o': res = " o "; break;
+    case 'm': res = " m "; break;
+    case '!': res = " ! "; break;
+    //
+    case 'А': res = " А "; break;
+    case 'л': res = " л "; break;
+    case 'о': res = " о "; break;
+    case 'к': res = " к "; break;
+    case 'ц': res = " ц "; break;
+    case 'и': res = " и "; break;
+    case 'я': res = " я "; break;
+    case 'п': res = " п "; break;
+    case 'а': res = " а "; break;
+    case 'м': res = " м "; break;
+    case 'т': res = " т "; break;
+    //
+    default: printf("\n res = %c", chr); break;
+    }
+    return res;
+}
+
 #include <stdarg.h>
 const char * format(const char *str_fmt, ...)
 {
