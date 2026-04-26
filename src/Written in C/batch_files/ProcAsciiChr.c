@@ -303,8 +303,8 @@ const char * ProcAsciiChrDecodedText(const char chr)
     //
     case '.': res = " . "; break;
     case '!': res = " ! "; break;
-    case '$': res = " $  "; break;
-    case '#': res = " #  "; break; // 23h - 035d
+    case '#': res = " # "; break; // 23h - 035d
+    case '$': res = " $ "; break; // 24h - 036d
     case '(': res = " ( "; break; // 28h - 040d
     //
     case 'А': res = " А "; break;
@@ -321,7 +321,7 @@ const char * ProcAsciiChrDecodedText(const char chr)
     case 'К': res = " К "; break;
     case 'Л': res = " Л "; break;
     case 'М': res = " М "; break;
-    case 'Н': res = " Н  "; break;
+    case 'Н': res = " Н "; break;
     case 'О': res = " О "; break;
     case 'П': res = " П "; break;
     case 'Р': res = " Р "; break;
@@ -350,9 +350,9 @@ const char * ProcAsciiChrDecodedText(const char chr)
     case 'ё': res = " ё "; break;
     case 'ж': res = " ж "; break;
     case 'з': res = " з "; break;
-    case 'и': res = " и  "; break;
+    case 'и': res = " и "; break;
     case 'й': res = " й "; break;
-    case 'к': res = " к  "; break;
+    case 'к': res = " к "; break;
     case 'л': res = " л "; break;
     case 'м': res = " м "; break;
     case 'н': res = " н "; break;
@@ -430,4 +430,42 @@ const char * valstr(unsigned char val)
     case 10: strcpy(val_str, "10"); break;
     }
     return ptr__val_str;
+}
+void mem_dbg(const char *m)
+{
+    //static buf[0xFF];
+    printf("\n  DEC ");
+    for (int i = 0; i < 8; i++) printf("[%03d]", i);
+    printf("\t HEX ");
+    for (int i = 0; i < 8; i++) printf("[%02X]", i);
+    printf("\tASCII "); // графа ASCII
+    for (int i = 0; i < 8; i++) printf("[%c]", i);
+    putchar('\n');
+    //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
+    // Данные в памяти
+    for (int j = 0, j2; j < 16; j++)
+    {
+        j2 = j*16;
+        if (j2 >= 0 && j2 <= 255) printf(" [%03d]", j2); // графа в данных DEC (1-я часть)
+        for (int i = 0; i < 8; i++) printf(" %03d ", (unsigned char) m[j2+i]); // сами данные
+        putchar('\t');
+        if (j2 >= 0 && j2 <= 255) printf(" [%02X]", j2); // графа в данных HEX (1-я часть)
+        for (int i = 0; i < 8; i++) printf(" %02X ", (unsigned char) m[j2+i]); // сами данные
+        putchar('\t');
+        if (j2 >= 0 && j2 <= 255) printf("  [%c] ", j2); // графа в данных ASCII (1-я часть)
+        for (int i = 0; i < 8; i++) printf("%c", m[j2+i]); // сами данные
+        putchar('\n');
+        //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
+        j2 += 8;
+        if (j2 >= 0 && j2 <= 255) printf(" [%03d]", j2); // графа в данных DEC (2-я часть)
+        for (int i = 8; i < 16; i++) printf(" %03d ", (unsigned char) m[j2+i]); // сами данные
+        putchar('\t');
+        if (j2 >= 0 && j2 <= 255) printf(" [%02X]", j2); // графа в данных HEX (2-я часть)
+        for (int i = 8; i < 16; i++) printf(" %02X ", (unsigned char) m[j2+i]); // сами данные
+        putchar('\t');
+        if (j2 >= 0 && j2 <= 255) printf("  [%c] ", (j2 != 8) ? j2 : ' '); // графа в данных ASCII (2-я часть)
+        for (int i = 8; i < 16; i++) printf("%c", m[j2+i]); // сами данные
+        putchar('\n');
+        //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
+    }
 }
