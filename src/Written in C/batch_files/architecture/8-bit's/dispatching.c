@@ -83,14 +83,14 @@ int allocation_table; // таблица распределения
 unsigned char m[256] = {0}; // memory tape // лента памяти
 unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация). Программист должен следить сам, за тем, чтобы не выйти за границу буфера кучи.
-unsigned char * heap_mem_alloc(unsigned char cell)
+unsigned char * heap_mem_alloc(const unsigned char cell)
 {
     __m = m;
     __while_run:
     // Поиск подходящего участка
     while (*__m) // Пока участок занят, продолжаем искать свободный
     {
-        printf("\n ~! 1 (Поиск незанятого фрагмента памяти): [%d] [%d]", *__m, *(__m + 1));
+        printf("\n ~! 1 (Поиск незанятого фрагмента памяти): [%d] [%d] > %d", *__m, *(__m + 1), cell);
         __m = __m + 2 + *(__m + 1); // Заглянем в след. байт-заголовок (размер блока) и сдвинем указатель на такую длину
     }
     if (*(__m + 1) <= cell) // Если блок под новые данные достаточного размера, займём его
@@ -115,23 +115,19 @@ static void CodeGenerator(const char *lang, const char back_end)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
 
     mem_dbg(m); // Начальное состояние памяти
-    char * str1 = heap_mem_alloc(15);
-    printf("\n heap_mem_alloc__1_0 = <%p>: \"%s\" | <%p>: \"%s\"", str1, str1, m, m); // После выделения памяти, посмотрим что там хранится
-    strcpy(str1, "C$ is awesome!");
-    printf("\n heap_mem_alloc__1_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str1, str1, m, m); // Убедимся в записи
-    mem_dbg(m); // Изменённое состояние памяти
-
-    char * str2 = heap_mem_alloc(18);
-    printf("\n heap_mem_alloc__2_0 = <%p>: \"%s\" | <%p>: \"%s\"", str2, str2, m, m); // После выделения памяти, посмотрим что там хранится
-    strcpy(str2, "Entropy Universe.");
-    printf("\n heap_mem_alloc__2_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str2, str2, m, m); // Убедимся в записи
-    mem_dbg(m); // Изменённое состояние памяти
-
-    char * str3 = heap_mem_alloc(15);
-    printf("\n heap_mem_alloc__3_0 = <%p>: \"%s\" | <%p>: \"%s\"", str3, str3, m, m); // После выделения памяти, посмотрим что там хранится
-    strcpy(str3, "Spufing croll!");
-    printf("\n heap_mem_alloc__3_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str3, str3, m, m); // Убедимся в записи
-    mem_dbg(m);
+    unsigned char * ptr;
+    unsigned char list[8][15+1] = {"Алиса", " ", "в", " ", "стране", " ", "чудес", "!"};
+    for (int i = 0; i < 8; i++)
+    {
+        ptr = heap_mem_alloc(strlen(list[i])+1);
+        printf("\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
+        strcpy(ptr, list[i]);
+        printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", i+1, ptr, ptr, m, m); // Убедимся в записи
+        mem_dbg(m); // Изменённое состояние памяти
+    }
+    //strcpy(str1, "C$ is awesome!");
+    //strcpy(str2, "Entropy Universe.");
+    //strcpy(str3, "Spufing croll!");
 
     /*/
     heap_mem_free(str1);
