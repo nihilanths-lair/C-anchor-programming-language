@@ -1,4 +1,4 @@
-const char ProcAsciiChr(unsigned char chr)
+const char ProcAsciiChr(const unsigned char chr)
 {
     switch (chr){
     case '\0': return '·'; // ··0
