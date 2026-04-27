@@ -60,29 +60,29 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     //
     case 10 : res = ""; break; // 010 - 0A - \n
     //
-    case 11 : res = "♂"; break; // 011 - 0B - ♂
-    case 12 : res = "♀"; break; // 012 - 0C - ♀
+    case 11 : res = "\x0B"; break; // 011 - 0B - ♂
+    case 12 : res = "\x0C"; break; // 012 - 0C - ♀
     //
     case 13 : res = ""; break; // 013 - 0D - \r
     //
-    case 14 : res = "♫"; break; // 014 - 0E - ♫
-    case 15 : res = "☼"; break; // 015 - 0F - ☼
-    case 16 : res = "►"; break; // 016 - 10 - ►
-    case 17 : res = "◄"; break; // 017 - 11 - ◄
-    case 18 : res = "↕"; break; // 018 - 12 - ↕
-    case 19 : res = "‼"; break; // 019 - 13 - ‼
-    case 20 : res = "¶"; break; // 020 - 14 - ¶
-    case 21 : res = "§"; break; // 021 - 15 - §
-    case 22 : res = "▬"; break; // 022 - 16 - ▬
-    case 23 : res = "↨"; break; // 023 - 17 - ↨
-    case 24 : res = "↑"; break; // 024 - 18 - ↑
-    case 25 : res = "↓"; break; // 025 - 19 - ↓
-    case 26 : res = "→"; break; // 026 - 1A - →
-    case 27 : res = "←"; break; // 027 - 1B - ←
-    case 28 : res = "∟"; break; // 028 - 1C - ∟
-    case 29 : res = "↔"; break; // 029 - 1D - ↔
-    case 30 : res = "▲"; break; // 030 - 1E - ▲
-    case 31 : res = "▼"; break; // 031 - 1F - ▼
+    case 14 : res = "\x0E"; break; // 014 - 0E - ♫
+    case 15 : res = "\x0F"; break; // 015 - 0F - ☼
+    case 16 : res = "\x10"; break; // 016 - 10 - ►
+    case 17 : res = "\x11"; break; // 017 - 11 - ◄
+    case 18 : res = "\x12"; break; // 018 - 12 - ↕
+    case 19 : res = "\x13"; break; // 019 - 13 - ‼
+    case 20 : res = "\x14"; break; // 020 - 14 - ¶
+    case 21 : res = "\x15"; break; // 021 - 15 - §
+    case 22 : res = "\x16"; break; // 022 - 16 - ▬
+    case 23 : res = "\x17"; break; // 023 - 17 - ↨
+    case 24 : res = "\x18"; break; // 024 - 18 - ↑
+    case 25 : res = "\x19"; break; // 025 - 19 - ↓
+    case 26 : res = "\x1A"; break; // 026 - 1A - →
+    case 27 : res = "\x1B"; break; // 027 - 1B - ←
+    case 28 : res = "\x1C"; break; // 028 - 1C - ∟
+    case 29 : res = "\x1D"; break; // 029 - 1D - ↔
+    case 30 : res = "\x1E"; break; // 030 - 1E - ▲
+    case 31 : res = "\x1F"; break; // 031 - 1F - ▼
     //
     case 32 : res = " "; break; // 032 - 20 -
     //
@@ -193,7 +193,7 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     // (обновлено) ?
     case 128: res = ""; break; // 128 - 80 - ?
     case 129: res = ""; break; // 129 - 81 - ?
-    case 130: res = "'"; break; // 130 - 82 - '
+    case 130: res = ""; break; // 130 - 82 - '
     case 131: res = ""; break; // 131 - 83 - ?
     //
     case 132: res = "\""; break; // 132 - 84 - "
@@ -210,8 +210,8 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     case 142: res = ""; break; // 142 - 8E - ?
     case 143: res = ""; break; // 143 - 8F - ?
     case 144: res = ""; break; // 144 - 90 - ?
-    case 145: res = "'"; break; // 145 - 91 - '
-    case 146: res = "'"; break; // 146 - 92 - '
+    case 145: res = ""; break; // 145 - 91 - '
+    case 146: res = ""; break; // 146 - 92 - '
     //
     case 147: res = "\""; break; // 147 - 93 - "
     case 148: res = "\""; break; // 148 - 94 - "
