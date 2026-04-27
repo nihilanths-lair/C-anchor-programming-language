@@ -76,37 +76,7 @@ static unsigned char memory[0xFFFF+0x01] =
 #define  MACRO__X86            9
 #define  MACRO__VM_C_DLR       10
 
-// correspondence_table // таблица соответствия
-int allocation_table; // таблица распределения
-//heap memory allocation
-
-unsigned char m[256] = {0}; // memory tape // лента памяти
-unsigned char *__m = m;
-// Unsafe (небезопасная, но максимально производительная реализация). Программист должен следить сам, за тем, чтобы не выйти за границу буфера кучи.
-unsigned char * heap_mem_alloc(const unsigned char cell)
-{
-    __m = m;
-    __while_run:
-    // Поиск подходящего участка
-    while (*__m) // Пока участок занят, продолжаем искать свободный
-    {
-        printf("\n ~! 1 (Поиск незанятого фрагмента памяти): [%d][%d]", *__m, *(__m + 1));
-        __m = __m + 2 + *(__m + 1); // Заглянем в след. байт-заголовок (размер блока) и сдвинем указатель на такую длину
-    }
-    if (*(__m + 1) <= cell) // Если блок под новые данные достаточного размера, займём его
-    {
-        printf("\n ~! 2 (Найден свободный фрагмент памяти):  [%d][%d] <= %d", *__m, *(__m + 1), cell);
-        // Обновим мета-данные (2 байт-заголовка: флаг доступности и размер блока данных
-        *(__m + 1) = cell; // Размер блока данных
-        *(__m) = 1;        // Доступность блока данных (занимаем слот)
-        return __m + 2;    // Возвращаем указатель на данные
-    }
-    goto __while_run; // Если блок под новые данные недостаточного размера, повторим поиск
-}
-
-void heap_mem_free(unsigned char *m) {/* future code */}
-unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
-void mem_free(void *mem) {/* future code */}
+#include "..\..\dynamic_memory.c"
 
 static void CodeGenerator(const char *lang, const char back_end)
 {
@@ -116,8 +86,27 @@ static void CodeGenerator(const char *lang, const char back_end)
 
     mem_dbg(m); // Начальное состояние памяти
     unsigned char * ptr;
-    unsigned char list[8][15+1] = {"Алиса", " ", "в", " ", "стране", " ", "чудес", "!"};
-    for (int i = 0; i < 8; i++)
+    unsigned char list[][24+1] =
+    {
+             "1",
+            "212",
+           "32123",
+          "4321234",
+         "543212345",
+        "65432123456",
+         "543212345",
+          "4321234",
+           "32123",
+            "212",
+             "1",
+        "Алиса в стране чудес",
+        "Глубока ли кроличья нора?",
+        "Повар Кох",
+        "C-string",
+        "C$ is awesome!",
+        ""
+    };
+    for (int i = 0; list[i][0] != '\0'; i++)
     {
         ptr = heap_mem_alloc(strlen(list[i])+1);
         printf("\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
