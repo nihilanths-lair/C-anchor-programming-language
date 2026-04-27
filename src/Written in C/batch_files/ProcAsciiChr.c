@@ -63,9 +63,9 @@ const unsigned char * ProcAsciiChrEx(const unsigned char chr)
     case 14 : res = "♫"; break; // 014 - 0E - ♫
     case 15 : res = ""; break; // 015 - 0F - ☼
     case 16 : res = ""; break; // 016 - 10 - ►
-    case 17 : res = "◄"; break; // 017 - 11 - ◄
-    case 18 : res = "↕"; break; // 018 - 12 - ↕
-    case 19 : res = "‼"; break; // 019 - 13 - ‼
+    case 17 : res = ""; break; // 017 - 11 - ◄
+    case 18 : res = ""; break; // 018 - 12 - ↕
+    case 19 : res = ""; break; // 019 - 13 - ‼
     case 20 : res = "¶"; break; // 020 - 14 - ¶
     case 21 : res = "§"; break; // 021 - 15 - §
     case 22 : res = ""; break; // 022 - 16 - ▬
@@ -572,12 +572,12 @@ void mem_dbg(const char *m)
     printf("\t <ASCII> "); // графа ASCII
     for (int i = 0; i < 8; i++) printf("%s", ProcAsciiChrEx((unsigned char) i));
     //putchar('\n');
-    printf("\n\n");
     //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
     // Данные в памяти
     for (int j = 0, j2; j < 16; j++)
     {
         j2 = j*16;
+        printf("\n\n");
         if (j2 >= 0 && j2 <= 255) printf("  %03d:", j2); // графа в данных DEC (1-я часть)
         for (int i = 0; i < 8; i++) printf(" %03d", (unsigned char) m[j2+i]); // сами данные
         putchar('\t');
@@ -589,19 +589,19 @@ void mem_dbg(const char *m)
         putchar('\n');
         //printf("\n\n");
         //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
-        j2 += 8;
-        if (j2 >= 0 && j2 <= 255) printf("  %03d:", j2); // графа в данных DEC (2-я часть)
+        if (j2 >= 0 && j2 <= 255) printf("  %03d:", j2+8); // графа в данных DEC (2-я часть)
         for (int i = 8; i < 16; i++) printf(" %03d", (unsigned char) m[j2+i]); // сами данные
         putchar('\t');
-        if (j2 >= 0 && j2 <= 255) printf("   %02X:", j2); // графа в данных HEX (2-я часть)
+        if (j2 >= 0 && j2 <= 255) printf("   %02X:", j2+8); // графа в данных HEX (2-я часть)
         for (int i = 8; i < 16; i++) printf(" %02X", (unsigned char) m[j2+i]); // сами данные
         putchar('\t');
-        if (j2 >= 0 && j2 <= 255) printf("  %s: ", ProcAsciiChrEx((unsigned char) j2)); // графа в данных ASCII (2-я часть)
+        if (j2 >= 0 && j2 <= 255) printf("  %s: ", ProcAsciiChrEx((unsigned char) j2+8)); // графа в данных ASCII (2-я часть)
         for (int i = 8; i < 16; i++) printf("%s", ProcAsciiChrEx((unsigned char) m[j2+i])); // сами данные
         //putchar('\n');
-        printf("\n\n");
+        //printf("\n\n");
         //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
     }
+    putchar('\n');
     /*
     // Generator DUMP памяти
     printf("\nconst unsigned char * ProcAsciiChrEx(const unsigned char chr)");
