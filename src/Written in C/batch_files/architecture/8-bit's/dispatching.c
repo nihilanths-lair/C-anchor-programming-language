@@ -76,124 +76,35 @@ static unsigned char memory[0xFFFF+0x01] =
 #define  MACRO__X86            9
 #define  MACRO__VM_C_DLR       10
 
-void mem_dbg(char *m)
-{
-    //static buf[0xFF];
-    printf("\n  DEC ");
-    for (int i = 0; i < 8; i++)
-    {
-        if (i >= 100 && i < 1000) printf("[%d]", i);
-        else if (i >= 10 && i < 100) printf("[·%d]", i);
-        else if (i < 10) printf("[··%d]", i);
-    }
-    printf("\tASCII "); // графа ASCII
-    for (int i = 0, i2; i < 8; i++)
-    {
-        if (i >= 100 && i < 1000) printf("[%d]", i);
-        else if (i >= 10 && i < 100) printf("[·%d]", i);
-        else if (i < 10) printf("[··%d]", i);
-    }
-    putchar('\n');
-    // Данные в памяти
-    for (int j = 0, j2; j < 16; j++)
-    {
-        j2 = j*16;
-        if (j2 >= 100 && j2 < 1000) printf(" [%d]", j2);
-        else if (j2 >= 10 && j2 < 100) printf(" [.%d]", j2);
-        else if (j2 < 10) printf(" [..%d]", j2);
-        for (int i = 0, i2; i < 8; i++)
-        {
-            i2 = j2+i;
-            if (i2 >= 100 && i2 < 1000) printf(" %03d ", m[i2]);
-            else if (i2 >= 10 && i2 < 100) printf(" %03d ", m[i2]);
-            else if (i2 < 10) printf(" %03d ", m[i2]);
-        }
-        putchar('\t'); // графа ASCII
-        if (j2 >= 100 && j2 < 1000) printf(" [%d]", j2);
-        else if (j2 >= 10 && j2 < 100) printf(" [.%d]", j2);
-        else if (j2 < 10) printf(" [..%d]", j2);
-        for (int i = 0, i2; i < 8; i++)
-        {
-            i2 = j2+i;
-            if (i2 >= 100 && i2 < 1000) printf("%s", ProcAsciiChrEx(m[i2]));
-            else if (i2 >= 10 && i2 < 100) printf("%s", ProcAsciiChrEx(m[i2]));
-            else if (i2 < 10) printf("%s", ProcAsciiChrEx(m[i2]));
-        }
-        putchar('\n');
-        j2 += 8;
-        if (j2 >= 100 && j2 < 1000) printf(" [%d]", j2);
-        else if (j2 >= 10 && j2 < 100) printf(" [.%d]", j2);
-        else if (j2 < 10) printf(" [..%d]", j2);
-        for (int i = 8, i2; i < 16; i++)
-        {
-            i2 = j2+i;
-            if (i2 >= 100 && i2 < 1000) printf(" %03d ", m[i2]);
-            else if (i2 >= 10 && i2 < 100) printf(" %03d ", m[i2]);
-            else if (i2 < 10) printf(" %03d ", m[i2]);
-        }
-        putchar('\t'); // графа ASCII
-        if (j2 >= 100 && j2 < 1000) printf(" [%d]", j2);
-        else if (j2 >= 10 && j2 < 100) printf(" [.%d]", j2);
-        else if (j2 < 10) printf(" [..%d]", j2);
-        for (int i = 8, i2; i < 16; i++)
-        {
-            i2 = j2+i;
-            if (i2 >= 100 && i2 < 1000) printf("%s", ProcAsciiChrEx(m[i2]));
-            else if (i2 >= 10 && i2 < 100) printf("%s", ProcAsciiChrEx(m[i2]));
-            else if (i2 < 10) printf("%s", ProcAsciiChrEx(m[i2]));
-        }
-        putchar('\n');
-    }
-}
-
 // correspondence_table // таблица соответствия
 int allocation_table; // таблица распределения
-
-char m[0x100] = {0}; // memory tape // лента памяти
-unsigned char dp = 0;
 //heap memory allocation
+
+unsigned char m[256] = {0}; // memory tape // лента памяти
+unsigned char *__m = m;
+// Unsafe (небезопасная, но максимально производительная реализация). Программист должен следить сам, за тем, чтобы не выйти за границу буфера кучи.
 unsigned char * heap_mem_alloc(unsigned char cell)
 {
-    static void * heap[0x100] = {[0] = &&search_for_free_memory, [1] = &&memory_allocation, [2 ... 0xFF] = &&exit};
-    // ищем в куче свободный подходящий участок/кусок памяти
-    // проверим занят ли данный участок памяти или нет; 0 - свободен, 1 - занят
-    // если свободен, то аллоцируем его, если нет, продолжаем искать дальше, прыгая по кускам памяти
-    // аллокация происходит следующим образом (вар.-1), в след. ячейке указывается размер данных, тем самым, мы знаем где его конец, чтобы перейти к след. куску
-    // (вар.-2), в след. ячейке указывается где начинается след. кусок/блок памяти
-    // syntax: [1][2][3 ...][?]
-    // первых два байта в каждом куске занимает таблица аллокаций (слот занят или свободен, размер данных/размер данных, слот занят или свободен)
-    //goto * (m[0]) ? heap[MACRO__ALLOC] : heap[MACRO__FREE];
-
-    printf("\n /!\\/!\\ search_for_free_memory"); // поиск свободной памяти
-    printf(" # dp = %d", dp); // заглядываем в текущую ячейку памяти, чтобы понять аллоцирован этот участок памяти или нет
-    goto * (!m[dp] && m[dp+1] < cell) ? heap[1] : heap[0];
-    
-    search_for_free_memory: printf("\n /!\\/!\\ search_for_free_memory__2"); // поиск свободной памяти
-      printf("\n dp(%d) + cell(%d) = %d", dp, cell, dp += cell); // прыгаем на следующую зону и проверяем её
-      goto * (!m[dp] && m[dp+1] < cell) ? heap[1] : heap[0];
-
-    memory_allocation:
-      printf("\n /!\\ heap_memory_allocation"); // занимаем свободную память
-      printf(" # dp = %d, cell = %d", dp, cell);
-      m[dp] = 1;
-      m[dp+1] = cell;
-      dp += cell+2; // зона занимаемой памяти
-      printf("\n dp-cell = %d", dp-cell);
-      return &m[dp-cell];
-
-    exit:
+    __m = m;
+    __while_run:
+    // Поиск подходящего участка
+    while (*__m) // Пока участок занят, продолжаем искать свободный
+    {
+        printf("\n ~! 1 (Поиск незанятого фрагмента памяти): [%d] [%d]", *__m, *(__m + 1));
+        __m = __m + 2 + *(__m + 1); // Заглянем в след. байт-заголовок (размер блока) и сдвинем указатель на такую длину
+    }
+    if (*(__m + 1) <= cell) // Если блок под новые данные достаточного размера, займём его
+    {
+        printf("\n ~! 2 (Найден свободный фрагмент памяти):  [%d] [%d] <= %d", *__m, *(__m + 1), cell);
+        // Обновим мета-данные (2 байт-заголовка: флаг доступности и размер блока данных
+        *(__m + 1) = cell; // Размер блока данных
+        *(__m) = 1;        // Доступность блока данных (занимаем слот)
+        return __m + 2;    // Возвращаем указатель на данные
+    }
+    goto __while_run; // Если блок под новые данные недостаточного размера, повторим поиск
 }
 
-void heap_mem_free(char *m)
-{
-    printf("\n /!\\ heap_memory_free"); // освобождаем память
-    printf("\n mem = %p:%d", m, *m);
-    printf("\n mem-2 = %p:%d", m-2, *(m-2));
-    *(m-2) = 0; // освобождаем память
-    dp = 0;
-    printf("\n mem-2 = %p:%d", m-2, *(m-2));
-}
-
+void heap_mem_free(unsigned char *m) {/* future code */}
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
 void mem_free(void *mem) {/* future code */}
 
@@ -203,35 +114,37 @@ static void CodeGenerator(const char *lang, const char back_end)
     // Компиляция в: VM_C$ (байт-код), x86 (маш. код); Транспиляция в: C/PAWN, Python/Lua (исходный код) и т.д., всё что угодно :)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
 
-    //-/
-    mem_dbg(m);
+    mem_dbg(m); // Начальное состояние памяти
     char * str1 = heap_mem_alloc(15);
-    printf("\n heap_mem_alloc__1_0 = <%p>: \"%s\"", str1, str1);
+    printf("\n heap_mem_alloc__1_0 = <%p>: \"%s\" | <%p>: \"%s\"", str1, str1, m, m); // После выделения памяти, посмотрим что там хранится
     strcpy(str1, "C$ is awesome!");
-    printf("\n heap_mem_alloc__1_1 = <%p>: \"%s\"\n", str1, str1);
-    //
-    char * str2 = heap_mem_alloc(35);
-    //printf("\n mem_alloc = <%p>: \"%s\"\n", str2, str2);
-    strcpy(str2, "Никитос играет в Entropy Universe.");
-    printf("\n heap_mem_alloc__2 = <%p>: \"%s\"\n", str2, str2);
+    printf("\n heap_mem_alloc__1_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str1, str1, m, m); // Убедимся в записи
+    mem_dbg(m); // Изменённое состояние памяти
 
-    char * str3 = heap_mem_alloc(40);
-    strcpy(str3, "Аллоцирование памяти происходит в куче.");
-    printf("\n heap_mem_alloc__3 = <%p>: \"%s\"\n", str3, str3);
+    char * str2 = heap_mem_alloc(18);
+    printf("\n heap_mem_alloc__2_0 = <%p>: \"%s\" | <%p>: \"%s\"", str2, str2, m, m); // После выделения памяти, посмотрим что там хранится
+    strcpy(str2, "Entropy Universe.");
+    printf("\n heap_mem_alloc__2_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str2, str2, m, m); // Убедимся в записи
+    mem_dbg(m); // Изменённое состояние памяти
 
-    char * str4 = heap_mem_alloc(15);
-    strcpy(str4, "Spufing croll!");
-    printf("\n heap_mem_alloc__4 = <%p>: \"%s\"\n", str4, str4);
+    char * str3 = heap_mem_alloc(15);
+    printf("\n heap_mem_alloc__3_0 = <%p>: \"%s\" | <%p>: \"%s\"", str3, str3, m, m); // После выделения памяти, посмотрим что там хранится
+    strcpy(str3, "Spufing croll!");
+    printf("\n heap_mem_alloc__3_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", str3, str3, m, m); // Убедимся в записи
     mem_dbg(m);
 
-    heap_mem_free(str2);
-    printf("\n heap_mem_free = <%p>: \"%s\"\n", str2, str2);
+    /*/
+    heap_mem_free(str1);
+    printf("\n heap_mem_free = <%p>: \"%s\"\n", str1, str1);
     mem_dbg(m);
-
-    str2 = heap_mem_alloc(22);
-    strcpy(str2, "Земля в иллюминаторе.");
-    printf("\n heap_mem_alloc__2 = <%p>: \"%s\"\n", str2, str2);
+    */
+    /*/
+    str1 = heap_mem_alloc(15);
+    strcpy(str1, "C$ is awesome!");
+    printf("\n heap_mem_alloc__2 = <%p>: \"%s\"\n", str1, str1);
     mem_dbg(m);
+    /**/
+    return;
     //-/
     switch (back_end){
     case MACRO__PAWN:         {/* future code */} break;
