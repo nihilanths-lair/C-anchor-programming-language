@@ -35,19 +35,24 @@ const char ProcAsciiChr(const unsigned char chr)
     default: return chr;
     }
 }
-const unsigned char * ProcAsciiChrEx(const unsigned char chr)
+const char * ProcAsciiChrEx(const unsigned char chr)
 {
-    unsigned char * res = "\0\0";
+    static char * res = "";
     switch (chr)
     {
     case 0  : res = ""; break; // 000 - 00 - \0
-    //
-    case 1  : res = ""; break; // 001 - 01 - ☺
-    case 2  : res = ""; break; // 002 - 02 - ☻
-    case 3  : res = ""; break; // 003 - 03 - ♥
-    case 4  : res = ""; break; // 004 - 04 - ♦
-    case 5  : res = ""; break; // 005 - 05 - ♣
-    case 6  : res = ""; break; // 006 - 06 - ♠
+    /*
+    case 3: return "\xE2\x99\xA5"; // Сердце (♥) в UTF-8
+    case 4: return "\xE2\x99\xA6"; // Бубны (♦)
+    case 5: return "\xE2\x99\xA3"; // Трефы (♣)
+    case 6: return "\xE2\x99\xA0"; // Пики (♠)
+    */
+    case 1  : res = "\1"; break; // 001 - 01 - ☺
+    case 2  : res = "\2"; break; // 002 - 02 - ☻
+    case 3  : res = "\3"; break; // 003 - 03 - ♥
+    case 4  : res = "\4"; break; // 004 - 04 - ♦
+    case 5  : res = "\5"; break; // 005 - 05 - ♣
+    case 6  : res = "\6"; break; // 006 - 06 - ♠
     //
     case 7  : res = ""; break; // 007 - 07 -
     case 8  : res = ""; break; // 008 - 08 -
@@ -61,16 +66,16 @@ const unsigned char * ProcAsciiChrEx(const unsigned char chr)
     case 13 : res = ""; break; // 013 - 0D - \r
     //
     case 14 : res = "♫"; break; // 014 - 0E - ♫
-    case 15 : res = ""; break; // 015 - 0F - ☼
-    case 16 : res = ""; break; // 016 - 10 - ►
-    case 17 : res = ""; break; // 017 - 11 - ◄
-    case 18 : res = ""; break; // 018 - 12 - ↕
-    case 19 : res = ""; break; // 019 - 13 - ‼
+    case 15 : res = "☼"; break; // 015 - 0F - ☼
+    case 16 : res = "►"; break; // 016 - 10 - ►
+    case 17 : res = "◄"; break; // 017 - 11 - ◄
+    case 18 : res = "↕"; break; // 018 - 12 - ↕
+    case 19 : res = "‼"; break; // 019 - 13 - ‼
     case 20 : res = "¶"; break; // 020 - 14 - ¶
     case 21 : res = "§"; break; // 021 - 15 - §
-    case 22 : res = ""; break; // 022 - 16 - ▬
+    case 22 : res = "▬"; break; // 022 - 16 - ▬
     case 23 : res = "↨"; break; // 023 - 17 - ↨
-    case 24 : res = ""; break; // 024 - 18 - ↑
+    case 24 : res = "↑"; break; // 024 - 18 - ↑
     case 25 : res = "↓"; break; // 025 - 19 - ↓
     case 26 : res = "→"; break; // 026 - 1A - →
     case 27 : res = "←"; break; // 027 - 1B - ←
