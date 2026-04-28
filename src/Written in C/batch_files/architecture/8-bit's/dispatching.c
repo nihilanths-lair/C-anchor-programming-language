@@ -108,7 +108,9 @@ static void CodeGenerator(const char *lang, const char back_end)
     heap_mem_free(ptr); // Освобождение
     heap_mem_debug();
     ptr = heap_mem_alloc(strlen("C$ super!")+1); // Выделение
+    printf("\n heap_mem_alloc__6_0 = <%p>: \"%s\" | <%p>: \"%s\"", 6, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
     strcpy(ptr, "C$ super!");
+    printf("\n heap_mem_alloc__6_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", 6, ptr, ptr, m, m); // Убедимся в записи
     mem_dbg(m); // Изменённое состояние памяти
     heap_mem_debug();
     /*
