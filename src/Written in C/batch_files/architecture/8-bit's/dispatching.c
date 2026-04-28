@@ -88,17 +88,6 @@ static void CodeGenerator(const char *lang, const char back_end)
     unsigned char * ptr;
     unsigned char list[][24+1] =
     {
-             "1",
-            "212",
-           "32123",
-          "4321234",
-         "543212345",
-        "65432123456",
-         "543212345",
-          "4321234",
-           "32123",
-            "212",
-             "1",
         "Алиса в стране чудес",
         "Глубока ли кроличья нора?",
         "Повар Кох",
@@ -106,14 +95,41 @@ static void CodeGenerator(const char *lang, const char back_end)
         "C$ is awesome!",
         ""
     };
+    //heap_mem_debug();
     for (int i = 0; list[i][0] != '\0'; i++)
     {
-        ptr = heap_mem_alloc(strlen(list[i])+1);
+        ptr = heap_mem_alloc(strlen(list[i])+1); // Выделение
         printf("\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
         strcpy(ptr, list[i]);
         printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", i+1, ptr, ptr, m, m); // Убедимся в записи
         mem_dbg(m); // Изменённое состояние памяти
     }
+    heap_mem_debug();
+    heap_mem_free(ptr); // Освобождение
+    heap_mem_debug();
+    ptr = heap_mem_alloc(strlen("C$ super!")+1); // Выделение
+    strcpy(ptr, "C$ super!");
+    mem_dbg(m); // Изменённое состояние памяти
+    heap_mem_debug();
+    /*
+    putchar('\n');
+    printf("\n [0]=%d", 0, m[0]);
+    for (unsigned char i = 0, c = 5; c != 0; c--)
+    {
+        i = m[m[i+1]];
+        printf("\n [%d]=%d", i, m[i+1]);
+        i = m[i+1];
+    }
+    putchar('\n');
+    heap_mem_free(ptr); // Освобождение
+    for (unsigned char i = 0, c = 5; c != 0; c--)
+    {
+        printf("\n [%d]=%d", i, m[i]);
+        i = m[i+1];
+    }
+    putchar('\n');
+    mem_dbg(m); // Изменённое состояние памяти
+    */
     //strcpy(str1, "C$ is awesome!");
     //strcpy(str2, "Entropy Universe.");
     //strcpy(str3, "Spufing croll!");
