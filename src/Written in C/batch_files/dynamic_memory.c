@@ -55,7 +55,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     break;
     case 1: // Слот занят!
       printf("\n %16X[%d] = %d; Слот занят!", __m, __m-m, *__m);
-      printf("\n %d", *(__m+1));
+      //printf("\n %d", *(__m+1));
       __m += 2 + *(__m+1);
       printf("\n %16X[%d] = %d; Слот занят-2!", __m, __m-m, *__m);
       goto switch_run;
@@ -141,12 +141,8 @@ void heap_mem_free(unsigned char *m)
     printf("\n Пометим фрагмент памяти на доступность: <%p> | H-D [%02X-%03d]=%d", m, ((uintptr_t) m) % 0x100, ((uintptr_t) m) % 0x100, *m);
     printf("\n  <HEX> [%02X]=·%02X  [%02X]=·%02X", ((uintptr_t) m-2) % 0x100, *(m-2), ((uintptr_t) m-1) % 0x100, *(m-1));
     printf("\n <DEC> [%03d]=%03d [%03d]=%03d\n", ((uintptr_t) m-2) % 0x1000, *(m-2), ((uintptr_t) m-1) % 0x1000, *(m-1));
-    printf("\n state: %d", *(m-2));
     #endif
     *(m-2) = 0;
-    #if !defined DEBUG
-    printf("\n state: %d", *(m-2));
-    #endif
 }
 //
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
