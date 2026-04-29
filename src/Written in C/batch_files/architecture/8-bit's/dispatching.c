@@ -21,9 +21,9 @@ char settling_tank[20+1];
 
 static unsigned char memory[0xFFFF+0x01] =
 {
-    37, 2,                                                                                 // INT 2 - вывести строку на консоль
-    ' ', 'C', '$', ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '\n', '\0', // "C$ is awesome!"
-    0xFF                                                                                   // HLT
+    37, 2,                                                                                       // INT 2 - вывести строку на консоль
+    '\n', ' ', 'C', '$', ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '\n', '\0', // "\n C$ is awesome!\n"
+    0xFF                                                                                         // HLT
     //#include "..\..\test_code.txt"
     /*
     10, '\n', // MOV R8, '\n'
@@ -101,6 +101,7 @@ static void CodeGenerator(const char *lang, const char back_end)
     for (int i = 0; list[i][0] != '\0'; i++)
     {
         ptr = heap_mem_alloc(strlen(list[i])+1); // Выделение
+        if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
         printf("\n\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
         strcpy(ptr, list[i]);
         printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", i+1, ptr, ptr, m, m); // Убедимся в записи
@@ -114,13 +115,14 @@ static void CodeGenerator(const char *lang, const char back_end)
     heap_mem_debug();
     putchar('\n');
     ptr = heap_mem_alloc(strlen("C")+1); // Выделение
+    if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
     printf("\n\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", 6, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
     strcpy(ptr, "C");
     printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", 6, ptr, ptr, m, m); // Убедимся в записи
     mem_dbg(m); // Изменённое состояние памяти
     putchar('\n');
     heap_mem_debug();
-    printf("\n\n");
+    putchar('\n');
 
     //strcpy(str1, "C$ is awesome!");
     //strcpy(str2, "Entropy Universe.");
