@@ -42,17 +42,17 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     {
     case 0  : res = ""; break; // 000 - 00 - \0
     /*
-    case 3: return "\xE2\x99\xA5"; // Сердце (♥) в UTF-8
-    case 4: return "\xE2\x99\xA6"; // Бубны (♦)
-    case 5: return "\xE2\x99\xA3"; // Трефы (♣)
-    case 6: return "\xE2\x99\xA0"; // Пики (♠)
+    case 3: return "\xE2\x99\xA5"; // Сердце (?) в UTF-8
+    case 4: return "\xE2\x99\xA6"; // Бубны (?)
+    case 5: return "\xE2\x99\xA3"; // Трефы (?)
+    case 6: return "\xE2\x99\xA0"; // Пики (?)
     */
-    case 1  : res = "\1"; break; // 001 - 01 - ☺
-    case 2  : res = "\2"; break; // 002 - 02 - ☻
-    case 3  : res = "\3"; break; // 003 - 03 - ♥
-    case 4  : res = "\4"; break; // 004 - 04 - ♦
-    case 5  : res = "\5"; break; // 005 - 05 - ♣
-    case 6  : res = "\6"; break; // 006 - 06 - ♠
+    case 1  : res = "\1"; break; // 001 - 01 - ?
+    case 2  : res = "\2"; break; // 002 - 02 - ?
+    case 3  : res = "\3"; break; // 003 - 03 - ?
+    case 4  : res = "\4"; break; // 004 - 04 - ?
+    case 5  : res = "\5"; break; // 005 - 05 - ?
+    case 6  : res = "\6"; break; // 006 - 06 - ?
     //
     case 7  : res = ""; break; // 007 - 07 -
     case 8  : res = ""; break; // 008 - 08 -
@@ -60,29 +60,29 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     //
     case 10 : res = ""; break; // 010 - 0A - \n
     //
-    case 11 : res = "\x0B"; break; // 011 - 0B - ♂
-    case 12 : res = "\x0C"; break; // 012 - 0C - ♀
+    case 11 : res = "\x0B"; break; // 011 - 0B - ?
+    case 12 : res = "\x0C"; break; // 012 - 0C - ?
     //
     case 13 : res = ""; break; // 013 - 0D - \r
     //
-    case 14 : res = "\x0E"; break; // 014 - 0E - ♫
-    case 15 : res = "\x0F"; break; // 015 - 0F - ☼
-    case 16 : res = "\x10"; break; // 016 - 10 - ►
-    case 17 : res = "\x11"; break; // 017 - 11 - ◄
-    case 18 : res = "\x12"; break; // 018 - 12 - ↕
-    case 19 : res = "\x13"; break; // 019 - 13 - ‼
+    case 14 : res = "\x0E"; break; // 014 - 0E - ?
+    case 15 : res = "\x0F"; break; // 015 - 0F - ?
+    case 16 : res = "\x10"; break; // 016 - 10 - ?
+    case 17 : res = "\x11"; break; // 017 - 11 - ?
+    case 18 : res = "\x12"; break; // 018 - 12 - ?
+    case 19 : res = "\x13"; break; // 019 - 13 - ?
     case 20 : res = "\x14"; break; // 020 - 14 - ¶
     case 21 : res = "\x15"; break; // 021 - 15 - §
-    case 22 : res = "\x16"; break; // 022 - 16 - ▬
-    case 23 : res = "\x17"; break; // 023 - 17 - ↨
-    case 24 : res = "\x18"; break; // 024 - 18 - ↑
-    case 25 : res = "\x19"; break; // 025 - 19 - ↓
-    case 26 : res = "\x1A"; break; // 026 - 1A - →
-    case 27 : res = "\x1B"; break; // 027 - 1B - ←
-    case 28 : res = "\x1C"; break; // 028 - 1C - ∟
-    case 29 : res = "\x1D"; break; // 029 - 1D - ↔
-    case 30 : res = "\x1E"; break; // 030 - 1E - ▲
-    case 31 : res = "\x1F"; break; // 031 - 1F - ▼
+    case 22 : res = "\x16"; break; // 022 - 16 - ?
+    case 23 : res = "\x17"; break; // 023 - 17 - ?
+    case 24 : res = "\x18"; break; // 024 - 18 - ?
+    case 25 : res = "\x19"; break; // 025 - 19 - ?
+    case 26 : res = "\x1A"; break; // 026 - 1A - ?
+    case 27 : res = "\x1B"; break; // 027 - 1B - ?
+    case 28 : res = "\x1C"; break; // 028 - 1C - ?
+    case 29 : res = "\x1D"; break; // 029 - 1D - ?
+    case 30 : res = "\x1E"; break; // 030 - 1E - ?
+    case 31 : res = "\x1F"; break; // 031 - 1F - ?
     //
     case 32 : res = " "; break; // 032 - 20 -
     //
@@ -199,8 +199,8 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     case 132: res = "\""; break; // 132 - 84 - "
     // (обновлено) ?
     case 133: res = ":"; break; // 133 - 85 - :
-    case 134: res = "┼"; break; // 134 - 86 - ┼
-    case 135: res = "╪"; break; // 135 - 87 - ╪
+    case 134: res = "?"; break; // 134 - 86 - ?
+    case 135: res = "?"; break; // 135 - 87 - ?
     case 136: res = ""; break; // 136 - 88 - ?
     case 137: res = "%"; break; // 137 - 89 - %
     case 138: res = ""; break; // 138 - 8A - ?
@@ -236,7 +236,7 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     case 163: res = "?"; break; // 163 - A3 - ?
     case 164: res = "¤"; break; // 164 - A4 - ¤
     case 165: res = "?"; break; // 165 - A5 - ?
-    case 166: res = "│"; break; // 166 - A6 - │
+    case 166: res = "?"; break; // 166 - A6 - ?
     case 167: res = "§"; break; // 167 - A7 - §
     //
     case 168: res = "Ё"; break; // 168 - A8 - Ё
@@ -244,7 +244,7 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     case 169: res = "c"; break; // 169 - A9 - c
     case 170: res = "Є"; break; // 170 - AA - Є
     case 171: res = "<"; break; // 171 - AB - <
-    case 172: res = "┐"; break; // 172 - AC - ┐
+    case 172: res = "?"; break; // 172 - AC - ?
     case 173: res = "-"; break; // 173 - AD - -
     case 174: res = "R"; break; // 174 - AE - R
     case 175: res = "Ї"; break; // 175 - AF - Ї
@@ -441,7 +441,7 @@ void mem_dbg(const unsigned char *m)
         //printf("\n\n");
         //printf("\n ------------------------------------------------------------------------------------------------------------------------\n");
     }
-    putchar('\n');
+    //putchar('\n');
     /*
     // Generator DUMP памяти
     printf("\nconst unsigned char * ProcAsciiChrEx(const unsigned char chr)");
