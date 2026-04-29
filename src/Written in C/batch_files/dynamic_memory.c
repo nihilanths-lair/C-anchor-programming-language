@@ -33,10 +33,6 @@ void heap_mem_debug()
 unsigned char * heap_mem_alloc(const unsigned char cell)
 {
     __m = m; // При каждом вызове делаем сброс на начальное состояние
-    /*
-    printf("\n %p[%d] = %d", __m, __m-m, *__m);
-    printf("\n %16X[%d] = %d", __m, __m-m, *__m);
-    */
 
     // Реализация №2 (начало)
     switch_run:
