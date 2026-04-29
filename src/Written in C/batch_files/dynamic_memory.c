@@ -1,7 +1,13 @@
 // correspondence_table // таблица соответствия
 //int allocation_table; // таблица распределения
 //heap memory allocation
-
+/**/
+#define MACRO__DEBUG_HEAP_MEM_DEBUG
+/**/
+#define MACRO__DEBUG_HEAP_MEM_ALLOC
+/**/
+#define MACRO__DEBUG_HEAP_MEM_FREE
+/**/
 // Объём доступной памяти: 256 byte's.
 #define  MACRO__UPPER_LIMIT  0x100
 /// memory tape // лента памяти
@@ -12,7 +18,7 @@ static unsigned char m[MACRO__UPPER_LIMIT] = {
 static unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация).
 // Программист должен следить сам, за тем, чтобы не выйти за границу буфера кучи (segmentation fault).
-#ifndef DEBUG
+#ifdef MACRO__DEBUG_HEAP_MEM_DEBUG
 void heap_mem_debug()
 {
     printf("\n слот, размерность");
@@ -34,13 +40,13 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
 
     // Реализация №2 (начало)
     switch_run:
-    #ifdef DEBUG
+    #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
     printf("\n Meta-information: %X+<слот:%d><размерность:%d>\n", __m, *__m, *(__m+1));
     #endif
     switch (*__m){
     case '\0': // Слоты больше недоступны!
     {
-        #ifdef DEBUG
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d; Слоты больше недоступны!", __m, __m-m, __m+(__m-m), *__m);
         #endif
         return 0;
@@ -48,23 +54,23 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     break;
     case '0': // Слот свободен.
     {
-        #ifdef DEBUG
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d ; Слот свободен.", __m, __m-m, __m+(__m-m), *__m);
         #endif
         if (*(__m+1) < cell) // && *(__m+1) != 0)
         {
-            #ifdef DEBUG
+            #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d < %d ; Не хватает места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             #endif
             __m += *(__m+1);
-            #ifdef DEBUG
+            #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *(__m));
             #endif
             goto switch_run;
         }
         else // (*(__m+1) >= cell)
         {
-            #ifdef DEBUG
+            #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d >= %d ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             #endif
             // Обновим мета-данные (2 байт-заголовка: флаг доступности и размер блока данных
@@ -76,12 +82,12 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     break;
     case '1': // Слот занят!
     {
-        #ifdef DEBUG
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d ; Слот занят!", __m, __m-m, __m+(__m-m), *__m);
         #endif
         //printf("\n %d", *(__m+1));
         __m += 2 + *(__m+1);
-        #ifdef DEBUG
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *__m);
         #endif
         goto switch_run;
@@ -89,7 +95,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     break;
     default:
     {
-        #ifdef DEBUG
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %d", *__m);
         #endif
     }}
@@ -100,9 +106,13 @@ void heap_mem_free(unsigned char *mem)
 {
     //__m = m; // При каждом вызове делаем сброс на начальное состояние
     // Пометим память свободной, при этом размер данных оставим, чтобы залатать дыру при необходимости
+    #ifdef MACRO__DEBUG_HEAP_MEM_FREE
     printf("\n %16X+[%d=(%X)] = %d; Старый флаг", m, (mem-2)-m, m+((mem-2)-m), *(mem-2));
+    #endif
     *(mem-2) = '0';
+    #ifdef MACRO__DEBUG_HEAP_MEM_FREE
     printf("\n %16X+[%d=(%X)] = %d; Новый флаг", m, (mem-2)-m, m+((mem-2)-m), *(mem-2));
+    #endif
 }
 //
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
