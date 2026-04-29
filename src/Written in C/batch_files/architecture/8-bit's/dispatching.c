@@ -88,64 +88,43 @@ static void CodeGenerator(const char *lang, const char back_end)
     unsigned char * ptr;
     unsigned char list[][24+1] =
     {
-        "Алиса в стране чудес",
-        "Глубока ли кроличья нора?",
-        "Повар Кох",
-        "C-string",
-        "C$ is awesome!",
+        //"Алиса в стране чудес",
+        //"Глубока ли кроличья нора?",
+        //"Повар Кох",
+        //"C-string",
+        //"C$ is awesome!",
+        "C$"
         ""
     };
     //heap_mem_debug();
+    putchar('\n');
     for (int i = 0; list[i][0] != '\0'; i++)
     {
         ptr = heap_mem_alloc(strlen(list[i])+1); // Выделение
-        printf("\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
+        printf("\n\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", i+1, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
         strcpy(ptr, list[i]);
         printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", i+1, ptr, ptr, m, m); // Убедимся в записи
         mem_dbg(m); // Изменённое состояние памяти
     }
-    heap_mem_debug();
-    heap_mem_free(ptr); // Освобождение
-    heap_mem_debug();
-    ptr = heap_mem_alloc(strlen("C$ super!")+1); // Выделение
-    printf("\n heap_mem_alloc__6_0 = <%p>: \"%s\" | <%p>: \"%s\"", 6, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
-    strcpy(ptr, "C$ super!");
-    printf("\n heap_mem_alloc__6_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", 6, ptr, ptr, m, m); // Убедимся в записи
-    mem_dbg(m); // Изменённое состояние памяти
-    heap_mem_debug();
-    /*
     putchar('\n');
-    printf("\n [0]=%d", 0, m[0]);
-    for (unsigned char i = 0, c = 5; c != 0; c--)
-    {
-        i = m[m[i+1]];
-        printf("\n [%d]=%d", i, m[i+1]);
-        i = m[i+1];
-    }
+    heap_mem_debug();
     putchar('\n');
     heap_mem_free(ptr); // Освобождение
-    for (unsigned char i = 0, c = 5; c != 0; c--)
-    {
-        printf("\n [%d]=%d", i, m[i]);
-        i = m[i+1];
-    }
     putchar('\n');
+    heap_mem_debug();
+    putchar('\n');
+    ptr = heap_mem_alloc(strlen("C")+1); // Выделение
+    printf("\n\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", 6, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
+    strcpy(ptr, "C");
+    printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", 6, ptr, ptr, m, m); // Убедимся в записи
     mem_dbg(m); // Изменённое состояние памяти
-    */
+    putchar('\n');
+    heap_mem_debug();
+    printf("\n\n");
+
     //strcpy(str1, "C$ is awesome!");
     //strcpy(str2, "Entropy Universe.");
     //strcpy(str3, "Spufing croll!");
-
-    /*/
-    heap_mem_free(str1);
-    printf("\n heap_mem_free = <%p>: \"%s\"\n", str1, str1);
-    mem_dbg(m);
-    */
-    /*/
-    str1 = heap_mem_alloc(15);
-    strcpy(str1, "C$ is awesome!");
-    printf("\n heap_mem_alloc__2 = <%p>: \"%s\"\n", str1, str1);
-    mem_dbg(m);
     /**/
     return;
     //-/
