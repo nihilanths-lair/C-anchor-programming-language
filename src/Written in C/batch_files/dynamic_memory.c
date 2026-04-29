@@ -12,6 +12,7 @@ static unsigned char m[MACRO__UPPER_LIMIT] = {
 static unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация).
 // Программист должен следить сам, за тем, чтобы не выйти за границу буфера кучи (segmentation fault).
+#ifndef DEBUG
 void heap_mem_debug()
 {
     printf("\n слот, размерность");
@@ -22,6 +23,7 @@ void heap_mem_debug()
         i += 2 + m[i+1];
     }
 }
+#endif
 unsigned char * heap_mem_alloc(const unsigned char cell)
 {
     __m = m; // При каждом вызове делаем сброс на начальное состояние
@@ -32,27 +34,39 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
 
     // Реализация №2 (начало)
     switch_run:
+    #ifdef DEBUG
     printf("\n Meta-information: %X+<слот:%d><размерность:%d>\n", __m, *__m, *(__m+1));
+    #endif
     switch (*__m){
     case '\0': // Слоты больше недоступны!
     {
+        #ifdef DEBUG
         printf("\n %16X+[%d=(%X)] = %d; Слоты больше недоступны!", __m, __m-m, __m+(__m-m), *__m);
+        #endif
         return 0;
     }
     break;
     case '0': // Слот свободен.
     {
+        #ifdef DEBUG
         printf("\n %16X+[%d=(%X)] = %d ; Слот свободен.", __m, __m-m, __m+(__m-m), *__m);
+        #endif
         if (*(__m+1) < cell) // && *(__m+1) != 0)
         {
+            #ifdef DEBUG
             printf("\n %16X+[%d=(%X)] = %d < %d ; Не хватает места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
+            #endif
             __m += *(__m+1);
+            #ifdef DEBUG
             printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *(__m));
+            #endif
             goto switch_run;
         }
         else // (*(__m+1) >= cell)
         {
+            #ifdef DEBUG
             printf("\n %16X+[%d=(%X)] = %d >= %d ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
+            #endif
             // Обновим мета-данные (2 байт-заголовка: флаг доступности и размер блока данных
             *(__m+1) = cell; // Новый размер данных
             *__m = '1';      // Доступность блока данных (занимаем слот)
@@ -62,15 +76,23 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     break;
     case '1': // Слот занят!
     {
+        #ifdef DEBUG
         printf("\n %16X+[%d=(%X)] = %d ; Слот занят!", __m, __m-m, __m+(__m-m), *__m);
+        #endif
         //printf("\n %d", *(__m+1));
         __m += 2 + *(__m+1);
+        #ifdef DEBUG
         printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *__m);
+        #endif
         goto switch_run;
     }
     break;
-    default: printf("\n %d", *__m);
-    }
+    default:
+    {
+        #ifdef DEBUG
+        printf("\n %d", *__m);
+        #endif
+    }}
     // Реализация №2 (конец)
 }
 //
