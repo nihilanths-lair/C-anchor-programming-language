@@ -26,7 +26,7 @@ void heap_mem_debug()
     {
         printf("\n [%3d] = %-3d, [%3d] = %-3d", i, m[i], i+1, m[i+1]);
         //if (!m[i] && !m[i+1]) break;
-        i += 2 + m[i+1];
+        i = 2 + m[i+1];
     }
 }
 #endif
