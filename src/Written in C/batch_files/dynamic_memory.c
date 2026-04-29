@@ -12,7 +12,7 @@
 #define  MACRO__UPPER_LIMIT  0x100
 /// memory tape // лента памяти
 static unsigned char m[MACRO__UPPER_LIMIT] = {
-    [0] = '0', // Первый блок свободен (статус 31)
+    [0] = '0', // Первый блок свободен (статус 0x30)
     [1] = 0xFE // Доступный размер: 256 - 2 байта заголовка
 };
 static unsigned char *__m = m;
