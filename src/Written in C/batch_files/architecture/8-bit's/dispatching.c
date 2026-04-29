@@ -21,9 +21,9 @@ char settling_tank[20+1];
 
 static unsigned char memory[0xFFFF+0x01] =
 {
-    37, 2,                                                                           // INT 2 - вывести строку на консоль
-    ' ', 'C', '$', ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '\0', // "C$ is awesome!"
-    0xFF                                                                             // HLT
+    37, 2,                                                                                 // INT 2 - вывести строку на консоль
+    ' ', 'C', '$', ' ', 'i', 's', ' ', 'a', 'w', 'e', 's', 'o', 'm', 'e', '!', '\n', '\0', // "C$ is awesome!"
+    0xFF                                                                                   // HLT
     //#include "..\..\test_code.txt"
     /*
     10, '\n', // MOV R8, '\n'
