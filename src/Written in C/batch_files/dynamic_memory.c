@@ -6,8 +6,8 @@
 #define  MACRO__UPPER_LIMIT  0x100
 /// memory tape // лента памяти
 static unsigned char m[MACRO__UPPER_LIMIT] = {
-    [0] = 0,   // Первый блок свободен (статус 0)
-    //[1] = 254  // Доступный размер: 256 - 2 байта заголовка
+    [0] = '0', // Первый блок свободен (статус 31)
+    [1] = 0xFE // Доступный размер: 256 - 2 байта заголовка
 };
 static unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация).
@@ -32,7 +32,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
 
     // Реализация №2 (начало)
     switch_run:
-    printf("\n Meta-information: %X+<слот=%d><размерность=%d>\n", __m, *__m, *(__m+1));
+    printf("\n Meta-information: %X+<слот:%d><размерность:%d>\n", __m, *__m, *(__m+1));
     switch (*__m){
     case '\0': // Слоты больше недоступны!
     {
@@ -43,7 +43,8 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     case '0': // Слот свободен.
     {
         printf("\n %16X+[%d=(%X)] = %d ; Слот свободен.", __m, __m-m, __m+(__m-m), *__m);
-        if (*(__m+1) < cell && *(__m+1) != 0)
+        //if (*(__m+1) < cell && *(__m+1) != 0)
+        if (*(__m+1) < cell)
         {
             printf("\n %16X+[%d=(%X)] = %d < %d ; Не хватает места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             __m += *(__m+1);
