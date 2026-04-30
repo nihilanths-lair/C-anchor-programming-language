@@ -308,24 +308,27 @@ const char * ProcAsciiChrEx(const unsigned char chr)
 //
 char mem_dbg_0(unsigned char *m, const unsigned char size)
 {
+    /*
     printf("\n m<%X> = %3d | %3d", m,   *m,     m[0]);
     printf("\n m<%X> = %3d | %3d", m+1, *(m+1), m[1]);
     printf("\n m<%X> = %3d | %3d", m+2, *(m+2), m[2]);
     printf("\n m<%X> = %3d | %3d\n", m+3, *(m+3), m[3]);
+    */
     printf("\n¤-----------------------------¤");
     printf("\n    <·:·> DUMP MEMORY <·:·>");
     for (int i = 0; i < size;)
     {
         // Мета-информация (байт-заголовок)
-        printf("\n %03d: %03d %03d | %02X: %02X %02X | %s%s", i, m[i], m[i+1], i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]));
+        printf("\n %03d: %03d %03d | %s%s | %02X: %02X %02X", i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]), i, m[i], m[i+1]);
         i+=2;
+        // Данные (посимвольно)
         while (*(++m) != '\0')
         {
-            printf("\n %03d: %03d     | %02X: %02X    | %s", i, m[i], i, m[i], ProcAsciiChrEx(m[i]));
+            printf("\n %03d: %03d     | %s  | %02X: %02X", i, m[i], ProcAsciiChrEx(m[i]), i, m[i]);
             i++;
         }
     }
-    printf("\n %03d: %03d     | %02X: %02X    | %s", size, m[size], size, m[size], ProcAsciiChrEx(m[size]));
+    printf("\n %03d: %03d     | %s  | %02X: %02X", size, m[size], ProcAsciiChrEx(m[size]), size, m[size]);
     printf("\n¤-----------------------------¤");
     return 0;
 }
