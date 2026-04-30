@@ -410,8 +410,7 @@ char mem_dbg_0(unsigned char *m, const unsigned char size)
     printf("\n m<%X> = %d|%d", m+3, *(m+3), m[3]);
     for (int i = 0; i < size;)
     {
-        //j2 = j * size;
-        // мета-информация (байт-заголовок)
+        // Мета-информация (байт-заголовок)
         printf("\n %03d: %03d %03d | %02X: %02X %02X | %s%s", i, m[i], m[i+1], i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]));
         i+=2;
         while (*(++m) != '\0')
