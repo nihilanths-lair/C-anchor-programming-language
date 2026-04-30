@@ -119,8 +119,14 @@ void heap_mem_free(unsigned char *mem)
     printf("\n %16X+[%d=(%X)] = %d; Новый флаг", m, (mem-2)-m, m+((mem-2)-m), *(mem-2));
     #endif
 }
+/*
 // <!-- Модель аллокатора с несколькими внешними адресными пространствами памяти (пока без дальнейшего расширения) -->
-// unsigned char * heap_mem_alloc(char *m, const unsigned char cell){}
+void heap_mem_alloc(char m[], char * __m, const unsigned char cell)
+{
+    __m = m; // При каждом вызове делаем сброс на начальное состояние
+    // future code ...
+}
+*/
 //
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
 void mem_free(void *mem) {/* future code */}
