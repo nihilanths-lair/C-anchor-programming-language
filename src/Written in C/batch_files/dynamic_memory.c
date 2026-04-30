@@ -54,7 +54,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
         #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d ; Слот свободен.", __m, __m-m, __m+(__m-m), *__m);
         #endif
-        if (*(__m+1) < cell) // && *(__m+1) != 0)
+        if (*(__m+1) < cell+2) // таким подходом/методом, аллокатор хоть по немногу, но разбазаривает память, необходимо доработать! / && *(__m+1) != 0)
         {
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d < %d ; Не хватает места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
@@ -68,10 +68,10 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
             #endif
             goto switch_run;
         }
-        else // (*(__m+1) >= cell)
+        else // (*(__m+1) >= cell) ; && > 2
         {
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
-            printf("\n %16X+[%d=(%X)] = %d >= %d ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
+            printf("\n %16X+[%d=(%X)] = %d >= %d+2 ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             #endif
             // Разметим мета-данные: 4 байт-заголовка: флаг доступности №1, размер участка №1, флаг доступности №2 и размер участка №2
             *(__m+2+cell) = '0';             // В след. участке установим флаг доступности: свободен
