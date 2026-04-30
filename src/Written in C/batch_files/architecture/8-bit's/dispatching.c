@@ -92,19 +92,25 @@ static void CodeGenerator(const char *lang, const char back_end)
         //"Повар Кох",
         //"C-string",
         //"C$ is awesome!",
-        "*",
+        "$",
         ""
     };
     putchar('\n');
-    mem_dbg(m); // Начальное состояние памяти
+    //mem_dbg(m); // Начальное состояние памяти
     //heap_mem_debug();
-    for (int i = 0; i < 63; i++)
+    for (int i = 0; i < 0; i++)
     {
-        ptr = heap_mem_alloc(strlen(list[0])+1); // для i=0: 2 байта, для i=1: 1 байт
+        ptr = heap_mem_alloc(strlen(list[0])+1); // для i=0: 3 байта, для i=1: 1 байт
         if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
-        strcpy(ptr, list[0]);                    // всегда копирует "*" (2 байта)
+        else printf("\n Память выделена.");
+        strcpy(ptr, list[0]);                    // всегда копирует "C$" (3 байта)
     }
-    mem_dbg(m); // Изменённое состояние памяти
+    //mem_dbg(m); // Изменённое состояние памяти
+    putchar('\n');
+    unsigned char *m = get__heap_mem_ptr();
+    unsigned char size = get__heap_mem_size();
+    printf("\n m = <%p> %d, size = %d", m, *m, size);
+    printf("\n mem_dbg_0 = %d", mem_dbg_0(m, size));
     putchar('\n');
     /*
     for (int i = 0; list[i][0] != '\0'; i++)
