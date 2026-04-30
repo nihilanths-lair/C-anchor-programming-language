@@ -84,7 +84,6 @@ static void CodeGenerator(const char *lang, const char back_end)
     // Компиляция в: VM_C$ (байт-код), x86 (маш. код); Транспиляция в: C/PAWN, Python/Lua (исходный код) и т.д., всё что угодно :)
     // Пока фиксированный набор, но позже добавлю расширение, чтобы можно было вносить изменения в список (добавлять/удалять/изменять наборы через императивный DSL)
 
-    mem_dbg(m); // Начальное состояние памяти
     unsigned char * ptr;
     unsigned char list[][24+1] =
     {
@@ -93,11 +92,21 @@ static void CodeGenerator(const char *lang, const char back_end)
         //"Повар Кох",
         //"C-string",
         //"C$ is awesome!",
-        "C$"
+        "*",
         ""
     };
-    //heap_mem_debug();
     putchar('\n');
+    mem_dbg(m); // Начальное состояние памяти
+    //heap_mem_debug();
+    for (int i = 0; i < 63; i++)
+    {
+        ptr = heap_mem_alloc(strlen(list[0])+1); // для i=0: 2 байта, для i=1: 1 байт
+        if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
+        strcpy(ptr, list[0]);                    // всегда копирует "*" (2 байта)
+    }
+    mem_dbg(m); // Изменённое состояние памяти
+    putchar('\n');
+    /*
     for (int i = 0; list[i][0] != '\0'; i++)
     {
         ptr = heap_mem_alloc(strlen(list[i])+1); // Выделение
@@ -107,6 +116,7 @@ static void CodeGenerator(const char *lang, const char back_end)
         printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", i+1, ptr, ptr, m, m); // Убедимся в записи
         mem_dbg(m); // Изменённое состояние памяти
     }
+    /*
     putchar('\n');
     heap_mem_debug();
     putchar('\n');
@@ -114,15 +124,17 @@ static void CodeGenerator(const char *lang, const char back_end)
     putchar('\n');
     heap_mem_debug();
     putchar('\n');
+    /*
     ptr = heap_mem_alloc(strlen("C")+1); // Выделение
     if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
     printf("\n\n heap_mem_alloc__%d_0 = <%p>: \"%s\" | <%p>: \"%s\"", 6, ptr, ptr, m, m); // После выделения памяти, посмотрим что там хранится
-    strcpy(ptr, "C");
+    strcpy(ptr, "C$ super!");
     printf("\n heap_mem_alloc__%d_1 = <%p>: \"%s\" | <%p>: \"%s\"\n", 6, ptr, ptr, m, m); // Убедимся в записи
     mem_dbg(m); // Изменённое состояние памяти
     putchar('\n');
     heap_mem_debug();
     putchar('\n');
+    */
 
     //strcpy(str1, "C$ is awesome!");
     //strcpy(str2, "Entropy Universe.");
