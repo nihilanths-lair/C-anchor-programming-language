@@ -15,9 +15,8 @@ static unsigned char m[MACRO__UPPER_LIMIT] =
 {
     [0] = '0',                    // Первый блок свободен (статус 0x30)
     [1] = MACRO__UPPER_LIMIT-2-1, // Размер данных (с учётом начального заголовка + конечного терминального null-символа)
-    [2] = '\0',
-    [3] = '\0'
-    //[4] = '\0'
+    [2] = '\x8',
+    //[3] = '\0'
 };
 static unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация).
@@ -42,9 +41,17 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
     __m = m; // При каждом вызове делаем сброс на начальное состояние
     //cell += 2;
     // Реализация №2 (начало)
+    if (!cell) // безопасная реализация
+    {
+        #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
+        printf("\n Meta-information: %X + <слот:%d> <размерность:%d>\n", __m, *__m, *(__m+1));
+        printf("\n %16X+[%d=(%X)] = %d; Невозможно выделить 0 байт памяти.", __m, __m-m, __m+(__m-m), *__m);
+        #endif
+        return 0;
+    }
     switch_run:
     #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
-    printf("\n Meta-information: %X+<слот:%d> <размерность:%d>\n", __m, *__m, *(__m+1));
+    printf("\n Meta-information: %X + <слот:%d> <размерность:%d>\n", __m, *__m, *(__m+1));
     #endif
     switch (*__m){
     case '\0': // Слоты больше недоступны!
@@ -78,7 +85,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
         {
             //if (*(__m+1) >= cell+2)
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
-            printf("\n %16X+[%d=(%X)] = %d >= %d+2 ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
+            printf("\n %16X+[%d=(%X)] = %d >= %d +2 ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             #endif
             // Разметим мета-данные: 4 байт-заголовка: флаг доступности №1, размер участка №1, флаг доступности №2 и размер участка №2
             *(__m+2+cell) = '0';             // В след. участке установим флаг доступности: свободен
