@@ -31,7 +31,7 @@ void heap_mem_debug()
 }
 #endif
 // <!-- Модель аллокатора с одним внутренним адресным пространством памяти (пока без дальнейшего расширения) -->
-unsigned char * heap_mem_alloc(const unsigned char cell) // unified
+unsigned char * heap_mem_alloc(const unsigned char cell)
 {
     __m = m; // При каждом вызове делаем сброс на начальное состояние
     //cell += 2;
@@ -120,7 +120,7 @@ void heap_mem_free(unsigned char *mem)
     #endif
 }
 // <!-- Модель аллокатора с несколькими внешними адресными пространствами памяти (пока без дальнейшего расширения) -->
-// {...}
+// unsigned char * heap_mem_alloc(char *m, const unsigned char cell){}
 //
 unsigned char * mem_alloc() {/* future code */} // предпочтительней, отсутствие фрагментации, быстрое нахождение свободной зоны памяти
 void mem_free(void *mem) {/* future code */}
