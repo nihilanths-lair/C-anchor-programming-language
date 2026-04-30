@@ -9,11 +9,15 @@
 #define MACRO__DEBUG_HEAP_MEM_FREE
 /**/
 // Объём доступной памяти: 256 byte's.
-#define  MACRO__UPPER_LIMIT  0x100
+#define  MACRO__UPPER_LIMIT  4//0x100
 /// memory tape // лента памяти
-static unsigned char m[MACRO__UPPER_LIMIT] = {
-    [0] = '0',                   // Первый блок свободен (статус 0x30)
-    [1] = MACRO__UPPER_LIMIT-2-1 // Размер данных (с учётом начального заголовка + конечного терминального null-символа)
+static unsigned char m[MACRO__UPPER_LIMIT] =
+{
+    [0] = '0',                    // Первый блок свободен (статус 0x30)
+    [1] = MACRO__UPPER_LIMIT-2-1, // Размер данных (с учётом начального заголовка + конечного терминального null-символа)
+    [2] = '\0',
+    [3] = '\0'
+    //[4] = '\0'
 };
 static unsigned char *__m = m;
 // Unsafe (небезопасная, но максимально производительная реализация).
@@ -30,6 +34,8 @@ void heap_mem_debug()
     }
 }
 #endif
+unsigned char * get__heap_mem_ptr() { return m; }
+unsigned char get__heap_mem_size() { return MACRO__UPPER_LIMIT; }
 // <!-- Модель аллокатора с одним внутренним адресным пространством памяти (пока без дальнейшего расширения) -->
 unsigned char * heap_mem_alloc(const unsigned char cell)
 {
@@ -54,7 +60,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
         #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
         printf("\n %16X+[%d=(%X)] = %d ; Слот свободен.", __m, __m-m, __m+(__m-m), *__m);
         #endif
-        if (*(__m+1) < cell+2) // таким подходом/методом, аллокатор хоть по немногу, но разбазаривает память, необходимо доработать! / && *(__m+1) != 0)
+        if (*(__m+1) < cell)
         {
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d < %d ; Не хватает места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
@@ -70,6 +76,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
         }
         else // (*(__m+1) >= cell) ; && > 2
         {
+            //if (*(__m+1) >= cell+2)
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
             printf("\n %16X+[%d=(%X)] = %d >= %d+2 ; Достаточно места.", __m, (__m+1)-m, __m+((__m+1)-m), *(__m+1), cell);
             #endif
