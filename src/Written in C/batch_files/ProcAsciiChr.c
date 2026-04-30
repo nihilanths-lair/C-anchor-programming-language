@@ -1,45 +1,7 @@
-const char ProcAsciiChr(const unsigned char chr)
-{
-    switch (chr){
-    case '\0': return '·'; // ··0
-    case 0x01: return '·'; // ··1
-    case 0x02: return '·'; // ··2
-    case 0x03: return '·'; // ··3
-    case 0x04: return '·'; // ··4
-    ///case 0x05: return '·'; // ··5
-    case 0x06: return '·'; // ··6
-    case 0x07: return '·'; // ··7
-    case 0x08: return '·'; // ··8
-    case 0x09: return '·'; // ··9
-    case '\n': return '·'; // ·10
-    case 0x0B: return '·'; // ·11
-    case 0x0C: return '·'; // ·12
-    case '\r': return '·'; // ·13
-    //case 0x0E: return '·'; // ·14
-    case 0x0F: return '·'; // ·15
-    case 0x10: return '·'; // ·16
-    case 0x11: return '·'; // ·17
-    case 0x12: return '·'; // ·18
-    case 0x13: return '·'; // ·19
-    case 0x14: return '·'; // ·20
-    case 0x1B: return '·'; // ·27
-    // 30-39 или 048-057: 0-9
-    // 41-5A или 065-090: A-Z
-    // 61-7A или 097-122: a-z
-    case 0x90: return '·'; // 144
-    case 0x95: return '·'; // 149
-    //    A8 или     168: Ё
-    //    B8 или     184: ё
-    // C0-DF или 192-223: А-Я
-    // E0-FF или 224-255: а-я
-    default: return chr;
-    }
-}
 const char * ProcAsciiChrEx(const unsigned char chr)
 {
     static char * res = "";
-    switch (chr)
-    {
+    switch (chr){
     case 0  : res = ""; break; // 000 - 00 - \0
     /*
     case 3: return "\xE2\x99\xA5"; // Сердце (?) в UTF-8
@@ -343,14 +305,76 @@ const char * ProcAsciiChrEx(const unsigned char chr)
     }
     return res;
 }
-
+//
+char mem_dbg_0(unsigned char *m, const unsigned char size)
+{
+    printf("\n m<%X> = %3d | %3d", m,   *m,     m[0]);
+    printf("\n m<%X> = %3d | %3d", m+1, *(m+1), m[1]);
+    printf("\n m<%X> = %3d | %3d", m+2, *(m+2), m[2]);
+    printf("\n m<%X> = %3d | %3d\n", m+3, *(m+3), m[3]);
+    printf("\n¤-----------------------------¤");
+    printf("\n    <·:·> DUMP MEMORY <·:·>");
+    for (int i = 0; i < size;)
+    {
+        // Мета-информация (байт-заголовок)
+        printf("\n %03d: %03d %03d | %02X: %02X %02X | %s%s", i, m[i], m[i+1], i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]));
+        i+=2;
+        while (*(++m) != '\0')
+        {
+            printf("\n %03d: %03d     | %02X: %02X    | %s", i, m[i], i, m[i], ProcAsciiChrEx(m[i]));
+            i++;
+        }
+    }
+    printf("\n %03d: %03d     | %02X: %02X    | %s", size, m[size], size, m[size], ProcAsciiChrEx(m[size]));
+    printf("\n¤-----------------------------¤");
+    return 0;
+}
+//
+const char ProcAsciiChr(const unsigned char chr)
+{
+    switch (chr){
+    case '\0': return '·'; // ··0
+    case 0x01: return '·'; // ··1
+    case 0x02: return '·'; // ··2
+    case 0x03: return '·'; // ··3
+    case 0x04: return '·'; // ··4
+    ///case 0x05: return '·'; // ··5
+    case 0x06: return '·'; // ··6
+    case 0x07: return '·'; // ··7
+    case 0x08: return '·'; // ··8
+    case 0x09: return '·'; // ··9
+    case '\n': return '·'; // ·10
+    case 0x0B: return '·'; // ·11
+    case 0x0C: return '·'; // ·12
+    case '\r': return '·'; // ·13
+    //case 0x0E: return '·'; // ·14
+    case 0x0F: return '·'; // ·15
+    case 0x10: return '·'; // ·16
+    case 0x11: return '·'; // ·17
+    case 0x12: return '·'; // ·18
+    case 0x13: return '·'; // ·19
+    case 0x14: return '·'; // ·20
+    case 0x1B: return '·'; // ·27
+    // 30-39 или 048-057: 0-9
+    // 41-5A или 065-090: A-Z
+    // 61-7A или 097-122: a-z
+    case 0x90: return '·'; // 144
+    case 0x95: return '·'; // 149
+    //    A8 или     168: Ё
+    //    B8 или     184: ё
+    // C0-DF или 192-223: А-Я
+    // E0-FF или 224-255: а-я
+    default: return chr;
+    }
+}
+//
 const char * ProcAsciiChrDecodedText(const char chr)
 {
     /*static*/char * res = "\0\0\0\0";
     printf("\n ProcAsciiChrDecodedText = %c", chr);// break;
     return res;
 }
-
+//
 #include <stdarg.h>
 const char * format(const char *str_fmt, ...)
 {
@@ -401,29 +425,6 @@ const char * valstr(unsigned char val)
     case 10: strcpy(val_str, "10"); break;
     }
     return ptr__val_str;
-}
-char mem_dbg_0(unsigned char *m, const unsigned char size)
-{
-    printf("\n m<%X> = %3d | %3d", m,   *m,     m[0]);
-    printf("\n m<%X> = %3d | %3d", m+1, *(m+1), m[1]);
-    printf("\n m<%X> = %3d | %3d", m+2, *(m+2), m[2]);
-    printf("\n m<%X> = %3d | %3d\n", m+3, *(m+3), m[3]);
-    printf("\n-------------------------------");
-    printf("\n    <·:·> DUMP MEMORY <·:·>");
-    for (int i = 0; i < size;)
-    {
-        // Мета-информация (байт-заголовок)
-        printf("\n %03d: %03d %03d | %02X: %02X %02X | %s%s", i, m[i], m[i+1], i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]));
-        i+=2;
-        while (*(++m) != '\0')
-        {
-            printf("\n %03d: %03d     | %02X: %02X    | %s", i, m[i], i, m[i], ProcAsciiChrEx(m[i]));
-            i++;
-        }
-    }
-    printf("\n %03d: %03d     | %02X: %02X    | %s", size, m[size], size, m[size], ProcAsciiChrEx(m[size]));
-    printf("\n-------------------------------");
-    return 0;
 }
 void mem_dbg(const unsigned char *m)
 {
