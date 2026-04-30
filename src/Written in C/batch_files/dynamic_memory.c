@@ -30,14 +30,15 @@ void heap_mem_debug()
     }
 }
 #endif
-unsigned char * heap_mem_alloc(const unsigned char cell)
+// <!-- Модель аллокатора с одним адресным пространством памяти (без дальнейшего расширения) -->
+unsigned char * heap_mem_alloc(const unsigned char cell) // unified
 {
     __m = m; // При каждом вызове делаем сброс на начальное состояние
     //cell += 2;
     // Реализация №2 (начало)
     switch_run:
     #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
-    printf("\n Meta-information: %X+<слот:%d><размерность:%d>\n", __m, *__m, *(__m+1));
+    printf("\n Meta-information: %X+<слот:%d> <размерность:%d>\n", __m, *__m, *(__m+1));
     #endif
     switch (*__m){
     case '\0': // Слоты больше недоступны!
