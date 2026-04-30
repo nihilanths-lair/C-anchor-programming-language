@@ -404,10 +404,12 @@ const char * valstr(unsigned char val)
 }
 char mem_dbg_0(unsigned char *m, const unsigned char size)
 {
-    printf("\n m<%X> = %d|%d", m,   *m,     m[0]);
-    printf("\n m<%X> = %d|%d", m+1, *(m+1), m[1]);
-    printf("\n m<%X> = %d|%d", m+2, *(m+2), m[2]);
-    printf("\n m<%X> = %d|%d", m+3, *(m+3), m[3]);
+    printf("\n m<%X> = %3d | %3d", m,   *m,     m[0]);
+    printf("\n m<%X> = %3d | %3d", m+1, *(m+1), m[1]);
+    printf("\n m<%X> = %3d | %3d", m+2, *(m+2), m[2]);
+    printf("\n m<%X> = %3d | %3d\n", m+3, *(m+3), m[3]);
+    printf("\n-------------------------------");
+    printf("\n    <·:·> DUMP MEMORY <·:·>");
     for (int i = 0; i < size;)
     {
         // Мета-информация (байт-заголовок)
@@ -420,6 +422,7 @@ char mem_dbg_0(unsigned char *m, const unsigned char size)
         }
     }
     printf("\n %03d: %03d     | %02X: %02X    | %s", size, m[size], size, m[size], ProcAsciiChrEx(m[size]));
+    printf("\n-------------------------------");
     return 0;
 }
 void mem_dbg(const unsigned char *m)
