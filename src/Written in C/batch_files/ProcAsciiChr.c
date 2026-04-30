@@ -402,6 +402,27 @@ const char * valstr(unsigned char val)
     }
     return ptr__val_str;
 }
+char mem_dbg_0(unsigned char *m, const unsigned char size)
+{
+    printf("\n m<%X> = %d|%d", m,   *m,     m[0]);
+    printf("\n m<%X> = %d|%d", m+1, *(m+1), m[1]);
+    printf("\n m<%X> = %d|%d", m+2, *(m+2), m[2]);
+    printf("\n m<%X> = %d|%d", m+3, *(m+3), m[3]);
+    for (int i = 0; i < size;)
+    {
+        //j2 = j * size;
+        // мета-информация (байт-заголовок)
+        printf("\n %03d: %03d %03d | %02X: %02X %02X | %s%s", i, m[i], m[i+1], i, m[i], m[i+1], ProcAsciiChrEx(m[i]), ProcAsciiChrEx(m[i+1]));
+        i+=2;
+        while (*(++m) != '\0')
+        {
+            printf("\n %03d: %03d     | %02X: %02X    | %s", i, m[i], i, m[i], ProcAsciiChrEx(m[i]));
+            i++;
+        }
+    }
+    printf("\n %03d: %03d     | %02X: %02X    | %s", size, m[size], size, m[size], ProcAsciiChrEx(m[size]));
+    return 0;
+}
 void mem_dbg(const unsigned char *m)
 {
     //static buf[0xFF];
