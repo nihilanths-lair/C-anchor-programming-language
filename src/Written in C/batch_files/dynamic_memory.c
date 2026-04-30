@@ -64,7 +64,7 @@ unsigned char * heap_mem_alloc(const unsigned char cell)
             // [V] Правильно
             __m += 2 + *(__m+1); // полный размер блока (заголовок + данные)
             #ifdef MACRO__DEBUG_HEAP_MEM_ALLOC
-            printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *(__m));
+            //printf("\n %16X+[%d=(%X)] = %d ; @~> ...", __m, __m-m, __m+(__m-m), *(__m));
             #endif
             goto switch_run;
         }
