@@ -43,16 +43,16 @@ void _$()
     //code_ptr++;
     char state_table[1][0xFF];
     char action_table[1][0xFF];
-    char state = 0;
-    printf("\n state_table[0]['%c'] = %d", *code, state_table[0][*code]);
-    state_table[0][*code] = *code;
-    printf("\n state_table[0]['%c'] = %d", *code, state_table[0][*code]);
 
-    action_table[state][*code] = 1;
+    char action[] = {'\0', '.', '>'};
+    char state = 1;
+
     while (1)
     {
-        switch (action_table[state][*code]){
+        switch (action[state]){
         case '\0': goto while_end;
+        case '.': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); state = 2; } break; // Распечатать символ
+        case '>': { ++code; state = 1; } break; // Сдвинуть указатель на один шаг/позицию вперёд
         default: printf("\n Неизвестное действие: '\\d%03d', '%c', '\\h%02X'.", action_table[state][*code], action_table[state][*code], action_table[state][*code]);
         }
     }
