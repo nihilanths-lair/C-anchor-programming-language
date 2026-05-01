@@ -13,7 +13,7 @@ enum
 };
 //
 struct Token { char type; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
-struct Lexer { char * cursor; } lexer;   // global object's
+struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 struct Parser { char * cursor; } parser; // global object's
 //
 void _$()
