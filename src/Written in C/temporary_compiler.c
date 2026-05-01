@@ -16,6 +16,12 @@ struct Token { char type; } token[1500]; // global object's: на первых �
 struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 struct Parser { char * cursor; } parser; // global object's
 //
+/*/
+\\\
+ НКА/NFA
+ ДКА/DFA
+\\\
+/*/
 void _$()
 {
     char * code = "5"; // inline-код для быстрого тестирования (временно)
