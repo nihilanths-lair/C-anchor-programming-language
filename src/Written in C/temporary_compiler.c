@@ -35,7 +35,9 @@ void _$()
         case '\0': goto while_end;
         case ' ': ++code; continue; // игнорируем пробельные символы (в данной реализации опустим их)
         break; // заглушка (на всякий случай)
+
         case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': ++code; break;
+
         case '_':
         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': // 13
         case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z': // 26
