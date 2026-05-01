@@ -47,14 +47,14 @@ void _$()
         case '+': {} break; // '\d043'
         case '-': {} break; // '\d045'
 
-        case ';': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d044', ',', '\h2C'
-
-        case '<': {} break; // '\d060' / сдвинуть указатель на шаг назад
-        case '=': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d061'
-        case '>': {} break; // '\d062' / сдвинуть указатель на шаг вперёд
-
         case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
          { printf("\n Символ (цифра): '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break;
+
+        case ';': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d044', ',', '\h2C'
+
+        case '<': {} break; // '\d060'
+        case '=': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d061'
+        case '>': {} break; // '\d062'
 
         case '_':
         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': // 13
