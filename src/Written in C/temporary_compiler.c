@@ -1,3 +1,5 @@
+// <!- Minimum viable product of the compiler is 5% ready / Минимально жизнеспособный продукт компилятора готов на 5% ->
+//
 #include <stdio.h>
 #include <locale.h>
 //
