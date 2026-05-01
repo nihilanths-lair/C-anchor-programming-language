@@ -20,12 +20,20 @@ void _$()
 {
     char * code = "5"; // inline-код для быстрого тестирования (временно)
     lexer.cursor = code;
+    char state_vector = 0; // state vector / вектор состояний
+    // transaction_codes / коды транзакций
     while (1)
     {
         switch (*code){
         case '\0': goto while_end;
         case ' ': ++code; continue; // игнорируем пробельные символы (в данной реализации опустим их)
         break; // заглушка (на всякий случай)
+
+        case '+': {} break; // '\d043'
+        case '-': {} break; // '\d045'
+
+        case '<': {} break; // '\d060' / сдвинуть указатель на шаг назад
+        case '>': {} break; // '\d062' / сдвинуть указатель на шаг вперёд
 
         case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': ++code; break;
 
