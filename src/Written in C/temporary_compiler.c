@@ -12,21 +12,12 @@ enum
     // ... //
 };
 //
-struct Token
-{
-    char type;
-}
- token[1500]; // На первых порах макс.: 1500 токенов
-//
-struct Lexer
-{
-    char * cursor;
-}
- lexer; // глобальный объект
+struct Token { char type; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
+struct Lexer { char * cursor; } lexer;   // global object's
+struct Parser { char * cursor; } parser; // global object's
 //
 void _$()
 {
-    printf("\n Power-up!\n");
     char * code = "5"; // inline-код для быстрого тестирования (временно)
     lexer.cursor = code;
     while (1)
@@ -51,7 +42,7 @@ void _$()
     while_end:
 }
 //
-int main() { _$(); }
+int main() { _$(); } // выделяем/группируем единицы
 
 /*/-/// DECLARATION ///-/
 
