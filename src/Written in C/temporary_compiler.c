@@ -12,9 +12,31 @@ enum
     // ... //
 };
 //
+struct Token
+{
+    char type;
+}
+ token[1500]; // На первых порах макс.: 1500 токенов
+//
+struct Lexer
+{
+    char * cursor;
+}
+ lexer; // глобальный объект
+//
 void _$()
 {
     printf("\n Power-up!\n");
+    char * code = "5";
+    lexer.cursor = code;
+    while (1)
+    {
+        switch (*code){
+        case '\0': goto while_end;
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': ++code;
+        }
+    }
+    while_end:
 }
 //
 int main() { _$(); }
