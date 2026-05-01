@@ -95,23 +95,29 @@ static void CodeGenerator(const char *lang, const char back_end)
         "$",
         ""
     };
-    putchar('\n');
     //mem_dbg(m); // Начальное состояние памяти
     //heap_mem_debug();
-    for (int i = 0; i < 0; i++)
+    mem_dbg_0(get__heap_mem_ptr(), get__heap_mem_size());
+    putchar('\n');
+    for (int i = 0; i < 2; i++)
     {
-        ptr = heap_mem_alloc(strlen(list[0])+1); // для i=0: 3 байта, для i=1: 1 байт
-        if (!ptr) { printf("\n\n Не удалось выделить память!"); putchar('\n'); return; }
-        else printf("\n Память выделена.");
-        strcpy(ptr, list[0]);                    // всегда копирует "C$" (3 байта)
+        //ptr = heap_mem_alloc(strlen(list[0])+1); // для i=0: 3 байта, для i=1: 1 байт
+        ptr = heap_mem_alloc(1);
+        if (!ptr) { printf("\n\n №%d| Не удалось выделить память!", i+1); putchar('\n'); return; }
+        printf("\n\n №%d| Память выделена.\n", i+1);
+        //ptr[0] = '$';
+        //strcpy(ptr, list[0]);                    // всегда копирует "C$" (3 байта)
+        mem_dbg_0(get__heap_mem_ptr(), get__heap_mem_size());
     }
     //mem_dbg(m); // Изменённое состояние памяти
     putchar('\n');
+    /*
     unsigned char *m = get__heap_mem_ptr();
     unsigned char size = get__heap_mem_size();
     printf("\n m = <%p> %d, size = %d", m, *m, size);
     printf("\n mem_dbg_0 = %d", mem_dbg_0(m, size));
     putchar('\n');
+    */
     /*
     for (int i = 0; list[i][0] != '\0'; i++)
     {
