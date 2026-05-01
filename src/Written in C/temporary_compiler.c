@@ -27,7 +27,7 @@ struct Lexer
 void _$()
 {
     printf("\n Power-up!\n");
-    char * code = "5";
+    char * code = "5"; // inline-код для быстрого тестирования (временно)
     lexer.cursor = code;
     while (1)
     {
