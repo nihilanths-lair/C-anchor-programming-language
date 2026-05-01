@@ -33,9 +33,30 @@ void _$()
 {
     setlocale(0, "");
     //
-    char * code = "x = 15,;"; // inline-код для быстрого тестирования (временно)
+    char * code = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
     lexer.cursor = code;
     char state_vector = 0; // state vector / вектор состояний
+    // NextState = Table[CurrentState][InputChar];
+
+    // state = Table[state][*code_ptr];
+    // action = ActionTable[state][*code_ptr]; // Что сделать: записать байт, пропустить и т.д.
+    //code_ptr++;
+    char state_table[1][0xFF];
+    char action_table[1][0xFF];
+    char state = 0;
+    printf("\n state_table[0]['%c'] = %d", *code, state_table[0][*code]);
+    state_table[0][*code] = *code;
+    printf("\n state_table[0]['%c'] = %d", *code, state_table[0][*code]);
+
+    action_table[state][*code] = 1;
+    while (1)
+    {
+        switch (action_table[state][*code]){
+        case '\0': goto while_end;
+        default: printf("\n Неизвестное действие: '\\d%03d', '%c', '\\h%02X'.", action_table[state][*code], action_table[state][*code], action_table[state][*code]);
+        }
+    }
+
     // transaction_codes / коды транзакций
     while (1)
     {
