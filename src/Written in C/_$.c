@@ -8,6 +8,8 @@ enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
     TOKEN__EOF = -1,              // КОНЕЦ_СТРОКИ
+    TOKEN__ERROR,                 // ОШИБКА
+    TOKEN__UNKNOWN = 0,           // НЕИЗВЕСТНЫЙ
     TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ_ЛИТЕРАЛ
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
@@ -17,19 +19,12 @@ enum
     // ... //
 };
 //
-struct Token { char type; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
+struct Token { char type; char lexeme[64+1]; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
 struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 struct Parser { char * cursor; } parser; // global object's
 //
-/*/
-\\\
- НКА/NFA
- ДКА/DFA
-\\\
-/*/
-//
-void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
-void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
+//void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
+//void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
 //
 char * ptr_code;
 //
@@ -43,10 +38,31 @@ short get_token()
     if (*ptr_code == '\0') return TOKEN__EOF;
     if (*ptr_code == '=') { ptr_code++; return TOKEN__LEFT_SIDED_ASSIGNMENT; }
     if (*ptr_code == ';') { ptr_code++; return TOKEN__END_OF_STATEMENT; }
-    char res;
-    if (res = isdigit(*ptr_code)) { ptr_code += res; return TOKEN__NUMERIC_LITERAL; }
-    if (res = (isalpha(*ptr_code) || *ptr_code == '_')) { ptr_code += res; return TOKEN__IDENTIFIER; }
+    char buf[64]; short i = -1;
+    if (isdigit(*ptr_code))
+    {
+        buf[++i] = *ptr_code;
+        ptr_code++;
+        while (isdigit(*ptr_code))
+        {
+            buf[++i] = *ptr_code;
+            ptr_code++;
+        }
+        return TOKEN__NUMERIC_LITERAL;
+    }
+    if (isalpha(*ptr_code) || *ptr_code == '_')
+    {
+        buf[++i] = *ptr_code;
+        ptr_code++;
+        while (isalpha(*ptr_code))
+        {
+            buf[++i] = *ptr_code;
+            ptr_code++;
+        }
+        return TOKEN__IDENTIFIER;
+    }
     ptr_code++;
+    return TOKEN__UNKNOWN;
 }
 //
 void _$()
@@ -58,7 +74,7 @@ void _$()
     short token;
     while ((token = get_token()) != TOKEN__EOF)
     {
-        // ... //
+        printf("\n Token: %d", token);
     }
     //
     putchar('\n');
