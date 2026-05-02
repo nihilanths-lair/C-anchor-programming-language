@@ -35,13 +35,18 @@ char * ptr_code;
 //
 void init_lexer(char * code) { ptr_code = code; }
 //
-char get_token()
+short get_token()
 {
     // Пропусĸаем пробелы
     while (isspace(*ptr_code)) ptr_code++;
     // ... //
+    if (*ptr_code == '\0') return TOKEN__EOF;
+    if (*ptr_code == '=') { ptr_code++; return TOKEN__LEFT_SIDED_ASSIGNMENT; }
+    if (*ptr_code == ';') { ptr_code++; return TOKEN__END_OF_STATEMENT; }
+    char res;
+    if (res = isdigit(*ptr_code)) { ptr_code += res; return TOKEN__NUMERIC_LITERAL; }
+    if (res = (isalpha(*ptr_code) || *ptr_code == '_')) { ptr_code += res; return TOKEN__IDENTIFIER; }
     ptr_code++;
-    return '@'; // Временно заглушка
 }
 //
 void _$()
@@ -50,9 +55,10 @@ void _$()
     //
     char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
     init_lexer(code);
-    while (*ptr_code != TOKEN__EOF)
+    short token;
+    while ((token = get_token()) != TOKEN__EOF)
     {
-        get_token();
+        // ... //
     }
     //
     putchar('\n');
