@@ -2,11 +2,13 @@
 //
 #include <stdio.h>
 #include <locale.h>
+#include <ctype.h>
 //
 enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
-    TOKEN__NUMERIC_LITERAL = 1,   // ЧИСЛОВОЙ_ЛИТЕРАЛ
+    TOKEN__EOF = -1,              // КОНЕЦ_СТРОКИ
+    TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ_ЛИТЕРАЛ
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
@@ -29,20 +31,34 @@ struct Parser { char * cursor; } parser; // global object's
 void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
 //
+char * ptr_code;
+//
+void init_lexer(char * code) { ptr_code = code; }
+//
+char get_token()
+{
+    // Пропусĸаем пробелы
+    while (isspace(*ptr_code)) ptr_code++;
+    // ... //
+    ptr_code++;
+    return '@'; // Временно заглушка
+}
+//
 void _$()
 {
     setlocale(0, "");
     //
     char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
-    //char * ptr_code = code;
-    printf("\n code = \"%s\"", code);
-    
-    printf("\n code = \"%s\"", code);
+    init_lexer(code);
+    while (*ptr_code != TOKEN__EOF)
+    {
+        get_token();
+    }
     //
     putchar('\n');
 }
 //
-int main() { _$(); } // выделяем/нарезаем токены/группируем единицы (от мелких к крупным)
+int main() { _$(); }
 
 /*/-/// DECLARATION ///-/
 
