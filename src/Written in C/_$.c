@@ -6,12 +6,12 @@
 enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
-    E__NUMERIC_LITERAL = 1,   // ЧИСЛОВОЙ_ЛИТЕРАЛ
-    E__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-    E__IDENTIFIER,            // ИДЕНТИФИКАТОР
-    E__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    E__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
-    E__KEYWORD__GOTO,         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    TOKEN__NUMERIC_LITERAL = 1,   // ЧИСЛОВОЙ_ЛИТЕРАЛ
+    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
+    TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
+    TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
+    TOKEN__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    TOKEN__KEYWORD__GOTO,         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     // ... //
 };
 //
@@ -28,14 +28,65 @@ struct Parser { char * cursor; } parser; // global object's
 //
 void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
+
+// Удалить специальные символы (одним отдельным проходом или по мере встречи/попадания?)
+// Пока реализация проход за один раз полностью
+void RemoveSpecialCharacters(char * pos)
+{
+    char * read = pos, * write = pos;
+    while (*read != '\0')
+    {
+        if (*read != ' ')
+        {
+            *write = *read;
+            write++;
+        }
+        read++;
+    }
+    *write = '\0';
+}
+//
+// Пропустить специальные символы (одним отдельным проходом или по мере встречи/попадания?)
+void SkipSpecialCharacters(char * pos){}
 //
 void _$()
 {
     setlocale(0, "");
     //
-    char * code = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
-    lexer.cursor = code;
-    char state_vector = 0; // state vector / вектор состояний
+    char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
+    //char * ptr_code = code;
+    printf("\n code = \"%s\"", code);
+    RemoveSpecialCharacters(code);
+    printf("\n code = \"%s\"", code);
+    //
+    putchar('\n');
+}
+//
+int main() { _$(); } // выделяем/нарезаем токены/группируем единицы (от мелких к крупным)
+
+/*/-/// DECLARATION ///-/
+
+Бессмысленные конструкции (игнорируются компилятором, предупреждения выдаются)
+5      /!\ `5` нигде не используется
+5;     /!\ `5` нигде не используется
+x = 5  /!\ `x` нигде не используется
+x = 5; /!\ `x` нигде не используется
+goto end
+goto end; 
+go to end
+go to end;
+end:
+
+1 | NUMERIC_LITERAL       | ЧИСЛОВОЙ_ЛИТЕРАЛ
+2 | LEFT_SIDED_ASSIGNMENT | ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
+3 | IDENTIFIER            | ИДЕНТИФИКАТОР
+4 | SPACE_SEPARATOR       | РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
+5 | END_OF_STATEMENT      | КОНЕЦ_ЗАЯВЛЕНИЯ
+6 | KEYWORD__GOTO         | КЛЮЧЕВОЕ_СЛОВО_ПЕРЕЙТИ
+
+///-/*/
+/*
+char state_vector = 0; // state vector / вектор состояний
     // NextState = Table[CurrentState][InputChar];
 
     // state = Table[state][*code_ptr];
@@ -90,27 +141,4 @@ void _$()
     }
     while_end:
 }
-//
-int main() { _$(); } // выделяем/нарезаем токены/группируем единицы (от мелких к крупным)
-
-/*/-/// DECLARATION ///-/
-
-Бессмысленные конструкции (игнорируются компилятором, предупреждения выдаются)
-5      /!\ `5` нигде не используется
-5;     /!\ `5` нигде не используется
-x = 5  /!\ `x` нигде не используется
-x = 5; /!\ `x` нигде не используется
-goto end
-goto end; 
-go to end
-go to end;
-end:
-
-1 | NUMERIC_LITERAL       | ЧИСЛОВОЙ_ЛИТЕРАЛ
-2 | LEFT_SIDED_ASSIGNMENT | ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-3 | IDENTIFIER            | ИДЕНТИФИКАТОР
-4 | SPACE_SEPARATOR       | РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-5 | END_OF_STATEMENT      | КОНЕЦ_ЗАЯВЛЕНИЯ
-6 | KEYWORD__GOTO         | КЛЮЧЕВОЕ_СЛОВО_ПЕРЕЙТИ
-
-///-/*/
+*/
