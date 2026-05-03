@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <ctype.h>
+#include <string.h>
 //
 enum
 {
@@ -15,11 +16,12 @@ enum
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
     TOKEN__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
-    TOKEN__KEYWORD__GOTO,         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    TOKEN__KEYWORD_GOTO,          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     // ... //
 };
 //
-const char get_type_token[][64+1] =
+char token__type_identifier[128];
+char token__type_name[][64+1] =
 {
     "TOKEN__EOF",
     "TOKEN__UNKNOWN", // TOKEN__ERROR
@@ -28,7 +30,8 @@ const char get_type_token[][64+1] =
     "TOKEN__IDENTIFIER",
     "TOKEN__SPACE_SEPARATOR",
     "TOKEN__END_OF_STATEMENT",
-    "TOKEN__KEYWORD__GOTO"
+    "TOKEN__KEYWORD_GOTO"
+    // ... //
 };
 /*
 char * GetTypeToken(short idx)
@@ -37,7 +40,17 @@ char * GetTypeToken(short idx)
     return ptr_type_token;
 }
 */
-struct Token { char type; char lexeme[64+1]; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
+//struct Token {} token; // global object's
+//
+void AddToken(const char * token_type)
+{
+    static short idx = 0;
+    token__type_identifier[idx] = idx;
+    strcpy(token__type_name[idx], token_type);
+    idx++;
+}
+//
+struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
 struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 struct Parser { char * cursor; } parser; // global object's
 //
@@ -54,8 +67,20 @@ short get_token()
     while (isspace(*ptr_code)) ptr_code++;
     // ... //
     if (*ptr_code == '\0') return TOKEN__EOF;
-    if (*ptr_code == '=') { ptr_code++; return TOKEN__LEFT_SIDED_ASSIGNMENT; }
-    if (*ptr_code == ';') { ptr_code++; return TOKEN__END_OF_STATEMENT; }
+    if (*ptr_code == '=')
+    {
+        token->type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
+        strcpy(token->lexeme, "=");
+        ptr_code++;
+        return TOKEN__LEFT_SIDED_ASSIGNMENT;
+    }
+    if (*ptr_code == ';')
+    {
+        token->type_identifier = TOKEN__END_OF_STATEMENT;
+        strcpy(token->lexeme, ";");
+        ptr_code++;
+        return TOKEN__END_OF_STATEMENT;
+    }
     char buf[64]; short i = -1;
     if (isdigit(*ptr_code))
     {
@@ -87,12 +112,22 @@ void _$()
 {
     setlocale(0, "");
     //
+    /// Для экспериментов
+    AddToken("TOKEN__EOF");
+    AddToken("TOKEN__UNKNOWN");
+    AddToken("TOKEN__NUMERIC_LITERAL");
+    AddToken("TOKEN__LEFT_SIDED_ASSIGNMENT");
+    AddToken("TOKEN__IDENTIFIER");
+    AddToken("TOKEN__SPACE_SEPARATOR");
+    AddToken("TOKEN__END_OF_STATEMENT");
+    AddToken("TOKEN__KEYWORD_GOTO");
+    ///
     char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
     init_lexer(code);
-    short token;
-    while ((token = get_token()) != TOKEN__EOF)
+    short token_type_identifier;
+    while ((token_type_identifier = get_token()) != TOKEN__EOF)
     {
-        printf("\n Token: %s", get_type_token[token+1]);
+        printf("\n Token: %d -- %s", token_type_identifier, token__type_name[token_type_identifier+1]);
     }
     //
     putchar('\n');
