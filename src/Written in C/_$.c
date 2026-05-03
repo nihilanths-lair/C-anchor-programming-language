@@ -20,6 +20,7 @@ enum
     // ... //
 };
 //
+short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
@@ -31,6 +32,18 @@ char token__type_name[][64+1] =
     "TOKEN__SPACE_SEPARATOR",
     "TOKEN__END_OF_STATEMENT",
     "TOKEN__KEYWORD_GOTO"
+    // ... //
+};
+char token__lexeme[][64+1] =
+{
+    "\\0",
+    "\\?",
+    "'0~9'",
+    "'='",
+    "'A~Z', 'a~z'",
+    "' '",
+    "';'",
+    "goto"
     // ... //
 };
 /*
@@ -61,47 +74,63 @@ char * ptr_code;
 //
 void init_lexer(char * code) { ptr_code = code; }
 //
+#define case_open {
+#define case_close }
+//
 short get_token()
 {
     // Пропусĸаем пробелы
     while (isspace(*ptr_code)) ptr_code++;
-    // ... //
-    if (*ptr_code == '\0') return TOKEN__EOF;
-    if (*ptr_code == '=')
-    {
-        token->type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        strcpy(token->lexeme, "=");
+
+    switch (*ptr_code){
+    case '\0':
+    case_open
+        token[++number_of_tokens].type_identifier = TOKEN__EOF;
+        return TOKEN__EOF;
+    case_close
+    case '=':
+    case_open
+        token[++number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
+        strcpy(token[number_of_tokens].lexeme, "=");
         ptr_code++;
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
-    }
-    if (*ptr_code == ';')
-    {
-        token->type_identifier = TOKEN__END_OF_STATEMENT;
-        strcpy(token->lexeme, ";");
+    case_close
+    case ';':
+    case_open
+        token[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
+        strcpy(token[number_of_tokens].lexeme, ";");
         ptr_code++;
         return TOKEN__END_OF_STATEMENT;
-    }
-    char buf[64]; short i = -1;
-    if (isdigit(*ptr_code))
-    {
-        buf[++i] = *ptr_code;
+    case_close
+    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+    case_open
+        token[++number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
+        token[number_of_tokens].lexeme[0] = *ptr_code;
         ptr_code++;
+        short i = -1;
         while (isdigit(*ptr_code))
         {
-            buf[++i] = *ptr_code;
+            token[number_of_tokens].lexeme[++i] = *ptr_code;
             ptr_code++;
         }
+        token[number_of_tokens].lexeme[++i] = '\0';
         return TOKEN__NUMERIC_LITERAL;
+    case_close
+    default: printf("\n def 1");
     }
+    printf("\n def 2");
     if (isalpha(*ptr_code) || *ptr_code == '_')
     {
-        buf[++i] = *ptr_code;
+        token[++number_of_tokens].type_identifier = TOKEN__IDENTIFIER;
+        token[number_of_tokens].lexeme[0] = *ptr_code;
         ptr_code++;
+        short i = -1;
         while (isalpha(*ptr_code))
         {
-            buf[++i] = *ptr_code;
+            token[number_of_tokens].lexeme[++i] = *ptr_code;
             ptr_code++;
         }
+        token[number_of_tokens].lexeme[++i] = '\0';
         return TOKEN__IDENTIFIER;
     }
     ptr_code++;
@@ -123,11 +152,18 @@ void _$()
     AddToken("TOKEN__KEYWORD_GOTO");
     ///
     char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
+    printf("\n %s", code);
     init_lexer(code);
-    short token_type_identifier;
+    short token_type_identifier, i = -1;
     while ((token_type_identifier = get_token()) != TOKEN__EOF)
     {
-        printf("\n Token: %d -- %s", token_type_identifier, token__type_name[token_type_identifier+1]);
+        printf("\n\n Token: \"%s\"(%d) = \"%s\"", token__type_name[token_type_identifier+1], token_type_identifier, token[++i].lexeme);
+        printf("\n Lexeme: \"%s\"", token[i].lexeme);
+    }
+    i = -1;
+    while (token[++i].type_identifier != TOKEN__EOF)
+    {
+        printf("\n %d", token[i].type_identifier);
     }
     //
     putchar('\n');
