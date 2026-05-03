@@ -16,26 +16,30 @@ enum
     TOKEN__KEYWORD_GOTO,          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР_МЕТКИ
 
-    TOKEN__UNKNOWN,               // НЕИЗВЕСТНЫЙ / TOKEN__ERROR, // ОШИБКА
-    TOKEN__EOF,                   // КОНЕЦ
     // ... //
+
+    TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
+    TOKEN__EOF,     // КОНЕЦ
+    TOKEN__ERROR    // ОШИБКА
 };
 //
 short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
-    "TOKEN__NUMERIC_LITERAL",       // ЧИСЛОВОЙ_ЛИТЕРАЛ
-    "TOKEN__LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-    "TOKEN__IDENTIFIER",            // ИДЕНТИФИКАТОР
-    "TOKEN__SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    "TOKEN__END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
-    "TOKEN__KEYWORD_GOTO",          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    "TOKEN__LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
+    "NUMERIC_LITERAL",       // ЧИСЛОВОЙ_ЛИТЕРАЛ
+    "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
+    "IDENTIFIER",            // ИДЕНТИФИКАТОР
+    "SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
+    "END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    "KEYWORD__GOTO",         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    "LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
 
-    "TOKEN__UNKNOWN",               // НЕИЗВЕСТНЫЙ / TOKEN__ERROR // ОШИБКА
-    "TOKEN__EOF",                   // КОНЕЦ
     // ... //
+
+    "UNKNOWN", // НЕИЗВЕСТНЫЙ
+    "EOF",     // КОНЕЦ
+    "ERROR"    // ОШИБКА
 };
 char token__lexeme[][64+1] =
 {
@@ -101,53 +105,59 @@ short get_token()
         return TOKEN__END_OF_STATEMENT;
 
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-        token[++number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
-        token[number_of_tokens].lexeme[0] = *ptr_code;
-        ptr_code++;
         short i = -1;
+        token[++number_of_tokens].lexeme[++i] = *ptr_code;
+        ptr_code++;
         while (isdigit(*ptr_code))
         {
             token[number_of_tokens].lexeme[++i] = *ptr_code;
             ptr_code++;
         }
         token[number_of_tokens].lexeme[++i] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
         return TOKEN__NUMERIC_LITERAL;
 
     default:
-        printf("\n def 1");
-        if (isalnum(*ptr_code) || *ptr_code == '_')
+        //printf("\n def 1");
+        if (isalpha(*ptr_code) || *ptr_code == '_') // Первым символом не может быть цифра
         {
             // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
-            token[++number_of_tokens].lexeme[0] = *ptr_code;
-            ptr_code++;
             short i = -1;
+            token[++number_of_tokens].lexeme[++i] = *ptr_code;
+            ptr_code++;
             while (isalnum(*ptr_code) || *ptr_code == '_')
             {
+                //printf("\n '%c' = *ptr_code", *ptr_code);
                 token[number_of_tokens].lexeme[++i] = *ptr_code;
                 ptr_code++;
             }
-            // Идентификатор из букв/цифр и нижнего подчёркивания собран
+            //printf("\n '%c' = *ptr_code", *ptr_code);
             token[number_of_tokens].lexeme[++i] = '\0';
+            // Идентификатор из букв/цифр и нижнего подчёркивания собран
             if (!strcmp(token[number_of_tokens].lexeme, "goto"))
             {
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_GOTO;
                 return TOKEN__KEYWORD_GOTO;
             }
+            /// Если будут другие ключевые слова, добавляем проверки ///
             if (*ptr_code == ':')
             {
                 token[number_of_tokens].type_identifier = TOKEN__LABEL_IDENTIFIER;
                 token[number_of_tokens].lexeme[++i] = ':';
-                ptr_code++;
                 token[number_of_tokens].lexeme[++i] = '\0';
+                ptr_code++;
                 return TOKEN__LABEL_IDENTIFIER;
             }
             token[number_of_tokens].type_identifier = TOKEN__IDENTIFIER;
             return TOKEN__IDENTIFIER;
         }
+        token[++number_of_tokens].type_identifier = TOKEN__UNKNOWN;
+        token[number_of_tokens].lexeme[0] = *ptr_code;
+        ptr_code++;
+        return TOKEN__UNKNOWN;
     }
-    printf("\n def 2");
-    ptr_code++;
-    return TOKEN__UNKNOWN;
+    //printf("\n def 2");
+    return TOKEN__ERROR;
 }
 //
 void _$()
@@ -167,21 +177,16 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    char code[] = "_x = 15,;"; // inline-код для быстрого тестирования (временно)
+    char code[] = "_number = 1530,;"; // inline-код для быстрого тестирования (временно)
     printf("\n %s", code);
     init_lexer(code);
     short token_type_identifier;
-    number_of_tokens = -1;
-    while ((token_type_identifier = get_token()) != TOKEN__EOF)
-    {
-        printf("\n\n Token: \"%s\"(%d) = \"%s\"", token__type_name[token_type_identifier], token_type_identifier, token[++number_of_tokens].lexeme);
-        printf("\n Lexeme: \"%s\"", token[number_of_tokens].lexeme);
-    }
+    while ((token_type_identifier = get_token()) != TOKEN__EOF){}
     putchar('\n');
     number_of_tokens = -1;
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
-        printf("\n %s", token[number_of_tokens].lexeme);
+        printf("\n %s (%s)", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
     //
     putchar('\n');
