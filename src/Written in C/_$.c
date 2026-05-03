@@ -127,11 +127,9 @@ short get_token()
             ptr_code++;
             while (isalnum(*ptr_code) || *ptr_code == '_')
             {
-                //printf("\n '%c' = *ptr_code", *ptr_code);
                 token[number_of_tokens].lexeme[++i] = *ptr_code;
                 ptr_code++;
             }
-            //printf("\n '%c' = *ptr_code", *ptr_code);
             token[number_of_tokens].lexeme[++i] = '\0';
             // Идентификатор из букв/цифр и нижнего подчёркивания собран
             if (!strcmp(token[number_of_tokens].lexeme, "goto"))
@@ -177,7 +175,7 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    char code[] = "_number = 1530,;"; // inline-код для быстрого тестирования (временно)
+    char code[] = "_number = 1530,;\n number_2 `= 628;\n xyz = 71"; // inline-код для быстрого тестирования (временно)
     printf("\n %s", code);
     init_lexer(code);
     short token_type_identifier;
