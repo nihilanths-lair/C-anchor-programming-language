@@ -13,6 +13,7 @@ enum
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
     TOKEN__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    TOKEN__KEYWORD_IF,            // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
     TOKEN__KEYWORD_GOTO,          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР_МЕТКИ
 
@@ -32,6 +33,7 @@ char token__type_name[][64+1] =
     "IDENTIFIER",            // ИДЕНТИФИКАТОР
     "SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
     "END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    "KEYWORD__IF",           // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
     "KEYWORD__GOTO",         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     "LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
 
@@ -79,9 +81,9 @@ struct Parser { char * cursor; } parser; // global object's
 //void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 //void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
 //
-char * ptr_code;
+const char * ptr_code;
 //
-void init_lexer(char * code) { ptr_code = code; }
+void init_lexer(const char * code) { ptr_code = code; }
 //
 short get_token()
 {
@@ -137,6 +139,11 @@ short get_token()
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_GOTO;
                 return TOKEN__KEYWORD_GOTO;
             }
+            if (!strcmp(token[number_of_tokens].lexeme, "if"))
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_IF;
+                return TOKEN__KEYWORD_IF;
+            }
             /// Если будут другие ключевые слова, добавляем проверки ///
             if (*ptr_code == ':')
             {
@@ -175,7 +182,7 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    char code[] = "_number = 1530,;\n number_2 `= 628;\n xyz = 71"; // inline-код для быстрого тестирования (временно)
+    const char code[] = "_number = 1530,;\n if (_number == 0) {}\n number23 = 628;\n goto _$;\n __xyz = 71\n if _number == 2"; // inline-код для быстрого тестирования (временно)
     printf("\n %s", code);
     init_lexer(code);
     short token_type_identifier;
