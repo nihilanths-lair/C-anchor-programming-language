@@ -115,16 +115,23 @@ short get_token()
 
     default:
         printf("\n def 1");
-        if (isalpha(*ptr_code) || *ptr_code == '_')
+        if (isalnum(*ptr_code) || *ptr_code == '_')
         {
             // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
             token[++number_of_tokens].lexeme[0] = *ptr_code;
             ptr_code++;
             short i = -1;
-            while (isalpha(*ptr_code))
+            while (isalnum(*ptr_code) || *ptr_code == '_')
             {
                 token[number_of_tokens].lexeme[++i] = *ptr_code;
                 ptr_code++;
+            }
+            // Идентификатор из букв/цифр и нижнего подчёркивания собран
+            token[number_of_tokens].lexeme[++i] = '\0';
+            if (!strcmp(token[number_of_tokens].lexeme, "goto"))
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_GOTO;
+                return TOKEN__KEYWORD_GOTO;
             }
             if (*ptr_code == ':')
             {
@@ -135,7 +142,6 @@ short get_token()
                 return TOKEN__LABEL_IDENTIFIER;
             }
             token[number_of_tokens].type_identifier = TOKEN__IDENTIFIER;
-            token[number_of_tokens].lexeme[++i] = '\0';
             return TOKEN__IDENTIFIER;
         }
     }
