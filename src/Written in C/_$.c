@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 5% ready / Минимально жизнеспособный продукт компилятора готов на 5%
+// @ Minimum viable product of the compiler is 15% ready / Минимально жизнеспособный продукт компилятора готов на 15%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -8,8 +8,8 @@ enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
     TOKEN__EOF = -1,              // КОНЕЦ_СТРОКИ
-    TOKEN__ERROR,                 // ОШИБКА
-    TOKEN__UNKNOWN = 0,           // НЕИЗВЕСТНЫЙ
+    TOKEN__UNKNOWN,               // НЕИЗВЕСТНЫЙ
+    TOKEN__ERROR = 0,             // ОШИБКА
     TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ_ЛИТЕРАЛ
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
@@ -19,6 +19,24 @@ enum
     // ... //
 };
 //
+const char get_type_token[][64+1] =
+{
+    "TOKEN__EOF",
+    "TOKEN__UNKNOWN", // TOKEN__ERROR
+    "TOKEN__NUMERIC_LITERAL",
+    "TOKEN__LEFT_SIDED_ASSIGNMENT",
+    "TOKEN__IDENTIFIER",
+    "TOKEN__SPACE_SEPARATOR",
+    "TOKEN__END_OF_STATEMENT",
+    "TOKEN__KEYWORD__GOTO"
+};
+/*
+char * GetTypeToken(short idx)
+{
+    char * ptr_type_token = &get_type_token[idx+1];
+    return ptr_type_token;
+}
+*/
 struct Token { char type; char lexeme[64+1]; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
 struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 struct Parser { char * cursor; } parser; // global object's
@@ -74,7 +92,7 @@ void _$()
     short token;
     while ((token = get_token()) != TOKEN__EOF)
     {
-        printf("\n Token: %d", token);
+        printf("\n Token: %s", get_type_token[token+1]);
     }
     //
     putchar('\n');
