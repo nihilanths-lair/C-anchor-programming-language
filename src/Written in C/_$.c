@@ -155,6 +155,12 @@ short get_token()
         token[number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
         return TOKEN__NUMERIC_LITERAL;
 
+    case '_': printf("\n '_' - Это идентификатор или идентификатор метки?");
+        // ... //
+
+    case '$': printf("\n '$' - Это не идентификатор, но идентификатор метки?");
+        // ... //
+
     default:
         //printf("\n def 1");
         if (isalpha(*ptr_code) || *ptr_code == '_') // Первым символом не может быть цифра
@@ -223,7 +229,7 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    const char code[] = "_number = 0,;\n if (_number == 0) {}\n while (_number) {}\n goto _$;\n __xyz = 71"; // inline-код для быстрого тестирования (временно)
+    const char code[] = "_number = 0,;\n if (_number == 0) {}\n while (_number) {}\n goto _$;\n __xyz = 71\n _$:"; // inline-код для быстрого тестирования (временно)
     printf("\n %s", code);
     init_lexer(code);
     short token_type_identifier;
