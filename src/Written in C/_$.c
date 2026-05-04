@@ -418,6 +418,7 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
+     " goto _0;\n"
      " 2 + 3 < 3 * 4;\n"
      " 2 > 3;\n"
      " 2 <= 3;\n"
