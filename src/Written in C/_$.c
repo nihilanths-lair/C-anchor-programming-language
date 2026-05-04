@@ -196,6 +196,7 @@ short get_token()
             return TOKEN__BELOW_EQUAL_OPERATOR;
         }
         token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__BELOW_OPERATOR;
         return TOKEN__BELOW_OPERATOR;
     //
     case '>':
@@ -209,6 +210,7 @@ short get_token()
             return TOKEN__ABOVE_EQUAL_OPERATOR;
         }
         token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__ABOVE_OPERATOR;
         return TOKEN__ABOVE_OPERATOR;
     //
     case ';':
