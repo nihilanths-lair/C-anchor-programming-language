@@ -36,7 +36,11 @@ enum
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    TOKEN__EQUALITY_OPERATOR, TOKEN__INEQUALITY_OPERATOR, // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
+    TOKEN__EQUALITY_OPERATOR, TOKEN__INEQUALITY_OPERATOR, // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
+    TOKEN__BELOW_OPERATOR,                                // МЕНЬШЕ    ····    <
+    TOKEN__ABOVE_OPERATOR,                                // БОЛЬШЕ    ····    >
+    TOKEN__BELOW_EQUAL_OPERATOR,                          // МЕНЬШЕ ИЛИ РАВНО    ····    <=
+    TOKEN__ABOVE_EQUAL_OPERATOR,                          // БОЛЬШЕ ИЛИ РАВНО    ····    >=
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
@@ -75,7 +79,11 @@ char token__type_name[][64+1] =
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    "    EQUALITY_OPERATOR", "  INEQUALITY_OPERATOR", // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
+    "    EQUALITY_OPERATOR", "  INEQUALITY_OPERATOR", // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
+    "       BELOW_OPERATOR",                          // МЕНЬШЕ    ····    <
+    "       ABOVE_OPERATOR",                          // БОЛЬШЕ    ····    >
+    " BELOW_EQUAL_OPERATOR",                          // МЕНЬШЕ ИЛИ РАВНО    ····    <=
+    " ABOVE_EQUAL_OPERATOR",                          // БОЛЬШЕ ИЛИ РАВНО    ····    >=
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -104,7 +112,12 @@ char token__lexeme[][64+1] =
 
     "\"else\"",    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
 
-    "\"==\"", "\"!=\"", // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
+    // Операторы
+    "\"==\"", "\"!=\"", // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
+    "'<'",              // МЕНЬШЕ    ····    <
+    "'>'",              // БОЛЬШЕ    ····    >
+    "\"<=\"",           // МЕНЬШЕ ИЛИ РАВНО    ····    <=
+    "\">=\"",           // БОЛЬШЕ ИЛИ РАВНО    ····    >=
 
     "'\\?'",   // НЕИЗВЕСТНЫЙ
     "'\\0'",   // КОНЕЦ
@@ -146,7 +159,7 @@ short get_token()
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
-
+    //
     case '!':
         token[++number_of_tokens].lexeme[0] = '!';
         ptr_code++;
@@ -157,7 +170,7 @@ short get_token()
             ptr_code++;
             return TOKEN__INEQUALITY_OPERATOR;
         }
-
+    //
     case '=':
         token[++number_of_tokens].lexeme[0] = '=';
         ptr_code++;
@@ -171,49 +184,75 @@ short get_token()
         token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
         token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
-
+    //
+    case '<':
+        token[++number_of_tokens].lexeme[0] = '<';
+        ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__BELOW_EQUAL_OPERATOR;
+            ptr_code++;
+            return TOKEN__BELOW_EQUAL_OPERATOR;
+        }
+        token[number_of_tokens].lexeme[1] = '\0';
+        return TOKEN__BELOW_OPERATOR;
+    //
+    case '>':
+        token[++number_of_tokens].lexeme[0] = '>';
+        ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__ABOVE_EQUAL_OPERATOR;
+            ptr_code++;
+            return TOKEN__ABOVE_EQUAL_OPERATOR;
+        }
+        token[number_of_tokens].lexeme[1] = '\0';
+        return TOKEN__ABOVE_OPERATOR;
+    //
     case ';':
         token[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
         token[number_of_tokens].lexeme[0] = ';'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__END_OF_STATEMENT;
-
+    //
     case '(':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
         token[number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_PARENTHESIS;
-
+    //
     case ')':
         token[++number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
         token[number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__RIGHT_PARENTHESIS;
-
+    //
     case '[':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
         token[number_of_tokens].lexeme[0] = '['; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_SQUARE_BRACKET;
-
+    //
     case ']':
         token[++number_of_tokens].type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
         token[number_of_tokens].lexeme[0] = ']'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__RIGHT_SQUARE_BRACKET;
-
+    //
     case '{':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_BRACE;
         token[number_of_tokens].lexeme[0] = '{'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_BRACE;
-
+    //
     case '}':
         token[++number_of_tokens].type_identifier = TOKEN__RIGHT_BRACE;
         token[number_of_tokens].lexeme[0] = '}'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__RIGHT_BRACE;
-
+    //
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
         short i = -1;
         token[++number_of_tokens].lexeme[++i] = *ptr_code;
@@ -285,9 +324,9 @@ short get_token()
             }
             if (*ptr_code == ':')
             {
+                //token[number_of_tokens].lexeme[++i] = '\0';
                 token[number_of_tokens].type_identifier = TOKEN__LABEL_IDENTIFIER;
-                token[number_of_tokens].lexeme[++i] = ':';
-                token[number_of_tokens].lexeme[++i] = '\0';
+                //token[number_of_tokens].lexeme[++i] = ':';
                 ptr_code++;
                 return TOKEN__LABEL_IDENTIFIER;
             }
@@ -321,16 +360,21 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
-     " variable = 2;\n"
+     " 2 < 3;\n"
+     " 2 > 3;\n"
+     " 2 <= 3;\n"
+     " 2 >= 3;\n"
+     " 2 == 3;\n"
+     " 2 != 3;\n"
      " array[45];\n"
      " if (variable == 5) {}\n"
      " while (variable != 2) {}\n"
-     " goto _$;\n"
+     " goto _0;\n"
      " __abc = 2;\n"
      " switch (__abc)\n"
      " case 2: {}\n"
      " default: {}\n"
-     " _$:"
+     " _0:"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
