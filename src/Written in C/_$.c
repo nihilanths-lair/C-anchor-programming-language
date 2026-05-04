@@ -12,6 +12,7 @@ enum
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
+    TOKEN__END_OF_LABEL,          // КОНЕЦ МЕТКИ
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
     TOKEN__END_OF_STATEMENT,      // КОНЕЦ ЗАЯВЛЕНИЯ
 
@@ -61,6 +62,7 @@ char token__type_name[][64+1] =
     "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "              IDENTIFIER", // ИДЕНТИФИКАТОР
     "        LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
+    "            END_OF_LABEL", // КОНЕЦ МЕТКИ
     "         SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
     "        END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ
 
@@ -107,6 +109,7 @@ char token__lexeme[][64+1] =
     "'='",                                // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "'A'~'Z', 'a'~'z', '_', '0'~'9'",     // ИДЕНТИФИКАТОР
     "'A'~'Z', 'a'~'z', '_', '0'~'9' ':'", // ИДЕНТИФИКАТОР МЕТКИ
+    "':'",                                // КОНЕЦ МЕТКИ
 
     "' '", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
     "';'", // КОНЕЦ ЗАЯВЛЕНИЯ
@@ -178,6 +181,32 @@ short get_token()
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
     //
+    case '!':
+        token[++number_of_tokens].lexeme[0] = '!';
+        ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__INEQUALITY_OPERATOR;
+            ptr_code++;
+            return TOKEN__INEQUALITY_OPERATOR;
+        }
+        token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
+        return TOKEN__INVERSION_OPERATOR;
+    //
+    case '(':
+        token[++number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
+        token[number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
+        ptr_code++;
+        return TOKEN__LEFT_PARENTHESIS;
+    //
+    case ')':
+        token[++number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
+        token[number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
+        ptr_code++;
+        return TOKEN__RIGHT_PARENTHESIS;
+    //
     case '*':
         token[++number_of_tokens].lexeme[0] = '*'; token[number_of_tokens].lexeme[1] = '\0';
         token[number_of_tokens].type_identifier = TOKEN__MULTIPLICATION_OPERATOR;
@@ -202,33 +231,17 @@ short get_token()
         ptr_code++;
         return TOKEN__DIVISION_OPERATOR;
     //
-    case '!':
-        token[++number_of_tokens].lexeme[0] = '!';
+    case ':':
+        token[++number_of_tokens].lexeme[0] = ':'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__END_OF_LABEL;
         ptr_code++;
-        if (*ptr_code == '=')
-        {
-            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
-            token[number_of_tokens].type_identifier = TOKEN__INEQUALITY_OPERATOR;
-            ptr_code++;
-            return TOKEN__INEQUALITY_OPERATOR;
-        }
-        token[number_of_tokens].lexeme[1] = '\0';
-        token[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
-        return TOKEN__INVERSION_OPERATOR;
+        return TOKEN__END_OF_LABEL;
     //
-    case '=':
-        token[++number_of_tokens].lexeme[0] = '=';
+    case ';':
+        token[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
+        token[number_of_tokens].lexeme[0] = ';'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
-        if (*ptr_code == '=')
-        {
-            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
-            token[number_of_tokens].type_identifier = TOKEN__EQUALITY_OPERATOR;
-            ptr_code++;
-            return TOKEN__EQUALITY_OPERATOR;
-        }
-        token[number_of_tokens].lexeme[1] = '\0';
-        token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        return TOKEN__LEFT_SIDED_ASSIGNMENT;
+        return TOKEN__END_OF_STATEMENT;
     //
     case '<':
         token[++number_of_tokens].lexeme[0] = '<';
@@ -244,6 +257,20 @@ short get_token()
         token[number_of_tokens].type_identifier = TOKEN__BELOW_OPERATOR;
         return TOKEN__BELOW_OPERATOR;
     //
+    case '=':
+        token[++number_of_tokens].lexeme[0] = '=';
+        ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__EQUALITY_OPERATOR;
+            ptr_code++;
+            return TOKEN__EQUALITY_OPERATOR;
+        }
+        token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
+        return TOKEN__LEFT_SIDED_ASSIGNMENT;
+    //
     case '>':
         token[++number_of_tokens].lexeme[0] = '>';
         ptr_code++;
@@ -257,24 +284,6 @@ short get_token()
         token[number_of_tokens].lexeme[1] = '\0';
         token[number_of_tokens].type_identifier = TOKEN__ABOVE_OPERATOR;
         return TOKEN__ABOVE_OPERATOR;
-    //
-    case ';':
-        token[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
-        token[number_of_tokens].lexeme[0] = ';'; token[number_of_tokens].lexeme[1] = '\0';
-        ptr_code++;
-        return TOKEN__END_OF_STATEMENT;
-    //
-    case '(':
-        token[++number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
-        token[number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
-        ptr_code++;
-        return TOKEN__LEFT_PARENTHESIS;
-    //
-    case ')':
-        token[++number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
-        token[number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
-        ptr_code++;
-        return TOKEN__RIGHT_PARENTHESIS;
     //
     case '[':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
