@@ -83,7 +83,7 @@ char * GetTypeToken(short idx)
 }
 */
 //struct Token {} token; // global object's
-//
+/*
 void AddToken(const char * token_type)
 {
     static short idx = 0;
@@ -91,10 +91,10 @@ void AddToken(const char * token_type)
     strcpy(token__type_name[idx], token_type);
     idx++;
 }
-//
+*/
 struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; } token[1500]; // global object's: на первых порах макс. лимит - 1500 токенов
-struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
-struct Parser { char * cursor; } parser; // global object's
+//struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
+//struct Parser { char * cursor; } parser; // global object's
 //
 //void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 //void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
