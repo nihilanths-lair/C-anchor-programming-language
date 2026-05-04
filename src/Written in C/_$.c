@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 23% ready / Минимально жизнеспособный продукт компилятора готов на 23%
+// @ Minimum viable product of the compiler is 25% ready / Минимально жизнеспособный продукт компилятора готов на 25%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -36,13 +36,17 @@ enum
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    TOKEN__INVERSION_OPERATOR,   // ИНВЕРСИЯ            ·    !
-    TOKEN__EQUALITY_OPERATOR,    // РАВЕНСТВО           ·    ==
-    TOKEN__INEQUALITY_OPERATOR,  // НЕРАВЕНСТВО         ·    !=
-    TOKEN__BELOW_OPERATOR,       // МЕНЬШЕ              ·    <
-    TOKEN__ABOVE_OPERATOR,       // БОЛЬШЕ              ·    >
-    TOKEN__BELOW_EQUAL_OPERATOR, // МЕНЬШЕ ИЛИ РАВНО    ·    <=
-    TOKEN__ABOVE_EQUAL_OPERATOR, // БОЛЬШЕ ИЛИ РАВНО    ·    >=
+    TOKEN__ADDITION_OPERATOR,       // СЛОЖЕНИЕ             ·     +
+    TOKEN__SUBTRACT_OPERATOR,       // ВЫЧИТАНИЕ            ·     -
+    TOKEN__MULTIPLICATION_OPERATOR, // УМНОЖЕНИЕ            ·     *
+    TOKEN__DIVISION_OPERATOR,       // ДЕЛЕНИЕ              ·     /
+    TOKEN__INVERSION_OPERATOR,      // ИНВЕРСИЯ             ·     !
+    TOKEN__EQUALITY_OPERATOR,       // РАВЕНСТВО            ·     ==
+    TOKEN__INEQUALITY_OPERATOR,     // НЕРАВЕНСТВО          ·     !=
+    TOKEN__BELOW_OPERATOR,          // МЕНЬШЕ               ·     <
+    TOKEN__ABOVE_OPERATOR,          // БОЛЬШЕ               ·     >
+    TOKEN__BELOW_EQUAL_OPERATOR,    // МЕНЬШЕ ИЛИ РАВНО     ·     <=
+    TOKEN__ABOVE_EQUAL_OPERATOR,    // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
@@ -81,13 +85,17 @@ char token__type_name[][64+1] =
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    "  OPERATOR__INVERSION", // ИНВЕРСИЯ            ·    !
-    "   OPERATOR__EQUALITY", // РАВЕНСТВО           ·    ==
-    " OPERATOR__INEQUALITY", // НЕРАВЕНСТВО         ·    !=
-    "      OPERATOR__BELOW", // МЕНЬШЕ              ·    <
-    "      OPERATOR__ABOVE", // БОЛЬШЕ              ·    >
-    "OPERATOR__BELOW_EQUAL", // МЕНЬШЕ ИЛИ РАВНО    ·    <=
-    "OPERATOR__ABOVE_EQUAL", // БОЛЬШЕ ИЛИ РАВНО    ·    >=
+    "      OPERATOR__ADDITION", // СЛОЖЕНИЕ             ·     +
+    "      OPERATOR__SUBTRACT", // ВЫЧИТАНИЕ            ·     -
+    "OPERATOR__MULTIPLICATION", // УМНОЖЕНИЕ            ·     *
+    "      OPERATOR__DIVISION", // ДЕЛЕНИЕ              ·     /
+    "     OPERATOR__INVERSION", // ИНВЕРСИЯ             ·     !
+    "      OPERATOR__EQUALITY", // РАВЕНСТВО            ·     ==
+    "    OPERATOR__INEQUALITY", // НЕРАВЕНСТВО          ·     !=
+    "         OPERATOR__BELOW", // МЕНЬШЕ               ·     <
+    "         OPERATOR__ABOVE", // БОЛЬШЕ               ·     >
+    "   OPERATOR__BELOW_EQUAL", // МЕНЬШЕ ИЛИ РАВНО     ·     <=
+    "   OPERATOR__ABOVE_EQUAL", // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -117,13 +125,17 @@ char token__lexeme[][64+1] =
     "\"else\"",    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
 
     // Операторы
-    "'!'",    // ИНВЕРСИЯ            ·    !
-    "\"==\"", // РАВЕНСТВО           ·    ==
-    "\"!=\"", // НЕРАВЕНСТВО         ·    !=
-    "'<'",    // МЕНЬШЕ              ·    <
-    "'>'",    // БОЛЬШЕ              ·    >
-    "\"<=\"", // МЕНЬШЕ ИЛИ РАВНО    ·    <=
-    "\">=\"", // БОЛЬШЕ ИЛИ РАВНО    ·    >=
+    "'+'",    // СЛОЖЕНИЕ             ·     +
+    "'-'",    // ВЫЧИТАНИЕ            ·     -
+    "'*'",    // УМНОЖЕНИЕ            ·     *
+    "'/'",    // ДЕЛЕНИЕ              ·     /
+    "'!'",    // ИНВЕРСИЯ             ·     !
+    "\"==\"", // РАВЕНСТВО            ·     ==
+    "\"!=\"", // НЕРАВЕНСТВО          ·     !=
+    "'<'",    // МЕНЬШЕ               ·     <
+    "'>'",    // БОЛЬШЕ               ·     >
+    "\"<=\"", // МЕНЬШЕ ИЛИ РАВНО     ·     <=
+    "\">=\"", // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
     "'\\?'",   // НЕИЗВЕСТНЫЙ
     "'\\0'",   // КОНЕЦ
@@ -165,6 +177,30 @@ short get_token()
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
+    //
+    case '*':
+        token[++number_of_tokens].lexeme[0] = '*'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__MULTIPLICATION_OPERATOR;
+        ptr_code++;
+        return TOKEN__MULTIPLICATION_OPERATOR;
+    //
+    case '+':
+        token[++number_of_tokens].lexeme[0] = '+'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__ADDITION_OPERATOR;
+        ptr_code++;
+        return TOKEN__ADDITION_OPERATOR;
+    //
+    case '-':
+        token[++number_of_tokens].lexeme[0] = '-'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__SUBTRACT_OPERATOR;
+        ptr_code++;
+        return TOKEN__SUBTRACT_OPERATOR;
+    //
+    case '/':
+        token[++number_of_tokens].lexeme[0] = '/'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__DIVISION_OPERATOR;
+        ptr_code++;
+        return TOKEN__DIVISION_OPERATOR;
     //
     case '!':
         token[++number_of_tokens].lexeme[0] = '!';
