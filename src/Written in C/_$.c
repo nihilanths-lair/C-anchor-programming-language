@@ -180,9 +180,8 @@ void init_lexer(const char * code) { ptr_code = code; }
 //
 short get_token()
 {
-    while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
-
     switch_run:
+    while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
     switch (*ptr_code){
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
@@ -262,8 +261,9 @@ short get_token()
         }
         else if (*ptr_code == '*')
         {
-            while (*ptr_code && *ptr_code != '*') ptr_code++;
-            if (*ptr_code == '/') ptr_code++;
+            ptr_code++;
+            while (*ptr_code && !(*ptr_code == '*' && *(ptr_code+1) == '/')) ptr_code++;
+            if (*ptr_code) ptr_code += 2;
             goto switch_run;
         }
         token[++number_of_tokens].lexeme[0] = '/'; token[number_of_tokens].lexeme[1] = '\0';
@@ -462,13 +462,17 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
-     " // Это комментарий\n"
+     " // Однострочный комментарий\n"
      " get_res()\n"
      " {\n"
      "    return 10 / 2;\n"
      " }\n"
      " get_res();\n"
      " string[] = \"C$ is awesome!\";\n"
+     " /*\n"
+     "    Многострочный\n"
+     "    Комментарий\n"
+     " */\n"
      " 2 > 3;\n"
      " goto _0;\n"
      " !(2 == 3);\n"
