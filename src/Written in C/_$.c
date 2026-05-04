@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 21% ready / Минимально жизнеспособный продукт компилятора готов на 21%
+// @ Minimum viable product of the compiler is 23% ready / Минимально жизнеспособный продукт компилятора готов на 23%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -36,11 +36,13 @@ enum
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    TOKEN__EQUALITY_OPERATOR, TOKEN__INEQUALITY_OPERATOR, // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
-    TOKEN__BELOW_OPERATOR,                                // МЕНЬШЕ    ····    <
-    TOKEN__ABOVE_OPERATOR,                                // БОЛЬШЕ    ····    >
-    TOKEN__BELOW_EQUAL_OPERATOR,                          // МЕНЬШЕ ИЛИ РАВНО    ····    <=
-    TOKEN__ABOVE_EQUAL_OPERATOR,                          // БОЛЬШЕ ИЛИ РАВНО    ····    >=
+    TOKEN__INVERSION_OPERATOR,   // ИНВЕРСИЯ            ·    !
+    TOKEN__EQUALITY_OPERATOR,    // РАВЕНСТВО           ·    ==
+    TOKEN__INEQUALITY_OPERATOR,  // НЕРАВЕНСТВО         ·    !=
+    TOKEN__BELOW_OPERATOR,       // МЕНЬШЕ              ·    <
+    TOKEN__ABOVE_OPERATOR,       // БОЛЬШЕ              ·    >
+    TOKEN__BELOW_EQUAL_OPERATOR, // МЕНЬШЕ ИЛИ РАВНО    ·    <=
+    TOKEN__ABOVE_EQUAL_OPERATOR, // БОЛЬШЕ ИЛИ РАВНО    ·    >=
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
@@ -79,6 +81,7 @@ char token__type_name[][64+1] =
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
+    "  OPERATOR__INVERSION", // ИНВЕРСИЯ            ·    !
     "   OPERATOR__EQUALITY", // РАВЕНСТВО           ·    ==
     " OPERATOR__INEQUALITY", // НЕРАВЕНСТВО         ·    !=
     "      OPERATOR__BELOW", // МЕНЬШЕ              ·    <
@@ -114,11 +117,13 @@ char token__lexeme[][64+1] =
     "\"else\"",    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
 
     // Операторы
-    "\"==\"", "\"!=\"", // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
-    "'<'",              // МЕНЬШЕ    ····    <
-    "'>'",              // БОЛЬШЕ    ····    >
-    "\"<=\"",           // МЕНЬШЕ ИЛИ РАВНО    ····    <=
-    "\">=\"",           // БОЛЬШЕ ИЛИ РАВНО    ····    >=
+    "'!'",    // ИНВЕРСИЯ            ·    !
+    "\"==\"", // РАВЕНСТВО           ·    ==
+    "\"!=\"", // НЕРАВЕНСТВО         ·    !=
+    "'<'",    // МЕНЬШЕ              ·    <
+    "'>'",    // БОЛЬШЕ              ·    >
+    "\"<=\"", // МЕНЬШЕ ИЛИ РАВНО    ·    <=
+    "\">=\"", // БОЛЬШЕ ИЛИ РАВНО    ·    >=
 
     "'\\?'",   // НЕИЗВЕСТНЫЙ
     "'\\0'",   // КОНЕЦ
@@ -171,6 +176,9 @@ short get_token()
             ptr_code++;
             return TOKEN__INEQUALITY_OPERATOR;
         }
+        token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
+        return TOKEN__INVERSION_OPERATOR;
     //
     case '=':
         token[++number_of_tokens].lexeme[0] = '=';
@@ -182,8 +190,8 @@ short get_token()
             ptr_code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
-        token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
         token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
     //
     case '<':
@@ -367,7 +375,7 @@ void _$()
      " 2 > 3;\n"
      " 2 <= 3;\n"
      " 2 >= 3;\n"
-     " 2 == 3;\n"
+     " !(2 == 3);\n"
      " 2 != 3;\n"
      " array[45];\n"
      " if (variable == 5) {}\n"
