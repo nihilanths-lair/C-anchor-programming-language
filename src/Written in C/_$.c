@@ -378,6 +378,7 @@ short get_token()
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE;
                 return TOKEN__KEYWORD_ELSE;
             }
+            /*
             if (*ptr_code == ':')
             {
                 //token[number_of_tokens].lexeme[++i] = '\0';
@@ -386,6 +387,7 @@ short get_token()
                 ptr_code++;
                 return TOKEN__LABEL_IDENTIFIER;
             }
+            */
             token[number_of_tokens].type_identifier = TOKEN__IDENTIFIER;
             return TOKEN__IDENTIFIER;
         }
