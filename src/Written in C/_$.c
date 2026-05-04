@@ -32,6 +32,7 @@ enum
     TOKEN__KEYWORD_SWITCH,  // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
     TOKEN__KEYWORD_CASE,    // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
     TOKEN__KEYWORD_DEFAULT, // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
+    TOKEN__KEYWORD_RETURN,  // КЛЮЧЕВОЕ_СЛОВО__ВЕРНУТЬ
     //
     TOKEN__KEYWORD_ELSE,    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
@@ -82,6 +83,7 @@ char token__type_name[][64+1] =
     "         KEYWORD__SWITCH", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
     "           KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
     "        KEYWORD__DEFAULT", // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
+    "         KEYWORD__RETURN", // КЛЮЧЕВОЕ_СЛОВО__ВЕРНУТЬ
     //
     "           KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
@@ -124,6 +126,7 @@ char token__lexeme[][64+1] =
     "\"switch\"",  // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
     "\"case\"",    // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
     "\"default\"", // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
+    "\"return\"",  // КЛЮЧЕВОЕ_СЛОВО__ВЕРНУТЬ
 
     "\"else\"",    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
 
@@ -378,6 +381,11 @@ short get_token()
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE;
                 return TOKEN__KEYWORD_ELSE;
             }
+            if (!strcmp(token[number_of_tokens].lexeme, "return"))
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_RETURN;
+                return TOKEN__KEYWORD_RETURN;
+            }
             /*
             if (*ptr_code == ':')
             {
@@ -418,17 +426,17 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
-     " goto _0;\n"
-     " 2 + 3 < 3 * 4;\n"
+     " get_res()\n"
+     " {\n"
+     "    return 10 / 2;\n"
+     " }\n"
+     " get_res();\n"
      " 2 > 3;\n"
-     " 2 <= 3;\n"
-     " 2 >= 3;\n"
+     " goto _0;\n"
      " !(2 == 3);\n"
-     " 2 != 3;\n"
      " array[45];\n"
      " if (variable == 5) {}\n"
      " while (variable != 2) {}\n"
-     " goto _0;\n"
      " __abc = 2;\n"
      " switch (__abc)\n"
      " case 2: {}\n"
