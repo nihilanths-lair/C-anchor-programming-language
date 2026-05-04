@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 25% ready / Минимально жизнеспособный продукт компилятора готов на 25%
+// @ Minimum viable product of the compiler is 27% ready / Минимально жизнеспособный продукт компилятора готов на 27%
 //
 #include <stdio.h>
 #include <locale.h>
