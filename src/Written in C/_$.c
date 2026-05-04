@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 15% ready / Минимально жизнеспособный продукт компилятора готов на 15%
+// @ Minimum viable product of the compiler is 21% ready / Минимально жизнеспособный продукт компилятора готов на 21%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -8,11 +8,12 @@
 enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
-    TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ_ЛИТЕРАЛ
-    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
+    TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ ЛИТЕРАЛ
+    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
-    TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    TOKEN__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
+    TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
+    TOKEN__END_OF_STATEMENT,      // КОНЕЦ ЗАЯВЛЕНИЯ
 
     TOKEN__LEFT_BRACE,            // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
     TOKEN__RIGHT_BRACE,           // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
@@ -31,10 +32,8 @@ enum
     TOKEN__KEYWORD_CASE,          // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
     //
     TOKEN__KEYWORD_ELSE,          // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
-    TOKEN__KEYWORD_ELSE_IF,       // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
+    //TOKEN__KEYWORD_ELSE_IF,       // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
     // // // // // // // // // // //
-    TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
-
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
     TOKEN__ERROR    // ОШИБКА
@@ -44,11 +43,12 @@ short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
-    "      NUMERIC_LITERAL", // ЧИСЛОВОЙ_ЛИТЕРАЛ
-    "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
+    "      NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "           IDENTIFIER", // ИДЕНТИФИКАТОР
-    "      SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    "     END_OF_STATEMENT", // КОНЕЦ_ЗАЯВЛЕНИЯ
+    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
+    "      SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
+    "     END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ
 
     "           LEFT_BRACE", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
     "          RIGHT_BRACE", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
@@ -67,27 +67,41 @@ char token__type_name[][64+1] =
     "        KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
     //
     "        KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
-    "     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
+    //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
     // // // // // // // // // //
-    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
-
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
     "                ERROR"  // ОШИБКА
 };
 char token__lexeme[][64+1] =
 {
-    "'0'~'9'",
-    "'='",
-    "'A'~'Z', 'a'~'z'",
-    "' '",
-    "';'",
-    "\"goto\"",
-    "':'",
+    "'0'~'9'",                            // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "'='",                                // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
+    "'A'~'Z', 'a'~'z', '_', '0'~'9'",     // ИДЕНТИФИКАТОР
+    "'A'~'Z', 'a'~'z', '_', '0'~'9' ':'", // ИДЕНТИФИКАТОР МЕТКИ
 
-    "'\\?'",
-    "'\\0'",
-    // ... //
+    "' '", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
+    "';'", // КОНЕЦ ЗАЯВЛЕНИЯ
+
+    "'{'", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
+    "'}'", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
+
+    "'['", // ЛЕВАЯ КВАДРАТНАЯ СКОБКА  ···· [
+    "']'", // ПРАВАЯ КВАДРАТНАЯ СКОБКА ···· ]
+
+    "'('", // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
+    "')'", // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
+
+    "\"if\"",     // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
+    "\"while\"",  // КЛЮЧЕВОЕ_СЛОВО__ПОКА
+    "\"goto\"",   // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    "\"switch\"", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
+    "\"case\"",   // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
+    "\"else\"",   // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
+
+    "'\\?'",   // НЕИЗВЕСТНЫЙ
+    "'\\0'",   // КОНЕЦ
+    "'\\/!\\'" // ОШИБКА
 };
 /*
 char * GetTypeToken(short idx)
@@ -237,11 +251,6 @@ short get_token()
             {
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE;
                 return TOKEN__KEYWORD_ELSE;
-            }
-            if (!strcmp(token[number_of_tokens].lexeme, "else if")) // Опционально
-            {
-                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE_IF;
-                return TOKEN__KEYWORD_ELSE_IF;
             }
             if (*ptr_code == ':')
             {
