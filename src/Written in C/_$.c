@@ -14,11 +14,14 @@ enum
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
     TOKEN__END_OF_STATEMENT,      // КОНЕЦ_ЗАЯВЛЕНИЯ
 
-    TOKEN__LEFT_BRACE,            // ЛЕВАЯ ФИГУРНАЯ СКОБКА
-    TOKEN__RIGHT_BRACE,           // ПРАВАЯ ФИГУРНАЯ СКОБКА
+    TOKEN__LEFT_BRACE,            // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
+    TOKEN__RIGHT_BRACE,           // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
 
-    TOKEN__LEFT_PARENTHESIS,      // ЛЕВАЯ КРУГЛАЯ СКОБКА
-    TOKEN__RIGHT_PARENTHESIS,     // ПРАВАЯ КРУГЛАЯ СКОБКА
+    TOKEN__LEFT_SQUARE_BRACKET,   // ЛЕВАЯ КВАДРАТНАЯ СКОБКА  ···· [
+    TOKEN__RIGHT_SQUARE_BRACKET,  // ПРАВАЯ КВАДРАТНАЯ СКОБКА ···· ]
+
+    TOKEN__LEFT_PARENTHESIS,      // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
+    TOKEN__RIGHT_PARENTHESIS,     // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
 
     TOKEN__KEYWORD_IF,            // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
     TOKEN__KEYWORD_WHILE,         // КЛЮЧЕВОЕ_СЛОВО__ПОКА
@@ -34,26 +37,29 @@ short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
-    "      NUMERIC_LITERAL",       // ЧИСЛОВОЙ_ЛИТЕРАЛ
+    "      NUMERIC_LITERAL", // ЧИСЛОВОЙ_ЛИТЕРАЛ
     "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-    "           IDENTIFIER",            // ИДЕНТИФИКАТОР
-    "      SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    "     END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    "           IDENTIFIER", // ИДЕНТИФИКАТОР
+    "      SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
+    "     END_OF_STATEMENT", // КОНЕЦ_ЗАЯВЛЕНИЯ
 
-    "           LEFT_BRACE",            // ЛЕВАЯ ФИГУРНАЯ СКОБКА
-    "          RIGHT_BRACE",           // ПРАВАЯ ФИГУРНАЯ СКОБКА
+    "           LEFT_BRACE", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
+    "          RIGHT_BRACE", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
 
-    "     LEFT_PARENTHESIS",      // ЛЕВАЯ КРУГЛАЯ СКОБКА
-    "    RIGHT_PARENTHESIS",     // ПРАВАЯ КРУГЛАЯ СКОБКА
+    "  LEFT_SQUARE_BRACKET", // ЛЕВАЯ КВАДРАТНАЯ СКОБКА  ···· [
+    " RIGHT_SQUARE_BRACKET", // ПРАВАЯ КВАДРАТНАЯ СКОБКА ···· ]
 
-    "          KEYWORD__IF",           // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
-    "       KEYWORD__WHILE",        // КЛЮЧЕВОЕ_СЛОВО__ПОКА
-    "        KEYWORD__GOTO",         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    "     LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
+    "     LEFT_PARENTHESIS", // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
+    "    RIGHT_PARENTHESIS", // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
+
+    "          KEYWORD__IF", // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
+    "       KEYWORD__WHILE", // КЛЮЧЕВОЕ_СЛОВО__ПОКА
+    "        KEYWORD__GOTO", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР_МЕТКИ
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
-    "                  EOF",     // КОНЕЦ
-    "                ERROR"    // ОШИБКА
+    "                  EOF", // КОНЕЦ
+    "                ERROR"  // ОШИБКА
 };
 char token__lexeme[][64+1] =
 {
@@ -108,37 +114,49 @@ short get_token()
 
     case '=':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        strcpy(token[number_of_tokens].lexeme, "=");
+        token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
 
     case ';':
         token[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
-        strcpy(token[number_of_tokens].lexeme, ";");
+        token[number_of_tokens].lexeme[0] = ';'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__END_OF_STATEMENT;
 
     case '(':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
-        strcpy(token[number_of_tokens].lexeme, "(");
+        token[number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_PARENTHESIS;
 
     case ')':
         token[++number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
-        strcpy(token[number_of_tokens].lexeme, ")");
+        token[number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__RIGHT_PARENTHESIS;
 
+    case '[':
+        token[++number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
+        token[number_of_tokens].lexeme[0] = '['; token[number_of_tokens].lexeme[1] = '\0';
+        ptr_code++;
+        return TOKEN__LEFT_SQUARE_BRACKET;
+
+    case ']':
+        token[++number_of_tokens].type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
+        token[number_of_tokens].lexeme[0] = ']'; token[number_of_tokens].lexeme[1] = '\0';
+        ptr_code++;
+        return TOKEN__RIGHT_SQUARE_BRACKET;
+
     case '{':
         token[++number_of_tokens].type_identifier = TOKEN__LEFT_BRACE;
-        strcpy(token[number_of_tokens].lexeme, "{");
+        token[number_of_tokens].lexeme[0] = '{'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__LEFT_BRACE;
 
     case '}':
         token[++number_of_tokens].type_identifier = TOKEN__RIGHT_BRACE;
-        strcpy(token[number_of_tokens].lexeme, "}");
+        token[number_of_tokens].lexeme[0] = '}'; token[number_of_tokens].lexeme[1] = '\0';
         ptr_code++;
         return TOKEN__RIGHT_BRACE;
 
@@ -155,10 +173,10 @@ short get_token()
         token[number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
         return TOKEN__NUMERIC_LITERAL;
 
-    case '_': printf("\n '_' - Это идентификатор или идентификатор метки?");
+    //case '_': printf("\n '_' - Это идентификатор или идентификатор метки?");
         // ... //
 
-    case '$': printf("\n '$' - Это не идентификатор, но идентификатор метки?");
+    //case '$': printf("\n '$' - Это не идентификатор, но идентификатор метки?");
         // ... //
 
     default:
@@ -229,7 +247,15 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    const char code[] = "_number = 0,;\n if (_number == 0) {}\n while (_number) {}\n goto _$;\n __xyz = 71\n _$:"; // inline-код для быстрого тестирования (временно)
+    const char code[] = "\
+     variable = 0;\n\
+     array[45];\n\
+     if (variable) {}\n\
+     while (variable) {}\n\
+     goto _$;\n\
+     __abc = 71;\n\
+     _$:\
+     "; // inline-код для быстрого тестирования (временно)
     printf("\n %s", code);
     init_lexer(code);
     short token_type_identifier;
@@ -238,10 +264,10 @@ void _$()
     number_of_tokens = -1;
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
-        printf("\n-----------------------+------------------------------------");
+        //printf("\n-----------------------+------------------------------------");
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
-    printf("\n-----------------------+------------------------------------");
+    //printf("\n-----------------------+------------------------------------");
     //
     putchar('\n');
 }
