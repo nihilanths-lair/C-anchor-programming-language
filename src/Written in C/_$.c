@@ -182,6 +182,7 @@ short get_token()
 {
     while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
 
+    switch_run:
     switch (*ptr_code){
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
@@ -219,7 +220,7 @@ short get_token()
             token[number_of_tokens].type_identifier = TOKEN__STRING_LITERAL;
             return TOKEN__STRING_LITERAL;
         }
-        return TOKEN__UNKNOWN; // или TOKEN__ERROR
+        return TOKEN__UNKNOWN; // или TOKEN__ERROR?
     }
     case '(':
         token[++number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
@@ -252,9 +253,21 @@ short get_token()
         return TOKEN__SUBTRACT_OPERATOR;
     //
     case '/':
+        ptr_code++;
+        if (*ptr_code == '/')
+        {
+            while (*ptr_code && *ptr_code != '\n') ptr_code++;
+            if (*ptr_code == '\n') ptr_code++;
+            goto switch_run;
+        }
+        else if (*ptr_code == '*')
+        {
+            while (*ptr_code && *ptr_code != '*') ptr_code++;
+            if (*ptr_code == '/') ptr_code++;
+            goto switch_run;
+        }
         token[++number_of_tokens].lexeme[0] = '/'; token[number_of_tokens].lexeme[1] = '\0';
         token[number_of_tokens].type_identifier = TOKEN__DIVISION_OPERATOR;
-        ptr_code++;
         return TOKEN__DIVISION_OPERATOR;
     //
     case ':':
@@ -449,6 +462,7 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
+     " // Это комментарий\n"
      " get_res()\n"
      " {\n"
      "    return 10 / 2;\n"
