@@ -9,6 +9,7 @@ enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
     TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ ЛИТЕРАЛ
+    TOKEN__STRING_LITERAL,        // СТРОКОВЫЙ ЛИТЕРАЛ
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
@@ -60,6 +61,7 @@ char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
     "         NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "          STRING_LITERAL", // СТРОКОВЫЙ ЛИТЕРАЛ
     "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "              IDENTIFIER", // ИДЕНТИФИКАТОР
     "        LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
@@ -108,6 +110,7 @@ char token__type_name[][64+1] =
 char token__lexeme[][64+1] =
 {
     "'0'~'9'",                            // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "\"\"",                               // СТРОКОВЫЙ ЛИТЕРАЛ
     "'='",                                // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "'A'~'Z', 'a'~'z', '_', '0'~'9'",     // ИДЕНТИФИКАТОР
     "'A'~'Z', 'a'~'z', '_', '0'~'9' ':'", // ИДЕНТИФИКАТОР МЕТКИ
@@ -198,15 +201,35 @@ short get_token()
         token[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
     //
+    case '\"':
+    {
+        short i = -1;
+        token[++number_of_tokens].lexeme[++i] = '\"';
+        ptr_code++;
+        while (*ptr_code && *ptr_code != '\"')
+        {
+            token[number_of_tokens].lexeme[++i] = *ptr_code;
+            ptr_code++;
+        }
+        if (*ptr_code == '\"')
+        {
+            token[number_of_tokens].lexeme[++i] = '\"';
+            ptr_code++;
+            token[number_of_tokens].lexeme[++i] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__STRING_LITERAL;
+            return TOKEN__STRING_LITERAL;
+        }
+        return TOKEN__UNKNOWN; // или TOKEN__ERROR
+    }
     case '(':
-        token[++number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
-        token[number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
+        token[++number_of_tokens].lexeme[0] = '('; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
         ptr_code++;
         return TOKEN__LEFT_PARENTHESIS;
     //
     case ')':
-        token[++number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
-        token[number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
+        token[++number_of_tokens].lexeme[0] = ')'; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
         ptr_code++;
         return TOKEN__RIGHT_PARENTHESIS;
     //
@@ -431,6 +454,7 @@ void _$()
      "    return 10 / 2;\n"
      " }\n"
      " get_res();\n"
+     " string[] = \"C$ is awesome!\";\n"
      " 2 > 3;\n"
      " goto _0;\n"
      " !(2 == 3);\n"
