@@ -35,7 +35,8 @@ enum
     TOKEN__KEYWORD_ELSE,    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
-    TOKEN__EQUALITY_OPERATOR, // ОПЕРАТОР РАВЕНСТВА
+    // Операторы
+    TOKEN__EQUALITY_OPERATOR, TOKEN__INEQUALITY_OPERATOR, // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
@@ -73,7 +74,8 @@ char token__type_name[][64+1] =
     "        KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
-    "    EQUALITY_OPERATOR", // ОПЕРАТОР РАВЕНСТВА
+    // Операторы
+    "    EQUALITY_OPERATOR", "  INEQUALITY_OPERATOR", // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -101,6 +103,8 @@ char token__lexeme[][64+1] =
     "\"default\"", // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
 
     "\"else\"",    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
+
+    "\"==\"", "\"!=\"", // ОПЕРАТОРЫ: РАВЕНСТВА И НЕРАВЕНСТВА
 
     "'\\?'",   // НЕИЗВЕСТНЫЙ
     "'\\0'",   // КОНЕЦ
@@ -142,6 +146,17 @@ short get_token()
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
+
+    case '!':
+        token[++number_of_tokens].lexeme[0] = '!';
+        ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__INEQUALITY_OPERATOR;
+            ptr_code++;
+            return TOKEN__INEQUALITY_OPERATOR;
+        }
 
     case '=':
         token[++number_of_tokens].lexeme[0] = '=';
@@ -306,10 +321,10 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
-     " variable = 0;\n"
+     " variable = 2;\n"
      " array[45];\n"
      " if (variable == 5) {}\n"
-     " while (variable) {}\n"
+     " while (variable != 2) {}\n"
      " goto _$;\n"
      " __abc = 2;\n"
      " switch (__abc)\n"
@@ -321,7 +336,7 @@ void _$()
     init_lexer(code);
     short token_type_identifier;
     while ((token_type_identifier = get_token()) != TOKEN__EOF){}
-    putchar('\n');
+    //putchar('\n');
     number_of_tokens = -1;
     printf("\n-----------------------+------------------------------------");
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
