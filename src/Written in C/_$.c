@@ -190,7 +190,7 @@ short get_token()
             ptr_code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
-        token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
+        token[number_of_tokens].lexeme[1] = '\0';
         token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
     //
