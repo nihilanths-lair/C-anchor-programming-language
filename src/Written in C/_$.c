@@ -34,26 +34,26 @@ short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
-    "NUMERIC_LITERAL",       // ЧИСЛОВОЙ_ЛИТЕРАЛ
+    "      NUMERIC_LITERAL",       // ЧИСЛОВОЙ_ЛИТЕРАЛ
     "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-    "IDENTIFIER",            // ИДЕНТИФИКАТОР
-    "SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-    "END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
+    "           IDENTIFIER",            // ИДЕНТИФИКАТОР
+    "      SPACE_SEPARATOR",       // РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
+    "     END_OF_STATEMENT",      // КОНЕЦ_ЗАЯВЛЕНИЯ
 
-    "LEFT_BRACE",            // ЛЕВАЯ ФИГУРНАЯ СКОБКА
-    "RIGHT_BRACE",           // ПРАВАЯ ФИГУРНАЯ СКОБКА
+    "           LEFT_BRACE",            // ЛЕВАЯ ФИГУРНАЯ СКОБКА
+    "          RIGHT_BRACE",           // ПРАВАЯ ФИГУРНАЯ СКОБКА
 
-    "LEFT_PARENTHESIS",      // ЛЕВАЯ КРУГЛАЯ СКОБКА
-    "RIGHT_PARENTHESIS",     // ПРАВАЯ КРУГЛАЯ СКОБКА
+    "     LEFT_PARENTHESIS",      // ЛЕВАЯ КРУГЛАЯ СКОБКА
+    "    RIGHT_PARENTHESIS",     // ПРАВАЯ КРУГЛАЯ СКОБКА
 
-    "KEYWORD__IF",           // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
-    "KEYWORD__WHILE",        // КЛЮЧЕВОЕ_СЛОВО__ПОКА
-    "KEYWORD__GOTO",         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    "LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
+    "          KEYWORD__IF",           // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
+    "       KEYWORD__WHILE",        // КЛЮЧЕВОЕ_СЛОВО__ПОКА
+    "        KEYWORD__GOTO",         // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    "     LABEL_IDENTIFIER",      // ИДЕНТИФИКАТОР_МЕТКИ
 
-    "UNKNOWN", // НЕИЗВЕСТНЫЙ
-    "EOF",     // КОНЕЦ
-    "ERROR"    // ОШИБКА
+    "              UNKNOWN", // НЕИЗВЕСТНЫЙ
+    "                  EOF",     // КОНЕЦ
+    "                ERROR"    // ОШИБКА
 };
 char token__lexeme[][64+1] =
 {
@@ -238,8 +238,10 @@ void _$()
     number_of_tokens = -1;
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
-        printf("\n <%s> :: \"%s\"", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
+        printf("\n-----------------------+------------------------------------");
+        printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
+    printf("\n-----------------------+------------------------------------");
     //
     putchar('\n');
 }
