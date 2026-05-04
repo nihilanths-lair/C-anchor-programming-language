@@ -181,11 +181,15 @@ void init_lexer(const char * code) { ptr_code = code; }
 short get_token()
 {
     switch_run:
-    while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
+    //while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
     switch (*ptr_code){
     case '\0':
         token[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
+    //
+    case ' ': case '\t': case '\v': case '\n': case '\r': case '\f':
+        ptr_code++;
+        goto switch_run;
     //
     case '!':
         token[++number_of_tokens].lexeme[0] = '!';
