@@ -35,6 +35,8 @@ enum
     TOKEN__KEYWORD_ELSE,    // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //TOKEN__KEYWORD_ELSE_IF, // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
+    TOKEN__EQUALITY_OPERATOR, // ОПЕРАТОР РАВЕНСТВА
+
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
     TOKEN__ERROR    // ОШИБКА
@@ -70,6 +72,8 @@ char token__type_name[][64+1] =
     //
     "        KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
+
+    "    EQUALITY_OPERATOR", // ОПЕРАТОР РАВЕНСТВА
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -140,9 +144,17 @@ short get_token()
         return TOKEN__EOF;
 
     case '=':
-        token[++number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
+        token[++number_of_tokens].lexeme[0] = '=';
         ptr_code++;
+        if (*ptr_code == '=')
+        {
+            token[number_of_tokens].lexeme[1] = '='; token[number_of_tokens].lexeme[2] = '\0';
+            token[number_of_tokens].type_identifier = TOKEN__EQUALITY_OPERATOR;
+            ptr_code++;
+            return TOKEN__EQUALITY_OPERATOR;
+        }
+        token[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
+        token[number_of_tokens].lexeme[0] = '='; token[number_of_tokens].lexeme[1] = '\0';
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
 
     case ';':
@@ -296,7 +308,7 @@ void _$()
     const char code[] =
      " variable = 0;\n"
      " array[45];\n"
-     " if (variable) {}\n"
+     " if (variable == 5) {}\n"
      " while (variable) {}\n"
      " goto _$;\n"
      " __abc = 2;\n"
