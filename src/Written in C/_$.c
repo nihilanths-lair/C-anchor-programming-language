@@ -29,7 +29,10 @@ enum
     TOKEN__KEYWORD_GOTO,          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     TOKEN__KEYWORD_SWITCH,        // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
     TOKEN__KEYWORD_CASE,          // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
-
+    //
+    TOKEN__KEYWORD_ELSE,          // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
+    TOKEN__KEYWORD_ELSE_IF,       // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
+    // // // // // // // // // // //
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
@@ -62,7 +65,10 @@ char token__type_name[][64+1] =
     "        KEYWORD__GOTO", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
     "      KEYWORD__SWITCH", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
     "        KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
-
+    //
+    "        KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
+    "     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
+    // // // // // // // // // //
     "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
@@ -226,6 +232,16 @@ short get_token()
             {
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_CASE;
                 return TOKEN__KEYWORD_CASE;
+            }
+            if (!strcmp(token[number_of_tokens].lexeme, "else")) // Опционально
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE;
+                return TOKEN__KEYWORD_ELSE;
+            }
+            if (!strcmp(token[number_of_tokens].lexeme, "else if")) // Опционально
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE_IF;
+                return TOKEN__KEYWORD_ELSE_IF;
             }
             if (*ptr_code == ':')
             {
