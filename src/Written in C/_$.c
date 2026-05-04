@@ -23,10 +23,14 @@ enum
     TOKEN__LEFT_PARENTHESIS,      // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
     TOKEN__RIGHT_PARENTHESIS,     // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
 
+    // Ключевые слова
     TOKEN__KEYWORD_IF,            // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
     TOKEN__KEYWORD_WHILE,         // КЛЮЧЕВОЕ_СЛОВО__ПОКА
     TOKEN__KEYWORD_GOTO,          // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР_МЕТКИ
+    TOKEN__KEYWORD_SWITCH,        // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
+    TOKEN__KEYWORD_CASE,          // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
+
+    TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
 
     TOKEN__UNKNOWN, // НЕИЗВЕСТНЫЙ
     TOKEN__EOF,     // КОНЕЦ
@@ -52,10 +56,14 @@ char token__type_name[][64+1] =
     "     LEFT_PARENTHESIS", // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
     "    RIGHT_PARENTHESIS", // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
 
+    // Ключевые слова
     "          KEYWORD__IF", // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
     "       KEYWORD__WHILE", // КЛЮЧЕВОЕ_СЛОВО__ПОКА
     "        KEYWORD__GOTO", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР_МЕТКИ
+    "      KEYWORD__SWITCH", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
+    "        KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
+
+    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -209,7 +217,16 @@ short get_token()
                 token[number_of_tokens].type_identifier = TOKEN__KEYWORD_WHILE;
                 return TOKEN__KEYWORD_WHILE;
             }
-            /// Если будут другие ключевые слова, добавляем проверки ///
+            if (!strcmp(token[number_of_tokens].lexeme, "switch"))
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_SWITCH;
+                return TOKEN__KEYWORD_SWITCH;
+            }
+            if (!strcmp(token[number_of_tokens].lexeme, "case"))
+            {
+                token[number_of_tokens].type_identifier = TOKEN__KEYWORD_CASE;
+                return TOKEN__KEYWORD_CASE;
+            }
             if (*ptr_code == ':')
             {
                 token[number_of_tokens].type_identifier = TOKEN__LABEL_IDENTIFIER;
@@ -247,27 +264,30 @@ void _$()
     AddToken("TOKEN__UNKNOWN");
     AddToken("TOKEN__EOF");
     /*/
-    const char code[] = "\
-     variable = 0;\n\
-     array[45];\n\
-     if (variable) {}\n\
-     while (variable) {}\n\
-     goto _$;\n\
-     __abc = 71;\n\
-     _$:\
-     "; // inline-код для быстрого тестирования (временно)
-    printf("\n %s", code);
+    const char code[] =
+     " variable = 0;\n"
+     " array[45];\n"
+     " if (variable) {}\n"
+     " while (variable) {}\n"
+     " goto _$;\n"
+     " __abc = 2;\n"
+     " switch (__abc)\n"
+     " case 2: {}\n"
+     " _$:"
+     ; // inline-код для быстрого тестирования (временно)
+    printf("\n%s", code);
     init_lexer(code);
     short token_type_identifier;
     while ((token_type_identifier = get_token()) != TOKEN__EOF){}
     putchar('\n');
     number_of_tokens = -1;
+    printf("\n-----------------------+------------------------------------");
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
         //printf("\n-----------------------+------------------------------------");
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
-    //printf("\n-----------------------+------------------------------------");
+    printf("\n-----------------------+------------------------------------");
     //
     putchar('\n');
 }
