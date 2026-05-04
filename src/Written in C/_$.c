@@ -79,11 +79,12 @@ char token__type_name[][64+1] =
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
-    "    EQUALITY_OPERATOR", "  INEQUALITY_OPERATOR", // РАВЕНСТВО И НЕРАВЕНСТВО    ····    ==  ·  !=
-    "       BELOW_OPERATOR",                          // МЕНЬШЕ    ····    <
-    "       ABOVE_OPERATOR",                          // БОЛЬШЕ    ····    >
-    " BELOW_EQUAL_OPERATOR",                          // МЕНЬШЕ ИЛИ РАВНО    ····    <=
-    " ABOVE_EQUAL_OPERATOR",                          // БОЛЬШЕ ИЛИ РАВНО    ····    >=
+    "   OPERATOR__EQUALITY", // РАВЕНСТВО           ·    ==
+    " OPERATOR__INEQUALITY", // НЕРАВЕНСТВО         ·    !=
+    "      OPERATOR__BELOW", // МЕНЬШЕ              ·    <
+    "      OPERATOR__ABOVE", // БОЛЬШЕ              ·    >
+    "OPERATOR__BELOW_EQUAL", // МЕНЬШЕ ИЛИ РАВНО    ·    <=
+    "OPERATOR__ABOVE_EQUAL", // БОЛЬШЕ ИЛИ РАВНО    ·    >=
 
     "              UNKNOWN", // НЕИЗВЕСТНЫЙ
     "                  EOF", // КОНЕЦ
@@ -384,10 +385,10 @@ void _$()
     while ((token_type_identifier = get_token()) != TOKEN__EOF){}
     //putchar('\n');
     number_of_tokens = -1;
-    printf("\n-----------------------+------------------------------------");
+    //printf("\n-----------------------+------------------------------------");
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
-        //printf("\n-----------------------+------------------------------------");
+        printf("\n-----------------------+------------------------------------");
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
     printf("\n-----------------------+------------------------------------");
