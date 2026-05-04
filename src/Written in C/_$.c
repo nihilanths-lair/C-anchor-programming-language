@@ -57,31 +57,31 @@ short number_of_tokens = -1;
 char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
-    "      NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
-    "LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
-    "           IDENTIFIER", // ИДЕНТИФИКАТОР
-    "     LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
-    "      SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
-    "     END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ
+    "         NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
+    "              IDENTIFIER", // ИДЕНТИФИКАТОР
+    "        LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
+    "         SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
+    "        END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ
 
-    "           LEFT_BRACE", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
-    "          RIGHT_BRACE", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
+    "              LEFT_BRACE", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
+    "             RIGHT_BRACE", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
 
-    "  LEFT_SQUARE_BRACKET", // ЛЕВАЯ КВАДРАТНАЯ СКОБКА  ···· [
-    " RIGHT_SQUARE_BRACKET", // ПРАВАЯ КВАДРАТНАЯ СКОБКА ···· ]
+    "     LEFT_SQUARE_BRACKET", // ЛЕВАЯ КВАДРАТНАЯ СКОБКА  ···· [
+    "    RIGHT_SQUARE_BRACKET", // ПРАВАЯ КВАДРАТНАЯ СКОБКА ···· ]
 
-    "     LEFT_PARENTHESIS", // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
-    "    RIGHT_PARENTHESIS", // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
+    "        LEFT_PARENTHESIS", // ЛЕВАЯ КРУГЛАЯ СКОБКА     ···· (
+    "       RIGHT_PARENTHESIS", // ПРАВАЯ КРУГЛАЯ СКОБКА    ···· )
 
     // Ключевые слова
-    "          KEYWORD__IF", // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
-    "       KEYWORD__WHILE", // КЛЮЧЕВОЕ_СЛОВО__ПОКА
-    "        KEYWORD__GOTO", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
-    "      KEYWORD__SWITCH", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
-    "        KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
-    "     KEYWORD__DEFAULT", // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
+    "             KEYWORD__IF", // КЛЮЧЕВОЕ_СЛОВО__ЕСЛИ
+    "          KEYWORD__WHILE", // КЛЮЧЕВОЕ_СЛОВО__ПОКА
+    "           KEYWORD__GOTO", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕЙТИ
+    "         KEYWORD__SWITCH", // КЛЮЧЕВОЕ_СЛОВО__ПЕРЕКЛЮЧАТЕЛЬ
+    "           KEYWORD__CASE", // КЛЮЧЕВОЕ_СЛОВО__КЕЙС
+    "        KEYWORD__DEFAULT", // КЛЮЧЕВОЕ_СЛОВО__ПО_УМОЛЧАНИЮ
     //
-    "        KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
+    "           KEYWORD__ELSE", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ (Опционально)
     //"     KEYWORD__ELSE_IF", // КЛЮЧЕВОЕ_СЛОВО__ИНАЧЕ_ЕСЛИ (Опционально)
 
     // Операторы
@@ -97,9 +97,9 @@ char token__type_name[][64+1] =
     "   OPERATOR__BELOW_EQUAL", // МЕНЬШЕ ИЛИ РАВНО     ·     <=
     "   OPERATOR__ABOVE_EQUAL", // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
-    "              UNKNOWN", // НЕИЗВЕСТНЫЙ
-    "                  EOF", // КОНЕЦ
-    "                ERROR"  // ОШИБКА
+    "                 UNKNOWN", // НЕИЗВЕСТНЫЙ
+    "                     EOF", // КОНЕЦ
+    "                   ERROR"  // ОШИБКА
 };
 char token__lexeme[][64+1] =
 {
@@ -407,7 +407,7 @@ void _$()
     AddToken("TOKEN__EOF");
     /*/
     const char code[] =
-     " 2 < 3;\n"
+     " 2 + 3 < 3 * 4;\n"
      " 2 > 3;\n"
      " 2 <= 3;\n"
      " 2 >= 3;\n"
@@ -432,10 +432,10 @@ void _$()
     //printf("\n-----------------------+------------------------------------");
     while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
-        printf("\n-----------------------+------------------------------------");
+        printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
-    printf("\n-----------------------+------------------------------------");
+    printf("\n--------------------------+---------------------------------");
     //
     putchar('\n');
 }
