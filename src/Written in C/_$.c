@@ -466,9 +466,49 @@ short get_token()
     return TOKEN__ERROR;
 }
 //
+short current_token = 0;
 void Parse__Expression()
 {
-    // ... //
+    switch (token[current_token].type_identifier){
+    //- Первый операнд -/
+    case TOKEN__NUMERIC_LITERAL:
+    case TOKEN__IDENTIFIER:
+    case TOKEN__STRING_LITERAL:
+        current_token++;
+        while (token[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
+        {
+            switch (token[current_token].type_identifier){
+            //- Бинарные операторы -/
+            case TOKEN__ADDITION_OPERATOR:
+            case TOKEN__SUBTRACT_OPERATOR:
+            case TOKEN__MULTIPLICATION_OPERATOR:
+            case TOKEN__DIVISION_OPERATOR:
+            case TOKEN__BELOW_OPERATOR:
+            case TOKEN__ABOVE_OPERATOR:
+            case TOKEN__BELOW_EQUAL_OPERATOR:
+            case TOKEN__ABOVE_EQUAL_OPERATOR:
+            case TOKEN__EQUALITY_OPERATOR:
+            case TOKEN__INEQUALITY_OPERATOR:
+                current_token++;
+                switch (token[current_token].type_identifier){
+                //- Второй операнд -/
+                case TOKEN__NUMERIC_LITERAL:
+                case TOKEN__IDENTIFIER:
+                case TOKEN__STRING_LITERAL:
+                    current_token++;
+                //
+                break;
+                default: printf("\n #Error-3!");
+                }
+            //
+            break;
+            default: printf("\n #Error-2!");
+            }
+        }
+    //
+    break;
+    default: printf("\n #Error-1!");
+    }
 }
 //
 void _$()
@@ -530,7 +570,6 @@ void _$()
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
     printf("\n--------------------------+---------------------------------");
-    short current_token = 0;
     Parse__Expression();
     if (token[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
     {
