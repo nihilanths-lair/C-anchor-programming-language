@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 27% ready / Минимально жизнеспособный продукт компилятора готов на 27%
+// @ Minimum viable product of the compiler is 28% ready / Минимально жизнеспособный продукт компилятора готов на 28%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -265,9 +265,26 @@ short get_token()
         }
         else if (*ptr_code == '*')
         {
+            static short comment_nesting = 0;
+            comment_nesting++;
             ptr_code++;
-            while (*ptr_code && !(*ptr_code == '*' && *(ptr_code+1) == '/')) ptr_code++;
-            if (*ptr_code) ptr_code += 2;
+            while (*ptr_code) // && !(*ptr_code == '*' && *(ptr_code+1) == '/')
+            {
+                if (*ptr_code == '/' && *(ptr_code+1) == '*')
+                {
+                    comment_nesting++;
+                    ptr_code += 2;
+                    continue;
+                }
+                if (*ptr_code == '*' && *(ptr_code+1) == '/')
+                {
+                    comment_nesting--;
+                    ptr_code += 2;
+                    if (comment_nesting == 0) break;
+                    continue;
+                }
+                ptr_code++;
+            }
             goto switch_run;
         }
         token[++number_of_tokens].lexeme[0] = '/'; token[number_of_tokens].lexeme[1] = '\0';
@@ -448,6 +465,11 @@ short get_token()
     return TOKEN__ERROR;
 }
 //
+void Parse__Expression()
+{
+    // ... //
+}
+//
 void _$()
 {
     setlocale(0, "");
@@ -467,6 +489,7 @@ void _$()
     /*/
     const char code[] =
      " // Однострочный комментарий\n"
+     " /*\n"
      " get_res()\n"
      " {\n"
      "    return 10 / 2;\n"
@@ -474,6 +497,7 @@ void _$()
      " get_res();\n"
      " string[] = \"C$ is awesome!\";\n"
      " /*\n"
+     "    Вложенный\n"
      "    Многострочный\n"
      "    Комментарий\n"
      " */\n"
@@ -487,12 +511,14 @@ void _$()
      " switch (__abc)\n"
      " case 2: {}\n"
      " default: {}\n"
-     " _0:"
+     " _0:\n"
+     " */\n"
+     " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2); // Пока парсим (разбираем) только эту строку кода!\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
-    short token_type_identifier;
-    while ((token_type_identifier = get_token()) != TOKEN__EOF){}
+    //short token_type_identifier;
+    while (get_token() != TOKEN__EOF){}
     //putchar('\n');
     number_of_tokens = -1;
     //printf("\n-----------------------+------------------------------------");
@@ -502,6 +528,27 @@ void _$()
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
     printf("\n--------------------------+---------------------------------");
+    number_of_tokens = -1;
+    while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
+    {
+        // ... //-/ Берём первый токен, смотрим его тип? Если числовой литерал, то заглянем в след. токен, если его тип оператор, то вызываем функцию Parse__Expression ?
+        switch (token[number_of_tokens].type_identifier){
+        case TOKEN__NUMERIC_LITERAL:
+            if (
+             token[number_of_tokens+1].type_identifier == '+'
+              ||
+             token[number_of_tokens+1].type_identifier == '-'
+              ||
+             token[number_of_tokens+1].type_identifier == '*'
+              ||
+             token[number_of_tokens+1].type_identifier == '/'
+             ) //-/ Возможно ещё требуется заглянуть в след. токен, чтобы определить действия над числовыми литералами?
+            {
+                Parse__Expression();
+            }
+        //
+        }
+    }
     //
     putchar('\n');
 }
