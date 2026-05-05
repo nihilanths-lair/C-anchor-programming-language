@@ -268,7 +268,7 @@ short get_token()
             static short comment_nesting = 0;
             comment_nesting++;
             ptr_code++;
-            while (*ptr_code) // && !(*ptr_code == '*' && *(ptr_code+1) == '/')
+            while (*ptr_code && *(ptr_code+1)) // && !(*ptr_code == '*' && *(ptr_code+1) == '/')
             {
                 if (*ptr_code == '/' && *(ptr_code+1) == '*')
                 {
