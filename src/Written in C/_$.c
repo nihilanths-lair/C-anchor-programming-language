@@ -512,8 +512,9 @@ void _$()
      " case 2: {}\n"
      " default: {}\n"
      " _0:\n"
+     " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " */\n"
-     " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2); // Пока парсим (разбираем) только эту строку кода!\n"
+     " 3 + 5 - 1 * 2; // Пока парсим только эту строку (часть) кода!\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
@@ -528,27 +529,7 @@ void _$()
         printf("\n %s | %s", token__type_name[token[number_of_tokens].type_identifier], token[number_of_tokens].lexeme);
     }
     printf("\n--------------------------+---------------------------------");
-    number_of_tokens = -1;
-    while (token[++number_of_tokens].type_identifier != TOKEN__EOF)
-    {
-        // ... //-/ Берём первый токен, смотрим его тип? Если числовой литерал, то заглянем в след. токен, если его тип оператор, то вызываем функцию Parse__Expression ?
-        switch (token[number_of_tokens].type_identifier){
-        case TOKEN__NUMERIC_LITERAL:
-            if (
-             token[number_of_tokens+1].type_identifier == '+'
-              ||
-             token[number_of_tokens+1].type_identifier == '-'
-              ||
-             token[number_of_tokens+1].type_identifier == '*'
-              ||
-             token[number_of_tokens+1].type_identifier == '/'
-             ) //-/ Возможно ещё требуется заглянуть в след. токен, чтобы определить действия над числовыми литералами?
-            {
-                Parse__Expression();
-            }
-        //
-        }
-    }
+    short current_token = 0;
     //
     putchar('\n');
 }
