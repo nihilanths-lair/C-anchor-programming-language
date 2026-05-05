@@ -175,8 +175,9 @@ struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; } 
 //void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
 //
 const char * ptr_code;
-//
 void init_lexer(const char * code) { ptr_code = code; }
+//
+void error(const char * msg) { printf(msg); }
 //
 short get_token()
 {
@@ -530,6 +531,13 @@ void _$()
     }
     printf("\n--------------------------+---------------------------------");
     short current_token = 0;
+    Parse__Expression();
+    if (token[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+    {
+        printf("\n Выражение успешно разобрано, следующий токен ';'");
+        current_token++;
+    }
+    if (token[current_token].type_identifier != TOKEN__EOF) printf("\n Предупреждение: после выражения остались токены!");
     //
     putchar('\n');
 }
