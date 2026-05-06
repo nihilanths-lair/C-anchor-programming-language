@@ -498,7 +498,6 @@ short GetNextToken()
 short AccumulateTokens()
 {
     switch_run:
-    //while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
     switch (*ptr_code){
     case '\0':
     {
