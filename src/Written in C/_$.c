@@ -154,8 +154,8 @@ char token__lexeme[][64+1] =
 // Если unsigned, то макс. размер кода 0x100=256 байт? Если же signed, то ???
 // Пока 8-bit's архитектурная модель (возможно с расширениями через сегментацию, но это в дальнейшем, сейчас же для теста достаточно и этого)
 #define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
-char opcodes[MACRO__MAXIMUM_CODE_LIMIT] = {[0 ... MACRO__MAXIMUM_CODE_LIMIT-1] = 0x79}; // В таком массиве могут хранится как знаковые, так и беззнаковые оп-коды?
-char * ptr__opcodes = opcodes; // Указатель, который будет двигаться по массиву и по мере надобности (необходимости) заполнять его
+unsigned char opcodes[MACRO__MAXIMUM_CODE_LIMIT] = {[0 ... MACRO__MAXIMUM_CODE_LIMIT-1] = 0x79}; // В таком массиве могут хранится как знаковые, так и беззнаковые оп-коды?
+unsigned char * ptr__opcodes = opcodes; // Указатель, который будет двигаться по массиву и по мере надобности (необходимости) заполнять его
 //
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
@@ -910,6 +910,34 @@ void Parse__Expression()
         return;
     }}
 }
+void Parse__Expression_In_Backend_VM_C$()
+{
+    // Проверяем первый операнд
+    if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+    {
+        int left = __tokens[current_token].lexeme[0] - '0';
+        current_token++;
+        // Проверяем оператор
+        if (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR)
+        {
+            current_token++;
+            // Проверяем второй операнд
+            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+            {
+                int right = __tokens[current_token].lexeme[0] - '0';
+                current_token++;
+                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+                opcodes[0] = 0x01;  // Эмит-1
+                opcodes[1] = left;  // Эмит-2
+                opcodes[2] = right; // Эмит-3
+                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+            }
+            else printf("\n #Error: Emit-3");
+        }
+        else printf("\n #Error: Emit-2");
+    }
+    else printf("\n #Error: Emit-1");
+}
 //
 void Parse__Assignment()
 {
@@ -979,7 +1007,8 @@ void _$()
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " 3 + 5 - 1 * 2;\n"
      " */\n"
-     " rq = 3 + 5 - 1 * 2;\n" // Пока парсим только эту строку (часть) кода!
+     " //rq = 3 + 5 - 1 * 2;\n"
+     " 5 + 3;\n" // Пока парсим только эту строку (часть) кода!
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
@@ -1006,9 +1035,13 @@ void _$()
     }
     printf("\n-----------------------+------------------------------------");
     */
-    Parse__Assignment();
-    if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Присваивание разобрано успешно, конец файла.");
-    else printf("\n После присваивания остались лишние токены.");
+    Parse__Expression_In_Backend_VM_C$(); // Разбираем выражение, генерируем код
+    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+    {
+        printf("\n Выражение успешно разобрано, следующий токен ';'");
+        current_token++;
+    }
+    else printf("\n Ожидалась ';' после выражения");
 
     Performer_VM();
     //
