@@ -1,9 +1,10 @@
-// @ Minimum viable product of the compiler is 32% ready / Минимально жизнеспособный продукт компилятора готов на 32%
+// @ Minimum viable product of the compiler is 35% ready / Минимально жизнеспособный продукт компилятора готов на 35%
 //
 #include <stdio.h>
 #include <locale.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 //
 enum
 {
@@ -915,7 +916,7 @@ void Parse__Expression_In_Backend_VM_C$()
     // Проверяем первый операнд
     if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
     {
-        int left = __tokens[current_token].lexeme[0] - '0';
+        int left = atoi(__tokens[current_token].lexeme);// - '0';
         current_token++;
         // Проверяем оператор
         if (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR)
@@ -924,7 +925,7 @@ void Parse__Expression_In_Backend_VM_C$()
             // Проверяем второй операнд
             if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
             {
-                int right = __tokens[current_token].lexeme[0] - '0';
+                int right = atoi(__tokens[current_token].lexeme);// - '0';
                 current_token++;
                 printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
                 opcodes[0] = 0x01;  // Эмит-1
@@ -1043,7 +1044,9 @@ void _$()
     }
     else printf("\n Ожидалась ';' после выражения");
 
+    printf("\n    До | rcv16 = %d", rcv16);
     Performer_VM();
+    printf("\n После | rcv16 = %d", rcv16);
     //
     putchar('\n');
 }
