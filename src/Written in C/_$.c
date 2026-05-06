@@ -177,7 +177,7 @@ void Performer_VM() // Spin / Executor
     switch_run:
     switch (*ptr__opcodes){
     //
-    case 0x01: // 16-bit's addressation, add i8, i8 ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    case 0x01: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
         rcv16 = *(++ptr__opcodes) + *(++ptr__opcodes);
         ++ptr__opcodes;
