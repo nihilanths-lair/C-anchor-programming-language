@@ -165,7 +165,7 @@ void AddToken(const char * token_type)
 }
 */
 #define MACRO__MAXIMUM_TOKEN_LIMIT 1500
-struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; } __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
+struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; /*char pos_lexeme[2]*/ } __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
 //struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 //struct Parser { char * cursor; } parser; // global object's
 //
@@ -494,7 +494,8 @@ short GetNextToken()
     return TOKEN__ERROR;
 }
 //
-short get_token()
+/// Накопить токены (удобен для отладочного режима, занимает память) ///
+short AccumulateTokens()
 {
     switch_run:
     //while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
@@ -809,6 +810,7 @@ void Parse__Expression()
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__IDENTIFIER:
     case TOKEN__STRING_LITERAL:
+    {
         current_token++;
         while (is_binary_operator(__tokens[current_token].type_identifier))
         {
@@ -818,14 +820,15 @@ void Parse__Expression()
             case TOKEN__NUMERIC_LITERAL:
             case TOKEN__IDENTIFIER:
             case TOKEN__STRING_LITERAL:
+            {
                 current_token++;
-            //
-            break;
+                break;
+            }
             default: printf("\n #Error-2!");
             }
         }
-    //
-    break;
+        break;
+    }
     default: printf("\n #Error-1!");
     }
 }
@@ -878,23 +881,33 @@ void _$()
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
-    //while (get_token() != TOKEN__EOF){}
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
-        //Parse__Expression();
+        /*
+        Parse__Expression();
+        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+        {
+            printf("\n Выражение успешно разобрано, следующий токен ';'");
+            current_token++;
+        }
+        if (__tokens[current_token].type_identifier != TOKEN__EOF) printf("\n Предупреждение: после выражения остались токены!");
+        */
     }
     printf("\n--------------------------+---------------------------------");
-    //putchar('\n');
-    number_of_tokens = -1;
-    //printf("\n-----------------------+------------------------------------");
     /*
+    //putchar('\n');
+    while (AccumulateTokens() != TOKEN__EOF){}
+    number_of_tokens = -1;
     while (__tokens[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__tokens[number_of_tokens].type_identifier], __tokens[number_of_tokens].lexeme);
     }
+    printf("\n-----------------------+------------------------------------");
+    */
+    /*
     printf("\n--------------------------+---------------------------------");
     Parse__Expression();
     if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
