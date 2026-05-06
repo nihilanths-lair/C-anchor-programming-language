@@ -184,10 +184,7 @@ void Performer_VM() // Spin / Executor
         goto switch_run;
     }
     case 0x79: printf("\n Stopped.."); return;
-    default:
-    {
-        // ... //
-    }
+    default: printf("\n Unknown opcode, stopped.."); return;
     //
     }
 }
