@@ -150,6 +150,48 @@ char token__lexeme[][64+1] =
     "'\\0'",   // КОНЕЦ
     "'\\/!\\'" // ОШИБКА
 };
+// Массив ниже заполняется оп-кодами, которые затем могут быть выполнены интерпретатором
+// Если unsigned, то макс. размер кода 0x100=256 байт? Если же signed, то ???
+// Пока 8-bit's архитектурная модель (возможно с расширениями через сегментацию, но это в дальнейшем, сейчас же для теста достаточно и этого)
+#define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
+char opcodes[MACRO__MAXIMUM_CODE_LIMIT] = {[0 ... MACRO__MAXIMUM_CODE_LIMIT-1] = 0x79}; // В таком массиве могут хранится как знаковые, так и беззнаковые оп-коды?
+char * ptr__opcodes = opcodes; // Указатель, который будет двигаться по массиву и по мере надобности (необходимости) заполнять его
+//
+//#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
+//#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
+unsigned char cs8 = 0;   //  8-bit's сегментный-регистр
+unsigned char ip8 = 0;   //  8-bit's регистр-указатель на инструкцию
+char r8 = 0;
+unsigned char cs16 = 0;  // 16-bit's сегментный-регистр
+unsigned short ip16 = 0; // 16-bit's регистр-указатель на инструкцию
+short r16 = 0;
+//
+/// Для экспериментов ///
+char rcvr8 = 0;
+short rcvr16 = 0;
+char src8 = 0;
+short src16 = 0;
+//
+void Performer_VM() // Spin / Executor
+{
+    switch_run:
+    switch (*ptr__opcodes){
+    //
+    case 0x01: // 16-bit's addressation, add m8, m8 ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    {
+        rcvr16 = *(++ptr__opcodes) + *(++ptr__opcodes);
+        ++ptr__opcodes;
+        goto switch_run;
+    }
+    case 0x79: printf("\n Stopped.."); return;
+    default:
+    {
+        // ... //
+    }
+    //
+    }
+}
+//
 /*
 char * GetTypeToken(short idx)
 {
@@ -970,6 +1012,8 @@ void _$()
     Parse__Assignment();
     if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Присваивание разобрано успешно, конец файла.");
     else printf("\n После присваивания остались лишние токены.");
+
+    Performer_VM();
     //
     putchar('\n');
 }
