@@ -879,7 +879,7 @@ void _$()
     printf("\n%s", code);
     init_lexer(code);
     //while (get_token() != TOKEN__EOF){}
-    while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера
+    while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
