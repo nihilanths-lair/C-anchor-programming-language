@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 28% ready / Минимально жизнеспособный продукт компилятора готов на 28%
+// @ Minimum viable product of the compiler is 30% ready / Минимально жизнеспособный продукт компилятора готов на 30%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -466,6 +466,26 @@ short get_token()
     return TOKEN__ERROR;
 }
 //
+char is_binary_operator(const short token__type_identifier)
+{
+    switch (token__type_identifier){
+    //- Бинарные операторы -/
+    case TOKEN__ADDITION_OPERATOR:
+    case TOKEN__SUBTRACT_OPERATOR:
+    case TOKEN__MULTIPLICATION_OPERATOR:
+    case TOKEN__DIVISION_OPERATOR:
+    case TOKEN__BELOW_OPERATOR:
+    case TOKEN__ABOVE_OPERATOR:
+    case TOKEN__BELOW_EQUAL_OPERATOR:
+    case TOKEN__ABOVE_EQUAL_OPERATOR:
+    case TOKEN__EQUALITY_OPERATOR:
+    case TOKEN__INEQUALITY_OPERATOR:
+        return 1;
+    //
+    }
+    return 0;
+}
+//
 short current_token = 0;
 void Parse__Expression()
 {
@@ -475,31 +495,15 @@ void Parse__Expression()
     case TOKEN__IDENTIFIER:
     case TOKEN__STRING_LITERAL:
         current_token++;
-        while (token[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
+        while (is_binary_operator(token[current_token].type_identifier))
         {
+            current_token++;
             switch (token[current_token].type_identifier){
-            //- Бинарные операторы -/
-            case TOKEN__ADDITION_OPERATOR:
-            case TOKEN__SUBTRACT_OPERATOR:
-            case TOKEN__MULTIPLICATION_OPERATOR:
-            case TOKEN__DIVISION_OPERATOR:
-            case TOKEN__BELOW_OPERATOR:
-            case TOKEN__ABOVE_OPERATOR:
-            case TOKEN__BELOW_EQUAL_OPERATOR:
-            case TOKEN__ABOVE_EQUAL_OPERATOR:
-            case TOKEN__EQUALITY_OPERATOR:
-            case TOKEN__INEQUALITY_OPERATOR:
+            //- Второй операнд -/
+            case TOKEN__NUMERIC_LITERAL:
+            case TOKEN__IDENTIFIER:
+            case TOKEN__STRING_LITERAL:
                 current_token++;
-                switch (token[current_token].type_identifier){
-                //- Второй операнд -/
-                case TOKEN__NUMERIC_LITERAL:
-                case TOKEN__IDENTIFIER:
-                case TOKEN__STRING_LITERAL:
-                    current_token++;
-                //
-                break;
-                default: printf("\n #Error-3!");
-                }
             //
             break;
             default: printf("\n #Error-2!");
