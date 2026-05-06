@@ -167,8 +167,8 @@ unsigned short ip16 = 0; // 16-bit's регистр-указатель на ин
 short r16 = 0;
 //
 /// Для экспериментов ///
-char rcvr8 = 0;
-short rcvr16 = 0;
+char rcv8 = 0;
+short rcv16 = 0;
 char src8 = 0;
 short src16 = 0;
 //
@@ -179,7 +179,7 @@ void Performer_VM() // Spin / Executor
     //
     case 0x01: // 16-bit's addressation, add m8, m8 ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
-        rcvr16 = *(++ptr__opcodes) + *(++ptr__opcodes);
+        rcv16 = *(++ptr__opcodes) + *(++ptr__opcodes);
         ++ptr__opcodes;
         goto switch_run;
     }
