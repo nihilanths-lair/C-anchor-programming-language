@@ -874,7 +874,25 @@ void Parse__Expression()
 //
 void Parse__Assignment()
 {
-
+    if (__tokens[current_token].type_identifier != TOKEN__IDENTIFIER)
+    {
+        printf("\n #Error: Parse__Assignment!");
+        return;
+    }
+    current_token++;
+    if (__tokens[current_token].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
+    {
+        printf("\n #Error: Parse__Assignment-2!");
+        return;
+    }
+    current_token++;
+    Parse__Expression();
+    if (__tokens[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
+    {
+        printf("\n #Error: Parse__Assignment-3!");
+        return;
+    }
+    current_token++;
 }
 ///////////////////////////////////////////
 void _$()
@@ -922,7 +940,7 @@ void _$()
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " 3 + 5 - 1 * 2;\n"
      " */\n"
-     " rq = 123;\n" // Пока парсим только эту строку (часть) кода!
+     " rq = 3 + 5 - 1 * 2;\n" // Пока парсим только эту строку (часть) кода!
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
