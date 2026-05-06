@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 30% ready / Минимально жизнеспособный продукт компилятора готов на 30%
+// @ Minimum viable product of the compiler is 31% ready / Минимально жизнеспособный продукт компилятора готов на 31%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -501,19 +501,23 @@ short AccumulateTokens()
     //while (isspace(*ptr_code)) ptr_code++; // Пропусĸаем пробелы
     switch (*ptr_code){
     case '\0':
+    {
         __tokens[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
-    //
+    }
     case ' ': case '\t': case '\v': case '\n': case '\r': case '\f':
+    {
         ptr_code++;
         goto switch_run;
-    //
+    }
     case '!':
+    {
         __tokens[++number_of_tokens].lexeme[0] = '!';
         ptr_code++;
         if (*ptr_code == '=')
         {
-            __tokens[number_of_tokens].lexeme[1] = '='; __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].lexeme[1] = '=';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__INEQUALITY_OPERATOR;
             ptr_code++;
             return TOKEN__INEQUALITY_OPERATOR;
@@ -521,7 +525,7 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
-    //
+    }
     case '\"':
     {
         short i = -1;
@@ -535,44 +539,55 @@ short AccumulateTokens()
         if (*ptr_code == '\"')
         {
             __tokens[number_of_tokens].lexeme[++i] = '\"';
-            ptr_code++;
             __tokens[number_of_tokens].lexeme[++i] = '\0';
+            ptr_code++;
             __tokens[number_of_tokens].type_identifier = TOKEN__STRING_LITERAL;
             return TOKEN__STRING_LITERAL;
         }
         return TOKEN__UNKNOWN; // или TOKEN__ERROR?
     }
     case '(':
-        __tokens[++number_of_tokens].lexeme[0] = '('; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '(';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
         ptr_code++;
         return TOKEN__LEFT_PARENTHESIS;
-    //
+    }
     case ')':
-        __tokens[++number_of_tokens].lexeme[0] = ')'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = ')';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
         ptr_code++;
         return TOKEN__RIGHT_PARENTHESIS;
-    //
+    }
     case '*':
-        __tokens[++number_of_tokens].lexeme[0] = '*'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '*';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__MULTIPLICATION_OPERATOR;
         ptr_code++;
         return TOKEN__MULTIPLICATION_OPERATOR;
-    //
+    }
     case '+':
-        __tokens[++number_of_tokens].lexeme[0] = '+'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '+';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__ADDITION_OPERATOR;
         ptr_code++;
         return TOKEN__ADDITION_OPERATOR;
-    //
+    }
     case '-':
-        __tokens[++number_of_tokens].lexeme[0] = '-'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '-';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__SUBTRACT_OPERATOR;
         ptr_code++;
         return TOKEN__SUBTRACT_OPERATOR;
-    //
+    }
     case '/':
+    {
         ptr_code++;
         if (*ptr_code == '/')
         {
@@ -604,28 +619,35 @@ short AccumulateTokens()
             }
             goto switch_run;
         }
-        __tokens[++number_of_tokens].lexeme[0] = '/'; __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[++number_of_tokens].lexeme[0] = '/';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__DIVISION_OPERATOR;
         return TOKEN__DIVISION_OPERATOR;
-    //
+    }
     case ':':
-        __tokens[++number_of_tokens].lexeme[0] = ':'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = ':';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_LABEL;
         ptr_code++;
         return TOKEN__END_OF_LABEL;
-    //
+    }
     case ';':
-        __tokens[++number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
-        __tokens[number_of_tokens].lexeme[0] = ';'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = ';';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
         ptr_code++;
         return TOKEN__END_OF_STATEMENT;
-    //
+    }
     case '<':
+    {
         __tokens[++number_of_tokens].lexeme[0] = '<';
         ptr_code++;
         if (*ptr_code == '=')
         {
-            __tokens[number_of_tokens].lexeme[1] = '='; __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].lexeme[1] = '=';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__BELOW_EQUAL_OPERATOR;
             ptr_code++;
             return TOKEN__BELOW_EQUAL_OPERATOR;
@@ -633,13 +655,15 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__BELOW_OPERATOR;
         return TOKEN__BELOW_OPERATOR;
-    //
+    }
     case '=':
+    {
         __tokens[++number_of_tokens].lexeme[0] = '=';
         ptr_code++;
         if (*ptr_code == '=')
         {
-            __tokens[number_of_tokens].lexeme[1] = '='; __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].lexeme[1] = '=';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__EQUALITY_OPERATOR;
             ptr_code++;
             return TOKEN__EQUALITY_OPERATOR;
@@ -647,13 +671,15 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
         return TOKEN__LEFT_SIDED_ASSIGNMENT;
-    //
+    }
     case '>':
+    {
         __tokens[++number_of_tokens].lexeme[0] = '>';
         ptr_code++;
         if (*ptr_code == '=')
         {
-            __tokens[number_of_tokens].lexeme[1] = '='; __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].lexeme[1] = '=';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__ABOVE_EQUAL_OPERATOR;
             ptr_code++;
             return TOKEN__ABOVE_EQUAL_OPERATOR;
@@ -661,32 +687,41 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__ABOVE_OPERATOR;
         return TOKEN__ABOVE_OPERATOR;
-    //
+    }
     case '[':
-        __tokens[++number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
-        __tokens[number_of_tokens].lexeme[0] = '['; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '[';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
         ptr_code++;
         return TOKEN__LEFT_SQUARE_BRACKET;
-    //
+    }
     case ']':
-        __tokens[++number_of_tokens].type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
-        __tokens[number_of_tokens].lexeme[0] = ']'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = ']';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
         ptr_code++;
         return TOKEN__RIGHT_SQUARE_BRACKET;
-    //
+    }
     case '{':
-        __tokens[++number_of_tokens].type_identifier = TOKEN__LEFT_BRACE;
-        __tokens[number_of_tokens].lexeme[0] = '{'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '{';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_BRACE;
         ptr_code++;
         return TOKEN__LEFT_BRACE;
-    //
+    }
     case '}':
-        __tokens[++number_of_tokens].type_identifier = TOKEN__RIGHT_BRACE;
-        __tokens[number_of_tokens].lexeme[0] = '}'; __tokens[number_of_tokens].lexeme[1] = '\0';
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '}';
+        __tokens[number_of_tokens].lexeme[1] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_BRACE;
         ptr_code++;
         return TOKEN__RIGHT_BRACE;
-    //
+    }
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+    {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = *ptr_code;
         ptr_code++;
@@ -698,14 +733,9 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[++i] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
         return TOKEN__NUMERIC_LITERAL;
-
-    //case '_': printf("\n '_' - Это идентификатор или идентификатор метки?");
-        // ... //
-
-    //case '$': printf("\n '$' - Это не идентификатор, но идентификатор метки?");
-        // ... //
-
+    }
     default:
+    {
         //printf("\n def 1");
         if (isalpha(*ptr_code) || *ptr_code == '_') // Первым символом не может быть цифра
         {
@@ -777,7 +807,7 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[0] = *ptr_code;
         ptr_code++;
         return TOKEN__UNKNOWN;
-    }
+    }}
     //printf("\n def 2");
     return TOKEN__ERROR;
 }
@@ -881,24 +911,21 @@ void _$()
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
+    /*
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
-        /*
-        Parse__Expression();
-        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
-        {
-            printf("\n Выражение успешно разобрано, следующий токен ';'");
-            current_token++;
-        }
-        if (__tokens[current_token].type_identifier != TOKEN__EOF) printf("\n Предупреждение: после выражения остались токены!");
-        */
     }
     printf("\n--------------------------+---------------------------------");
+    */
+    while (AccumulateTokens() != TOKEN__EOF)
+    {
+        printf("\n--------------------------+---------------------------------");
+        printf("\n %s | %s", token__type_name[__tokens[number_of_tokens].type_identifier], __tokens[number_of_tokens].lexeme);
+    }
+    printf("\n-----------------------+------------------------------------");
     /*
-    //putchar('\n');
-    while (AccumulateTokens() != TOKEN__EOF){}
     number_of_tokens = -1;
     while (__tokens[++number_of_tokens].type_identifier != TOKEN__EOF)
     {
@@ -907,8 +934,6 @@ void _$()
     }
     printf("\n-----------------------+------------------------------------");
     */
-    /*
-    printf("\n--------------------------+---------------------------------");
     Parse__Expression();
     if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
     {
@@ -916,7 +941,6 @@ void _$()
         current_token++;
     }
     if (__tokens[current_token].type_identifier != TOKEN__EOF) printf("\n Предупреждение: после выражения остались токены!");
-    */
     //
     putchar('\n');
 }
