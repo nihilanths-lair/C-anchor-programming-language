@@ -831,7 +831,11 @@ char is_binary_operator(const short token__type_identifier)
     return 0;
 }
 //
+//////////////////////////////////////
+///  [Пространство имён: Parse__ ] ///
+//////////////////////////////////////
 short current_token = 0;
+//
 void Parse__Expression()
 {
     switch (__tokens[current_token].type_identifier){
@@ -853,15 +857,26 @@ void Parse__Expression()
                 current_token++;
                 break;
             }
-            default: printf("\n #Error-2!");
-            }
+            default:
+            {
+                printf("\n #Error-2!");
+                return;
+            }}
         }
         break;
     }
-    default: printf("\n #Error-1!");
-    }
+    default:
+    {
+        printf("\n #Error-1!");
+        return;
+    }}
 }
 //
+void Parse__Assignment()
+{
+
+}
+//////////////////////////////////////
 void _$()
 {
     setlocale(0, "");
@@ -905,8 +920,9 @@ void _$()
      " default: {}\n"
      " _0:\n"
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
+     " 3 + 5 - 1 * 2;\n"
      " */\n"
-     " 3 + 5 - 1 * 2; // Пока парсим только эту строку (часть) кода!\n"
+     " rq = 123;\n" // Пока парсим только эту строку (часть) кода!
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
@@ -933,13 +949,9 @@ void _$()
     }
     printf("\n-----------------------+------------------------------------");
     */
-    Parse__Expression();
-    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
-    {
-        printf("\n Выражение успешно разобрано, следующий токен ';'");
-        current_token++;
-    }
-    if (__tokens[current_token].type_identifier != TOKEN__EOF) printf("\n Предупреждение: после выражения остались токены!");
+    Parse__Assignment();
+    if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Присваивание разобрано успешно, конец файла.");
+    else printf("\n После присваивания остались лишние токены.");
     //
     putchar('\n');
 }
