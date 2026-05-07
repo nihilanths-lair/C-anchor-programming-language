@@ -938,7 +938,7 @@ void Parse__Expression_In_Backend_VM_C$()
         current_token++;
         // Проверяем оператор
         switch (__tokens[current_token].type_identifier){
-        case TOKEN__ADDITION_OPERATOR:
+        case TOKEN__ADDITION_OPERATOR: case TOKEN__SUBTRACT_OPERATOR: case TOKEN__MULTIPLICATION_OPERATOR: case TOKEN__DIVISION_OPERATOR:
         {
             current_token++;
             // Проверяем второй операнд
@@ -947,69 +947,23 @@ void Parse__Expression_In_Backend_VM_C$()
                 int right = atoi(__tokens[current_token].lexeme);// - '0';
                 current_token++;
                 printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-                opcodes[0] = 0x01;  // Эмит-1
-                opcodes[1] = left;  // Эмит-2
-                opcodes[2] = right; // Эмит-3
+                switch (__tokens[current_token].type_identifier){
+                case TOKEN__ADDITION_OPERATOR:       opcodes[0] = 0x01; break;
+                case TOKEN__SUBTRACT_OPERATOR:       opcodes[0] = 0x02; break;
+                case TOKEN__MULTIPLICATION_OPERATOR: opcodes[0] = 0x03; break;
+                case TOKEN__DIVISION_OPERATOR:       opcodes[0] = 0x04; break;
+                }
+                opcodes[1] = left;
+                opcodes[2] = right;
                 printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
             }
-            else printf("\n #Error: Emit-3");
+            else printf("\n #Error: Второй операнд не число.");
             return;
         }
-        case TOKEN__SUBTRACT_OPERATOR:
-        {
-            current_token++;
-            // Проверяем второй операнд
-            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
-            {
-                int right = atoi(__tokens[current_token].lexeme);// - '0';
-                current_token++;
-                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-                opcodes[0] = 0x02;  // Эмит-1
-                opcodes[1] = left;  // Эмит-2
-                opcodes[2] = right; // Эмит-3
-                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-            }
-            else printf("\n #Error: Emit-3");
-            return;
-        }
-        case TOKEN__MULTIPLICATION_OPERATOR:
-        {
-            current_token++;
-            // Проверяем второй операнд
-            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
-            {
-                int right = atoi(__tokens[current_token].lexeme);// - '0';
-                current_token++;
-                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-                opcodes[0] = 0x03;  // Эмит-1
-                opcodes[1] = left;  // Эмит-2
-                opcodes[2] = right; // Эмит-3
-                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-            }
-            else printf("\n #Error: Emit-3");
-            return;
-        }
-        case TOKEN__DIVISION_OPERATOR:
-        {
-            current_token++;
-            // Проверяем второй операнд
-            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
-            {
-                int right = atoi(__tokens[current_token].lexeme);// - '0';
-                current_token++;
-                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-                opcodes[0] = 0x04;  // Эмит-1
-                opcodes[1] = left;  // Эмит-2
-                opcodes[2] = right; // Эмит-3
-                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-            }
-            else printf("\n #Error: Emit-3");
-            return;
-        }
-        default: printf("\n #Error: Emit-2");
+        default: printf("\n #Error: Не оператор.");
         }
     }
-    else printf("\n #Error: Emit-1");
+    else printf("\n #Error: Первый операнд не число.");
 }
 //
 void Parse__Assignment()
