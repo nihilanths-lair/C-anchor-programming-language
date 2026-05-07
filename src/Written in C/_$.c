@@ -10,6 +10,7 @@ enum
 {
     // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
     TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ ЛИТЕРАЛ
+    TOKEN__CHARACTER_LITERAL,     // СИМВОЛЬНЫЙ ЛИТЕРАЛ
     TOKEN__STRING_LITERAL,        // СТРОКОВЫЙ ЛИТЕРАЛ
     TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
@@ -63,6 +64,7 @@ char token__type_identifier[128];
 char token__type_name[][64+1] =
 {
     "         NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
+    "       CHARACTER_LITERAL", // СИМВОЛЬНЫЙ ЛИТЕРАЛ
     "          STRING_LITERAL", // СТРОКОВЫЙ ЛИТЕРАЛ
     "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "              IDENTIFIER", // ИДЕНТИФИКАТОР
@@ -113,7 +115,8 @@ char token__type_name[][64+1] =
 char token__lexeme[][64+1] =
 {
     "'0'~'9'",                            // ЧИСЛОВОЙ ЛИТЕРАЛ
-    "\"\"",                               // СТРОКОВЫЙ ЛИТЕРАЛ
+    "'''",                                // СИМВОЛЬНЫЙ ЛИТЕРАЛ
+    "\"\"\"\"",                           // СТРОКОВЫЙ ЛИТЕРАЛ
     "'='",                                // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
     "'A'~'Z', 'a'~'z', '_', '0'~'9'",     // ИДЕНТИФИКАТОР
     "'A'~'Z', 'a'~'z', '_', '0'~'9' ':'", // ИДЕНТИФИКАТОР МЕТКИ
@@ -302,7 +305,27 @@ short GetNextToken()
         __token.type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
     }
-    case '\"':
+    case '\'': // Если символьный литерал
+    {
+        short i = -1;
+        __token.lexeme[++i] = '\'';
+        ptr_code++;
+        while (*ptr_code && *ptr_code != '\'')
+        {
+            __token.lexeme[++i] = *ptr_code;
+            ptr_code++;
+        }
+        if (*ptr_code == '\'')
+        {
+            __token.lexeme[++i] = '\'';
+            __token.lexeme[++i] = '\0';
+            __token.type_identifier = TOKEN__CHARACTER_LITERAL;
+            ptr_code++;
+            return TOKEN__CHARACTER_LITERAL;
+        }
+        return TOKEN__ERROR;
+    }
+    case '\"': // Если строковый литерал
     {
         short i = -1;
         __token.lexeme[++i] = '\"';
@@ -315,12 +338,12 @@ short GetNextToken()
         if (*ptr_code == '\"')
         {
             __token.lexeme[++i] = '\"';
-            ptr_code++;
             __token.lexeme[++i] = '\0';
             __token.type_identifier = TOKEN__STRING_LITERAL;
+            ptr_code++;
             return TOKEN__STRING_LITERAL;
         }
-        return TOKEN__UNKNOWN; // или TOKEN__ERROR?
+        return TOKEN__ERROR;
     }
     case '(':
     {
@@ -624,7 +647,27 @@ short AccumulateTokens()
         __tokens[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
     }
-    case '\"':
+    case '\'': // Если символьный литерал
+    {
+        short i = -1;
+        __tokens[++number_of_tokens].lexeme[++i] = '\'';
+        ptr_code++;
+        while (*ptr_code && *ptr_code != '\'')
+        {
+            __tokens[number_of_tokens].lexeme[++i] = *ptr_code;
+            ptr_code++;
+        }
+        if (*ptr_code == '\'')
+        {
+            __tokens[number_of_tokens].lexeme[++i] = '\'';
+            __tokens[number_of_tokens].lexeme[++i] = '\0';
+            __tokens[number_of_tokens].type_identifier = TOKEN__CHARACTER_LITERAL;
+            ptr_code++;
+            return TOKEN__CHARACTER_LITERAL;
+        }
+        return TOKEN__ERROR;
+    }
+    case '\"': // Если строковый литерал
     {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = '\"';
@@ -638,11 +681,11 @@ short AccumulateTokens()
         {
             __tokens[number_of_tokens].lexeme[++i] = '\"';
             __tokens[number_of_tokens].lexeme[++i] = '\0';
-            ptr_code++;
             __tokens[number_of_tokens].type_identifier = TOKEN__STRING_LITERAL;
+            ptr_code++;
             return TOKEN__STRING_LITERAL;
         }
-        return TOKEN__UNKNOWN; // или TOKEN__ERROR?
+        return TOKEN__ERROR;
     }
     case '(':
     {
@@ -1048,19 +1091,8 @@ void _$()
 {
     setlocale(0, "");
     //
-    /*/
-    /// Для экспериментов ///
-    AddToken("TOKEN__NUMERIC_LITERAL");
-    AddToken("TOKEN__LEFT_SIDED_ASSIGNMENT");
-    AddToken("TOKEN__IDENTIFIER");
-    AddToken("TOKEN__SPACE_SEPARATOR");
-    AddToken("TOKEN__END_OF_STATEMENT");
-    AddToken("TOKEN__KEYWORD_GOTO");
-    AddToken("TOKEN__LABEL_IDENTIFIER");
+    // AddToken("TOKEN__NAME"); Для экспериментов
 
-    AddToken("TOKEN__UNKNOWN");
-    AddToken("TOKEN__EOF");
-    /*/
     const char code[] =
      " // Однострочный комментарий\n"
      " /*\n"
@@ -1091,6 +1123,7 @@ void _$()
      " */\n"
      " //rq = 5 + 3 - 2 * 3;\n"
      " /*print*/ 5 + 3;\n" // Пока парсим только эту строку (часть) кода!
+     " /*print*/ 8 - 2;\n" // Пока парсим только эту строку (часть) кода!
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
@@ -1118,14 +1151,17 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
-    Parse__Expression_In_Backend_VM_C$(); // Разбираем выражение, генерируем код
-    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+    for (int i = 0; i < 2; i++)
     {
-        printf("\n Выражение успешно разобрано, следующий токен ';'");
-        current_token++;
+        Parse__Expression_In_Backend_VM_C$(); // Разбираем первое выражение, генерируем код
+        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+        {
+            printf("\n Выражение успешно разобрано, следующий токен ';'");
+            current_token++;
+        }
+        else printf("\n Ожидалась ';' после выражения");
+        gl__opcodes[gl__idx__opcodes++] = 0x78;
     }
-    else printf("\n Ожидалась ';' после выражения");
-    gl__opcodes[gl__idx__opcodes] = 0x78;
     gl__opcodes[gl__idx__opcodes+1] = 0x79;
     Debug_Loader_VM();
     Loader_VM(); // Загружаем программу в память
