@@ -184,6 +184,24 @@ void Performer_VM() // Spin / Executor
         ++ptr__opcodes;
         goto switch_run;
     }
+    case 0x02: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    {
+        rcv16 = *(++ptr__opcodes) - *(++ptr__opcodes);
+        ++ptr__opcodes;
+        goto switch_run;
+    }
+    case 0x03: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    {
+        rcv16 = *(++ptr__opcodes) * *(++ptr__opcodes);
+        ++ptr__opcodes;
+        goto switch_run;
+    }
+    case 0x04: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    {
+        rcv16 = *(++ptr__opcodes) / *(++ptr__opcodes);
+        ++ptr__opcodes;
+        goto switch_run;
+    }
     case 0x79: printf("\n Stopped.."); return;
     default: printf("\n Unknown opcode, stopped.."); return;
     //
@@ -919,7 +937,8 @@ void Parse__Expression_In_Backend_VM_C$()
         int left = atoi(__tokens[current_token].lexeme);// - '0';
         current_token++;
         // Проверяем оператор
-        if (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR)
+        switch (__tokens[current_token].type_identifier){
+        case TOKEN__ADDITION_OPERATOR:
         {
             current_token++;
             // Проверяем второй операнд
@@ -934,8 +953,61 @@ void Parse__Expression_In_Backend_VM_C$()
                 printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
             }
             else printf("\n #Error: Emit-3");
+            return;
         }
-        else printf("\n #Error: Emit-2");
+        case TOKEN__SUBTRACT_OPERATOR:
+        {
+            current_token++;
+            // Проверяем второй операнд
+            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+            {
+                int right = atoi(__tokens[current_token].lexeme);// - '0';
+                current_token++;
+                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+                opcodes[0] = 0x02;  // Эмит-1
+                opcodes[1] = left;  // Эмит-2
+                opcodes[2] = right; // Эмит-3
+                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+            }
+            else printf("\n #Error: Emit-3");
+            return;
+        }
+        case TOKEN__MULTIPLICATION_OPERATOR:
+        {
+            current_token++;
+            // Проверяем второй операнд
+            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+            {
+                int right = atoi(__tokens[current_token].lexeme);// - '0';
+                current_token++;
+                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+                opcodes[0] = 0x03;  // Эмит-1
+                opcodes[1] = left;  // Эмит-2
+                opcodes[2] = right; // Эмит-3
+                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+            }
+            else printf("\n #Error: Emit-3");
+            return;
+        }
+        case TOKEN__DIVISION_OPERATOR:
+        {
+            current_token++;
+            // Проверяем второй операнд
+            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+            {
+                int right = atoi(__tokens[current_token].lexeme);// - '0';
+                current_token++;
+                printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+                opcodes[0] = 0x04;  // Эмит-1
+                opcodes[1] = left;  // Эмит-2
+                opcodes[2] = right; // Эмит-3
+                printf("\n После | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
+            }
+            else printf("\n #Error: Emit-3");
+            return;
+        }
+        default: printf("\n #Error: Emit-2");
+        }
     }
     else printf("\n #Error: Emit-1");
 }
@@ -1009,7 +1081,7 @@ void _$()
      " 3 + 5 - 1 * 2;\n"
      " */\n"
      " //rq = 3 + 5 - 1 * 2;\n"
-     " 5 + 3;\n" // Пока парсим только эту строку (часть) кода!
+     " 3 + 5 - 1 * 2;\n" // Пока парсим только эту строку (часть) кода!
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
