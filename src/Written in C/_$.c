@@ -1021,7 +1021,8 @@ void Parse__Expression()
 void Parse__Expression_In_Backend_VM_C$()
 {
     // Проверяем первый операнд
-    if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+    switch (__tokens[current_token].type_identifier){
+    case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
     {
         int left = atoi(__tokens[current_token].lexeme);// - '0';
         current_token++;
@@ -1031,7 +1032,8 @@ void Parse__Expression_In_Backend_VM_C$()
         {
             current_token++;
             // Проверяем второй операнд
-            if (__tokens[current_token].type_identifier == TOKEN__NUMERIC_LITERAL)
+            switch (__tokens[current_token].type_identifier){
+            case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
             {
                 int right = atoi(__tokens[current_token].lexeme);// - '0';
                 printf("\n    До | <%03d:%03d> <%03d:%03d> <%03d:%03d> = <%02X:%02X> <%02X:%02X> <%02X:%02X>",
@@ -1054,13 +1056,16 @@ void Parse__Expression_In_Backend_VM_C$()
                 );
                 gl__idx__opcodes += 3;
             }
-            else printf("\n #Error: Второй операнд не число."); return;
+            default: printf("\n #Error: Второй операнд не число.");
+            }
             return;
         }
-        default: printf("\n #Error 2: Не оператор."); return;
+        default: printf("\n #Error 2: Не оператор.");
         }
+        return;
     }
-    else printf("\n #Error: Первый операнд не число.");
+    default: printf("\n #Error: Первый операнд не число.");
+    }
     return;
 }
 //
@@ -1122,8 +1127,9 @@ void _$()
      " 3 + 5 - 1 * 2;\n"
      " */\n"
      " //rq = 5 + 3 - 2 * 3;\n"
-     " /*print*/ 5 + 3;\n" // Пока парсим только эту строку (часть) кода!
-     " /*print*/ 8 - 2;\n" // Пока парсим только эту строку (часть) кода!
+     " /*print*/ 5 + 3;\n"
+     " /*print*/ 8 - 2;\n"
+     " ///*print*/ 'C' + '$';\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
