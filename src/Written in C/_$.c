@@ -1154,10 +1154,11 @@ void _$()
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " 3 + 5 - 1 * 2;\n"
      " */\n"
-     " //rq = 5 + 3 - 2 * 3;\n"
+     " //rq = 5 + 3 - 2 * 3 / 6;\n"
      " /*print*/ 5 + 3;\n"
      " /*print*/ 8 - 2;\n"
      " /*print*/ 6 * 3;\n"
+     " /*print*/ 18 / 6;\n"
      " ///*print*/ 'C' + '$'; // 67 + 36 = 103 / 'g'\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
@@ -1186,7 +1187,7 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
         Parse__Expression_In_Backend_VM_C$(); // Разбираем простое выражение, генерируем код
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
