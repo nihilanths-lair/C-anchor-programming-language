@@ -1035,6 +1035,7 @@ void Parse__Expression()
 void Parse__Expression_In_Backend_VM_C$()
 {
     int literal;
+    printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
     while (__tokens[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
     {
         // Проверяем первый операнд
@@ -1053,7 +1054,6 @@ void Parse__Expression_In_Backend_VM_C$()
                 switch (__tokens[current_token].type_identifier){
                 case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
                 {
-                    printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
                     switch (__tokens[current_token-1].type_identifier){
                     case TOKEN__ADDITION_OPERATOR:       literal += atoi(__tokens[current_token].lexeme); break;
                     case TOKEN__SUBTRACT_OPERATOR:       literal -= atoi(__tokens[current_token].lexeme); break;
