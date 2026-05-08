@@ -1034,67 +1034,57 @@ void Parse__Expression()
 }
 void Parse__Expression_In_Backend_VM_C$()
 {
-    // Проверяем первый операнд
-    switch (__tokens[current_token].type_identifier){
-    case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
+    int literal;
+    while (__tokens[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
     {
-        int left = atoi(__tokens[current_token].lexeme);// - '0';
-        current_token++;
-        // Проверяем оператор
+        // Проверяем первый операнд
         switch (__tokens[current_token].type_identifier){
-        // Бинарное выражение
-        case TOKEN__ADDITION_OPERATOR: case TOKEN__SUBTRACT_OPERATOR: case TOKEN__MULTIPLICATION_OPERATOR: case TOKEN__DIVISION_OPERATOR:
+        case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
         {
+            literal = atoi(__tokens[current_token].lexeme);
             current_token++;
-            // Проверяем второй операнд
+            // Проверяем оператор
             switch (__tokens[current_token].type_identifier){
-            case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
+            // Бинарное выражение
+            case TOKEN__ADDITION_OPERATOR: case TOKEN__SUBTRACT_OPERATOR: case TOKEN__MULTIPLICATION_OPERATOR: case TOKEN__DIVISION_OPERATOR:
             {
-                int right = atoi(__tokens[current_token].lexeme);// - '0';
-                printf("\n    До | <%03d:%03d> <%03d:%03d> <%03d:%03d> = <%02X:%02X> <%02X:%02X> <%02X:%02X>",
-                 gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes+1, gl__opcodes[gl__idx__opcodes+1], gl__idx__opcodes+2, gl__opcodes[gl__idx__opcodes+2],
-                 gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes+1, gl__opcodes[gl__idx__opcodes+1], gl__idx__opcodes+2, gl__opcodes[gl__idx__opcodes+2]
-                );
-                switch (__tokens[current_token-1].type_identifier){
-                case TOKEN__ADDITION_OPERATOR:       gl__opcodes[gl__idx__opcodes] = 0x01; break;
-                case TOKEN__SUBTRACT_OPERATOR:       gl__opcodes[gl__idx__opcodes] = 0x02; break;
-                case TOKEN__MULTIPLICATION_OPERATOR: gl__opcodes[gl__idx__opcodes] = 0x03; break;
-                case TOKEN__DIVISION_OPERATOR:       gl__opcodes[gl__idx__opcodes] = 0x04; break;
-                default: printf("\n #Error 1: Не оператор.");
-                }
                 current_token++;
-                gl__opcodes[gl__idx__opcodes+1] = left;
-                gl__opcodes[gl__idx__opcodes+2] = right;
-                printf("\n После | <%03d:%03d> <%03d:%03d> <%03d:%03d> = <%02X:%02X> <%02X:%02X> <%02X:%02X>",
-                 gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes+1, gl__opcodes[gl__idx__opcodes+1], gl__idx__opcodes+2, gl__opcodes[gl__idx__opcodes+2],
-                 gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes+1, gl__opcodes[gl__idx__opcodes+1], gl__idx__opcodes+2, gl__opcodes[gl__idx__opcodes+2]
-                );
-                gl__idx__opcodes += 3;
+                // Проверяем второй операнд
+                switch (__tokens[current_token].type_identifier){
+                case TOKEN__NUMERIC_LITERAL: case TOKEN__CHARACTER_LITERAL:
+                {
+                    printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+                    switch (__tokens[current_token-1].type_identifier){
+                    case TOKEN__ADDITION_OPERATOR:       literal += atoi(__tokens[current_token].lexeme); break;
+                    case TOKEN__SUBTRACT_OPERATOR:       literal -= atoi(__tokens[current_token].lexeme); break;
+                    case TOKEN__MULTIPLICATION_OPERATOR: literal *= atoi(__tokens[current_token].lexeme); break;
+                    case TOKEN__DIVISION_OPERATOR:       literal /= atoi(__tokens[current_token].lexeme); break;
+                    default: printf("\n #Error 1: Не оператор."); return;
+                    }
+                    current_token++;
+                    return;
+                }
+                default: printf("\n #Error: Второй операнд не число."); return;
+                }
+            }
+            // Унарное выражение (для экспериментов)
+            default:
+            {
+                /*
+                printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+                gl__opcodes[gl__idx__opcodes] = left;
+                printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+                gl__idx__opcodes += 1;
+                */
                 return;
-            }
-            default: printf("\n #Error: Второй операнд не число.");
-            }
-            return;
+            }}
         }
-        // Унарное выражение (для экспериментов)
-        default:
-        {
-            printf("\n    До | <%03d:%03d> = <%02X:%02X>",
-             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes],
-             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]
-            );
-            gl__opcodes[gl__idx__opcodes] = left;
-            printf("\n После | <%03d:%03d> = <%02X:%02X>",
-             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes],
-             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]
-            );
-            gl__idx__opcodes += 1;
-            return;
-        }}
+        default: printf("\n #Error: Первый операнд не число."); return;
+        }
     }
-    default: printf("\n #Error: Первый операнд не число.");
-    }
-    return;
+    gl__opcodes[gl__idx__opcodes] = literal;
+    printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+    gl__idx__opcodes++;
 }
 //
 void Parse__Assignment()
@@ -1187,7 +1177,7 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         Parse__Expression_In_Backend_VM_C$(); // Разбираем простое выражение, генерируем код
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
