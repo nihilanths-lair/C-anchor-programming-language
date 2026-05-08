@@ -1062,10 +1062,11 @@ void Parse__Expression_In_Backend_VM_C$()
                     default: printf("\n #Error 1: Не оператор."); return;
                     }
                     current_token++;
-                    return;
+                    break;
                 }
                 default: printf("\n #Error: Второй операнд не число."); return;
                 }
+                break;
             }
             // Унарное выражение (для экспериментов)
             default:
@@ -1078,6 +1079,7 @@ void Parse__Expression_In_Backend_VM_C$()
                 */
                 return;
             }}
+            break;
         }
         default: printf("\n #Error: Первый операнд не число."); return;
         }
