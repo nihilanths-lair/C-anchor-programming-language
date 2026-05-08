@@ -194,7 +194,7 @@ void Loader_VM()
 //
 void Debug_Loader_VM()
 {
-    putchar('\n');
+    //putchar('\n');
     int len = strlen(gl__memory_tape);//+1
     for (int i = 0; i < len; i++) printf(" %03d", gl__memory_tape[i]);
     putchar('\n');
@@ -208,35 +208,49 @@ void Performer_VM() // Spin / Executor
     //
     case 0x01: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
-        printf("\n 0x01");
+        printf("\n \\d001 = \\h01");
         rcv16 = *(++gl__ptr__memory_tape) + *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x02: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
-        printf("\n 0x02");
+        printf("\n \\d002 = \\h02");
         rcv16 = *(++gl__ptr__memory_tape) - *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x03: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
-        printf("\n 0x03");
+        printf("\n \\d003 = \\h03");
         rcv16 = *(++gl__ptr__memory_tape) * *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x04: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
     {
-        printf("\n 0x04");
+        printf("\n \\d004 = \\h04");
         rcv16 = *(++gl__ptr__memory_tape) / *(++gl__ptr__memory_tape);
+        ++gl__ptr__memory_tape;
+        goto switch_run;
+    }
+    case 0x05: // 16-bit's addr-on | mov i8, rcv16 ;
+    {
+        printf("\n \\d005 = \\h05");
+        rcv16 = *(++gl__ptr__memory_tape);
+        ++gl__ptr__memory_tape;
+        goto switch_run;
+    }
+    case 0x77: // OUT (распечатать число на консоль)
+    {
+        printf("\n \\d%d = \\h77\n ", 0x77);
+        printf("%d", rcv16);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x78: // OUT (распечатать символ на консоль)
     {
-        printf("\n 0x78");
+        printf("\n \\d%d = \\h78\n ", 0x78);
         putchar(rcv16);
         ++gl__ptr__memory_tape;
         goto switch_run;
@@ -1028,6 +1042,7 @@ void Parse__Expression_In_Backend_VM_C$()
         current_token++;
         // Проверяем оператор
         switch (__tokens[current_token].type_identifier){
+        // Бинарное выражение
         case TOKEN__ADDITION_OPERATOR: case TOKEN__SUBTRACT_OPERATOR: case TOKEN__MULTIPLICATION_OPERATOR: case TOKEN__DIVISION_OPERATOR:
         {
             current_token++;
@@ -1055,14 +1070,27 @@ void Parse__Expression_In_Backend_VM_C$()
                  gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes+1, gl__opcodes[gl__idx__opcodes+1], gl__idx__opcodes+2, gl__opcodes[gl__idx__opcodes+2]
                 );
                 gl__idx__opcodes += 3;
+                return;
             }
             default: printf("\n #Error: Второй операнд не число.");
             }
             return;
         }
-        default: printf("\n #Error 2: Не оператор.");
-        }
-        return;
+        // Унарное выражение (для экспериментов)
+        default:
+        {
+            printf("\n    До | <%03d:%03d> = <%02X:%02X>",
+             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes],
+             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]
+            );
+            gl__opcodes[gl__idx__opcodes] = left;
+            printf("\n После | <%03d:%03d> = <%02X:%02X>",
+             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes],
+             gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]
+            );
+            gl__idx__opcodes += 1;
+            return;
+        }}
     }
     default: printf("\n #Error: Первый операнд не число.");
     }
@@ -1129,7 +1157,8 @@ void _$()
      " //rq = 5 + 3 - 2 * 3;\n"
      " /*print*/ 5 + 3;\n"
      " /*print*/ 8 - 2;\n"
-     " ///*print*/ 'C' + '$';\n"
+     " /*print*/ 6 * 3;\n"
+     " ///*print*/ 'C' + '$'; // 67 + 36 = 103 / 'g'\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
     init_lexer(code);
@@ -1157,24 +1186,23 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
         Parse__Expression_In_Backend_VM_C$(); // Разбираем первое выражение, генерируем код
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
         {
-            printf("\n Выражение успешно разобрано, следующий токен ';'");
+            printf("\n Выражение успешно разобрано, следующий токен ';'\n");
             current_token++;
         }
         else printf("\n Ожидалась ';' после выражения");
-        gl__opcodes[gl__idx__opcodes++] = 0x78;
+        // 0x77 / отобразить байт как число // 0x78 / отобразить байт как символ
+        gl__opcodes[gl__idx__opcodes++] = 0x77;
     }
-    gl__opcodes[gl__idx__opcodes+1] = 0x79;
+    gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     Debug_Loader_VM();
     Loader_VM(); // Загружаем программу в память
     Debug_Loader_VM();
-    printf("\n    До | rcv16 = %d", rcv16);
     Performer_VM(); // Исполняем программу
-    printf("\n После | rcv16 = %d", rcv16);
     
     /*
     putchar('\n');
