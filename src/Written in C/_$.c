@@ -1188,7 +1188,7 @@ void _$()
     gl__idx__opcodes = 0;
     for (int i = 0; i < 3; i++)
     {
-        Parse__Expression_In_Backend_VM_C$(); // Разбираем первое выражение, генерируем код
+        Parse__Expression_In_Backend_VM_C$(); // Разбираем простое выражение, генерируем код
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
         {
             printf("\n Выражение успешно разобрано, следующий токен ';'\n");
