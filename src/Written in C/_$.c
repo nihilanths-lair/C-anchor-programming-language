@@ -106,11 +106,10 @@ char token__lexeme[][64+1] =
     "'\\0'",   // КОНЕЦ
     "'\\/!\\'" // ОШИБКА
 };
-// Массив ниже заполняется оп-кодами, которые затем могут быть выполнены интерпретатором
 // Пока 16-bit's архитектурная модель (возможно с расширениями через сегментацию, но это в дальнейшем, сейчас же для теста достаточно и этого)
 #define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
 unsigned char gl__opcodes[MACRO__MAXIMUM_CODE_LIMIT];
-unsigned char * gl__ptr__opcodes = gl__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности (необходимости) заполнять его
+unsigned char * gl__ptr__opcodes = gl__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности/необходимости заполнять его
 unsigned short gl__idx__opcodes = 0-1;
 //
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
@@ -248,7 +247,7 @@ short GetNextToken()
         __token.type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
     }
-    case ' ': case '\t': case '\v': case '\n': case '\r': case '\f':
+    case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
     {
         ptr_code++;
         goto switch_run;
@@ -590,7 +589,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
     }
-    case ' ': case '\t': case '\v': case '\n': case '\r': case '\f':
+    case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
     {
         ptr_code++;
         goto switch_run;
@@ -1153,7 +1152,6 @@ void _$()
     Loader_VM(); // Загружаем программу в память
     Debug_Loader_VM();
     Performer_VM(); // Исполняем программу
-    
     /*
     putchar('\n');
     unsigned char i = 0;
