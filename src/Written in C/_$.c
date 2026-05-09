@@ -1075,6 +1075,10 @@ void _$()
     setlocale(0, "");
     //
     // AddToken("TOKEN__NAME"); Для экспериментов
+    char * p1;
+    char ** p2 = &p1;
+    char *** p3 = &p2;
+    char *********************************** p;
 
     const char code[] =
      " // Однострочный комментарий\n"
