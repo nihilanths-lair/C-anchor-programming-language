@@ -196,8 +196,9 @@ void Debug_Loader_VM()
 {
     //putchar('\n');
     int len = strlen(gl__memory_tape);//+1
+    printf("\n Оп-код (dec):");
     for (int i = 0; i < len; i++) printf(" %03d", gl__memory_tape[i]);
-    putchar('\n');
+    printf("\n Оп-код (hex):");
     for (int i = 0; i < len; i++) printf("  %02X", gl__memory_tape[i]);
 }
 //
@@ -1199,7 +1200,7 @@ void _$()
     }
     if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Разбор окончен.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
-    Debug_Loader_VM();
+    //Debug_Loader_VM();
     Loader_VM(); // Загружаем программу в память
     Debug_Loader_VM();
     Performer_VM(); // Исполняем программу
