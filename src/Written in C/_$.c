@@ -1,4 +1,4 @@
-// @ Minimum viable product of the compiler is 38% ready / Минимально жизнеспособный продукт компилятора готов на 38%
+// @ Minimum viable product of the compiler is 40% ready / Минимально жизнеспособный продукт компилятора готов на 40%
 //
 #include <stdio.h>
 #include <locale.h>
@@ -946,7 +946,7 @@ char is_binary_operator(const short token__type_identifier)
 ///////////////////////////////////////////
 short current_token = 0;
 //
-void Parse__Expression()
+void Parse__Expression__2()
 {
     switch (__tokens[current_token].type_identifier){
     //- Первый операнд -/
@@ -981,10 +981,12 @@ void Parse__Expression()
         return;
     }}
 }
-void Parse__Expression_In_Backend_VM_C$()
+void Parse__Expression(const char opcodes)
 {
     // Проверяем первый операнд
     switch (__tokens[current_token].type_identifier){
+    //
+    //case TOKEN__IDENTIFIER:
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__CHARACTER_LITERAL:
     {
@@ -1038,9 +1040,11 @@ void Parse__Expression_In_Backend_VM_C$()
                 break;
             }}
         }
-        gl__opcodes[gl__idx__opcodes] = literal;
+        gl__opcodes[gl__idx__opcodes++] = 0x05; // загрузить след. число в регистр
+        gl__opcodes[gl__idx__opcodes++] = literal; // само число
+        gl__opcodes[gl__idx__opcodes++] = opcodes; // отобразить число на консоль
         //printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-        gl__idx__opcodes++;
+        //gl__idx__opcodes++;
         break;
     }
     default: printf("\n #Error: Первый операнд не число."); return;
@@ -1061,7 +1065,7 @@ void Parse__Assignment()
         return;
     }
     current_token++;
-    Parse__Expression();
+    //Parse__Expression();
     if (__tokens[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
     {
         printf("\n #Error: Parse__Assignment-3!");
@@ -1069,17 +1073,49 @@ void Parse__Assignment()
     }
     current_token++;
 }
+//
+void Parse__Statement()
+{
+    switch (__tokens[current_token].type_identifier){
+    //
+    case TOKEN__KEYWORD_PRINT:
+    {
+        current_token++;
+        Parse__Expression(0x77); // Отобразить число на консоль
+        //
+        break;
+    }
+    case TOKEN__IDENTIFIER:
+    {
+        current_token++;
+        ///Parse__Assignment();///
+        if (__tokens[current_token].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
+        {
+            printf("\n Parse error: Expected '='.");
+            return;
+        }
+        current_token++;
+        Parse__Expression(0x05); // Записать байт в регистр
+        //////////////////////////
+        //
+        break;
+    }
+    default:
+    {
+        printf("\n Parse error: This is not a statement!");
+        return;
+    }
+    //
+    }
+    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Parse: The statement is dismantled.\n");
+    else printf("\n Parse error: Expected ';'.");
+    current_token++;
+}
 ///////////////////////////////////////////
 void _$()
 {
     setlocale(0, "");
     //
-    // AddToken("TOKEN__NAME"); Для экспериментов
-    char * p1;
-    char ** p2 = &p1;
-    char *** p3 = &p2;
-    char *********************************** p;
-
     const char code[] =
      " // Однострочный комментарий\n"
      " /*\n"
@@ -1108,8 +1144,8 @@ void _$()
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " 3 + 5 - 1 * 2;\n"
      " */\n"
-     " //rq = 5 + 3 - 2 * 3 / 6;\n"
-     " /*print*/ 5 + 3 - 2 * 3 / 6;\n"
+     " /*print 5 + 3 - 2 * 3 / 6;*/\n"
+     " x = 5 + 3 - 2 * 3 / 6;\n"
      " ///*print*/ 8 - 2;\n"
      " ///*print*/ 6 * 3;\n"
      " ///*print*/ 18 / 6;\n"
@@ -1143,14 +1179,11 @@ void _$()
     gl__idx__opcodes = 0;
     while (__tokens[current_token].type_identifier != TOKEN__EOF)
     {
-        Parse__Expression_In_Backend_VM_C$(); // Разбираем простое выражение, генерируем код
-        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Сложное выражение без учёта приоритетности разобрано, следующий токен ';'\n");
-        else printf("\n Ожидалось ';' после выражения");
-        current_token++;
+        Parse__Statement();
         // 0x77 / отобразить байт как число // 0x78 / отобразить байт как символ
         //gl__opcodes[gl__idx__opcodes++] = 0x77;
     }
-    if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Разбор окончен.\n");
+    if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM(); // Загружаем программу в память
