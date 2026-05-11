@@ -1,122 +1,27 @@
-// @ Minimum viable product of the compiler is 40% ready / Минимально жизнеспособный продукт компилятора готов на 40%
+// @ The minimum viable product of the temporary compiler is 40% complete. / Минимально жизнеспособный продукт временного компилятора готов на 40%.
 //
 #include <stdio.h>
 #include <locale.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 //
 #include "enum__token.h"
 //
 short number_of_tokens = -1;
 char token__type_identifier[128];
+char identifier[1][48+1];
 //
 #include "token__type_name.c"
 #include "token__lexeme.c"
 //
-// Пока 16-bit's архитектурная модель (возможно с расширениями через сегментацию, но это в дальнейшем, сейчас же для теста достаточно и этого)
 #define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
 unsigned char gl__opcodes[MACRO__MAXIMUM_CODE_LIMIT];
 unsigned char * gl__ptr__opcodes = gl__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности/необходимости заполнять его
 unsigned short gl__idx__opcodes = 0-1;
 //
-//#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
-//#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
-unsigned char cs8 = 0; // 8-bit's сегментный-регистр
-unsigned char ip8 = 0; // 8-bit's регистр-указатель на инструкцию
-unsigned char sp8 = 0; // 8-bit's регистр-указатель на стек
-char r8 = 0;
-unsigned char cs16 = 0;  // 16-bit's сегментный-регистр
-unsigned char gl__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская модель памяти, стек находится здесь же (заполнение с конца)
-unsigned char * gl__ptr__memory_tape = gl__memory_tape;
-unsigned short ip16 = 0; // 16-bit's регистр-указатель на инструкцию
-unsigned short sp16 = 0; // 16-bit's регистр-указатель на стек
-short r16 = 0;
-//
-/// Для экспериментов ///
-char rcv8 = 0;
-short rcv16 = 0;
-char src8 = 0;
-short src16 = 0;
-//
-void Loader_VM()
-{
-    //printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-    //printf("\n    До | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
-    int len = strlen(gl__opcodes);//+1
-    for (int i = 0; i < len; i++) gl__memory_tape[i] = gl__opcodes[i];
-    //printf("\n После | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
-}
-//
-void Debug_Loader_VM()
-{
-    //putchar('\n');
-    int len = strlen(gl__memory_tape);//+1
-    printf("\n Оп-код (dec):");
-    for (int i = 0; i < len; i++) printf(" %03d", gl__memory_tape[i]);
-    printf("\n Оп-код (hex):");
-    for (int i = 0; i < len; i++) printf("  %02X", gl__memory_tape[i]);
-}
-//
-void Performer_VM() // Spin / Executor
-{
-    switch_run:
-    switch (*gl__ptr__memory_tape){
-    //
-    case 0x01: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
-    {
-        printf("\n \\d001 = \\h01");
-        rcv16 = *(++gl__ptr__memory_tape) + *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x02: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
-    {
-        printf("\n \\d002 = \\h02");
-        rcv16 = *(++gl__ptr__memory_tape) - *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x03: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
-    {
-        printf("\n \\d003 = \\h03");
-        rcv16 = *(++gl__ptr__memory_tape) * *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x04: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
-    {
-        printf("\n \\d004 = \\h04");
-        rcv16 = *(++gl__ptr__memory_tape) / *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x05: // 16-bit's addr-on | mov i8, rcv16 ;
-    {
-        printf("\n \\d005 = \\h05");
-        rcv16 = *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x77: // OUT (распечатать число на консоль)
-    {
-        printf("\n \\d%d = \\h77\n ", 0x77);
-        printf("%d", rcv16);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x78: // OUT (распечатать символ на консоль)
-    {
-        printf("\n \\d%d = \\h78\n ", 0x78);
-        putchar(rcv16);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x79: printf("\n Stopped.."); return;
-    default: printf("\n Unknown opcode, stopped.."); return;
-    //
-    }
-}
+#include "vm.c"
 //
 /*
 char * GetTypeToken(short idx)
@@ -995,6 +900,18 @@ void Parse__Statement()
     }
     case TOKEN__IDENTIFIER:
     {
+        int i = 0;
+        //printf("\n \\\\\\ %d", sizeof (identifier) / sizeof (identifier[0]));
+        int size = sizeof (identifier) / sizeof (identifier[0]);
+        while (i < size)
+        {
+            printf("\n \"%s\" %s \"%s\"", __tokens[current_token].lexeme, (!strcmp(__tokens[current_token].lexeme, identifier[i])) ? "==" : "!=", identifier[i]);
+            if (!strcmp(__tokens[current_token].lexeme, identifier[i])) printf("\n Идентификатор обнаружен, обновим его значения."); /* {?} */ break;
+            i++;
+        }
+        printf("\n Идентификатор \"%s\" не обнаружен, создадим/добавим его.", __tokens[current_token].lexeme);
+        i = 0;
+        strcpy(identifier[i], __tokens[current_token].lexeme);
         current_token++;
         ///Parse__Assignment();///
         if (__tokens[current_token].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
@@ -1053,7 +970,7 @@ void _$()
      " 3 + 5 - 1 * 2;\n"
      " */\n"
      " /*print 5 + 3 - 2 * 3 / 6;*/\n"
-     " x = 5 + 3 - 2 * 3 / 6;\n"
+     " xyz = 5 + 3 - 2 * 3 / 6;\n"
      " ///*print*/ 8 - 2;\n"
      " ///*print*/ 6 * 3;\n"
      " ///*print*/ 18 / 6;\n"
@@ -1085,6 +1002,7 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
+    gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
     while (__tokens[current_token].type_identifier != TOKEN__EOF)
     {
         Parse__Statement();
@@ -1094,9 +1012,9 @@ void _$()
     if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
-    Loader_VM(); // Загружаем программу в память
+    Loader_VM();
     Debug_Loader_VM();
-    Performer_VM(); // Исполняем программу
+    Executor_VM();
     /*
     putchar('\n');
     unsigned char i = 0;
