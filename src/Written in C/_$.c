@@ -1,4 +1,5 @@
-// @ The minimum viable product of the temporary compiler is 40% complete. / Минимально жизнеспособный продукт временного компилятора готов на 40%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 40% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 40%.
 //
 #include <stdio.h>
 #include <locale.h>
