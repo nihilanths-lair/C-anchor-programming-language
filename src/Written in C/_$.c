@@ -73,8 +73,8 @@ short GetNextToken()
     switch (*gl__ptr__code){
     case '\0':
     {
-        __token.type_identifier = TOKEN__EOF;
-        return TOKEN__EOF;
+        __token.type_identifier = TOKEN__FINAL_TOKEN;
+        return TOKEN__FINAL_TOKEN;
     }
     case '\t': case '\v': case '\f': case '\r': case ' ':
     {
@@ -428,8 +428,8 @@ short AccumulateTokens()
     switch (*gl__ptr__code){
     case '\0':
     {
-        __tokens[++number_of_tokens].type_identifier = TOKEN__EOF;
-        return TOKEN__EOF;
+        __tokens[++number_of_tokens].type_identifier = TOKEN__FINAL_TOKEN;
+        return TOKEN__FINAL_TOKEN;
     }
     case '\t': case '\v': case '\f': case '\r': case ' ':
     {
@@ -779,7 +779,7 @@ short AccumulateTokens()
 /// Распечатать все токены ///
 void PrintAllTokens()
 {
-    while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF)
+    while ((__token.type_identifier = GetNextToken()) != TOKEN__FINAL_TOKEN)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
@@ -864,7 +864,6 @@ void Parse__Expression(const char opcodes)
 {
     // Проверяем первый операнд
     switch (__tokens[current_token].type_identifier){
-    //
     //case TOKEN__IDENTIFIER:
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__CHARACTER_LITERAL:
@@ -874,15 +873,15 @@ void Parse__Expression(const char opcodes)
         current_token++;
         //printf("\n    До | <%03d:%03d> = <%02X:%02X>\n", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
         switch_run:
-        // Проверяем оператор
+        // Проверяем унарное это выражение или бинарное (что следует за первым операндом?)
         switch (__tokens[current_token].type_identifier){
-        //
         case TOKEN__END_OF_STATEMENT:
         case TOKEN__NEW_LINE:
-        {
-            printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
-            break;
-        }
+        case TOKEN__FINAL_TOKEN: printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
+        break;
+        // Унарное выражение
+        case TOKEN__NUMERIC_LITERAL: printf("\n Это унарное выражение.");
+        break;
         // Бинарное выражение
         case TOKEN__ADDITION_OPERATOR:
         case TOKEN__SUBTRACT_OPERATOR:
@@ -908,35 +907,13 @@ void Parse__Expression(const char opcodes)
                 current_token++;
                 goto switch_run;
             }
-            default:
-            {
-                printf("\n #Error: След. операнд не число.");
-                break;
-            }}
+            default: printf("\n #Error: След. операнд не число.");
+            //
+            }
         }
-        // Унарное выражение
-        case TOKEN__NUMERIC_LITERAL:
-        {
-            printf("\n Это унарное выражение.");
-            break;
-        }
-        // Унарное выражение (для экспериментов)
-        default:
-        {
-            printf("\n Это унарное выражение-2.");
-            /*
-            printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-            gl__opcodes[gl__idx__opcodes] = left;
-            printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-            gl__idx__opcodes += 1;
-            */
-            break;
-        }
+        break;
+        default: printf("\n Это унарное выражение-2.");
         //
-        }
-        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
-        {
-            printf("\n ~~~");
         }
         gl__opcodes[gl__idx__opcodes++] = 0x05; // загрузить след. число в регистр
         gl__opcodes[gl__idx__opcodes++] = literal; // само число
@@ -1008,7 +985,6 @@ void Parse__Statement()
         current_token++;
         Parse__Expression(0x05); // Записать байт в регистр
         //////////////////////////
-        //
         break;
     }
     default:
@@ -1018,8 +994,17 @@ void Parse__Statement()
     }
     //
     }
-    /// ... ///
+    switch (__tokens[current_token].type_identifier){
+    case TOKEN__NEW_LINE:
+    case TOKEN__END_OF_STATEMENT:
+    case TOKEN__FINAL_TOKEN: printf("\n Parse: The statement is dismantled.");
+    break;
+    default: printf("\n Parse error: Expected '\\n' or ';'.");
+    //
+    }
     current_token++;
+    //if (__tokens[current_token-1].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Parse: The statement is dismantled.");
+    //else printf("\n Parse error: Expected '\\n' or ';'.");
     //return 0;
 }
 ///////////////////////////////////////////
@@ -1027,7 +1012,7 @@ void _$()
 {
     setlocale(0, "");
     //
-    const char code[] = "x = 5;";
+    const char code[] = "x = 123\ny = 12\nz = 1";
     /*
     const char code[] =
      " // Однострочный комментарий\n"
@@ -1064,10 +1049,10 @@ void _$()
      " ///*print*//*18 / 6;\n"
      " ///*print*//*'C' + '$'/*; // 67 + 36 = 103 / 'g'\n"
      ; // inline-код для быстрого тестирования (временно)*/
-    printf("\n %s", code);
+    printf("\n%s", code);
     gl__ptr__code = code;
     /*
-    while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
+    while ((__token.type_identifier = GetNextToken()) != TOKEN__FINAL_TOKEN) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
@@ -1077,7 +1062,7 @@ void _$()
     PrintAllTokens();
     printf("\n\n");
     gl__ptr__code = code;
-    while (AccumulateTokens() != TOKEN__EOF)
+    while (AccumulateTokens() != TOKEN__FINAL_TOKEN)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__tokens[number_of_tokens].type_identifier], __tokens[number_of_tokens].lexeme);
@@ -1085,7 +1070,7 @@ void _$()
     printf("\n--------------------------+---------------------------------");
     /*
     number_of_tokens = -1;
-    while (__tokens[++number_of_tokens].type_identifier != TOKEN__EOF)
+    while (__tokens[++number_of_tokens].type_identifier != TOKEN__FINAL_TOKEN)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__tokens[number_of_tokens].type_identifier], __tokens[number_of_tokens].lexeme);
@@ -1094,15 +1079,21 @@ void _$()
     */
     gl__idx__opcodes = 0;
     gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
-    while (__tokens[current_token].type_identifier != TOKEN__EOF)
+    while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN)
     {
         Parse__Statement();
-        if (__tokens[current_token-1].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Parse: The statement is dismantled.");
-        else printf("\n Parse error: Expected ';'.");
+        switch (__tokens[current_token-1].type_identifier){
+        //
+        case TOKEN__NEW_LINE:
+        case TOKEN__END_OF_STATEMENT: printf("\n Parse: The statement is dismantled.");
+        break;
+        default: printf("\n Parse error: Expected '\\n' or ';'.");
+        //
+        }
         // 0x77 / отобразить байт как число // 0x78 / отобразить байт как символ
         //gl__opcodes[gl__idx__opcodes++] = 0x77;
     }
-    if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Analysis is over.\n");
+    if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM();
