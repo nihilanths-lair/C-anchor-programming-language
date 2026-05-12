@@ -1,5 +1,5 @@
-// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 42% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 42%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 42.5% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 42.5%.
 //
 #include <stdio.h>
 #include <locale.h>
