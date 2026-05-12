@@ -919,6 +919,10 @@ void Parse__Expression(const char opcodes)
                 break;
             }}
         }
+        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+        {
+            printf("\n ~~~");
+        }
         gl__opcodes[gl__idx__opcodes++] = 0x05; // загрузить след. число в регистр
         gl__opcodes[gl__idx__opcodes++] = literal; // само число
         gl__opcodes[gl__idx__opcodes++] = opcodes; // отобразить число на консоль
