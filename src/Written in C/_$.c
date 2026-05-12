@@ -1,5 +1,5 @@
-// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 40% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 40%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 42% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 42%.
 //
 #include <stdio.h>
 #include <locale.h>
@@ -39,17 +39,32 @@ void AddToken(const char * token_type)
 }
 */
 #define MACRO__MAXIMUM_TOKEN_LIMIT 1500
-struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; /*char pos_lexeme[2]*/ } __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
+struct Token
+{
+    short type_identifier;
+    /*type_name[64+1];*/
+    char lexeme[64+1];
+    /*char pos_lexeme[2]*/
+} __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
+//
+int gl__row_position; // позиция строки/линии
+int gl__column_position; // позиция столбца/колонки
+int gl__offset_relative_to_file; // смещение относительно файла
+const char * gl__ptr__code; // смещение относительно файла
+void InitLexer(const char * code) { gl__ptr__code = code; }
+void Error(const char * message) { printf("\n Parse error [%d|%d]: %s.", gl__row_position, gl__column_position, message); }
+/*
+struct Cursor {
+    int row_position; // позиция строки/линии
+    int column_position; // позиция столбца/колонки
+    int offset_relative_to_file; // смещение относительно файла
+} gl__cursor;
+*/
 //struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 //struct Parser { char * cursor; } parser; // global object's
 //
 //void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 //void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
-//
-const char * gl__ptr__code;
-void init_lexer(const char * code) { gl__ptr__code = code; }
-//
-void error(const char * msg) { printf(msg); }
 //
 /// Для поточного режима лексера ///
 short GetNextToken()
@@ -806,6 +821,19 @@ void Parse__Expression__2()
         return;
     }}
 }
+//
+/// Простая приоритетность (без учёта скобок) ///
+void Parse__Simple_Priority()
+{
+    
+}
+//
+/// Сложная приоритетность (с учётом скобок) ///
+void Parse__Complex_Priority()
+{
+
+}
+//
 void Parse__Expression(const char opcodes)
 {
     // Проверяем первый операнд
