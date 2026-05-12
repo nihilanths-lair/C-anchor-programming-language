@@ -46,8 +46,8 @@ struct Token { short type_identifier; /*type_name[64+1];*/ char lexeme[64+1]; /*
 //void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
 //void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
 //
-const char * ptr_code;
-void init_lexer(const char * code) { ptr_code = code; }
+const char * gl__ptr__code;
+void init_lexer(const char * code) { gl__ptr__code = code; }
 //
 void error(const char * msg) { printf(msg); }
 //
@@ -55,7 +55,7 @@ void error(const char * msg) { printf(msg); }
 short GetNextToken()
 {
     switch_run:
-    switch (*ptr_code){
+    switch (*gl__ptr__code){
     case '\0':
     {
         __token.type_identifier = TOKEN__EOF;
@@ -63,19 +63,19 @@ short GetNextToken()
     }
     case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
     {
-        ptr_code++;
+        gl__ptr__code++;
         goto switch_run;
     }
     case '!':
     {
         __token.lexeme[0] = '!';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __token.lexeme[1] = '=';
             __token.lexeme[2] = '\0';
             __token.type_identifier = TOKEN__INEQUALITY_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__INEQUALITY_OPERATOR;
         }
         __token.lexeme[1] = '\0';
@@ -86,18 +86,18 @@ short GetNextToken()
     {
         short i = -1;
         __token.lexeme[++i] = '\'';
-        ptr_code++;
-        while (*ptr_code && *ptr_code != '\'')
+        gl__ptr__code++;
+        while (*gl__ptr__code && *gl__ptr__code != '\'')
         {
-            __token.lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __token.lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
-        if (*ptr_code == '\'')
+        if (*gl__ptr__code == '\'')
         {
             __token.lexeme[++i] = '\'';
             __token.lexeme[++i] = '\0';
             __token.type_identifier = TOKEN__CHARACTER_LITERAL;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__CHARACTER_LITERAL;
         }
         return TOKEN__ERROR;
@@ -106,18 +106,18 @@ short GetNextToken()
     {
         short i = -1;
         __token.lexeme[++i] = '\"';
-        ptr_code++;
-        while (*ptr_code && *ptr_code != '\"')
+        gl__ptr__code++;
+        while (*gl__ptr__code && *gl__ptr__code != '\"')
         {
-            __token.lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __token.lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
-        if (*ptr_code == '\"')
+        if (*gl__ptr__code == '\"')
         {
             __token.lexeme[++i] = '\"';
             __token.lexeme[++i] = '\0';
             __token.type_identifier = TOKEN__STRING_LITERAL;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__STRING_LITERAL;
         }
         return TOKEN__ERROR;
@@ -127,7 +127,7 @@ short GetNextToken()
         __token.lexeme[0] = '(';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__LEFT_PARENTHESIS;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_PARENTHESIS;
     }
     case ')':
@@ -135,7 +135,7 @@ short GetNextToken()
         __token.lexeme[0] = ')';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__RIGHT_PARENTHESIS;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_PARENTHESIS;
     }
     case '*':
@@ -143,7 +143,7 @@ short GetNextToken()
         __token.lexeme[0] = '*';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__MULTIPLICATION_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__MULTIPLICATION_OPERATOR;
     }
     case '+':
@@ -151,7 +151,7 @@ short GetNextToken()
         __token.lexeme[0] = '+';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__ADDITION_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__ADDITION_OPERATOR;
     }
     case '-':
@@ -159,39 +159,39 @@ short GetNextToken()
         __token.lexeme[0] = '-';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__SUBTRACT_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__SUBTRACT_OPERATOR;
     }
     case '/':
     {
-        ptr_code++;
-        if (*ptr_code == '/')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '/')
         {
-            while (*ptr_code && *ptr_code != '\n') ptr_code++;
-            if (*ptr_code == '\n') ptr_code++;
+            while (*gl__ptr__code && *gl__ptr__code != '\n') gl__ptr__code++;
+            if (*gl__ptr__code == '\n') gl__ptr__code++;
             goto switch_run;
         }
-        else if (*ptr_code == '*')
+        else if (*gl__ptr__code == '*')
         {
             static short comment_nesting = 0;
             comment_nesting++;
-            ptr_code++;
-            while (*ptr_code && *(ptr_code+1)) // && !(*ptr_code == '*' && *(ptr_code+1) == '/')
+            gl__ptr__code++;
+            while (*gl__ptr__code && *(gl__ptr__code+1)) // && !(*gl__ptr__code == '*' && *(gl__ptr__code+1) == '/')
             {
-                if (*ptr_code == '/' && *(ptr_code+1) == '*')
+                if (*gl__ptr__code == '/' && *(gl__ptr__code+1) == '*')
                 {
                     comment_nesting++;
-                    ptr_code += 2;
+                    gl__ptr__code += 2;
                     continue;
                 }
-                if (*ptr_code == '*' && *(ptr_code+1) == '/')
+                if (*gl__ptr__code == '*' && *(gl__ptr__code+1) == '/')
                 {
                     comment_nesting--;
-                    ptr_code += 2;
+                    gl__ptr__code += 2;
                     if (comment_nesting == 0) break;
                     continue;
                 }
-                ptr_code++;
+                gl__ptr__code++;
             }
             goto switch_run;
         }
@@ -205,7 +205,7 @@ short GetNextToken()
         __token.lexeme[0] = ':';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__END_OF_LABEL;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__END_OF_LABEL;
     }
     case ';':
@@ -213,19 +213,19 @@ short GetNextToken()
         __token.lexeme[0] = ';';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__END_OF_STATEMENT;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__END_OF_STATEMENT;
     }
     case '<':
     {
         __token.lexeme[0] = '<';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __token.lexeme[1] = '=';
             __token.lexeme[2] = '\0';
             __token.type_identifier = TOKEN__BELOW_EQUAL_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__BELOW_EQUAL_OPERATOR;
         }
         __token.lexeme[1] = '\0';
@@ -235,13 +235,13 @@ short GetNextToken()
     case '=':
     {
         __token.lexeme[0] = '=';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __token.lexeme[1] = '=';
             __token.lexeme[2] = '\0';
             __token.type_identifier = TOKEN__EQUALITY_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
         __token.lexeme[1] = '\0';
@@ -251,13 +251,13 @@ short GetNextToken()
     case '>':
     {
         __token.lexeme[0] = '>';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __token.lexeme[1] = '=';
             __token.lexeme[2] = '\0';
             __token.type_identifier = TOKEN__ABOVE_EQUAL_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__ABOVE_EQUAL_OPERATOR;
         }
         __token.lexeme[1] = '\0';
@@ -269,7 +269,7 @@ short GetNextToken()
         __token.lexeme[0] = '[';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_SQUARE_BRACKET;
     }
     case ']':
@@ -277,7 +277,7 @@ short GetNextToken()
         __token.lexeme[0] = ']';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_SQUARE_BRACKET;
     }
     case '{':
@@ -285,7 +285,7 @@ short GetNextToken()
         __token.lexeme[0] = '{';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__LEFT_BRACE;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_BRACE;
     }
     case '}':
@@ -293,18 +293,18 @@ short GetNextToken()
         __token.lexeme[0] = '}';
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__RIGHT_BRACE;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_BRACE;
     }
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
     {
         short i = -1;
-        __token.lexeme[++i] = *ptr_code;
-        ptr_code++;
-        while (isdigit(*ptr_code))
+        __token.lexeme[++i] = *gl__ptr__code;
+        gl__ptr__code++;
+        while (isdigit(*gl__ptr__code))
         {
-            __token.lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __token.lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
         __token.lexeme[++i] = '\0';
         __token.type_identifier = TOKEN__NUMERIC_LITERAL;
@@ -313,16 +313,16 @@ short GetNextToken()
     default:
     {
         //printf("\n def 1");
-        if (isalpha(*ptr_code) || *ptr_code == '_') // Первым символом не может быть цифра
+        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // Первым символом не может быть цифра
         {
             // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
             short i = -1;
-            __token.lexeme[++i] = *ptr_code;
-            ptr_code++;
-            while (isalnum(*ptr_code) || *ptr_code == '_')
+            __token.lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
+            while (isalnum(*gl__ptr__code) || *gl__ptr__code == '_')
             {
-                __token.lexeme[++i] = *ptr_code;
-                ptr_code++;
+                __token.lexeme[++i] = *gl__ptr__code;
+                gl__ptr__code++;
             }
             __token.lexeme[++i] = '\0';
             // Идентификатор из букв/цифр и нижнего подчёркивания собран
@@ -372,12 +372,12 @@ short GetNextToken()
                 return TOKEN__KEYWORD_PRINT;
             }
             /*
-            if (*ptr_code == ':')
+            if (*gl__ptr__code == ':')
             {
                 //__token.lexeme[++i] = '\0';
                 //__token.lexeme[++i] = ':';
                 __token.type_identifier = TOKEN__LABEL_IDENTIFIER;
-                ptr_code++;
+                gl__ptr__code++;
                 return TOKEN__LABEL_IDENTIFIER;
             }
             */
@@ -385,8 +385,8 @@ short GetNextToken()
             return TOKEN__IDENTIFIER;
         }
         __token.type_identifier = TOKEN__UNKNOWN;
-        __token.lexeme[0] = *ptr_code;
-        ptr_code++;
+        __token.lexeme[0] = *gl__ptr__code;
+        gl__ptr__code++;
         return TOKEN__UNKNOWN;
     }}
     //printf("\n def 2");
@@ -397,7 +397,7 @@ short GetNextToken()
 short AccumulateTokens()
 {
     switch_run:
-    switch (*ptr_code){
+    switch (*gl__ptr__code){
     case '\0':
     {
         __tokens[++number_of_tokens].type_identifier = TOKEN__EOF;
@@ -405,19 +405,19 @@ short AccumulateTokens()
     }
     case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
     {
-        ptr_code++;
+        gl__ptr__code++;
         goto switch_run;
     }
     case '!':
     {
         __tokens[++number_of_tokens].lexeme[0] = '!';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __tokens[number_of_tokens].lexeme[1] = '=';
             __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__INEQUALITY_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__INEQUALITY_OPERATOR;
         }
         __tokens[number_of_tokens].lexeme[1] = '\0';
@@ -428,18 +428,18 @@ short AccumulateTokens()
     {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = '\'';
-        ptr_code++;
-        while (*ptr_code && *ptr_code != '\'')
+        gl__ptr__code++;
+        while (*gl__ptr__code && *gl__ptr__code != '\'')
         {
-            __tokens[number_of_tokens].lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __tokens[number_of_tokens].lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
-        if (*ptr_code == '\'')
+        if (*gl__ptr__code == '\'')
         {
             __tokens[number_of_tokens].lexeme[++i] = '\'';
             __tokens[number_of_tokens].lexeme[++i] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__CHARACTER_LITERAL;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__CHARACTER_LITERAL;
         }
         return TOKEN__ERROR;
@@ -448,18 +448,18 @@ short AccumulateTokens()
     {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = '\"';
-        ptr_code++;
-        while (*ptr_code && *ptr_code != '\"')
+        gl__ptr__code++;
+        while (*gl__ptr__code && *gl__ptr__code != '\"')
         {
-            __tokens[number_of_tokens].lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __tokens[number_of_tokens].lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
-        if (*ptr_code == '\"')
+        if (*gl__ptr__code == '\"')
         {
             __tokens[number_of_tokens].lexeme[++i] = '\"';
             __tokens[number_of_tokens].lexeme[++i] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__STRING_LITERAL;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__STRING_LITERAL;
         }
         return TOKEN__ERROR;
@@ -469,7 +469,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '(';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_PARENTHESIS;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_PARENTHESIS;
     }
     case ')':
@@ -477,7 +477,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = ')';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_PARENTHESIS;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_PARENTHESIS;
     }
     case '*':
@@ -485,7 +485,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '*';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__MULTIPLICATION_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__MULTIPLICATION_OPERATOR;
     }
     case '+':
@@ -493,7 +493,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '+';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__ADDITION_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__ADDITION_OPERATOR;
     }
     case '-':
@@ -501,39 +501,39 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '-';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__SUBTRACT_OPERATOR;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__SUBTRACT_OPERATOR;
     }
     case '/':
     {
-        ptr_code++;
-        if (*ptr_code == '/')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '/')
         {
-            while (*ptr_code && *ptr_code != '\n') ptr_code++;
-            if (*ptr_code == '\n') ptr_code++;
+            while (*gl__ptr__code && *gl__ptr__code != '\n') gl__ptr__code++;
+            if (*gl__ptr__code == '\n') gl__ptr__code++;
             goto switch_run;
         }
-        else if (*ptr_code == '*')
+        else if (*gl__ptr__code == '*')
         {
             static short comment_nesting = 0;
             comment_nesting++;
-            ptr_code++;
-            while (*ptr_code && *(ptr_code+1)) // && !(*ptr_code == '*' && *(ptr_code+1) == '/')
+            gl__ptr__code++;
+            while (*gl__ptr__code && *(gl__ptr__code+1)) // && !(*gl__ptr__code == '*' && *(gl__ptr__code+1) == '/')
             {
-                if (*ptr_code == '/' && *(ptr_code+1) == '*')
+                if (*gl__ptr__code == '/' && *(gl__ptr__code+1) == '*')
                 {
                     comment_nesting++;
-                    ptr_code += 2;
+                    gl__ptr__code += 2;
                     continue;
                 }
-                if (*ptr_code == '*' && *(ptr_code+1) == '/')
+                if (*gl__ptr__code == '*' && *(gl__ptr__code+1) == '/')
                 {
                     comment_nesting--;
-                    ptr_code += 2;
+                    gl__ptr__code += 2;
                     if (comment_nesting == 0) break;
                     continue;
                 }
-                ptr_code++;
+                gl__ptr__code++;
             }
             goto switch_run;
         }
@@ -547,7 +547,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = ':';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_LABEL;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__END_OF_LABEL;
     }
     case ';':
@@ -555,19 +555,19 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = ';';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__END_OF_STATEMENT;
     }
     case '<':
     {
         __tokens[++number_of_tokens].lexeme[0] = '<';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __tokens[number_of_tokens].lexeme[1] = '=';
             __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__BELOW_EQUAL_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__BELOW_EQUAL_OPERATOR;
         }
         __tokens[number_of_tokens].lexeme[1] = '\0';
@@ -577,13 +577,13 @@ short AccumulateTokens()
     case '=':
     {
         __tokens[++number_of_tokens].lexeme[0] = '=';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __tokens[number_of_tokens].lexeme[1] = '=';
             __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__EQUALITY_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
         __tokens[number_of_tokens].lexeme[1] = '\0';
@@ -593,13 +593,13 @@ short AccumulateTokens()
     case '>':
     {
         __tokens[++number_of_tokens].lexeme[0] = '>';
-        ptr_code++;
-        if (*ptr_code == '=')
+        gl__ptr__code++;
+        if (*gl__ptr__code == '=')
         {
             __tokens[number_of_tokens].lexeme[1] = '=';
             __tokens[number_of_tokens].lexeme[2] = '\0';
             __tokens[number_of_tokens].type_identifier = TOKEN__ABOVE_EQUAL_OPERATOR;
-            ptr_code++;
+            gl__ptr__code++;
             return TOKEN__ABOVE_EQUAL_OPERATOR;
         }
         __tokens[number_of_tokens].lexeme[1] = '\0';
@@ -611,7 +611,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '[';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_SQUARE_BRACKET;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_SQUARE_BRACKET;
     }
     case ']':
@@ -619,7 +619,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = ']';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_SQUARE_BRACKET;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_SQUARE_BRACKET;
     }
     case '{':
@@ -627,7 +627,7 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '{';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_BRACE;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__LEFT_BRACE;
     }
     case '}':
@@ -635,18 +635,18 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '}';
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_BRACE;
-        ptr_code++;
+        gl__ptr__code++;
         return TOKEN__RIGHT_BRACE;
     }
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
     {
         short i = -1;
-        __tokens[++number_of_tokens].lexeme[++i] = *ptr_code;
-        ptr_code++;
-        while (isdigit(*ptr_code))
+        __tokens[++number_of_tokens].lexeme[++i] = *gl__ptr__code;
+        gl__ptr__code++;
+        while (isdigit(*gl__ptr__code))
         {
-            __tokens[number_of_tokens].lexeme[++i] = *ptr_code;
-            ptr_code++;
+            __tokens[number_of_tokens].lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
         }
         __tokens[number_of_tokens].lexeme[++i] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__NUMERIC_LITERAL;
@@ -655,16 +655,16 @@ short AccumulateTokens()
     default:
     {
         //printf("\n def 1");
-        if (isalpha(*ptr_code) || *ptr_code == '_') // Первым символом не может быть цифра
+        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // Первым символом не может быть цифра
         {
             // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
             short i = -1;
-            __tokens[++number_of_tokens].lexeme[++i] = *ptr_code;
-            ptr_code++;
-            while (isalnum(*ptr_code) || *ptr_code == '_')
+            __tokens[++number_of_tokens].lexeme[++i] = *gl__ptr__code;
+            gl__ptr__code++;
+            while (isalnum(*gl__ptr__code) || *gl__ptr__code == '_')
             {
-                __tokens[number_of_tokens].lexeme[++i] = *ptr_code;
-                ptr_code++;
+                __tokens[number_of_tokens].lexeme[++i] = *gl__ptr__code;
+                gl__ptr__code++;
             }
             __tokens[number_of_tokens].lexeme[++i] = '\0';
             // Идентификатор из букв/цифр и нижнего подчёркивания собран
@@ -714,12 +714,12 @@ short AccumulateTokens()
                 return TOKEN__KEYWORD_PRINT;
             }
             /*
-            if (*ptr_code == ':')
+            if (*gl__ptr__code == ':')
             {
                 //__tokens[number_of_tokens].lexeme[++i] = '\0';
                 __tokens[number_of_tokens].type_identifier = TOKEN__LABEL_IDENTIFIER;
                 //__tokens[number_of_tokens].lexeme[++i] = ':';
-                ptr_code++;
+                gl__ptr__code++;
                 return TOKEN__LABEL_IDENTIFIER;
             }
             */
@@ -727,8 +727,8 @@ short AccumulateTokens()
             return TOKEN__IDENTIFIER;
         }
         __tokens[++number_of_tokens].type_identifier = TOKEN__UNKNOWN;
-        __tokens[number_of_tokens].lexeme[0] = *ptr_code;
-        ptr_code++;
+        __tokens[number_of_tokens].lexeme[0] = *gl__ptr__code;
+        gl__ptr__code++;
         return TOKEN__UNKNOWN;
     }}
     //printf("\n def 2");
@@ -738,7 +738,6 @@ short AccumulateTokens()
 /// Распечатать все токены ///
 void PrintAllTokens()
 {
-    short token__type_identifier;
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF)
     {
         printf("\n--------------------------+---------------------------------");
@@ -990,7 +989,7 @@ void _$()
      " ///*print*/ 'C' + '$'; // 67 + 36 = 103 / 'g'\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
-    ptr_code = code;
+    gl__ptr__code = code;
     /*
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
@@ -1001,7 +1000,7 @@ void _$()
     */
     PrintAllTokens();
     printf("\n\n");
-    ptr_code = code;
+    gl__ptr__code = code;
     while (AccumulateTokens() != TOKEN__EOF)
     {
         printf("\n--------------------------+---------------------------------");
