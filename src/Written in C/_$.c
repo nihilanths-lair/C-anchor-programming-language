@@ -735,6 +735,18 @@ short AccumulateTokens()
     return TOKEN__ERROR;
 }
 //
+/// Распечатать все токены ///
+void PrintAllTokens()
+{
+    short token__type_identifier;
+    while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF)
+    {
+        printf("\n--------------------------+---------------------------------");
+        printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
+    }
+    printf("\n--------------------------+---------------------------------");
+}
+//
 char is_binary_operator(const short token__type_identifier)
 {
     switch (token__type_identifier){
@@ -978,7 +990,7 @@ void _$()
      " ///*print*/ 'C' + '$'; // 67 + 36 = 103 / 'g'\n"
      ; // inline-код для быстрого тестирования (временно)
     printf("\n%s", code);
-    init_lexer(code);
+    ptr_code = code;
     /*
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
     {
@@ -987,12 +999,15 @@ void _$()
     }
     printf("\n--------------------------+---------------------------------");
     */
+    PrintAllTokens();
+    printf("\n\n");
+    ptr_code = code;
     while (AccumulateTokens() != TOKEN__EOF)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__tokens[number_of_tokens].type_identifier], __tokens[number_of_tokens].lexeme);
     }
-    printf("\n-----------------------+------------------------------------");
+    printf("\n--------------------------+---------------------------------");
     /*
     number_of_tokens = -1;
     while (__tokens[++number_of_tokens].type_identifier != TOKEN__EOF)
