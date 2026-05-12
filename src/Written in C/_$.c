@@ -47,12 +47,12 @@ struct Token
     /*char pos_lexeme[2]*/
 } __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
 //
-int gl__row_position; // позиция строки/линии
-int gl__column_position; // позиция столбца/колонки
-int gl__offset_relative_to_file; // смещение относительно файла
+int gl__row_position; // позиция в строке/линии
+int gl__column_position; // позиция в столбце/колонке
+int gl__flat_position; // плоская позиция
 const char * gl__ptr__code; // смещение относительно файла
 void InitLexer(const char * code) { gl__ptr__code = code; }
-void Error(const char * message) { printf("\n Parse error [%d|%d]: %s.", gl__row_position, gl__column_position, message); }
+void Error(const char * message) { printf("\n Parse error [row %d, column %d, score: %d]: %s.", gl__row_position, gl__column_position, gl__flat_position, message); }
 /*
 struct Cursor {
     int row_position; // позиция строки/линии
@@ -76,9 +76,19 @@ short GetNextToken()
         __token.type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
     }
-    case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
+    case '\t': case '\v': case '\f': case '\r': case ' ':
     {
         gl__ptr__code++;
+        goto switch_run;
+    }
+    case '\n':
+    {
+        __token.lexeme[0] = '\\';
+        __token.lexeme[1] = 'n';
+        __token.lexeme[2] = '\0';
+        __token.type_identifier = TOKEN__END_OF_STATEMENT;
+        gl__ptr__code++;
+        return TOKEN__END_OF_STATEMENT;
         goto switch_run;
     }
     case '!':
@@ -403,7 +413,10 @@ short GetNextToken()
         __token.lexeme[0] = *gl__ptr__code;
         gl__ptr__code++;
         return TOKEN__UNKNOWN;
-    }}
+    }
+    //
+    }
+    Error("Абра-кадабра");
     //printf("\n def 2");
     return TOKEN__ERROR;
 }
@@ -418,9 +431,19 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].type_identifier = TOKEN__EOF;
         return TOKEN__EOF;
     }
-    case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
+    case '\t': case '\v': case '\f': case '\r': case ' ':
     {
         gl__ptr__code++;
+        goto switch_run;
+    }
+    case '\n':
+    {
+        __tokens[++number_of_tokens].lexeme[0] = '\\';
+        __tokens[number_of_tokens].lexeme[1] = 'n';
+        __tokens[number_of_tokens].lexeme[2] = '\0';
+        __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
+        gl__ptr__code++;
+        return TOKEN__END_OF_STATEMENT;
         goto switch_run;
     }
     case '!':
@@ -745,7 +768,10 @@ short AccumulateTokens()
         __tokens[number_of_tokens].lexeme[0] = *gl__ptr__code;
         gl__ptr__code++;
         return TOKEN__UNKNOWN;
-    }}
+    }
+    //
+    }
+    Error("Абра-кадабра");
     //printf("\n def 2");
     return TOKEN__ERROR;
 }
@@ -956,8 +982,9 @@ void Parse__Statement()
         ///Parse__Assignment();///
         if (__tokens[current_token].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
         {
-            printf("\n Parse error: Expected '='.");
-            return;
+            Error("Expected '='"); // Парсер не должен падать, продолжая разбор далее. Хотя, временно, пока можно продолжать разбор до первой выявленной ошибки.
+            //current_token++;
+            return; // Возможно потребуется вернуть код ошибки или просто неудачу парсера (с откатом назад)
         }
         current_token++;
         Parse__Expression(0x05); // Записать байт в регистр
@@ -972,9 +999,9 @@ void Parse__Statement()
     }
     //
     }
-    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Parse: The statement is dismantled.\n");
-    else printf("\n Parse error: Expected ';'.");
+    /// ... ///
     current_token++;
+    //return 0;
 }
 ///////////////////////////////////////////
 void _$()
@@ -1010,7 +1037,7 @@ void _$()
      " 3 + 5 - 1 * 2;\n"
      " */\n"
      " /*print 5 + 3 - 2 * 3 / 6;*/\n"
-     " xyz = 5 + 3 - 2 * 3 / 6;\n"
+     " xyz == 5 + 3 - 2 * 3 / 6;\n"
      " ///*print*/ 8 - 2;\n"
      " ///*print*/ 6 * 3;\n"
      " ///*print*/ 18 / 6;\n"
@@ -1052,6 +1079,12 @@ void _$()
         // 0x77 / отобразить байт как число // 0x78 / отобразить байт как символ
         //gl__opcodes[gl__idx__opcodes++] = 0x77;
     }
+    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
+    {
+        printf("\n Parse: The statement is dismantled.\n");
+        //return 1;
+    }
+    else printf("\n Parse error: Expected ';'.");
     if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
