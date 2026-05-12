@@ -48,7 +48,7 @@ enum
     TOKEN__BELOW_EQUAL_OPERATOR,    // МЕНЬШЕ ИЛИ РАВНО     ·     <=
     TOKEN__ABOVE_EQUAL_OPERATOR,    // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
-    TOKEN__UNKNOWN,      // НЕИЗВЕСТНЫЙ ТОКЕН
-    TOKEN__END_OF_TOKEN, // КОНЕЦ ТОКЕНОВ
-    TOKEN__ERROR         // ОШИБКА ТОКЕНА
+    TOKEN__UNKNOWN,     // НЕИЗВЕСТНЫЙ ТОКЕН
+    TOKEN__FINAL_TOKEN, // ЗАВЕРШАЮЩИЙ ТОКЕН
+    TOKEN__ERROR        // ОШИБКА ТОКЕНА
 };
