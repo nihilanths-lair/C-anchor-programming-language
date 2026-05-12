@@ -9,6 +9,7 @@ enum
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
     TOKEN__END_OF_LABEL,          // КОНЕЦ МЕТКИ
     TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА    ····     
+
     TOKEN__NEW_LINE,              // НОВАЯ СТРОКА                ····    \n
     TOKEN__END_OF_STATEMENT,      // КОНЕЦ ЗАЯВЛЕНИЯ             ····    ;
 
