@@ -7,8 +7,10 @@ char token__type_name[][64+1] =
     "              IDENTIFIER", // ИДЕНТИФИКАТОР
     "        LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
     "            END_OF_LABEL", // КОНЕЦ МЕТКИ
-    "         SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
-    "        END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ
+    "         SPACE_SEPARATOR", // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА    ····     
+
+    "                NEW_LINE", // НОВАЯ СТРОКА                ····    \n
+    "        END_OF_STATEMENT", // КОНЕЦ ЗАЯВЛЕНИЯ             ····    ;
 
     "              LEFT_BRACE", // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
     "             RIGHT_BRACE", // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
