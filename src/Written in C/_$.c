@@ -869,55 +869,70 @@ void Parse__Expression(const char opcodes)
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__CHARACTER_LITERAL:
     {
+        printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
         int literal = atoi(__tokens[current_token].lexeme);
         current_token++;
         //printf("\n    До | <%03d:%03d> = <%02X:%02X>\n", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-        while_run:
-        while (__tokens[current_token].type_identifier != TOKEN__END_OF_STATEMENT)
+        switch_run:
+        // Проверяем оператор
+        switch (__tokens[current_token].type_identifier){
+        //
+        case TOKEN__END_OF_STATEMENT:
+        case TOKEN__NEW_LINE:
         {
-            // Проверяем оператор
+            printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
+            break;
+        }
+        // Бинарное выражение
+        case TOKEN__ADDITION_OPERATOR:
+        case TOKEN__SUBTRACT_OPERATOR:
+        case TOKEN__MULTIPLICATION_OPERATOR:
+        case TOKEN__DIVISION_OPERATOR:
+        {
+            printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
+            current_token++;
+            // Проверяем след. операнд
             switch (__tokens[current_token].type_identifier){
-            // Бинарное выражение
-            case TOKEN__ADDITION_OPERATOR:
-            case TOKEN__SUBTRACT_OPERATOR:
-            case TOKEN__MULTIPLICATION_OPERATOR:
-            case TOKEN__DIVISION_OPERATOR:
+            case TOKEN__NUMERIC_LITERAL:
+            case TOKEN__CHARACTER_LITERAL:
             {
-                current_token++;
-                // Проверяем след. операнд
-                switch (__tokens[current_token].type_identifier){
-                case TOKEN__NUMERIC_LITERAL:
-                case TOKEN__CHARACTER_LITERAL:
-                {
-                    printf("\n    До | literal: %d", literal);
-                    switch (__tokens[current_token-1].type_identifier){
-                    case TOKEN__ADDITION_OPERATOR:       literal += atoi(__tokens[current_token].lexeme); break;
-                    case TOKEN__SUBTRACT_OPERATOR:       literal -= atoi(__tokens[current_token].lexeme); break;
-                    case TOKEN__MULTIPLICATION_OPERATOR: literal *= atoi(__tokens[current_token].lexeme); break;
-                    case TOKEN__DIVISION_OPERATOR:       literal /= atoi(__tokens[current_token].lexeme); break;
-                    default: printf("\n #Error 1: Не оператор."); return;
-                    }
-                    printf("\n После | literal: %d\n", literal);
-                    current_token++;
-                    goto while_run;
+                printf("\n    До | literal: %d", literal);
+                switch (__tokens[current_token-1].type_identifier){
+                case TOKEN__ADDITION_OPERATOR:       literal += atoi(__tokens[current_token].lexeme); break;
+                case TOKEN__SUBTRACT_OPERATOR:       literal -= atoi(__tokens[current_token].lexeme); break;
+                case TOKEN__MULTIPLICATION_OPERATOR: literal *= atoi(__tokens[current_token].lexeme); break;
+                case TOKEN__DIVISION_OPERATOR:       literal /= atoi(__tokens[current_token].lexeme); break;
+                default: printf("\n #Error 1: Не оператор."); return;
                 }
-                default:
-                {
-                    printf("\n #Error: След. операнд не число.");
-                    break;
-                }}
+                printf("\n После | literal: %d\n", literal);
+                current_token++;
+                goto switch_run;
             }
-            // Унарное выражение (для экспериментов)
             default:
             {
-                /*
-                printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-                gl__opcodes[gl__idx__opcodes] = left;
-                printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
-                gl__idx__opcodes += 1;
-                */
+                printf("\n #Error: След. операнд не число.");
                 break;
             }}
+        }
+        // Унарное выражение
+        case TOKEN__NUMERIC_LITERAL:
+        {
+            printf("\n Это унарное выражение.");
+            break;
+        }
+        // Унарное выражение (для экспериментов)
+        default:
+        {
+            printf("\n Это унарное выражение-2.");
+            /*
+            printf("\n    До | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+            gl__opcodes[gl__idx__opcodes] = left;
+            printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+            gl__idx__opcodes += 1;
+            */
+            break;
+        }
+        //
         }
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
         {
@@ -1012,6 +1027,8 @@ void _$()
 {
     setlocale(0, "");
     //
+    const char code[] = "x = 5;";
+    /*
     const char code[] =
      " // Однострочный комментарий\n"
      " /*\n"
@@ -1025,7 +1042,7 @@ void _$()
      "    Вложенный\n"
      "    Многострочный\n"
      "    Комментарий\n"
-     " */\n"
+     " *//*\n"
      " 2 > 3;\n"
      " goto _0;\n"
      " !(2 == 3);\n"
@@ -1039,15 +1056,15 @@ void _$()
      " _0:\n"
      " print(\" 3 + 5 - 1 * 2 = %s\", 3 + 5 - 1 * 2);\n"
      " 3 + 5 - 1 * 2;\n"
-     " */\n"
-     " /*print 5 + 3 - 2 * 3 / 6;*/\n"
-     " xyz == 5 + 3 - 2 * 3 / 6;\n"
-     " ///*print*/ 8 - 2;\n"
-     " ///*print*/ 6 * 3;\n"
-     " ///*print*/ 18 / 6;\n"
-     " ///*print*/ 'C' + '$'; // 67 + 36 = 103 / 'g'\n"
-     ; // inline-код для быстрого тестирования (временно)
-    printf("\n%s", code);
+     " *//*\n"
+     " /*print 5 + 3 - 2 * 3 / 6;*//*\n"
+     " /*xyz = 5 + 3 - 2 * 3 / 6;*//*\n"
+     " ///*print*//*8 - 2;\n"
+     " ///*print*//*6 * 3;\n"
+     " ///*print*//*18 / 6;\n"
+     " ///*print*//*'C' + '$'/*; // 67 + 36 = 103 / 'g'\n"
+     ; // inline-код для быстрого тестирования (временно)*/
+    printf("\n %s", code);
     gl__ptr__code = code;
     /*
     while ((__token.type_identifier = GetNextToken()) != TOKEN__EOF) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
@@ -1080,15 +1097,11 @@ void _$()
     while (__tokens[current_token].type_identifier != TOKEN__EOF)
     {
         Parse__Statement();
+        if (__tokens[current_token-1].type_identifier == TOKEN__END_OF_STATEMENT) printf("\n Parse: The statement is dismantled.");
+        else printf("\n Parse error: Expected ';'.");
         // 0x77 / отобразить байт как число // 0x78 / отобразить байт как символ
         //gl__opcodes[gl__idx__opcodes++] = 0x77;
     }
-    if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT)
-    {
-        printf("\n Parse: The statement is dismantled.\n");
-        //return 1;
-    }
-    else printf("\n Parse error: Expected ';'.");
     if (__tokens[current_token].type_identifier == TOKEN__EOF) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
