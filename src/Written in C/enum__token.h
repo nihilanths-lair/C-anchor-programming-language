@@ -8,8 +8,9 @@ enum
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
     TOKEN__END_OF_LABEL,          // КОНЕЦ МЕТКИ
-    TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА
-    TOKEN__END_OF_STATEMENT,      // КОНЕЦ ЗАЯВЛЕНИЯ
+    TOKEN__SPACE_SEPARATOR,       // РАЗДЕЛИТЕЛЬ ПРОСТРАНСТВА    ····     
+    TOKEN__NEW_LINE,              // НОВАЯ СТРОКА                ····    \n
+    TOKEN__END_OF_STATEMENT,      // КОНЕЦ ЗАЯВЛЕНИЯ             ····    ;
 
     TOKEN__LEFT_BRACE,            // ЛЕВАЯ ФИГУРНАЯ СКОБКА    ···· {
     TOKEN__RIGHT_BRACE,           // ПРАВАЯ ФИГУРНАЯ СКОБКА   ···· }
