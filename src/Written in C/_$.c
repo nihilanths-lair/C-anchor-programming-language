@@ -86,9 +86,9 @@ short GetNextToken()
         __token.lexeme[0] = '\\';
         __token.lexeme[1] = 'n';
         __token.lexeme[2] = '\0';
-        __token.type_identifier = TOKEN__END_OF_STATEMENT;
+        __token.type_identifier = TOKEN__NEW_LINE;
         gl__ptr__code++;
-        return TOKEN__END_OF_STATEMENT;
+        return TOKEN__NEW_LINE;
         goto switch_run;
     }
     case '!':
@@ -441,9 +441,9 @@ short AccumulateTokens()
         __tokens[++number_of_tokens].lexeme[0] = '\\';
         __tokens[number_of_tokens].lexeme[1] = 'n';
         __tokens[number_of_tokens].lexeme[2] = '\0';
-        __tokens[number_of_tokens].type_identifier = TOKEN__END_OF_STATEMENT;
+        __tokens[number_of_tokens].type_identifier = TOKEN__NEW_LINE;
         gl__ptr__code++;
-        return TOKEN__END_OF_STATEMENT;
+        return TOKEN__NEW_LINE;
         goto switch_run;
     }
     case '!':
