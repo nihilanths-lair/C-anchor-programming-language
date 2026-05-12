@@ -48,6 +48,6 @@ char token__type_name[][64+1] =
     "   OPERATOR__ABOVE_EQUAL", // БОЛЬШЕ ИЛИ РАВНО     ·     >=
 
     "                 UNKNOWN", // НЕИЗВЕСТНЫЙ
-    "                     EOF", // КОНЕЦ
+    "                   FINAL", // ЗАВЕРШАЮЩИЙ
     "                   ERROR"  // ОШИБКА
 };
