@@ -829,7 +829,7 @@ short current_token = 0;
 /// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
 {
-    printf("\n Level 1: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
+    printf("\n     Level 1: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
     switch (__tokens[current_token].type_identifier){
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__IDENTIFIER:
@@ -841,7 +841,7 @@ void Parse__Priority_Level_One() // первичный/базовый, мини�
 /// Средний (для умножения, деления) ///
 void Parse__Priority_Level_Two()
 {
-    printf("\n Level 2: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
+    printf("\n   Level 2: Calling Level 1");
     Parse__Priority_Level_One();
     while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR)
     {
@@ -855,7 +855,7 @@ void Parse__Priority_Level_Two()
 /// Самый низкий (для сложения, вычитания) ///
 void Parse__Priority_Level_Three()
 {
-    printf("\n Level 3: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
+    printf("\n Level 3: Calling Level 2");
     Parse__Priority_Level_Two();
     while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR)
     {
@@ -1013,7 +1013,7 @@ void _$()
 {
     setlocale(0, "");
     //
-    const char code[] = "5 + 3";//x = 123";\ny = 12\nz = 1
+    const char code[] = "5 + 3 * 2";//x = 123";\ny = 12\nz = 1
     /*
     const char code[] =
      " // Однострочный комментарий\n"
@@ -1080,10 +1080,11 @@ void _$()
     */
     gl__idx__opcodes = 0;
     gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
-    current_token = 0;
+    //current_token = 0;
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN)
     {
-        Parse__Priority_Level_Three();   // разбираем выражение
+        //Parse__Priority_Level_Three(); // разбираем выражение
+        Parse__Expression(); // разбираем выражение
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT ||
             __tokens[current_token].type_identifier == TOKEN__NEW_LINE ||
             __tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN
