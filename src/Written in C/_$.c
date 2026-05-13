@@ -865,7 +865,7 @@ void Parse__Expression__2()
 //void Parse__Multiplication_And_Division(){}
 //void Parse__Addition_And_Subtraction(){}
 //
-/// Самый высокий (для чисел, идентификаторов и круглых скобочек в будущем, которые переопределяют/задают порядок) ///
+/// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
 {
     switch (__tokens[current_token].type_identifier){
