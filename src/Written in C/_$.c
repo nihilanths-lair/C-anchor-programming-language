@@ -857,13 +857,17 @@ void Parse__Expression__2()
 }
 //
 /// Простая приоритетность (без учёта скобок) ///
-void Parse__Simple_Priority()
-{
-    
-}
+//void Parse__Simple_Priority(){}
 //
 /// Сложная приоритетность (с учётом скобок) ///
-void Parse__Complex_Priority()
+//void Parse__Complex_Priority(){}
+//
+void Parse__Multiplication_And_Division()
+{
+
+}
+//
+void Parse__Addition_And_Subtraction()
 {
 
 }
