@@ -880,7 +880,7 @@ void Parse__Priority_Level_One() // первичный/базовый, мини�
 void Parse__Priority_Level_Two()
 {
     Parse__Priority_Level_One();
-    while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR) // Нужно ли задавать проверу на конец файла?
+    while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR) // Нужно ли задавать проверку на конец файла?
     {
         short operator = __tokens[current_token].type_identifier;
         current_token++;
@@ -893,7 +893,7 @@ void Parse__Priority_Level_Two()
 void Parse__Priority_Level_Three()
 {
     Parse__Priority_Level_Two();
-    while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR) // Нужно ли задавать проверу на конец файла?
+    while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR) // Нужно ли задавать проверку на конец файла?
     {
         short operator = __tokens[current_token].type_identifier;
         current_token++;
