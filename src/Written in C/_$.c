@@ -1,5 +1,5 @@
-// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 42.8% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 42.8%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 45.0% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 45.0%.
 //
 #include <stdio.h>
 #include <locale.h>
@@ -865,19 +865,25 @@ void Parse__Expression__2()
 //void Parse__Multiplication_And_Division(){}
 //void Parse__Addition_And_Subtraction(){}
 //
-/// Средний (для умножения, деления)
+/// Самый высокий (для скобочек) ///
+void Parse__Priority_Level_Three()
+{
+
+}
+//
+/// Средний (для умножения, деления) ///
 void Parse__Priority_Level_Two()
 {
 
 }
 //
-/// Самый низкий (для сложения, вычитания)
+/// Самый низкий (для сложения, вычитания) ///
 void Parse__Priority_Level_One()
 {
 
 }
 //
-void Parse__Expression(const char opcodes)
+void Parse__Expression()
 {
     // Проверяем первый операнд
     switch (__tokens[current_token].type_identifier){
@@ -933,7 +939,7 @@ void Parse__Expression(const char opcodes)
         }
         gl__opcodes[gl__idx__opcodes++] = 0x05; // загрузить след. число в регистр
         gl__opcodes[gl__idx__opcodes++] = literal; // само число
-        gl__opcodes[gl__idx__opcodes++] = opcodes; // отобразить число на консоль
+        //gl__opcodes[gl__idx__opcodes++] = opcodes; // отобразить число на консоль
         //printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
         //gl__idx__opcodes++;
     }
@@ -972,7 +978,7 @@ void Parse__Statement()
     case TOKEN__KEYWORD_PRINT:
     {
         current_token++;
-        Parse__Expression(0x77); // генерирует код вывода
+        Parse__Expression(); // генерирует код вывода (0x77)
     }
     break;
     case TOKEN__IDENTIFIER:
@@ -1001,7 +1007,7 @@ void Parse__Statement()
         */
         current_token++; // пропускаем идентификатор
         current_token++; // пропускаем '='
-        Parse__Expression(0x05); // генерирует код загрузки константы
+        Parse__Expression(); // генерирует код загрузки константы (0x05)
     }
     break;
     default:
@@ -1093,8 +1099,10 @@ void _$()
     gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN)
     {
-        Parse__Statement();
-        // Никаких дополнительных проверок! Всё уже сделано внутри Parse__Statement.
+        //Parse__Statement();
+        //Parse__Priority_Level_One();
+        //Parse__Priority_Level_Two();
+        //Parse__Priority_Level_Three();
     }
     if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN) printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
