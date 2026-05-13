@@ -820,50 +820,11 @@ char is_binary_operator(const short token__type_identifier)
 ///////////////////////////////////////////
 short current_token = 0;
 //
-void Parse__Expression__2()
-{
-    switch (__tokens[current_token].type_identifier){
-    //- Первый операнд -/
-    case TOKEN__NUMERIC_LITERAL:
-    case TOKEN__IDENTIFIER:
-    case TOKEN__STRING_LITERAL:
-    {
-        current_token++;
-        while (is_binary_operator(__tokens[current_token].type_identifier))
-        {
-            current_token++;
-            switch (__tokens[current_token].type_identifier){
-            //- Второй операнд -/
-            case TOKEN__NUMERIC_LITERAL:
-            case TOKEN__IDENTIFIER:
-            case TOKEN__STRING_LITERAL:
-            {
-                current_token++;
-                break;
-            }
-            default:
-            {
-                printf("\n #Error-2!");
-                return;
-            }}
-        }
-        break;
-    }
-    default:
-    {
-        printf("\n #Error-1!");
-        return;
-    }}
-}
-//
 /// Простая приоритетность (без учёта скобок) ///
 //void Parse__Simple_Priority(){}
 //
 /// Сложная приоритетность (с учётом скобок) ///
 //void Parse__Complex_Priority(){}
-//
-//void Parse__Multiplication_And_Division(){}
-//void Parse__Addition_And_Subtraction(){}
 //
 /// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
@@ -882,7 +843,7 @@ void Parse__Priority_Level_Two()
 {
     printf("\n Level 2: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
     Parse__Priority_Level_One();
-    while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR) // Нужно ли задавать проверку на конец файла?
+    while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR)
     {
         short operator = __tokens[current_token].type_identifier;
         current_token++;
@@ -896,7 +857,7 @@ void Parse__Priority_Level_Three()
 {
     printf("\n Level 3: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
     Parse__Priority_Level_Two();
-    while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR) // Нужно ли задавать проверку на конец файла?
+    while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR)
     {
         short operator = __tokens[current_token].type_identifier;
         current_token++;
