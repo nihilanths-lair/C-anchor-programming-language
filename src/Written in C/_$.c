@@ -865,7 +865,7 @@ void Parse__Expression__2()
 //void Parse__Multiplication_And_Division(){}
 //void Parse__Addition_And_Subtraction(){}
 //
-/// Самый высокий (для скобочек) ///
+/// Самый высокий (для скобочек, которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_Three()
 {
 
