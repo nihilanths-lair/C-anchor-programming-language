@@ -866,21 +866,25 @@ void Parse__Expression__2()
 //void Parse__Addition_And_Subtraction(){}
 //
 /// Самый высокий (для круглых скобочек, которые переопределяют/задают порядок) ///
-void Parse__Priority_Level_Three()
+void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
 {
-
+    switch (__tokens[current_token].type_identifier){
+    case TOKEN__NUMERIC_LITERAL:
+    case TOKEN__IDENTIFIER:
+        current_token++;
+    }
 }
 //
 /// Средний (для умножения, деления) ///
 void Parse__Priority_Level_Two()
 {
-
+    // ... //
 }
 //
 /// Самый низкий (для сложения, вычитания) ///
-void Parse__Priority_Level_One()
+void Parse__Priority_Level_Three()
 {
-
+    // ... //
 }
 //
 void Parse__Expression()
