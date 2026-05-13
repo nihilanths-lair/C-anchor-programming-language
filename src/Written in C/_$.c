@@ -862,12 +862,17 @@ void Parse__Expression__2()
 /// Сложная приоритетность (с учётом скобок) ///
 //void Parse__Complex_Priority(){}
 //
-void Parse__Multiplication_And_Division()
+//void Parse__Multiplication_And_Division(){}
+//void Parse__Addition_And_Subtraction(){}
+//
+/// Средний (для умножения, деления)
+void Parse__Priority_Level_Two()
 {
 
 }
 //
-void Parse__Addition_And_Subtraction()
+/// Самый низкий (для сложения, вычитания)
+void Parse__Priority_Level_One()
 {
 
 }
