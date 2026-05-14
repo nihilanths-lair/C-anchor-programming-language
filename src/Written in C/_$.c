@@ -916,7 +916,11 @@ void Parse__Priority_Level_Three()
     }
     //printf("\n RET OPERATOR ADD/SUB");
 }
-//
+void Parse__Expression()
+{
+    Parse__Priority_Level_Three();
+}
+/*
 void Parse__Expression()
 {
     // Проверяем первый операнд
@@ -982,7 +986,7 @@ void Parse__Expression()
     //
     }
 }
-//
+*/
 void Parse__Assignment()
 {
     if (__tokens[current_token].type_identifier != TOKEN__IDENTIFIER)
@@ -1151,20 +1155,15 @@ void _$()
     */
     gl__idx__opcodes = 0;
     gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
-    //current_token = 0;
-    while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN)
+    current_token = 0;
+    while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Если обнаружен конечный токен, завершаем цикл
     {
-        Parse__Priority_Level_Three(); // разбираем выражение
-        //Parse__Expression(); // разбираем выражение
-        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT ||
-            __tokens[current_token].type_identifier == TOKEN__NEW_LINE ||
-            __tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN
-           )
-            printf("\n Expression parsed successfully\n");
-        else
-            printf("\n Unexpected token after expression\n");
+        //Parse__Priority_Level_Three(); // разбираем выражение
+        Parse__Expression(); // разбираем выражение
+        if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT || __tokens[current_token].type_identifier == TOKEN__NEW_LINE) current_token++;
     }
-    if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN) printf("\n Analysis is over.\n");
+    //if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN)
+    printf("\n Analysis is over.\n");
     gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM();
