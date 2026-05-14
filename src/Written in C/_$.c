@@ -270,7 +270,16 @@ short GetNextToken()
     {
         __token.lexeme[0] = '=';
         gl__ptr__code++;
-        if (*gl__ptr__code == '=')
+        switch (*gl__ptr__code){
+        case '<':
+        {
+            __token.lexeme[1] = '<';
+            __token.lexeme[2] = '\0';
+            __token.type_identifier = TOKEN__LEFT_ASSIGNMENT;
+            gl__ptr__code++;
+            return TOKEN__LEFT_ASSIGNMENT;
+        }
+        case '=':
         {
             __token.lexeme[1] = '=';
             __token.lexeme[2] = '\0';
@@ -278,6 +287,14 @@ short GetNextToken()
             gl__ptr__code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
+        case '>':
+        {
+            __token.lexeme[1] = '>';
+            __token.lexeme[2] = '\0';
+            __token.type_identifier = TOKEN__RIGHT_ASSIGNMENT;
+            gl__ptr__code++;
+            return TOKEN__RIGHT_ASSIGNMENT;
+        }}
         __token.lexeme[1] = '\0';
         __token.type_identifier = TOKEN__ASSIGNMENT;
         return TOKEN__ASSIGNMENT;
@@ -624,7 +641,16 @@ short AccumulateTokens()
     {
         __tokens[++number_of_tokens].lexeme[0] = '=';
         gl__ptr__code++;
-        if (*gl__ptr__code == '=')
+        switch (*gl__ptr__code){
+        case '<':
+        {
+            __tokens[number_of_tokens].lexeme[1] = '<';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_ASSIGNMENT;
+            gl__ptr__code++;
+            return TOKEN__LEFT_ASSIGNMENT;
+        }
+        case '=':
         {
             __tokens[number_of_tokens].lexeme[1] = '=';
             __tokens[number_of_tokens].lexeme[2] = '\0';
@@ -632,6 +658,14 @@ short AccumulateTokens()
             gl__ptr__code++;
             return TOKEN__EQUALITY_OPERATOR;
         }
+        case '>':
+        {
+            __tokens[number_of_tokens].lexeme[1] = '>';
+            __tokens[number_of_tokens].lexeme[2] = '\0';
+            __tokens[number_of_tokens].type_identifier = TOKEN__RIGHT_ASSIGNMENT;
+            gl__ptr__code++;
+            return TOKEN__RIGHT_ASSIGNMENT;
+        }}
         __tokens[number_of_tokens].lexeme[1] = '\0';
         __tokens[number_of_tokens].type_identifier = TOKEN__ASSIGNMENT;
         return TOKEN__ASSIGNMENT;
