@@ -1109,17 +1109,17 @@ void ShuntingYard(const char * data)
     }
     default: goto repeat;
     }
-    /*
-    ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
-    ga__operator_stack[++gi__operator_stack] = data[2]; // PUSH_OPERATOR +
-    ga__operand_stack[++gi__operand_stack] = data[4]; // PUSH_OPERAND 3
-    ga__operator_stack[++gi__operator_stack] = data[6]; // PUSH_OPERATOR *
-    ga__operand_stack[++gi__operand_stack] = data[8]; // PUSH_OPERAND 2
-    printf("\n %c%c%c%c%c | Инфиксная", data[0], data[2], data[4], data[6], data[8]);
-    printf("\n %s%s | Префиксная форма", ga__operator_stack, ga__operand_stack);
-    printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__operator_stack);
-    */
 }
+/*
+ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
+ga__operator_stack[++gi__operator_stack] = data[2]; // PUSH_OPERATOR +
+ga__operand_stack[++gi__operand_stack] = data[4]; // PUSH_OPERAND 3
+ga__operator_stack[++gi__operator_stack] = data[6]; // PUSH_OPERATOR *
+ga__operand_stack[++gi__operand_stack] = data[8]; // PUSH_OPERAND 2
+printf("\n %c%c%c%c%c | Инфиксная", data[0], data[2], data[4], data[6], data[8]);
+printf("\n %s%s | Префиксная форма", ga__operator_stack, ga__operand_stack);
+printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__operator_stack);
+*/
 ///////////////////////////////////////////
 void _$()
 {
