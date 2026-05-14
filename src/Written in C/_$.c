@@ -1097,11 +1097,13 @@ void ShuntingYard(const char * data)
     }
     case TOKEN__LEFT_PARENTHESIS:
     {
+        // Если токен — (, кладём в стек операторов.
         ga__operator_stack[gi__operator_stack++] = '(';
         break;
     }
     case TOKEN__RIGHT_PARENTHESIS:
     {
+        // Если токен — ), выталкиваем операторы из стека до (, который выбрасываем.
         while (ga__operator_stack[gi__operator_stack--] != '(') {}
         break;
     }
