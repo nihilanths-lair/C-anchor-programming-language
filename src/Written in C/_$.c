@@ -1087,6 +1087,12 @@ int priority(short token_type)
 void ShuntingYard()
 {
     printf("\n ShuntingYard()");
+
+    // СБРОС стеков и выходной очереди перед разбором нового выражения
+    gi__operator_stack = -1;
+    gi__output = 0;
+    // (ga__operator_stack и ga__output можно не обнулять, так как мы будем перезаписывать)
+
     repeat: switch (__tokens[current_token].type_identifier){
     case TOKEN__NEW_LINE:
     case TOKEN__END_OF_STATEMENT:
@@ -1106,14 +1112,15 @@ void ShuntingYard()
     case TOKEN__SUBTRACT_OPERATOR:
     {
         printf("\n OPERATOR: %s", __tokens[current_token].lexeme); // Печатаем на вывод (для отладки)
-        // Пока стек не пуст и на вершине оператор с приоритетом >= текущему
+        // выталкиваем операторы с приоритетом >= текущего
         while (
             gi__operator_stack >= 0 &&
             ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS &&
-            priority(ga__operator_stack[gi__operator_stack] >= priority(__tokens[current_token].type_identifier))
+            priority(ga__operator_stack[gi__operator_stack]) >= priority(__tokens[current_token].type_identifier)
          )
         { ga__output[gi__output++] = ga__operator_stack[gi__operator_stack--]; }
-        ga__output[++gi__output] = __tokens[current_token].type_identifier;
+        // кладём текущий оператор в стек операторов
+        ga__operator_stack[++gi__operator_stack] = __tokens[current_token].type_identifier;
         current_token++;
         goto repeat;
     }
@@ -1142,12 +1149,12 @@ void ShuntingYard()
     {
         if (ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS) ga__output[gi__output++] = ga__operator_stack[gi__operator_stack];
         else printf("\n Error: mismatched parentheses!");
+        gi__operator_stack--;
     }
-    gi__operator_stack--;
 
-    // Печать постфиксной записи
-    printf("\n Postfix-form: ");
-    for (short i = 0; i < gi__output; i++) printf(" %d", ga__output[i]);
+    // печать постфиксной записи (для отладки)
+    printf("\n Postfix-form (%d tokens):", gi__output);
+    for (short i = 0; i < gi__output; i++) printf("\n %s %d", token__type_name[ga__output[i]], ga__output[i]);
 }
 /*
 ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
