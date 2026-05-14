@@ -1,5 +1,5 @@
-// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 50,0% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 50,0%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 56,3% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 56,3%.
 //
 #include <stdio.h>
 #include <locale.h>
@@ -1070,9 +1070,44 @@ char gi__compiler_sp = 0;
 //
 char ga__operator_stack[0xFF]; char * gp__operator_stack = ga__operator_stack; char gi__operator_stack = -1;
 char ga__operand_stack[0xFF]; char * gp__operand_stack = ga__operand_stack; char gi__operand_stack = -1;
-void MarshallingYard(const char * data)
+void ShuntingYard(const char * data)
 {
-    printf("\n MarshallingYard(\"%s\")", data);
+    printf("\n ShuntingYard(\"%s\")", data);
+    repeat: switch (__tokens[current_token].type_identifier){
+    case TOKEN__NEW_LINE:
+    case TOKEN__END_OF_STATEMENT:
+    case TOKEN__FINAL_TOKEN: { break; }
+    case TOKEN__NUMERIC_LITERAL:
+    {
+        // ... // Как я могу сразу эмитить, если не знаю какой оператор (MUL/DIV / ADD/SUB) был до операнда или после него?
+        break;
+    }
+    case TOKEN__MULTIPLICATION_OPERATOR:
+    case TOKEN__DIVISION_OPERATOR:
+    case TOKEN__ADDITION_OPERATOR:
+    case TOKEN__SUBTRACT_OPERATOR:
+    {
+        // Если токен — оператор, то пока стек операторов не пуст и верхний оператор имеет приоритет >= текущего (и левая ассоциативность),
+        // выталкиваем верхний оператор (эмитим его инструкцию). Затем кладём текущий оператор в стек.
+        while (ga__operator_stack[gi__operator_stack--])
+        {
+            // ... //
+        }
+        break;
+    }
+    case TOKEN__LEFT_PARENTHESIS:
+    {
+        ga__operator_stack[gi__operator_stack++] = '(';
+        break;
+    }
+    case TOKEN__RIGHT_PARENTHESIS:
+    {
+        while (ga__operator_stack[gi__operator_stack--] != '(') {}
+        break;
+    }
+    default: goto repeat;
+    }
+    /*
     ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
     ga__operator_stack[++gi__operator_stack] = data[2]; // PUSH_OPERATOR +
     ga__operand_stack[++gi__operand_stack] = data[4]; // PUSH_OPERAND 3
@@ -1081,6 +1116,7 @@ void MarshallingYard(const char * data)
     printf("\n %c%c%c%c%c | Инфиксная", data[0], data[2], data[4], data[6], data[8]);
     printf("\n %s%s | Префиксная форма", ga__operator_stack, ga__operand_stack);
     printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__operator_stack);
+    */
 }
 ///////////////////////////////////////////
 void _$()
@@ -1088,7 +1124,6 @@ void _$()
     setlocale(0, "");
     //
     const char code[] = "5 + 3 * (6 - 2 / 2)";//x = 123";\ny = 12\nz = 1
-    MarshallingYard(code);
     /*
     const char code[] =
      " // Однострочный комментарий\n"
