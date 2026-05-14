@@ -1079,7 +1079,8 @@ void ShuntingYard(const char * data)
     case TOKEN__FINAL_TOKEN: { break; }
     case TOKEN__NUMERIC_LITERAL:
     {
-        // ... // Как я могу сразу эмитить, если не знаю какой оператор (MUL/DIV / ADD/SUB) был до операнда или после него?
+        printf("\n OPERAND: %s", __tokens[current_token].lexeme);
+        current_token++;
         break;
     }
     case TOKEN__MULTIPLICATION_OPERATOR:
@@ -1087,24 +1088,28 @@ void ShuntingYard(const char * data)
     case TOKEN__ADDITION_OPERATOR:
     case TOKEN__SUBTRACT_OPERATOR:
     {
+        printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
         // Если токен — оператор, то пока стек операторов не пуст и верхний оператор имеет приоритет >= текущего (и левая ассоциативность),
         // выталкиваем верхний оператор (эмитим его инструкцию). Затем кладём текущий оператор в стек.
         while (ga__operator_stack[gi__operator_stack--])
         {
             // ... //
         }
+        current_token++;
         break;
     }
     case TOKEN__LEFT_PARENTHESIS:
     {
         // Если токен — (, кладём в стек операторов.
         ga__operator_stack[gi__operator_stack++] = '(';
+        current_token++;
         break;
     }
     case TOKEN__RIGHT_PARENTHESIS:
     {
         // Если токен — ), выталкиваем операторы из стека до (, который выбрасываем.
         while (ga__operator_stack[gi__operator_stack--] != '(') {}
+        current_token++;
         break;
     }
     default: goto repeat;
