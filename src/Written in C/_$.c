@@ -820,28 +820,36 @@ char is_binary_operator(const short token__type_identifier)
 ///////////////////////////////////////////
 short current_token = 0;
 //
-/// Простая приоритетность (без учёта скобок) ///
-//void Parse__Simple_Priority(){}
-//
-/// Сложная приоритетность (с учётом скобок) ///
-//void Parse__Complex_Priority(){}
+void Parse__Priority_Level_One();
+void Parse__Priority_Level_Two();
+void Parse__Priority_Level_Three();
 //
 /// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
 {
-    printf("\n     Level 1: token %s (%s)\n", token__type_name[__tokens[current_token].type_identifier], __tokens[current_token].lexeme);
+    printf("\n     CALL OPERAND");
     switch (__tokens[current_token].type_identifier){
+    case TOKEN__LEFT_PARENTHESIS:
+    {
+        current_token++;
+        Parse__Priority_Level_Three();
+        if (__tokens[current_token].type_identifier == TOKEN__RIGHT_PARENTHESIS) current_token++; break; // Возможно не здесь, а в самой Parse__Priority_Level_Three?
+        Error("Expected ')'");
+        break;
+    }
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__IDENTIFIER:
+    {
         // Здесь будет эмит
         current_token++;
-    }
+    }}
+    printf("\n     RET OPERAND");
 }
 //
 /// Средний (для умножения, деления) ///
 void Parse__Priority_Level_Two()
 {
-    printf("\n   Level 2: Calling Level 1");
+    printf("\n   CALL OPERATOR MUL/DIV");
     Parse__Priority_Level_One();
     while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR)
     {
@@ -850,12 +858,13 @@ void Parse__Priority_Level_Two()
         Parse__Priority_Level_One();
         // Здесь будет эмит MUL или DIV
     }
+    printf("\n   RET OPERATOR MUL/DIV");
 }
 //
 /// Самый низкий (для сложения, вычитания) ///
 void Parse__Priority_Level_Three()
 {
-    printf("\n Level 3: Calling Level 2");
+    printf("\n CALL OPERATOR ADD/SUB");
     Parse__Priority_Level_Two();
     while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR)
     {
@@ -864,6 +873,7 @@ void Parse__Priority_Level_Three()
         Parse__Priority_Level_Two();
         // Здесь будет эмит ADD или SUB
     }
+    printf("\n RET OPERATOR ADD/SUB");
 }
 //
 void Parse__Expression()
@@ -1008,12 +1018,32 @@ void Parse__Statement()
     default: Error("Expected newline or ';' after statement");
     }
 }
+//
+char ga__compiler_stack[0xFF] = {0}; // стек компилятора
+char * gp__compiler_sp = ga__compiler_stack;
+char gi__compiler_sp = 0;
+//
+char ga__operator_stack[0xFF]; char * gp__operator_stack = ga__operator_stack; char gi__operator_stack = -1;
+char ga__operand_stack[0xFF]; char * gp__operand_stack = ga__operand_stack; char gi__operand_stack = -1;
+void MarshallingYard(const char * data)
+{
+    printf("\n MarshallingYard(\"%s\")", data);
+    ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
+    ga__operator_stack[++gi__operator_stack] = data[2]; // PUSH_OPERATOR +
+    ga__operand_stack[++gi__operand_stack] = data[4]; // PUSH_OPERAND 3
+    ga__operator_stack[++gi__operator_stack] = data[6]; // PUSH_OPERATOR *
+    ga__operand_stack[++gi__operand_stack] = data[8]; // PUSH_OPERAND 2
+    printf("\n %c%c%c%c%c | Инфиксная", data[0], data[2], data[4], data[6], data[8]);
+    printf("\n %s%s | Префиксная форма", ga__operator_stack, ga__operand_stack);
+    printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__operator_stack);
+}
 ///////////////////////////////////////////
 void _$()
 {
     setlocale(0, "");
     //
-    const char code[] = "5 + 3 * 2";//x = 123";\ny = 12\nz = 1
+    const char code[] = "5 + 3 * (2 - 1)";//x = 123";\ny = 12\nz = 1
+    MarshallingYard(code);
     /*
     const char code[] =
      " // Однострочный комментарий\n"
@@ -1083,8 +1113,8 @@ void _$()
     //current_token = 0;
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN)
     {
-        //Parse__Priority_Level_Three(); // разбираем выражение
-        Parse__Expression(); // разбираем выражение
+        Parse__Priority_Level_Three(); // разбираем выражение
+        //Parse__Expression(); // разбираем выражение
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT ||
             __tokens[current_token].type_identifier == TOKEN__NEW_LINE ||
             __tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN
