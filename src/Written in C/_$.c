@@ -1073,6 +1073,9 @@ short gi__operand_stack = -1;
 /// Выходная очередь (сохраняем типы токенов) ///
 short ga__output[0x100];
 short gi__output = 0;
+/// Выходная очередь (сохраняем лексемы токенов) ///
+char ga__output_lexeme[0x100][35];
+char gi__output_lexeme = 0;
 //
 // Приоритет операторов
 int priority(short token_type)
@@ -1117,8 +1120,9 @@ void ShuntingYard()
             gi__operator_stack >= 0 &&
             ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS &&
             priority(ga__operator_stack[gi__operator_stack]) >= priority(__tokens[current_token].type_identifier)
-         )
-        { ga__output[gi__output++] = ga__operator_stack[gi__operator_stack--]; }
+         ){
+            ga__output[gi__output++] = ga__operator_stack[gi__operator_stack--];
+        }
         // кладём текущий оператор в стек операторов
         ga__operator_stack[++gi__operator_stack] = __tokens[current_token].type_identifier;
         current_token++;
