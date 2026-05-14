@@ -3,7 +3,11 @@ char token__type_name[][64+1] =
     "         NUMERIC_LITERAL", // ЧИСЛОВОЙ ЛИТЕРАЛ
     "       CHARACTER_LITERAL", // СИМВОЛЬНЫЙ ЛИТЕРАЛ
     "          STRING_LITERAL", // СТРОКОВЫЙ ЛИТЕРАЛ
-    "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
+
+    "   LEFT_SIDED_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (НЕЯВНОЕ)    ····    =
+    "         LEFT_ASSIGNMENT", // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)      ····    =<
+    "        RIGHT_ASSIGNMENT", // ПРАВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)     ····    =>
+
     "              IDENTIFIER", // ИДЕНТИФИКАТОР
     "        LABEL_IDENTIFIER", // ИДЕНТИФИКАТОР МЕТКИ
     "            END_OF_LABEL", // КОНЕЦ МЕТКИ

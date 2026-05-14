@@ -1,10 +1,14 @@
 enum
 {
-    // Идентификация токенов для лексера и парсера (лексического/синтаксического анализа и синтеза)
+    // Идентификация токенов
     TOKEN__NUMERIC_LITERAL,       // ЧИСЛОВОЙ ЛИТЕРАЛ
     TOKEN__CHARACTER_LITERAL,     // СИМВОЛЬНЫЙ ЛИТЕРАЛ
     TOKEN__STRING_LITERAL,        // СТРОКОВЫЙ ЛИТЕРАЛ
-    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ
+
+    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (НЕЯВНОЕ)    ····    =
+    TOKEN__LEFT_ASSIGNMENT,       // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)      ····    =<
+    TOKEN__RIGHT_ASSIGNMENT,      // ПРАВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)     ····    =>
+
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
     TOKEN__END_OF_LABEL,          // КОНЕЦ МЕТКИ
