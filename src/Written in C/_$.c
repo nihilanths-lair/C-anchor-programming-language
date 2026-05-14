@@ -861,7 +861,7 @@ void Parse__Priority_Level_Three();
 /// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
 void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
 {
-    printf("\n     CALL OPERAND");
+    //printf("\n     CALL OPERAND");
     switch (__tokens[current_token].type_identifier){
     case TOKEN__LEFT_PARENTHESIS:
     {
@@ -872,42 +872,49 @@ void Parse__Priority_Level_One() // первичный/базовый, мини�
         break;
     }
     case TOKEN__NUMERIC_LITERAL:
+    {
+        printf("\n OPERAND: %s", __tokens[current_token].lexeme);
+        current_token++;
+        break;
+    }
     case TOKEN__IDENTIFIER:
     {
         // Здесь будет эмит
         current_token++;
     }}
-    printf("\n     RET OPERAND");
+    //printf("\n     RET OPERAND");
 }
 //
 /// Средний (для умножения, деления) ///
 void Parse__Priority_Level_Two()
 {
-    printf("\n   CALL OPERATOR MUL/DIV");
+    //printf("\n   CALL OPERATOR MUL/DIV");
     Parse__Priority_Level_One();
     while (__tokens[current_token].type_identifier == TOKEN__MULTIPLICATION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__DIVISION_OPERATOR)
     {
         short operator = __tokens[current_token].type_identifier;
+        printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
         current_token++;
         Parse__Priority_Level_One();
         // Здесь будет эмит MUL или DIV
     }
-    printf("\n   RET OPERATOR MUL/DIV");
+    //printf("\n   RET OPERATOR MUL/DIV");
 }
 //
 /// Самый низкий (для сложения, вычитания) ///
 void Parse__Priority_Level_Three()
 {
-    printf("\n CALL OPERATOR ADD/SUB");
+    //printf("\n CALL OPERATOR ADD/SUB");
     Parse__Priority_Level_Two();
     while (__tokens[current_token].type_identifier == TOKEN__ADDITION_OPERATOR || __tokens[current_token].type_identifier == TOKEN__SUBTRACT_OPERATOR)
     {
         short operator = __tokens[current_token].type_identifier;
+        printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
         current_token++;
         Parse__Priority_Level_Two();
         // Здесь будет эмит ADD или SUB
     }
-    printf("\n RET OPERATOR ADD/SUB");
+    //printf("\n RET OPERATOR ADD/SUB");
 }
 //
 void Parse__Expression()
@@ -1076,7 +1083,7 @@ void _$()
 {
     setlocale(0, "");
     //
-    const char code[] = "5 + 3 * (2 - 1)";//x = 123";\ny = 12\nz = 1
+    const char code[] = "5 + 3 * (6 - 2 / 2)";//x = 123";\ny = 12\nz = 1
     MarshallingYard(code);
     /*
     const char code[] =
