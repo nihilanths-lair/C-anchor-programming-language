@@ -1,5 +1,5 @@
-// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 56,3% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 56,3%.
+// @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 56,8% done.
+// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 56,8%.
 //
 #include <stdio.h>
 #include <locale.h>
@@ -1064,56 +1064,90 @@ void Parse__Statement()
     }
 }
 //
-char ga__compiler_stack[0xFF] = {0}; // стек компилятора
-char * gp__compiler_sp = ga__compiler_stack;
-char gi__compiler_sp = 0;
+/// Стек операторов ///
+short ga__operator_stack[0x100];
+short gi__operator_stack = -1;
+/// Стек операндов ///
+short ga__operand_stack[0x100];
+short gi__operand_stack = -1;
+/// Выходная очередь (сохраняем типы токенов) ///
+short ga__output[0x100];
+short gi__output = 0;
 //
-char ga__operator_stack[0xFF]; char * gp__operator_stack = ga__operator_stack; char gi__operator_stack = -1;
-char ga__operand_stack[0xFF]; char * gp__operand_stack = ga__operand_stack; char gi__operand_stack = -1;
-void ShuntingYard(const char * data)
+// Приоритет операторов
+int priority(short token_type)
 {
-    printf("\n ShuntingYard(\"%s\")", data);
+    switch (token_type){
+    case TOKEN__MULTIPLICATION_OPERATOR: case TOKEN__DIVISION_OPERATOR: return 2;
+    case TOKEN__ADDITION_OPERATOR: case TOKEN__SUBTRACT_OPERATOR: return 1;
+    default: return 0;
+    }
+}
+//
+void ShuntingYard()
+{
+    printf("\n ShuntingYard()");
     repeat: switch (__tokens[current_token].type_identifier){
     case TOKEN__NEW_LINE:
     case TOKEN__END_OF_STATEMENT:
-    case TOKEN__FINAL_TOKEN: { break; }
-    case TOKEN__NUMERIC_LITERAL:
-    {
-        printf("\n OPERAND: %s", __tokens[current_token].lexeme);
-        current_token++;
+    case TOKEN__FINAL_TOKEN:
         break;
+    case TOKEN__NUMERIC_LITERAL:
+    case TOKEN__IDENTIFIER:
+    {
+        printf("\n OPERAND: %s", __tokens[current_token].lexeme); // Печатаем на вывод (для отладки)
+        ga__output[gi__output++] = __tokens[current_token].type_identifier;
+        current_token++;
+        goto repeat;
     }
     case TOKEN__MULTIPLICATION_OPERATOR:
     case TOKEN__DIVISION_OPERATOR:
     case TOKEN__ADDITION_OPERATOR:
     case TOKEN__SUBTRACT_OPERATOR:
     {
-        printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
-        // Если токен — оператор, то пока стек операторов не пуст и верхний оператор имеет приоритет >= текущего (и левая ассоциативность),
-        // выталкиваем верхний оператор (эмитим его инструкцию). Затем кладём текущий оператор в стек.
-        while (ga__operator_stack[gi__operator_stack--])
-        {
-            // ... //
-        }
+        printf("\n OPERATOR: %s", __tokens[current_token].lexeme); // Печатаем на вывод (для отладки)
+        // Пока стек не пуст и на вершине оператор с приоритетом >= текущему
+        while (
+            gi__operator_stack >= 0 &&
+            ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS &&
+            priority(ga__operator_stack[gi__operator_stack] >= priority(__tokens[current_token].type_identifier))
+         )
+        { ga__output[gi__output++] = ga__operator_stack[gi__operator_stack--]; }
+        ga__output[++gi__output] = __tokens[current_token].type_identifier;
         current_token++;
-        break;
+        goto repeat;
     }
     case TOKEN__LEFT_PARENTHESIS:
     {
-        // Если токен — (, кладём в стек операторов.
-        ga__operator_stack[gi__operator_stack++] = '(';
+        ga__operator_stack[++gi__operator_stack] = __tokens[current_token].type_identifier;
         current_token++;
-        break;
+        goto repeat;
     }
     case TOKEN__RIGHT_PARENTHESIS:
     {
-        // Если токен — ), выталкиваем операторы из стека до (, который выбрасываем.
-        while (ga__operator_stack[gi__operator_stack--] != '(') {}
+        while (gi__operator_stack >= 0 && ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS) ga__output[gi__output++] = ga__operator_stack[gi__operator_stack--];
+        if (gi__operator_stack >= 0) gi__operator_stack--; // Уберём '('
+        else printf("\n Error: mismatched parentheses!");
         current_token++;
-        break;
+        goto repeat;
     }
-    default: goto repeat;
+    default:
+    {
+        printf("\n Unexpected token: %d", __tokens[current_token].type_identifier);
+        current_token++;
+        goto repeat;
+    }}
+    // Вытолкнуть оставшиеся операторы
+    while (gi__operator_stack >= 0)
+    {
+        if (ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS) ga__output[gi__output++] = ga__operator_stack[gi__operator_stack];
+        else printf("\n Error: mismatched parentheses!");
     }
+    gi__operator_stack--;
+
+    // Печать постфиксной записи
+    printf("\n Postfix-form: ");
+    for (short i = 0; i < gi__output; i++) printf(" %d", ga__output[i]);
 }
 /*
 ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
@@ -1201,7 +1235,8 @@ void _$()
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Если обнаружен конечный токен, завершаем цикл
     {
         //Parse__Priority_Level_Three(); // разбираем выражение
-        Parse__Expression(); // разбираем выражение
+        //Parse__Expression(); // разбираем выражение
+        ShuntingYard();
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT || __tokens[current_token].type_identifier == TOKEN__NEW_LINE) current_token++;
     }
     //if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN)
