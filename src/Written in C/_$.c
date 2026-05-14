@@ -279,8 +279,8 @@ short GetNextToken()
             return TOKEN__EQUALITY_OPERATOR;
         }
         __token.lexeme[1] = '\0';
-        __token.type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        return TOKEN__LEFT_SIDED_ASSIGNMENT;
+        __token.type_identifier = TOKEN__ASSIGNMENT;
+        return TOKEN__ASSIGNMENT;
     }
     case '>':
     {
@@ -633,8 +633,8 @@ short AccumulateTokens()
             return TOKEN__EQUALITY_OPERATOR;
         }
         __tokens[number_of_tokens].lexeme[1] = '\0';
-        __tokens[number_of_tokens].type_identifier = TOKEN__LEFT_SIDED_ASSIGNMENT;
-        return TOKEN__LEFT_SIDED_ASSIGNMENT;
+        __tokens[number_of_tokens].type_identifier = TOKEN__ASSIGNMENT;
+        return TOKEN__ASSIGNMENT;
     }
     case '>':
     {
@@ -950,7 +950,7 @@ void Parse__Assignment()
         return;
     }
     current_token++;
-    if (__tokens[current_token].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
+    if (__tokens[current_token].type_identifier != TOKEN__ASSIGNMENT)
     {
         printf("\n #Error: Parse__Assignment-2!");
         return;
@@ -979,7 +979,7 @@ void Parse__Statement()
         printf("\n Parse__Statement  1: IDENTIFIER");
         ///Parse__Assignment();///
         // Проверка, что это присваивание
-        if (__tokens[current_token+1].type_identifier != TOKEN__LEFT_SIDED_ASSIGNMENT)
+        if (__tokens[current_token+1].type_identifier != TOKEN__ASSIGNMENT)
         {
             Error("Expected '='");
             return;
