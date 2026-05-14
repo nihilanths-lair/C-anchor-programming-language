@@ -833,7 +833,7 @@ void Parse__Priority_Level_One() // первичный/базовый, мини�
     {
         current_token++;
         Parse__Priority_Level_Three();
-        if (__tokens[current_token].type_identifier == TOKEN__RIGHT_PARENTHESIS) current_token++; break; // Возможно не здесь, а в самой Parse__Priority_Level_Three?
+        if (__tokens[current_token].type_identifier == TOKEN__RIGHT_PARENTHESIS) { current_token++; break; }
         Error("Expected ')'");
         break;
     }
