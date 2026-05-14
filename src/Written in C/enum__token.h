@@ -5,9 +5,9 @@ enum
     TOKEN__CHARACTER_LITERAL,     // СИМВОЛЬНЫЙ ЛИТЕРАЛ
     TOKEN__STRING_LITERAL,        // СТРОКОВЫЙ ЛИТЕРАЛ
 
-    TOKEN__LEFT_SIDED_ASSIGNMENT, // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (НЕЯВНОЕ)    ····    =
-    TOKEN__LEFT_ASSIGNMENT,       // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)      ····    =<
-    TOKEN__RIGHT_ASSIGNMENT,      // ПРАВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)     ····    =>
+    TOKEN__ASSIGNMENT,            // ПРИСВАИВАНИЕ (НЕЯВНОЕ)                 ····    =
+    TOKEN__LEFT_ASSIGNMENT,       // ЛЕВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)     ····    =<
+    TOKEN__RIGHT_ASSIGNMENT,      // ПРАВОСТОРОННЕЕ ПРИСВАИВАНИЕ (ЯВНОЕ)    ····    =>
 
     TOKEN__IDENTIFIER,            // ИДЕНТИФИКАТОР
     TOKEN__LABEL_IDENTIFIER,      // ИДЕНТИФИКАТОР МЕТКИ
