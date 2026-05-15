@@ -7,22 +7,26 @@ unsigned char * gl__ptr__memory_tape = gl__memory_tape;
 uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 uint8_t ip8 = 0; // (unsigned char) 8-bit's регистр-указатель на инструкцию
 uint8_t sp8 = 0; // (unsigned char) 8-bit's регистр-указатель на стек
-int8_t   r8 = 0; //          (char) 8-bit's регистр общего назначения
+int8_t   a8 = 0; //          (char) 8-bit's регистр общего назначения
+int8_t   b8 = 0; //          (char) 8-bit's регистр общего назначения
 
 uint16_t cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
 uint16_t ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
 uint16_t sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
-int16_t   r16 = 0; //          (short) 16-bit's регистр общего назначения
+int16_t   a16 = 0; //          (short) 16-bit's регистр общего назначения
+int16_t   b16 = 0; //          (short) 16-bit's регистр общего назначения
 
 uint32_t cs32 = 0; // (unsigned int) 32-bit's сегментный-регистр
 uint32_t ip32 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
 uint32_t sp32 = 0; // (unsigned int) 32-bit's регистр-указатель на стек
-int32_t   r32 = 0; //          (int) 32-bit's регистр общего назначения
+int32_t   a32 = 0; //          (int) 32-bit's регистр общего назначения
+int32_t   b32 = 0; //          (int) 32-bit's регистр общего назначения
 
 uint64_t cs64 = 0; // (unsigned long long) 64-bit's сегментный-регистр
 uint64_t ip64 = 0; // (unsigned long long) 64-bit's регистр-указатель на инструкцию
 uint64_t sp64 = 0; // (unsigned long long) 64-bit's регистр-указатель на стек
-int64_t   r64 = 0; //          (long long) 64-bit's регистр общего назначения
+int64_t   a64 = 0; //          (long long) 64-bit's регистр общего назначения
+int64_t   b64 = 0; //          (long long) 64-bit's регистр общего назначения
 //
 /// Для экспериментов ///
 int8_t * _rcv8 = "Hello";
@@ -62,58 +66,65 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     switch_run:
     switch (*gl__ptr__memory_tape){
     //
-    case 0x01: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    case 0x01: // 16-bit's addr-on | mov i8, a8 ;
     {
-        printf("\n \\d001 = \\h01");
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
+        a8 = *(++gl__ptr__memory_tape);
+        ++gl__ptr__memory_tape;
+        goto switch_run;
+    }
+    case 0x02: // 16-bit's addr-on | mov i8, b8 ;
+    {
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
+        b8 = *(++gl__ptr__memory_tape);
+        ++gl__ptr__memory_tape;
+        goto switch_run;
+    }
+    case 0x03: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification, результат в 16-bit's приёмник
+    {
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) + *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x02: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    case 0x04: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification, результат в 16-bit's приёмник
     {
-        printf("\n \\d002 = \\h02");
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) - *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x03: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    case 0x05: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification, результат в 16-bit's приёмник
     {
-        printf("\n \\d003 = \\h03");
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) * *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x04: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification (Right-associativity), результат в 16-bit's приёмник
+    case 0x06: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification, результат в 16-bit's приёмник
     {
-        printf("\n \\d004 = \\h04");
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) / *(++gl__ptr__memory_tape);
-        ++gl__ptr__memory_tape;
-        goto switch_run;
-    }
-    case 0x05: // 16-bit's addr-on | mov i8, rcv16 ;
-    {
-        printf("\n \\d005 = \\h05");
-        rcv16 = *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x76: // OUT (распечатать строку на консоль)
     {
-        printf("\n \\d%d = \\h76\n ", 0x76);
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         printf("%s", _rcv8);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x77: // OUT (распечатать число на консоль)
     {
-        printf("\n \\d%d = \\h77\n ", 0x77);
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         printf("%d", rcv16);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x78: // OUT (распечатать символ на консоль)
     {
-        printf("\n \\d%d = \\h78\n ", 0x78);
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         putchar(rcv16);
         ++gl__ptr__memory_tape;
         goto switch_run;
