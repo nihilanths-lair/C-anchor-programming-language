@@ -1,5 +1,5 @@
 // @ The minimum viable product of the temporary compiler for the permanent meta-compiler is 56,8% done.
-// @ Минимально жизнеспособный продукт временного компилятора для постоянного мета-компилятора сделан на 56,8%.
+// @ РњРёРЅРёРјР°Р»СЊРЅРѕ Р¶РёР·РЅРµСЃРїРѕСЃРѕР±РЅС‹Р№ РїСЂРѕРґСѓРєС‚ РІСЂРµРјРµРЅРЅРѕРіРѕ РєРѕРјРїРёР»СЏС‚РѕСЂР° РґР»СЏ РїРѕСЃС‚РѕСЏРЅРЅРѕРіРѕ РјРµС‚Р°-РєРѕРјРїРёР»СЏС‚РѕСЂР° СЃРґРµР»Р°РЅ РЅР° 56,8%.
 //
 #include <stdio.h>
 #include <locale.h>
@@ -29,7 +29,7 @@ int get_varidx(const char * name)
 //
 #define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
 unsigned char gl__opcodes[MACRO__MAXIMUM_CODE_LIMIT];
-unsigned char * gl__ptr__opcodes = gl__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности/необходимости заполнять его
+unsigned char * gl__ptr__opcodes = gl__opcodes; // РЈРєР°Р·Р°С‚РµР»СЊ, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РґРІРёРіР°С‚СЊСЃСЏ РїРѕ РјР°СЃСЃРёРІСѓ Рё РїРѕ РјРµСЂРµ РЅР°РґРѕР±РЅРѕСЃС‚Рё/РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё Р·Р°РїРѕР»РЅСЏС‚СЊ РµРіРѕ
 unsigned short gl__idx__opcodes = 0-1;
 //
 #include "vm.c"
@@ -57,26 +57,26 @@ struct Token
     /*char pos_lexeme[2]*/
 } __token, __tokens[MACRO__MAXIMUM_TOKEN_LIMIT]; // global variable struct and global array struct
 //
-int gl__row_position; // позиция в строке/линии
-int gl__column_position; // позиция в столбце/колонке
-int gl__flat_position; // плоская позиция
-const char * gl__ptr__code; // смещение относительно файла
+int gl__row_position; // РїРѕР·РёС†РёСЏ РІ СЃС‚СЂРѕРєРµ/Р»РёРЅРёРё
+int gl__column_position; // РїРѕР·РёС†РёСЏ РІ СЃС‚РѕР»Р±С†Рµ/РєРѕР»РѕРЅРєРµ
+int gl__flat_position; // РїР»РѕСЃРєР°СЏ РїРѕР·РёС†РёСЏ
+const char * gl__ptr__code; // СЃРјРµС‰РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С„Р°Р№Р»Р°
 void InitLexer(const char * code) { gl__ptr__code = code; }
 void Error(const char * message) { printf("\n Parse error [row %d, column %d, score: %d]: %s.", gl__row_position, gl__column_position, gl__flat_position, message); }
 /*
 struct Cursor {
-    int row_position; // позиция строки/линии
-    int column_position; // позиция столбца/колонки
-    int offset_relative_to_file; // смещение относительно файла
+    int row_position; // РїРѕР·РёС†РёСЏ СЃС‚СЂРѕРєРё/Р»РёРЅРёРё
+    int column_position; // РїРѕР·РёС†РёСЏ СЃС‚РѕР»Р±С†Р°/РєРѕР»РѕРЅРєРё
+    int offset_relative_to_file; // СЃРјРµС‰РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С„Р°Р№Р»Р°
 } gl__cursor;
 */
 //struct Lexer { int s_pos; int e_pos; char * cursor; } lexer = {0, 0, '\0'}; // global object's
 //struct Parser { char * cursor; } parser; // global object's
 //
-//void LexicalAnalysisWithoutSynthesis(){} // Лексический анализ без синтеза (сканирует/проверяет на наличие ошибок, ничего не воспроизводит), распознающий компонент/модуль лексера
-//void LexicalAnalysisWithSynthesis(){}    // Лексический анализ с синтезом (сканирует/проверяет на наличие ошибок и воспроизводит токены), порождающий компонент/модуль лексера
+//void LexicalAnalysisWithoutSynthesis(){} // Р›РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· Р±РµР· СЃРёРЅС‚РµР·Р° (СЃРєР°РЅРёСЂСѓРµС‚/РїСЂРѕРІРµСЂСЏРµС‚ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє, РЅРёС‡РµРіРѕ РЅРµ РІРѕСЃРїСЂРѕРёР·РІРѕРґРёС‚), СЂР°СЃРїРѕР·РЅР°СЋС‰РёР№ РєРѕРјРїРѕРЅРµРЅС‚/РјРѕРґСѓР»СЊ Р»РµРєСЃРµСЂР°
+//void LexicalAnalysisWithSynthesis(){}    // Р›РµРєСЃРёС‡РµСЃРєРёР№ Р°РЅР°Р»РёР· СЃ СЃРёРЅС‚РµР·РѕРј (СЃРєР°РЅРёСЂСѓРµС‚/РїСЂРѕРІРµСЂСЏРµС‚ РЅР° РЅР°Р»РёС‡РёРµ РѕС€РёР±РѕРє Рё РІРѕСЃРїСЂРѕРёР·РІРѕРґРёС‚ С‚РѕРєРµРЅС‹), РїРѕСЂРѕР¶РґР°СЋС‰РёР№ РєРѕРјРїРѕРЅРµРЅС‚/РјРѕРґСѓР»СЊ Р»РµРєСЃРµСЂР°
 //
-/// Для поточного режима лексера ///
+/// Р”Р»СЏ РїРѕС‚РѕС‡РЅРѕРіРѕ СЂРµР¶РёРјР° Р»РµРєСЃРµСЂР° ///
 short GetNextToken()
 {
     switch_run:
@@ -116,7 +116,7 @@ short GetNextToken()
         __token.type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
     }
-    case '\'': // Если символьный литерал
+    case '\'': // Р•СЃР»Рё СЃРёРјРІРѕР»СЊРЅС‹Р№ Р»РёС‚РµСЂР°Р»
     {
         short i = -1;
         __token.lexeme[++i] = '\'';
@@ -136,7 +136,7 @@ short GetNextToken()
         }
         return TOKEN__ERROR;
     }
-    case '\"': // Если строковый литерал
+    case '\"': // Р•СЃР»Рё СЃС‚СЂРѕРєРѕРІС‹Р№ Р»РёС‚РµСЂР°Р»
     {
         short i = -1;
         __token.lexeme[++i] = '\"';
@@ -364,9 +364,9 @@ short GetNextToken()
     default:
     {
         //printf("\n def 1");
-        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // Первым символом не может быть цифра
+        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // РџРµСЂРІС‹Рј СЃРёРјРІРѕР»РѕРј РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ С†РёС„СЂР°
         {
-            // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
+            // РџРѕРєР° РЅРµ Р·РЅР°РµРј С‡С‚Рѕ Р·Р° С‚РѕРєРµРЅ: СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р»РёР±Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, Р»РёР±Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РјРµС‚РєРё
             short i = -1;
             __token.lexeme[++i] = *gl__ptr__code;
             gl__ptr__code++;
@@ -376,7 +376,7 @@ short GetNextToken()
                 gl__ptr__code++;
             }
             __token.lexeme[++i] = '\0';
-            // Идентификатор из букв/цифр и нижнего подчёркивания собран
+            // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР· Р±СѓРєРІ/С†РёС„СЂ Рё РЅРёР¶РЅРµРіРѕ РїРѕРґС‡С‘СЂРєРёРІР°РЅРёСЏ СЃРѕР±СЂР°РЅ
             if (!strcmp(__token.lexeme, "goto"))
             {
                 __token.type_identifier = TOKEN__KEYWORD_GOTO;
@@ -407,7 +407,7 @@ short GetNextToken()
                 __token.type_identifier = TOKEN__KEYWORD_DEFAULT;
                 return TOKEN__KEYWORD_DEFAULT;
             }
-            if (!strcmp(__token.lexeme, "else")) // Опционально
+            if (!strcmp(__token.lexeme, "else")) // РћРїС†РёРѕРЅР°Р»СЊРЅРѕ
             {
                 __token.type_identifier = TOKEN__KEYWORD_ELSE;
                 return TOKEN__KEYWORD_ELSE;
@@ -442,12 +442,12 @@ short GetNextToken()
     }
     //
     }
-    Error("Абра-кадабра");
+    Error("РђР±СЂР°-РєР°РґР°Р±СЂР°");
     //printf("\n def 2");
     return TOKEN__ERROR;
 }
 //
-/// Накопить токены (удобен для отладочного режима, занимает память) ///
+/// РќР°РєРѕРїРёС‚СЊ С‚РѕРєРµРЅС‹ (СѓРґРѕР±РµРЅ РґР»СЏ РѕС‚Р»Р°РґРѕС‡РЅРѕРіРѕ СЂРµР¶РёРјР°, Р·Р°РЅРёРјР°РµС‚ РїР°РјСЏС‚СЊ) ///
 short AccumulateTokens()
 {
     switch_run:
@@ -487,7 +487,7 @@ short AccumulateTokens()
         __tokens[number_of_tokens].type_identifier = TOKEN__INVERSION_OPERATOR;
         return TOKEN__INVERSION_OPERATOR;
     }
-    case '\'': // Если символьный литерал
+    case '\'': // Р•СЃР»Рё СЃРёРјРІРѕР»СЊРЅС‹Р№ Р»РёС‚РµСЂР°Р»
     {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = '\'';
@@ -507,7 +507,7 @@ short AccumulateTokens()
         }
         return TOKEN__ERROR;
     }
-    case '\"': // Если строковый литерал
+    case '\"': // Р•СЃР»Рё СЃС‚СЂРѕРєРѕРІС‹Р№ Р»РёС‚РµСЂР°Р»
     {
         short i = -1;
         __tokens[++number_of_tokens].lexeme[++i] = '\"';
@@ -735,9 +735,9 @@ short AccumulateTokens()
     default:
     {
         //printf("\n def 1");
-        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // Первым символом не может быть цифра
+        if (isalpha(*gl__ptr__code) || *gl__ptr__code == '_') // РџРµСЂРІС‹Рј СЃРёРјРІРѕР»РѕРј РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ С†РёС„СЂР°
         {
-            // Пока не знаем что за токен: это может быть либо идентификатор, либо идентификатор метки
+            // РџРѕРєР° РЅРµ Р·РЅР°РµРј С‡С‚Рѕ Р·Р° С‚РѕРєРµРЅ: СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р»РёР±Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, Р»РёР±Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РјРµС‚РєРё
             short i = -1;
             __tokens[++number_of_tokens].lexeme[++i] = *gl__ptr__code;
             gl__ptr__code++;
@@ -747,7 +747,7 @@ short AccumulateTokens()
                 gl__ptr__code++;
             }
             __tokens[number_of_tokens].lexeme[++i] = '\0';
-            // Идентификатор из букв/цифр и нижнего подчёркивания собран
+            // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР· Р±СѓРєРІ/С†РёС„СЂ Рё РЅРёР¶РЅРµРіРѕ РїРѕРґС‡С‘СЂРєРёРІР°РЅРёСЏ СЃРѕР±СЂР°РЅ
             if (!strcmp(__tokens[number_of_tokens].lexeme, "goto"))
             {
                 __tokens[number_of_tokens].type_identifier = TOKEN__KEYWORD_GOTO;
@@ -778,7 +778,7 @@ short AccumulateTokens()
                 __tokens[number_of_tokens].type_identifier = TOKEN__KEYWORD_DEFAULT;
                 return TOKEN__KEYWORD_DEFAULT;
             }
-            if (!strcmp(__tokens[number_of_tokens].lexeme, "else")) // Опционально
+            if (!strcmp(__tokens[number_of_tokens].lexeme, "else")) // РћРїС†РёРѕРЅР°Р»СЊРЅРѕ
             {
                 __tokens[number_of_tokens].type_identifier = TOKEN__KEYWORD_ELSE;
                 return TOKEN__KEYWORD_ELSE;
@@ -813,12 +813,12 @@ short AccumulateTokens()
     }
     //
     }
-    Error("Абра-кадабра");
+    Error("РђР±СЂР°-РєР°РґР°Р±СЂР°");
     //printf("\n def 2");
     return TOKEN__ERROR;
 }
 //
-/// Распечатать все токены ///
+/// Р Р°СЃРїРµС‡Р°С‚Р°С‚СЊ РІСЃРµ С‚РѕРєРµРЅС‹ ///
 void PrintAllTokens()
 {
     while ((__token.type_identifier = GetNextToken()) != TOKEN__FINAL_TOKEN)
@@ -832,7 +832,7 @@ void PrintAllTokens()
 char is_binary_operator(const short token__type_identifier)
 {
     switch (token__type_identifier){
-    //- Бинарные операторы -/
+    //- Р‘РёРЅР°СЂРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹ -/
     case TOKEN__ADDITION_OPERATOR:
     case TOKEN__SUBTRACT_OPERATOR:
     case TOKEN__MULTIPLICATION_OPERATOR:
@@ -850,7 +850,7 @@ char is_binary_operator(const short token__type_identifier)
 }
 //
 ///////////////////////////////////////////
-/// *[* Пространство имён: Parse__? *]* ///
+/// *[* РџСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјС‘РЅ: Parse__? *]* ///
 ///////////////////////////////////////////
 short current_token = 0;
 //
@@ -858,8 +858,8 @@ void Parse__Priority_Level_One();
 void Parse__Priority_Level_Two();
 void Parse__Priority_Level_Three();
 //
-/// Самый высокий (для операндов: чисел/идентификаторов и круглых скобочек которые переопределяют/задают порядок) ///
-void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
+/// РЎР°РјС‹Р№ РІС‹СЃРѕРєРёР№ (РґР»СЏ РѕРїРµСЂР°РЅРґРѕРІ: С‡РёСЃРµР»/РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ Рё РєСЂСѓРіР»С‹С… СЃРєРѕР±РѕС‡РµРє РєРѕС‚РѕСЂС‹Рµ РїРµСЂРµРѕРїСЂРµРґРµР»СЏСЋС‚/Р·Р°РґР°СЋС‚ РїРѕСЂСЏРґРѕРє) ///
+void Parse__Priority_Level_One() // РїРµСЂРІРёС‡РЅС‹Р№/Р±Р°Р·РѕРІС‹Р№, РјРёРЅРёРјР°Р»СЊРЅС‹Р№ Р°С‚РѕРј
 {
     //printf("\n     CALL OPERAND");
     switch (__tokens[current_token].type_identifier){
@@ -879,13 +879,13 @@ void Parse__Priority_Level_One() // первичный/базовый, минимальный атом
     }
     case TOKEN__IDENTIFIER:
     {
-        // Здесь будет эмит
+        // Р—РґРµСЃСЊ Р±СѓРґРµС‚ СЌРјРёС‚
         current_token++;
     }}
     //printf("\n     RET OPERAND");
 }
 //
-/// Средний (для умножения, деления) ///
+/// РЎСЂРµРґРЅРёР№ (РґР»СЏ СѓРјРЅРѕР¶РµРЅРёСЏ, РґРµР»РµРЅРёСЏ) ///
 void Parse__Priority_Level_Two()
 {
     //printf("\n   CALL OPERATOR MUL/DIV");
@@ -896,12 +896,12 @@ void Parse__Priority_Level_Two()
         printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
         current_token++;
         Parse__Priority_Level_One();
-        // Здесь будет эмит MUL или DIV
+        // Р—РґРµСЃСЊ Р±СѓРґРµС‚ СЌРјРёС‚ MUL РёР»Рё DIV
     }
     //printf("\n   RET OPERATOR MUL/DIV");
 }
 //
-/// Самый низкий (для сложения, вычитания) ///
+/// РЎР°РјС‹Р№ РЅРёР·РєРёР№ (РґР»СЏ СЃР»РѕР¶РµРЅРёСЏ, РІС‹С‡РёС‚Р°РЅРёСЏ) ///
 void Parse__Priority_Level_Three()
 {
     //printf("\n CALL OPERATOR ADD/SUB");
@@ -912,7 +912,7 @@ void Parse__Priority_Level_Three()
         printf("\n OPERATOR: %s", __tokens[current_token].lexeme);
         current_token++;
         Parse__Priority_Level_Two();
-        // Здесь будет эмит ADD или SUB
+        // Р—РґРµСЃСЊ Р±СѓРґРµС‚ СЌРјРёС‚ ADD РёР»Рё SUB
     }
     //printf("\n RET OPERATOR ADD/SUB");
 }
@@ -923,7 +923,7 @@ void Parse__Expression()
 /*
 void Parse__Expression()
 {
-    // Проверяем первый операнд
+    // РџСЂРѕРІРµСЂСЏРµРј РїРµСЂРІС‹Р№ РѕРїРµСЂР°РЅРґ
     switch (__tokens[current_token].type_identifier){
     //case TOKEN__IDENTIFIER:
     //case TOKEN__CHARACTER_LITERAL:
@@ -933,16 +933,16 @@ void Parse__Expression()
         int literal = atoi(__tokens[current_token].lexeme);
         current_token++;
         switch_run:
-        // Проверяем унарное это выражение или бинарное (что следует за первым операндом?)
+        // РџСЂРѕРІРµСЂСЏРµРј СѓРЅР°СЂРЅРѕРµ СЌС‚Рѕ РІС‹СЂР°Р¶РµРЅРёРµ РёР»Рё Р±РёРЅР°СЂРЅРѕРµ (С‡С‚Рѕ СЃР»РµРґСѓРµС‚ Р·Р° РїРµСЂРІС‹Рј РѕРїРµСЂР°РЅРґРѕРј?)
         switch (__tokens[current_token].type_identifier){
         case TOKEN__END_OF_STATEMENT:
         case TOKEN__NEW_LINE:
         case TOKEN__FINAL_TOKEN: printf("\n TOKEN: %s", token__type_name[__tokens[current_token].type_identifier]);
         break;
-        // Унарное выражение
-        case TOKEN__NUMERIC_LITERAL: printf("\n Это унарное выражение.");
+        // РЈРЅР°СЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ
+        case TOKEN__NUMERIC_LITERAL: printf("\n Р­С‚Рѕ СѓРЅР°СЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ.");
         break;
-        // Бинарное выражение
+        // Р‘РёРЅР°СЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ
         case TOKEN__ADDITION_OPERATOR:
         case TOKEN__SUBTRACT_OPERATOR:
         case TOKEN__MULTIPLICATION_OPERATOR:
@@ -950,24 +950,24 @@ void Parse__Expression()
         {
             printf("\n TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
             current_token++;
-            // Проверяем след. операнд
+            // РџСЂРѕРІРµСЂСЏРµРј СЃР»РµРґ. РѕРїРµСЂР°РЅРґ
             switch (__tokens[current_token].type_identifier){
             case TOKEN__NUMERIC_LITERAL:
             case TOKEN__CHARACTER_LITERAL:
             {
-                printf("\n    До | literal: %d", literal);
+                printf("\n    Р”Рѕ | literal: %d", literal);
                 switch (__tokens[current_token-1].type_identifier){
                 case TOKEN__ADDITION_OPERATOR:       literal += atoi(__tokens[current_token].lexeme); break;
                 case TOKEN__SUBTRACT_OPERATOR:       literal -= atoi(__tokens[current_token].lexeme); break;
                 case TOKEN__MULTIPLICATION_OPERATOR: literal *= atoi(__tokens[current_token].lexeme); break;
                 case TOKEN__DIVISION_OPERATOR:       literal /= atoi(__tokens[current_token].lexeme); break;
-                default: printf("\n #Error 1: Не оператор."); return;
+                default: printf("\n #Error 1: РќРµ РѕРїРµСЂР°С‚РѕСЂ."); return;
                 }
-                printf("\n После | literal: %d\n", literal);
+                printf("\n РџРѕСЃР»Рµ | literal: %d\n", literal);
                 current_token++;
                 goto switch_run;
             }
-            default: printf("\n #Error: След. операнд не число.");
+            default: printf("\n #Error: РЎР»РµРґ. РѕРїРµСЂР°РЅРґ РЅРµ С‡РёСЃР»Рѕ.");
             //
             }
         }
@@ -975,10 +975,10 @@ void Parse__Expression()
         default: printf("\n << Parse__Expression 2 >> TOKEN:%s", token__type_name[__tokens[current_token].type_identifier]);
         //
         }
-        gl__opcodes[gl__idx__opcodes++] = 0x05; // загрузить след. число в регистр
-        gl__opcodes[gl__idx__opcodes++] = literal; // само число
-        //gl__opcodes[gl__idx__opcodes++] = opcodes; // отобразить число на консоль
-        //printf("\n После | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
+        gl__opcodes[gl__idx__opcodes++] = 0x05; // Р·Р°РіСЂСѓР·РёС‚СЊ СЃР»РµРґ. С‡РёСЃР»Рѕ РІ СЂРµРіРёСЃС‚СЂ
+        gl__opcodes[gl__idx__opcodes++] = literal; // СЃР°РјРѕ С‡РёСЃР»Рѕ
+        //gl__opcodes[gl__idx__opcodes++] = opcodes; // РѕС‚РѕР±СЂР°Р·РёС‚СЊ С‡РёСЃР»Рѕ РЅР° РєРѕРЅСЃРѕР»СЊ
+        //printf("\n РџРѕСЃР»Рµ | <%03d:%03d> = <%02X:%02X>", gl__idx__opcodes, gl__opcodes[gl__idx__opcodes], gl__idx__opcodes, gl__opcodes[gl__idx__opcodes]);
         //gl__idx__opcodes++;
     }
     break;
@@ -1016,36 +1016,36 @@ void Parse__Statement()
     case TOKEN__KEYWORD_PRINT:
     {
         current_token++;
-        Parse__Expression(); // генерирует код вывода (0x77)
+        Parse__Expression(); // РіРµРЅРµСЂРёСЂСѓРµС‚ РєРѕРґ РІС‹РІРѕРґР° (0x77)
     }
     break;
     case TOKEN__IDENTIFIER:
     {
         printf("\n Parse__Statement  1: IDENTIFIER");
         ///Parse__Assignment();///
-        // Проверка, что это присваивание
+        // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ СЌС‚Рѕ РїСЂРёСЃРІР°РёРІР°РЅРёРµ
         if (__tokens[current_token+1].type_identifier != TOKEN__ASSIGNMENT)
         {
             Error("Expected '='");
             return;
         }
-        // Здесь нужно будет обработать переменную, но пока просто пропускаем
+        // Р—РґРµСЃСЊ РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РїРµСЂРµРјРµРЅРЅСѓСЋ, РЅРѕ РїРѕРєР° РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃРєР°РµРј
         /*
         int i = 0;
         int size = sizeof (identifier) / sizeof (identifier[0]);
         while (i < size)
         {
             //printf("\n \"%s\" %s \"%s\"", __tokens[current_token].lexeme, (!strcmp(__tokens[current_token].lexeme, identifier[i])) ? "==" : "!=", identifier[i]);
-            if (!strcmp(__tokens[current_token].lexeme, identifier[i])) /*printf("\n Идентификатор обнаружен, обновим его значения."); // {?} // break;
+            if (!strcmp(__tokens[current_token].lexeme, identifier[i])) /*printf("\n РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±РЅР°СЂСѓР¶РµРЅ, РѕР±РЅРѕРІРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ."); // {?} // break;
             i++;
         }
-        //printf("\n Идентификатор \"%s\" не обнаружен, создадим/добавим его.", __tokens[current_token].lexeme);
+        //printf("\n РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ \"%s\" РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅ, СЃРѕР·РґР°РґРёРј/РґРѕР±Р°РІРёРј РµРіРѕ.", __tokens[current_token].lexeme);
         i = 0;
         strcpy(identifier[i], __tokens[current_token].lexeme);
         */
-        current_token++; // пропускаем идентификатор
-        current_token++; // пропускаем '='
-        Parse__Expression(); // генерирует код загрузки константы (0x05)
+        current_token++; // РїСЂРѕРїСѓСЃРєР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+        current_token++; // РїСЂРѕРїСѓСЃРєР°РµРј '='
+        Parse__Expression(); // РіРµРЅРµСЂРёСЂСѓРµС‚ РєРѕРґ Р·Р°РіСЂСѓР·РєРё РєРѕРЅСЃС‚Р°РЅС‚С‹ (0x05)
     }
     break;
     default:
@@ -1053,35 +1053,35 @@ void Parse__Statement()
         Error("This is not a statement");
         return;
     }}
-    // После разбора оператора — пропускаем разделитель ('\n' или ';') или конец файла
+    // РџРѕСЃР»Рµ СЂР°Р·Р±РѕСЂР° РѕРїРµСЂР°С‚РѕСЂР° вЂ” РїСЂРѕРїСѓСЃРєР°РµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ ('\n' РёР»Рё ';') РёР»Рё РєРѕРЅРµС† С„Р°Р№Р»Р°
     switch (__tokens[current_token].type_identifier){
     case TOKEN__END_OF_STATEMENT:
     case TOKEN__NEW_LINE: current_token++;
     break;
-    case TOKEN__FINAL_TOKEN: // конец файла — ничего не делаем, это допустимо
+    case TOKEN__FINAL_TOKEN: // РєРѕРЅРµС† С„Р°Р№Р»Р° вЂ” РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј, СЌС‚Рѕ РґРѕРїСѓСЃС‚РёРјРѕ
     break;
     default: Error("Expected newline or ';' after statement");
     }
 }
 //
-/// Стек операторов ///
+/// РЎС‚РµРє РѕРїРµСЂР°С‚РѕСЂРѕРІ ///
 short ga__operator_stack[0x100];
 short gi__operator_stack = -1;
 //
-/// Стек операторов ///
+/// РЎС‚РµРє РѕРїРµСЂР°С‚РѕСЂРѕРІ ///
 char ga__operator_stack_lexeme[0x100];
 char gi__operator_stack_lexeme = -1;
-/// Стек операндов ///
+/// РЎС‚РµРє РѕРїРµСЂР°РЅРґРѕРІ ///
 char ga__operand_stack[0x100];
 char gi__operand_stack = -1;
-/// Выходная очередь (сохраняем типы токенов) ///
+/// Р’С‹С…РѕРґРЅР°СЏ РѕС‡РµСЂРµРґСЊ (СЃРѕС…СЂР°РЅСЏРµРј С‚РёРїС‹ С‚РѕРєРµРЅРѕРІ) ///
 short ga__output_type[0x100];
 short gi__output = 0;
-/// Выходная очередь (сохраняем лексемы токенов) ///
+/// Р’С‹С…РѕРґРЅР°СЏ РѕС‡РµСЂРµРґСЊ (СЃРѕС…СЂР°РЅСЏРµРј Р»РµРєСЃРµРјС‹ С‚РѕРєРµРЅРѕРІ) ///
 char ga__output_lexeme[0x100];
 char gi__output_lexeme = 0;
 //
-// Приоритет операторов
+// РџСЂРёРѕСЂРёС‚РµС‚ РѕРїРµСЂР°С‚РѕСЂРѕРІ
 int priority(short token_type)
 {
     switch (token_type){
@@ -1095,10 +1095,10 @@ void ShuntingYard()
 {
     printf("\n ShuntingYard()");
 
-    // СБРОС стеков и выходной очереди перед разбором нового выражения
+    // РЎР‘Р РћРЎ СЃС‚РµРєРѕРІ Рё РІС‹С…РѕРґРЅРѕР№ РѕС‡РµСЂРµРґРё РїРµСЂРµРґ СЂР°Р·Р±РѕСЂРѕРј РЅРѕРІРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ
     gi__operator_stack = -1;
     gi__output = 0;
-    // (ga__operator_stack и ga__output можно не обнулять, так как мы будем перезаписывать)
+    // (ga__operator_stack Рё ga__output РјРѕР¶РЅРѕ РЅРµ РѕР±РЅСѓР»СЏС‚СЊ, С‚Р°Рє РєР°Рє РјС‹ Р±СѓРґРµРј РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ)
 
     repeat: switch (__tokens[current_token].type_identifier){
     case TOKEN__NEW_LINE:
@@ -1108,7 +1108,7 @@ void ShuntingYard()
     case TOKEN__NUMERIC_LITERAL:
     case TOKEN__IDENTIFIER:
     {
-        printf("\n OPERAND: %s", __tokens[current_token].lexeme); // Печатаем на вывод (для отладки)
+        printf("\n OPERAND: %s", __tokens[current_token].lexeme); // РџРµС‡Р°С‚Р°РµРј РЅР° РІС‹РІРѕРґ (РґР»СЏ РѕС‚Р»Р°РґРєРё)
         ga__output_type[gi__output++] = __tokens[current_token].type_identifier;
         //ga__output_lexeme[gi__output_lexeme++] = atoi(__tokens[current_token].lexeme);
         current_token++;
@@ -1119,8 +1119,8 @@ void ShuntingYard()
     case TOKEN__ADDITION_OPERATOR:
     case TOKEN__SUBTRACT_OPERATOR:
     {
-        printf("\n OPERATOR: %s", __tokens[current_token].lexeme); // Печатаем на вывод (для отладки)
-        // выталкиваем операторы с приоритетом >= текущего
+        printf("\n OPERATOR: %s", __tokens[current_token].lexeme); // РџРµС‡Р°С‚Р°РµРј РЅР° РІС‹РІРѕРґ (РґР»СЏ РѕС‚Р»Р°РґРєРё)
+        // РІС‹С‚Р°Р»РєРёРІР°РµРј РѕРїРµСЂР°С‚РѕСЂС‹ СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј >= С‚РµРєСѓС‰РµРіРѕ
         while (
             gi__operator_stack >= 0 &&
             ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS &&
@@ -1129,7 +1129,7 @@ void ShuntingYard()
             ga__output_type[gi__output++] = ga__operator_stack[gi__operator_stack--];
             //ga__output_lexeme[gi__output_lexeme++] = ga__operator_stack_lexeme[gi__operator_stack_lexeme--];
         }
-        // кладём текущий оператор в стек операторов
+        // РєР»Р°РґС‘Рј С‚РµРєСѓС‰РёР№ РѕРїРµСЂР°С‚РѕСЂ РІ СЃС‚РµРє РѕРїРµСЂР°С‚РѕСЂРѕРІ
         ga__operator_stack[++gi__operator_stack] = __tokens[current_token].type_identifier;
         //ga__operator_stack_lexeme[++gi__operator_stack_lexeme] = __tokens[current_token].lexeme[0];
         current_token++;
@@ -1145,7 +1145,7 @@ void ShuntingYard()
     case TOKEN__RIGHT_PARENTHESIS:
     {
         while (gi__operator_stack >= 0 && ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS) ga__output_type[gi__output++] = ga__operator_stack[gi__operator_stack--];
-        if (gi__operator_stack >= 0) gi__operator_stack--; // Уберём '('
+        if (gi__operator_stack >= 0) gi__operator_stack--; // РЈР±РµСЂС‘Рј '('
         else printf("\n Error: mismatched parentheses!");
         current_token++;
         goto repeat;
@@ -1156,7 +1156,7 @@ void ShuntingYard()
         current_token++;
         goto repeat;
     }}
-    // Вытолкнуть оставшиеся операторы
+    // Р’С‹С‚РѕР»РєРЅСѓС‚СЊ РѕСЃС‚Р°РІС€РёРµСЃСЏ РѕРїРµСЂР°С‚РѕСЂС‹
     while (gi__operator_stack >= 0)
     {
         if (ga__operator_stack[gi__operator_stack] != TOKEN__LEFT_PARENTHESIS) ga__output_type[gi__output++] = ga__operator_stack[gi__operator_stack];
@@ -1164,7 +1164,7 @@ void ShuntingYard()
         gi__operator_stack--;
     }
 
-    // печать постфиксной записи (для отладки)
+    // РїРµС‡Р°С‚СЊ РїРѕСЃС‚С„РёРєСЃРЅРѕР№ Р·Р°РїРёСЃРё (РґР»СЏ РѕС‚Р»Р°РґРєРё)
     printf("\n Postfix-form (%d tokens):", gi__output);
     for (short i = 0; i < gi__output; i++) printf("\n %s %d %c", token__type_name[ga__output_type[i]], ga__output_type[i], ga__output_lexeme[i]);
 }
@@ -1174,9 +1174,9 @@ ga__operator_stack[++gi__operator_stack] = data[2]; // PUSH_OPERATOR +
 ga__operand_stack[++gi__operand_stack] = data[4]; // PUSH_OPERAND 3
 ga__operator_stack[++gi__operator_stack] = data[6]; // PUSH_OPERATOR *
 ga__operand_stack[++gi__operand_stack] = data[8]; // PUSH_OPERAND 2
-printf("\n %c%c%c%c%c | Инфиксная", data[0], data[2], data[4], data[6], data[8]);
-printf("\n %s%s | Префиксная форма", ga__operator_stack, ga__operand_stack);
-printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__operator_stack);
+printf("\n %c%c%c%c%c | РРЅС„РёРєСЃРЅР°СЏ", data[0], data[2], data[4], data[6], data[8]);
+printf("\n %s%s | РџСЂРµС„РёРєСЃРЅР°СЏ С„РѕСЂРјР°", ga__operator_stack, ga__operand_stack);
+printf("\n %s%s | РџРѕСЃС‚С„РёРєСЃРЅР°СЏ С„РѕСЂРјР°", ga__operand_stack, ga__operator_stack);
 */
 ///////////////////////////////////////////
 void _$()
@@ -1186,7 +1186,7 @@ void _$()
     const char code[] = "5 + 3 * (6 - 2 / 2)";//x = 123";\ny = 12\nz = 1
     /*
     const char code[] =
-     " // Однострочный комментарий\n"
+     " // РћРґРЅРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№\n"
      " /*\n"
      " get_res()\n"
      " {\n"
@@ -1195,9 +1195,9 @@ void _$()
      " get_res();\n"
      " string[] = \"C$ is awesome!\";\n"
      " /*\n"
-     "    Вложенный\n"
-     "    Многострочный\n"
-     "    Комментарий\n"
+     "    Р’Р»РѕР¶РµРЅРЅС‹Р№\n"
+     "    РњРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№\n"
+     "    РљРѕРјРјРµРЅС‚Р°СЂРёР№\n"
      " *//*\n"
      " 2 > 3;\n"
      " goto _0;\n"
@@ -1219,11 +1219,11 @@ void _$()
      " ///*print*//*6 * 3;\n"
      " ///*print*//*18 / 6;\n"
      " ///*print*//*'C' + '$'/*; // 67 + 36 = 103 / 'g'\n"
-     ; // inline-код для быстрого тестирования (временно)*/
+     ; // inline-РєРѕРґ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ (РІСЂРµРјРµРЅРЅРѕ)*/
     printf("\n%s", code);
     gl__ptr__code = code;
     /*
-    while ((__token.type_identifier = GetNextToken()) != TOKEN__FINAL_TOKEN) // Поточный режим лексера (удобен тем, что не засоряем лишнюю память)
+    while ((__token.type_identifier = GetNextToken()) != TOKEN__FINAL_TOKEN) // РџРѕС‚РѕС‡РЅС‹Р№ СЂРµР¶РёРј Р»РµРєСЃРµСЂР° (СѓРґРѕР±РµРЅ С‚РµРј, С‡С‚Рѕ РЅРµ Р·Р°СЃРѕСЂСЏРµРј Р»РёС€РЅСЋСЋ РїР°РјСЏС‚СЊ)
     {
         printf("\n--------------------------+---------------------------------");
         printf("\n %s | %s", token__type_name[__token.type_identifier], __token.lexeme);
@@ -1249,18 +1249,18 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gl__idx__opcodes = 0;
-    gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
+    gl__opcodes[gl__idx__opcodes++] = 0x76; // РІС‹РІРµРґРµС‚ СЃС‚СЂРѕРєСѓ "Hello"
     current_token = 0;
-    while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Если обнаружен конечный токен, завершаем цикл
+    while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Р•СЃР»Рё РѕР±РЅР°СЂСѓР¶РµРЅ РєРѕРЅРµС‡РЅС‹Р№ С‚РѕРєРµРЅ, Р·Р°РІРµСЂС€Р°РµРј С†РёРєР»
     {
-        //Parse__Priority_Level_Three(); // разбираем выражение
-        //Parse__Expression(); // разбираем выражение
+        //Parse__Priority_Level_Three(); // СЂР°Р·Р±РёСЂР°РµРј РІС‹СЂР°Р¶РµРЅРёРµ
+        //Parse__Expression(); // СЂР°Р·Р±РёСЂР°РµРј РІС‹СЂР°Р¶РµРЅРёРµ
         ShuntingYard();
         if (__tokens[current_token].type_identifier == TOKEN__END_OF_STATEMENT || __tokens[current_token].type_identifier == TOKEN__NEW_LINE) current_token++;
     }
     //if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN)
     printf("\n Analysis is over.\n");
-    gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
+    gl__opcodes[gl__idx__opcodes] = 0x79; // РћСЃС‚Р°РЅРѕРІР°
     //Debug_Loader_VM();
     Loader_VM();
     Debug_Loader_VM();
@@ -1283,33 +1283,33 @@ void _$()
 int main() { _$(); }
 
 /*/-/// DECLARATION ///-/
-Бессмысленные конструкции (предупреждения по умолчанию выдаются, но можно выключить в настройках компилятора, либо через препроцессорную директиву)
-x      /!\ `x` нигде не используется
-x;     /!\ `x` нигде не используется
-5      /!\ `5` нигде не используется
-5;     /!\ `5` нигде не используется
-x = 5  /!\ `x` нигде не используется
-x = 5; /!\ `x` нигде не используется
+Р‘РµСЃСЃРјС‹СЃР»РµРЅРЅС‹Рµ РєРѕРЅСЃС‚СЂСѓРєС†РёРё (РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РІС‹РґР°СЋС‚СЃСЏ, РЅРѕ РјРѕР¶РЅРѕ РІС‹РєР»СЋС‡РёС‚СЊ РІ РЅР°СЃС‚СЂРѕР№РєР°С… РєРѕРјРїРёР»СЏС‚РѕСЂР°, Р»РёР±Рѕ С‡РµСЂРµР· РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂРЅСѓСЋ РґРёСЂРµРєС‚РёРІСѓ)
+x      /!\ `x` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+x;     /!\ `x` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+5      /!\ `5` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+5;     /!\ `5` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+x = 5  /!\ `x` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+x = 5; /!\ `x` РЅРёРіРґРµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
 goto end
 goto end;
 go to end
 go to end;
 end:
 
-1 | NUMERIC_LITERAL       | ЧИСЛОВОЙ_ЛИТЕРАЛ
-2 | LEFT_SIDED_ASSIGNMENT | ЛЕВОСТОРОННЕЕ_ПРИСВАИВАНИЕ
-3 | IDENTIFIER            | ИДЕНТИФИКАТОР
-4 | SPACE_SEPARATOR       | РАЗДЕЛИТЕЛЬ_ПРОСТРАНСТВА
-5 | END_OF_STATEMENT      | КОНЕЦ_ЗАЯВЛЕНИЯ
-6 | KEYWORD__GOTO         | КЛЮЧЕВОЕ_СЛОВО_ПЕРЕЙТИ
+1 | NUMERIC_LITERAL       | Р§РРЎР›РћР’РћР™_Р›РРўР•Р РђР›
+2 | LEFT_SIDED_ASSIGNMENT | Р›Р•Р’РћРЎРўРћР РћРќРќР•Р•_РџР РРЎР’РђРР’РђРќРР•
+3 | IDENTIFIER            | РР”Р•РќРўРР¤РРљРђРўРћР 
+4 | SPACE_SEPARATOR       | Р РђР—Р”Р•Р›РРўР•Р›Р¬_РџР РћРЎРўР РђРќРЎРўР’Рђ
+5 | END_OF_STATEMENT      | РљРћРќР•Р¦_Р—РђРЇР’Р›Р•РќРРЇ
+6 | KEYWORD__GOTO         | РљР›Р®Р§Р•Р’РћР•_РЎР›РћР’Рћ_РџР•Р Р•Р™РўР
 
 ///-/*/
 /*
-// Пропустить специальные символы (одним отдельным проходом или по мере встречи/попадания?)
+// РџСЂРѕРїСѓСЃС‚РёС‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ (РѕРґРЅРёРј РѕС‚РґРµР»СЊРЅС‹Рј РїСЂРѕС…РѕРґРѕРј РёР»Рё РїРѕ РјРµСЂРµ РІСЃС‚СЂРµС‡Рё/РїРѕРїР°РґР°РЅРёСЏ?)
 void SkipSpecialCharacters(char * pos){}
 //
-// Удалить специальные символы (одним отдельным проходом или по мере встречи/попадания?)
-// Пока реализация проход за один раз полностью
+// РЈРґР°Р»РёС‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ (РѕРґРЅРёРј РѕС‚РґРµР»СЊРЅС‹Рј РїСЂРѕС…РѕРґРѕРј РёР»Рё РїРѕ РјРµСЂРµ РІСЃС‚СЂРµС‡Рё/РїРѕРїР°РґР°РЅРёСЏ?)
+// РџРѕРєР° СЂРµР°Р»РёР·Р°С†РёСЏ РїСЂРѕС…РѕРґ Р·Р° РѕРґРёРЅ СЂР°Р· РїРѕР»РЅРѕСЃС‚СЊСЋ
 void RemoveSpecialCharacters(char * pos)
 {
     char * read = pos, * write = pos;
@@ -1326,11 +1326,11 @@ void RemoveSpecialCharacters(char * pos)
 }
 */
 /*
-char state_vector = 0; // state vector / вектор состояний
+char state_vector = 0; // state vector / РІРµРєС‚РѕСЂ СЃРѕСЃС‚РѕСЏРЅРёР№
 // NextState = Table[CurrentState][InputChar];
 
 // state = Table[state][*code_ptr];
-// action = ActionTable[state][*code_ptr]; // Что сделать: записать байт, пропустить и т.д.
+// action = ActionTable[state][*code_ptr]; // Р§С‚Рѕ СЃРґРµР»Р°С‚СЊ: Р·Р°РїРёСЃР°С‚СЊ Р±Р°Р№С‚, РїСЂРѕРїСѓСЃС‚РёС‚СЊ Рё С‚.Рґ.
 //code_ptr++;
 char state_table[1][0xFF];
 char action_table[1][0xFF];
@@ -1342,30 +1342,30 @@ while (1)
 {
     switch (action[state]){
     case '\0': goto while_end;
-    case '.': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); state = 2; } break; // Распечатать символ
-    case '>': { ++code; state = 1; } break; // Сдвинуть указатель на один шаг/позицию вперёд
-    default: printf("\n Неизвестное действие: '\\d%03d', '%c', '\\h%02X'.", action_table[state][*code], action_table[state][*code], action_table[state][*code]);
+    case '.': { printf("\n РЎРёРјРІРѕР»: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); state = 2; } break; // Р Р°СЃРїРµС‡Р°С‚Р°С‚СЊ СЃРёРјРІРѕР»
+    case '>': { ++code; state = 1; } break; // РЎРґРІРёРЅСѓС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕРґРёРЅ С€Р°Рі/РїРѕР·РёС†РёСЋ РІРїРµСЂС‘Рґ
+    default: printf("\n РќРµРёР·РІРµСЃС‚РЅРѕРµ РґРµР№СЃС‚РІРёРµ: '\\d%03d', '%c', '\\h%02X'.", action_table[state][*code], action_table[state][*code], action_table[state][*code]);
     }
 }
 
-// transaction_codes / коды транзакций
+// transaction_codes / РєРѕРґС‹ С‚СЂР°РЅР·Р°РєС†РёР№
 while (1)
 {
     switch (*code){
     case '\0': goto while_end;
-    case ' ': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // игнорируем пробельные символы (в данной реализации опустим их)
-    break; // заглушка (на всякий случай)
+    case ' ': { printf("\n РЎРёРјРІРѕР»: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // РёРіРЅРѕСЂРёСЂСѓРµРј РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ (РІ РґР°РЅРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё РѕРїСѓСЃС‚РёРј РёС…)
+    break; // Р·Р°РіР»СѓС€РєР° (РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
 
     case '+': {} break; // '\d043'
     case '-': {} break; // '\d045'
 
     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-        { printf("\n Символ (цифра): '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break;
+        { printf("\n РЎРёРјРІРѕР» (С†РёС„СЂР°): '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break;
 
-    case ';': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d044', ',', '\h2C'
+    case ';': { printf("\n РЎРёРјРІРѕР»: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d044', ',', '\h2C'
 
     case '<': {} break; // '\d060'
-    case '=': { printf("\n Символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d061'
+    case '=': { printf("\n РЎРёРјРІРѕР»: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d061'
     case '>': {} break; // '\d062'
 
     case '_':
@@ -1374,9 +1374,9 @@ while (1)
 
     case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': // 13
     case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
-        { printf("\n Символ (буква): '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d097'~'\d122', 'a'~'z', '\h78'~'\h7A' / 26
+        { printf("\n РЎРёРјРІРѕР» (Р±СѓРєРІР°): '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code; } break; // '\d097'~'\d122', 'a'~'z', '\h78'~'\h7A' / 26
 
-    default: printf("\n Неизвестный символ: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code;
+    default: printf("\n РќРµРёР·РІРµСЃС‚РЅС‹Р№ СЃРёРјРІРѕР»: '\\d%03d', '%c', '\\h%02X'.", *code, *code, *code); ++code;
     }
 }
 while_end:
