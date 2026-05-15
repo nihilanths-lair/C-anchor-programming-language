@@ -66,42 +66,49 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     switch_run:
     switch (*gl__ptr__memory_tape){
     //
-    case 0x01: // 8-bit's addr-on | mov i8, a8 ; / AT&T-specification
+    case 0x75: // 8-bit's addr-on | jmp i8
+    {
+        printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
+        //*(++gl__ptr__memory_tape); / Как здесь совершить переход на другой адрес? При помощи computed-goto всё понятно, а вот при помощи switch-case не совсем..
+        //goto switch_run;
+        return;
+    }
+    case 0x01: // 8-bit's addr-on | mov i8, a8
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 = *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x02: // 8-bit's addr-on | mov i8, b8 ; / AT&T-specification
+    case 0x02: // 8-bit's addr-on | mov i8, b8
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         b8 = *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение / AT&T-specification
+    case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 += *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание / AT&T-specification
+    case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 -= *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение / AT&T-specification
+    case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 *= *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x06: // 8-bit's addr-on | div i8 a8 ; деление / AT&T-specification
+    case 0x06: // 8-bit's addr-on | div i8 a8 ; деление
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 /= *(++gl__ptr__memory_tape);
