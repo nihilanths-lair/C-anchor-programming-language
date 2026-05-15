@@ -66,42 +66,42 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     switch_run:
     switch (*gl__ptr__memory_tape){
     //
-    case 0x01: // 16-bit's addr-on | mov i8, a8 ;
+    case 0x01: // 8-bit's addr-on | mov i8, a8 ; / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         a8 = *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x02: // 16-bit's addr-on | mov i8, b8 ;
+    case 0x02: // 8-bit's addr-on | mov i8, b8 ; / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         b8 = *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x03: // 16-bit's addressation, rcv = i8 + i8; | add rcv, i8 i8 · add i8 i8, rcv ; сложение / AT&T-specification, результат в 16-bit's приёмник
+    case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) + *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x04: // 16-bit's addressation, rcv = i8 - i8; | sub rvc, i8 i8 · sub i8 i8, rcv ; вычитание / AT&T-specification, результат в 16-bit's приёмник
+    case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) - *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x05: // 16-bit's addressation, rcv = i8 - i8; | mul rvc, i8 i8 · mul i8 i8, rcv ; умножение / AT&T-specification, результат в 16-bit's приёмник
+    case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) * *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
-    case 0x06: // 16-bit's addressation, rcv = i8 - i8; | div rvc, i8 i8 · div i8 i8, rcv ; деление / AT&T-specification, результат в 16-bit's приёмник
+    case 0x06: // 8-bit's addr-on | div i8 a8 ; деление / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
         rcv16 = *(++gl__ptr__memory_tape) / *(++gl__ptr__memory_tape);
