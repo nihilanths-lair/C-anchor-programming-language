@@ -1074,7 +1074,7 @@ short gi__operand_stack = -1;
 short ga__output[0x100];
 short gi__output = 0;
 /// Выходная очередь (сохраняем лексемы токенов) ///
-char ga__output_lexeme[0x100][35];
+char ga__output_lexeme[0x100];
 char gi__output_lexeme = 0;
 //
 // Приоритет операторов
@@ -1158,7 +1158,7 @@ void ShuntingYard()
 
     // печать постфиксной записи (для отладки)
     printf("\n Postfix-form (%d tokens):", gi__output);
-    for (short i = 0; i < gi__output; i++) printf("\n %s %d", token__type_name[ga__output[i]], ga__output[i]);
+    for (short i = 0; i < gi__output; i++) printf("\n %s %d %c", token__type_name[ga__output[i]], ga__output[i], ga__output_lexeme[i]);
 }
 /*
 ga__operand_stack[++gi__operand_stack] = data[0]; // PUSH_OPERAND 5
