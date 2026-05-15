@@ -83,28 +83,28 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
-        rcv16 = *(++gl__ptr__memory_tape) + *(++gl__ptr__memory_tape);
+        a8 += *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
-        rcv16 = *(++gl__ptr__memory_tape) - *(++gl__ptr__memory_tape);
+        a8 -= *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
-        rcv16 = *(++gl__ptr__memory_tape) * *(++gl__ptr__memory_tape);
+        a8 *= *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
     case 0x06: // 8-bit's addr-on | div i8 a8 ; деление / AT&T-specification
     {
         printf("\n \\d%03d = \\h%02X", *gl__ptr__memory_tape, *gl__ptr__memory_tape);
-        rcv16 = *(++gl__ptr__memory_tape) / *(++gl__ptr__memory_tape);
+        a8 /= *(++gl__ptr__memory_tape);
         ++gl__ptr__memory_tape;
         goto switch_run;
     }
