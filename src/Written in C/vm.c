@@ -16,6 +16,12 @@ uint16_t sp16 = 0; // (unsigned short) 16-bit's регистр-указател�
 int16_t   a16 = 0; //          (short) 16-bit's регистр общего назначения
 int16_t   b16 = 0; //          (short) 16-bit's регистр общего назначения
 
+uint32_t cs24 = 0; // (unsigned int) 32-bit's сегментный-регистр
+uint32_t ip24 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
+uint32_t sp24 = 0; // (unsigned int) 32-bit's регистр-указатель на стек
+int32_t   a24 = 0; //          (int) 32-bit's регистр общего назначения
+int32_t   b24 = 0; //          (int) 32-bit's регистр общего назначения
+
 uint32_t cs32 = 0; // (unsigned int) 32-bit's сегментный-регистр
 uint32_t ip32 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
 uint32_t sp32 = 0; // (unsigned int) 32-bit's регистр-указатель на стек
@@ -61,79 +67,113 @@ void Debug_Loader_VM()
     for (int i = 0; i < len; i++) printf("  %02X", ga__memory_tape[i]);
 }
 //
+void dbg_RegisterState()
+{
+    switch (1){
+    case 0:
+    {
+        printf("\n ---------------------------------------");
+        printf("\n  REGISTER |  DEC  | HEX | DECODED TEXT");
+        printf("\n      ip8  |    %03d|%02X   | %d", ip8, ip8, ip8);
+        printf("\n       a8  |    %03d|%02X   | %d", a8, a8, a8);
+        //putchar('\n');
+        printf("\n      ip16 |%03d,%03d|%02X,%02X| %d", ip16, ip16, ip16, ip16, ip16);
+        printf("\n       a16 |%03d,%03d|%02X,%02X| %d", a16, a16, a16, a16, a16);
+        printf("\n ---------------------------------------");
+        break;
+    }
+    case 1:
+    {
+        printf("\n -----------------------------------------------------------");
+        printf("\n  REGISTER |  DEC  | HEX |        BIN        | DECODED TEXT");
+        printf("\n      ip8  |    %03d|%02X   |0000:0000          | %d", ip8, ip8, ip8);
+        printf("\n       a8  |    %03d|%02X   |0000:0000          | %d", a8, a8, a8);
+        //putchar('\n');
+        printf("\n      ip16 |%03d,%03d|%02X,%02X|0000:0000,0000:0000| %d", ip16, ip16, ip16, ip16, ip16);
+        printf("\n       a16 |%03d,%03d|%02X,%02X|0000:0000,0000:0000| %d", a16, a16, a16, a16, a16);
+        printf("\n -----------------------------------------------------------");
+    }}
+}
+void dbg_MemoryState()
+{
+
+}
+//
 void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (древоходец)
 {
-    switch_run:
+    //dbg_RegisterState();
+    repeat:
+    dbg_RegisterState();
     switch (*gp__memory_tape){
     //
     case 0x75: // 8-bit's addr-on | jmp i8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         gp__memory_tape = gp__memory_tape + (*(++gp__memory_tape)); // jump offset
-        goto switch_run;
+        goto repeat;
     }
     case 0x01: // 8-bit's addr-on | mov i8, a8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 = *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x02: // 8-bit's addr-on | mov i8, b8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         b8 = *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 += *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 -= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 *= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x06: // 8-bit's addr-on | div i8 a8 ; деление
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 /= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x76: // OUT (распечатать строку на консоль)
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         printf("%s", _rcv8);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x77: // OUT (распечатать число на консоль)
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         printf("%d", a8);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x78: // OUT (распечатать символ на консоль)
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         putchar(a8);
         ++gp__memory_tape;
-        goto switch_run;
+        goto repeat;
     }
     case 0x79: printf("\n Stopped.."); return;
     default: printf("\n Unknown opcode, stopped.."); return;
