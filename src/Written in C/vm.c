@@ -105,6 +105,45 @@ char * bin16(unsigned short num)
     return sbin;
 }
 //
+/// Функция форматирования чисел с разделением тысяч апострофом ///
+char * numf(long long num)
+{
+    // 4 буфера, чтобы можно было вызвать функцию до 4 раз внутри одного printf
+    static char buffers[4][32];
+    static int buf_idx = 0;
+    
+    // Выбираем текущий буфер и очищаем его
+    char * str = buffers[buf_idx];
+    buf_idx = (buf_idx + 1) % 4; 
+    
+    char temp[32];
+    // Переводим число в обычную строку
+    sprintf(temp, "%lld", num);
+    
+    int len = strlen(temp);
+    int insert_quotes = (len - 1) / 3; // Сколько апострофов нужно вставить
+    int new_len = len + insert_quotes;
+    
+    str[new_len] = '\0';
+    
+    int src = len - 1;
+    int dst = new_len - 1;
+    int digit_count = 0;
+    
+    // Идем с конца строки и копируем цифры, вставляя апостроф каждые 3 знака
+    while (src >= 0)
+    {
+        if (digit_count == 3)
+        {
+            str[dst--] = '\''; // Если нужен пробел, замените '\'' на ' '
+            digit_count = 0;
+        }
+        str[dst--] = temp[src--];
+        digit_count++;
+    }
+    return str;
+}
+//
 void dbg_RegisterState()
 {
     switch (1){
@@ -135,8 +174,8 @@ void dbg_RegisterState()
         printf("\n       a8  |    %03d|%02X   |%s          | %d",  a8,  a8, bin8( a8),  a8);
         // Вывод 16-битных регистров (используем bin16)
         // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
-        printf("\n      ip16 |%03d,%03d|%02X,%02X|%s| %d", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), ip16);
-        printf("\n       a16 |%03d,%03d|%02X,%02X|%s| %d",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  a16);
+        printf("\n      ip16 |%03d,%03d|%02X,%02X|%s| %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
+        printf("\n       a16 |%03d,%03d|%02X,%02X|%s| %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
         printf("\n -----------------------------------------------------------");
     }}
 }
