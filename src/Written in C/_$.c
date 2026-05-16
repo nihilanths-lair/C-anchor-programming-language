@@ -28,9 +28,9 @@ int get_varidx(const char * name)
 #include "token__lexeme.c"
 //
 #define MACRO__MAXIMUM_CODE_LIMIT (1 << 16) // 65'536
-unsigned char gl__opcodes[MACRO__MAXIMUM_CODE_LIMIT];
-unsigned char * gl__ptr__opcodes = gl__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности/необходимости заполнять его
-unsigned short gl__idx__opcodes = 0-1;
+unsigned char ga__opcodes[MACRO__MAXIMUM_CODE_LIMIT];
+unsigned char * gp__opcodes = ga__opcodes; // Указатель, который будет двигаться по массиву и по мере надобности/необходимости заполнять его
+unsigned short gi__opcodes = 0-1;
 //
 #include "vm.c"
 //
@@ -1248,8 +1248,8 @@ void _$()
     }
     printf("\n-----------------------+------------------------------------");
     */
-    gl__idx__opcodes = 0;
-    gl__opcodes[gl__idx__opcodes++] = 0x76; // выведет строку "Hello"
+    gi__opcodes = 0;
+    ga__opcodes[gi__opcodes++] = 0x76; // выведет строку "Hello"
     current_token = 0;
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Если обнаружен конечный токен, завершаем цикл
     {
@@ -1260,7 +1260,7 @@ void _$()
     }
     //if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN)
     printf("\n Analysis is over.\n");
-    gl__opcodes[gl__idx__opcodes] = 0x79; // Останова
+    ga__opcodes[gi__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM();
     Debug_Loader_VM();
