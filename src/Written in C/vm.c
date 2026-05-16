@@ -5,15 +5,15 @@ unsigned char ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская мо
 unsigned char * gp__memory_tape = ga__memory_tape;
 
 uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-uint8_t ip8 = 0; // (unsigned char) 8-bit's регистр-указатель на инструкцию
-uint8_t sp8 = 0; // (unsigned char) 8-bit's регистр-указатель на стек
-int8_t   a8 = 0; //          (char) 8-bit's регистр общего назначения
+uint8_t ip8 = -1; // (unsigned char) 8-bit's регистр-указатель на инструкцию
+uint8_t sp8 = -1; // (unsigned char) 8-bit's регистр-указатель на стек
+uint8_t  a8 = -1; //          (char) 8-bit's регистр общего назначения
 int8_t   b8 = 0; //          (char) 8-bit's регистр общего назначения
 
 uint16_t cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
-uint16_t ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
-uint16_t sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
-int16_t   a16 = 0; //          (short) 16-bit's регистр общего назначения
+uint16_t ip16 = -1; // (unsigned short) 16-bit's регистр-указатель на инструкцию
+uint16_t sp16 = -1; // (unsigned short) 16-bit's регистр-указатель на стек
+uint16_t  a16 = -1; //          (short) 16-bit's регистр общего назначения
 int16_t   b16 = 0; //          (short) 16-bit's регистр общего назначения
 
 uint32_t cs24 = 0; // (unsigned int) 32-bit's сегментный-регистр
@@ -91,7 +91,7 @@ char * bin16(unsigned short num)
     static char sbin[19+1]; // 16 бит + 3 разделителя + 1 нуль-терминал
     sbin[19] = '\0';
     sbin[4]  = ':';
-    sbin[9]  = ',';
+    sbin[9]  = '·';
     sbin[14] = ':';
 
     int pos = 18;
@@ -146,36 +146,39 @@ char * numf(long long num)
 //
 void dbg_RegisterState()
 {
+    static unsigned short step = -1;
+    printf("\n -----------\n Шаг: %d", step++);
     switch (1){
     case 0:
     {
-        printf("\n ---------------------------------------");
-        printf("\n  REGISTER |  DEC  | HEX | DECODED TEXT");
-        printf("\n      ip8  |    %03d|%02X   | %d", ip8, ip8, ip8);
-        printf("\n       a8  |    %03d|%02X   | %d",  a8,  a8,  a8);
-        //putchar('\n');
-        printf("\n      ip16 |%03d,%03d|%02X,%02X| %d", ip16, ip16, ip16, ip16, ip16);
-        printf("\n       a16 |%03d,%03d|%02X,%02X| %d",  a16,  a16,  a16,  a16,  a16);
-        printf("\n ---------------------------------------");
+        printf("\n -----------------------------------");
+        printf("\n  REGISTER |   DEC   |  HEX  | TEXT");
+        printf("\n           |         |       |");
+        printf("\n      ip8  |     %03d | %02X    | %d", ip8, ip8, ip8);
+        printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
+        printf("\n       a8  |     %03d | %02X    | %d",  a8,  a8,  a8);
+        printf("\n           |         |       |");
+        printf("\n      ip16 | %03d·%03d | %02X·%02X | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, numf(ip16));
+        printf("\n      sp16 | %03d·%03d | %02X·%02X | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, numf(sp16));
+        printf("\n       a16 | %03d·%03d | %02X·%02X | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF,  numf(a16));
+        printf("\n -------------------------------------");
         break;
     }
     case 1:
     {
-        // Тестовые данные для регистров
-        unsigned char ip8 = 13;  // 0000:1101
-        unsigned char a8 = 254;  // 1111:1110
-        unsigned short ip16 = 43775; // AFFF -> 1010:1111,1111:1111
-        unsigned short a16 = 4;      // 0000:0000,0000:0100
-
-        printf("\n -----------------------------------------------------------");
-        printf("\n  REGISTER |  DEC  | HEX |        BIN        | DECODED TEXT");
-        // Вывод 8-битных регистров (используем bin8)
-        printf("\n      ip8  |    %03d|%02X   |%s          | %d", ip8, ip8, bin8(ip8), ip8);
-        printf("\n       a8  |    %03d|%02X   |%s          | %d",  a8,  a8, bin8( a8),  a8);
-        // Вывод 16-битных регистров (используем bin16)
+        printf("\n ---------------------------------------------------------");
+        printf("\n  REGISTER |   DEC   |  HEX  |         BIN         | TEXT");
+        printf("\n           |         |       |                     |");
+        // Вывод 8-битных регистров
+        printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip8, ip8, bin8(ip8), ip8);
+        printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
+        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8,  a8, bin8( a8),  a8);
+        printf("\n           |         |       |                     |");
+        // Вывод 16-битных регистров
         // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
-        printf("\n      ip16 |%03d,%03d|%02X,%02X|%s| %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
-        printf("\n       a16 |%03d,%03d|%02X,%02X|%s| %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
+        printf("\n      ip16 | %03d·%03d | %02X·%02X | %s | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
+        printf("\n      sp16 | %03d·%03d | %02X·%02X | %s | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, bin16(sp16), numf(sp16));
+        printf("\n       a16 | %03d·%03d | %02X·%02X | %s | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
         printf("\n -----------------------------------------------------------");
     }}
 }
