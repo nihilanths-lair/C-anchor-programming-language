@@ -185,7 +185,23 @@ void dbg_RegisterState()
 //
 void dbg_MemoryState()
 {
+    printf("\n MEMORY: DEC, HEX\n");
+    unsigned char i2;
+    for (unsigned char i = 0; i < 16; i++)
+    {
+        i2 = i*16;
+        printf("\n  %3d | ", i2);
+        for (unsigned char j = 0; j < 8; j++) printf("%03d ", ga__memory_tape[i2+j]);
+        printf(" \t %2X | ", i2);
+        for (unsigned char j = 0; j < 8; j++) printf("%02X ", ga__memory_tape[i2+j]);
 
+        i2 += 8;
+        printf("\n  %3d | ", i2);
+        for (unsigned char j = 8; j < 16; j++) printf("%03d ", ga__memory_tape[i2+j]);
+        printf(" \t %2X | ", i2);
+        for (unsigned char j = 8; j < 16; j++) printf("%02X ", ga__memory_tape[i2+j]);
+        printf("\n ---------------------------------------\t------------------------------");
+    }
 }
 //
 void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (древоходец)
@@ -193,6 +209,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     //dbg_RegisterState();
     repeat:
     dbg_RegisterState();
+    dbg_MemoryState();
     switch (*gp__memory_tape){
     //
     case 0x75: // 8-bit's addr-on | jmp i8
