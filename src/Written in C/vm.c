@@ -72,7 +72,7 @@ char * bin8(unsigned char num)
 {
     static char sbin[9+1]; // 8 бит + 1 двоеточие + 1 нуль-терминал
     sbin[9] = '\0';
-    sbin[4] = ':'; // Ставим разделитель тетрад
+    sbin[4] = '_'; // Разделитель тетрад
 
     int pos = 8;
     for (int i = 0; i < 8; i++)
@@ -90,9 +90,9 @@ char * bin16(unsigned short num)
 {
     static char sbin[19+1]; // 16 бит + 3 разделителя + 1 нуль-терминал
     sbin[19] = '\0';
-    sbin[4]  = ':';
-    sbin[9]  = '·';
-    sbin[14] = ':';
+    sbin[4]  = '_'; // Разделитель тетрад
+    sbin[9]  = ' ';
+    sbin[14] = '_'; // Разделитель тетрад
 
     int pos = 18;
     for (int i = 0; i < 16; i++)
@@ -158,9 +158,9 @@ void dbg_RegisterState()
         printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
         printf("\n       a8  |     %03d | %02X    | %d",  a8,  a8,  a8);
         printf("\n           |         |       |");
-        printf("\n      ip16 | %03d·%03d | %02X·%02X | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, numf(ip16));
-        printf("\n      sp16 | %03d·%03d | %02X·%02X | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, numf(sp16));
-        printf("\n       a16 | %03d·%03d | %02X·%02X | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF,  numf(a16));
+        printf("\n      ip16 | %03d %03d | %02X %02X | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, numf(ip16));
+        printf("\n      sp16 | %03d %03d | %02X %02X | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, numf(sp16));
+        printf("\n       a16 | %03d %03d | %02X %02X | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF,  numf(a16));
         printf("\n -------------------------------------");
         break;
     }
@@ -176,9 +176,9 @@ void dbg_RegisterState()
         printf("\n           |         |       |                     |");
         // Вывод 16-битных регистров
         // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
-        printf("\n      ip16 | %03d·%03d | %02X·%02X | %s | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
-        printf("\n      sp16 | %03d·%03d | %02X·%02X | %s | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, bin16(sp16), numf(sp16));
-        printf("\n       a16 | %03d·%03d | %02X·%02X | %s | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
+        printf("\n      ip16 | %03d %03d | %02X %02X | %s | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
+        printf("\n      sp16 | %03d %03d | %02X %02X | %s | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, bin16(sp16), numf(sp16));
+        printf("\n       a16 | %03d %03d | %02X %02X | %s | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
         printf("\n -----------------------------------------------------------");
     }}
 }
