@@ -67,6 +67,44 @@ void Debug_Loader_VM()
     for (int i = 0; i < len; i++) printf("  %02X", ga__memory_tape[i]);
 }
 //
+// Функция для 8-битных регистров (вывод в формате 0000:0000)
+char * bin8(unsigned char num)
+{
+    static char sbin[9+1]; // 8 бит + 1 двоеточие + 1 нуль-терминал
+    sbin[9] = '\0';
+    sbin[4] = ':'; // Ставим разделитель тетрад
+
+    int pos = 8;
+    for (int i = 0; i < 8; i++)
+    {
+        if (pos == 4) pos--; // Пропускаем позицию двоеточия
+
+        sbin[pos--] = (num % 2 == 0) ? '0':'1';
+        num /= 2;
+    }
+    return sbin;
+}
+
+// Функция для 16-битных регистров (вывод в формате 0000:0000,0000:0000)
+char * bin16(unsigned short num)
+{
+    static char sbin[19+1]; // 16 бит + 3 разделителя + 1 нуль-терминал
+    sbin[19] = '\0';
+    sbin[4]  = ':';
+    sbin[9]  = ',';
+    sbin[14] = ':';
+
+    int pos = 18;
+    for (int i = 0; i < 16; i++)
+    {
+        if (pos == 14 || pos == 9 || pos == 4) pos--; // Пропускаем разделители
+
+        sbin[pos--] = (num % 2 == 0) ? '0':'1';
+        num /= 2;
+    }
+    return sbin;
+}
+//
 void dbg_RegisterState()
 {
     switch (1){
@@ -75,25 +113,34 @@ void dbg_RegisterState()
         printf("\n ---------------------------------------");
         printf("\n  REGISTER |  DEC  | HEX | DECODED TEXT");
         printf("\n      ip8  |    %03d|%02X   | %d", ip8, ip8, ip8);
-        printf("\n       a8  |    %03d|%02X   | %d", a8, a8, a8);
+        printf("\n       a8  |    %03d|%02X   | %d",  a8,  a8,  a8);
         //putchar('\n');
         printf("\n      ip16 |%03d,%03d|%02X,%02X| %d", ip16, ip16, ip16, ip16, ip16);
-        printf("\n       a16 |%03d,%03d|%02X,%02X| %d", a16, a16, a16, a16, a16);
+        printf("\n       a16 |%03d,%03d|%02X,%02X| %d",  a16,  a16,  a16,  a16,  a16);
         printf("\n ---------------------------------------");
         break;
     }
     case 1:
     {
+        // Тестовые данные для регистров
+        unsigned char ip8 = 13;  // 0000:1101
+        unsigned char a8 = 254;  // 1111:1110
+        unsigned short ip16 = 43775; // AFFF -> 1010:1111,1111:1111
+        unsigned short a16 = 4;      // 0000:0000,0000:0100
+
         printf("\n -----------------------------------------------------------");
         printf("\n  REGISTER |  DEC  | HEX |        BIN        | DECODED TEXT");
-        printf("\n      ip8  |    %03d|%02X   |0000:0000          | %d", ip8, ip8, ip8);
-        printf("\n       a8  |    %03d|%02X   |0000:0000          | %d", a8, a8, a8);
-        //putchar('\n');
-        printf("\n      ip16 |%03d,%03d|%02X,%02X|0000:0000,0000:0000| %d", ip16, ip16, ip16, ip16, ip16);
-        printf("\n       a16 |%03d,%03d|%02X,%02X|0000:0000,0000:0000| %d", a16, a16, a16, a16, a16);
+        // Вывод 8-битных регистров (используем bin8)
+        printf("\n      ip8  |    %03d|%02X   |%s          | %d", ip8, ip8, bin8(ip8), ip8);
+        printf("\n       a8  |    %03d|%02X   |%s          | %d",  a8,  a8, bin8( a8),  a8);
+        // Вывод 16-битных регистров (используем bin16)
+        // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
+        printf("\n      ip16 |%03d,%03d|%02X,%02X|%s| %d", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), ip16);
+        printf("\n       a16 |%03d,%03d|%02X,%02X|%s| %d",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  a16);
         printf("\n -----------------------------------------------------------");
     }}
 }
+//
 void dbg_MemoryState()
 {
 
@@ -180,3 +227,26 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     //
     }
 }
+/*
+char * Bin()
+{
+    long long num = 4; //snum[0]-'0';
+    static char sbin[64+1]; // tetrad
+    sbin[64] = '\0';
+    // Обработка случая, если изначально был введен 0
+    if (!num) sbin[63] = '0';
+    // Цикл деления на 2
+    unsigned char pos = 63;
+    while (num > 0)
+    {
+        if (num % 2 == 0) sbin[--pos] = '0'; // Если делится без остатка
+        else sbin[--pos] = '1'; // Если есть остаток 1
+        num /= 2; // Уменьшаем число в 2 раза
+    }
+    // Указатель на начало получившейся бинарной строки
+    char * result = &sbin[pos];
+    return result; // Возвращаем бинарные данные в виде текста
+    //return atoi(result); // Возвращаем бинарные данные в виде числа
+}
+printf("\n Binary result: \"%s\".\n", result);
+*/
