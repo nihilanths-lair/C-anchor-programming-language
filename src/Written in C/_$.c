@@ -1263,8 +1263,9 @@ void _$()
     printf("\n Analysis is over.\n");
     ga__opcodes[gi__opcodes++] = 0x01; ga__opcodes[gi__opcodes++] = 2; // mov a8, i8 ; a8 = 2
     ga__opcodes[gi__opcodes++] = 0x06; ga__opcodes[gi__opcodes++] = 2; // div a8, i8 ; a8 = 1 = 2 / 2
-    ga__opcodes[gi__opcodes++] = 0x04; ga__opcodes[gi__opcodes++] = 6; // sub a8, i8 ; a8 = -5 = 1 - 6
-    ga__opcodes[gi__opcodes++] = 0x07;                                 // neg a8     ; a8 = 5 / меняем знак регистра a8 на противоположный
+    ga__opcodes[gi__opcodes++] = 0x07; ga__opcodes[gi__opcodes++] = 6; // rsub a8, i8 ; a8 = 5 = 6 - 1
+    //ga__opcodes[gi__opcodes++] = 0x04; ga__opcodes[gi__opcodes++] = 6; // sub a8, i8 ; a8 = -5 = 1 - 6
+    //ga__opcodes[gi__opcodes++] = 0x09;                                 // neg a8     ; a8 = 5 / меняем знак регистра a8 на противоположный
     ga__opcodes[gi__opcodes++] = 0x05; ga__opcodes[gi__opcodes++] = 3; // mul a8, i8 ; a8 = 15 = 5 * 3
     ga__opcodes[gi__opcodes++] = 0x03; ga__opcodes[gi__opcodes++] = 5; // add a8, i8 ; a8 = 20 = 15 + 5
     ga__opcodes[gi__opcodes] = 0x79; // Останова
