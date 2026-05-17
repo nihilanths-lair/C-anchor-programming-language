@@ -1181,7 +1181,9 @@ printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__ope
 ///////////////////////////////////////////
 void _$()
 {
-    setlocale(0, "");
+    setlocale(LC_ALL, "");
+    // Включаем системную локаль для форматирования чисел
+    setlocale(LC_NUMERIC, "");
     //
     const char code[] = "5 + 3 * (6 - 2 / 2)";//x = 123";\ny = 12\nz = 1
     /*
@@ -1249,7 +1251,7 @@ void _$()
     printf("\n-----------------------+------------------------------------");
     */
     gi__opcodes = 0;
-    ga__opcodes[gi__opcodes++] = 0x76; // выведет строку "Hello"
+    //ga__opcodes[gi__opcodes++] = 0x76; // выведет строку "Hello"
     current_token = 0;
     while (__tokens[current_token].type_identifier != TOKEN__FINAL_TOKEN) // Если обнаружен конечный токен, завершаем цикл
     {
@@ -1260,6 +1262,12 @@ void _$()
     }
     //if (__tokens[current_token].type_identifier == TOKEN__FINAL_TOKEN)
     printf("\n Analysis is over.\n");
+    ga__opcodes[gi__opcodes++] = 0x01; ga__opcodes[gi__opcodes++] = 2; // mov a8, i8 ; a8 = 2
+    ga__opcodes[gi__opcodes++] = 0x06; ga__opcodes[gi__opcodes++] = 2; // div a8, i8 ; a8 = 1 = 2 / 2
+    ga__opcodes[gi__opcodes++] = 0x04; ga__opcodes[gi__opcodes++] = 6; // sub a8, i8 ; a8 = -5 = 1 - 6
+    ga__opcodes[gi__opcodes++] = 0x07;                                 // neg a8     ; a8 = 5 / меняем знак регистра a8 на противоположный
+    ga__opcodes[gi__opcodes++] = 0x05; ga__opcodes[gi__opcodes++] = 3; // mul a8, i8 ; a8 = 15 = 5 * 3
+    ga__opcodes[gi__opcodes++] = 0x03; ga__opcodes[gi__opcodes++] = 5; // add a8, i8 ; a8 = 20 = 15 + 5
     ga__opcodes[gi__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM();
