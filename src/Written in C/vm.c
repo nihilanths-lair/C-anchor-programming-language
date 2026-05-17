@@ -198,7 +198,7 @@ void dbg_RegisterState()
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
         printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
 
-        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8,  a8, bin8( a8),  a8);
+        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8,  a8, bin8( a8),  (signed char) a8);
         printf("\n       b8  |     %03d | %02X    | %s           | %d",  b8,  b8, bin8( b8),  b8);
         printf("\n       c8  |     %03d | %02X    | %s           | %d",  c8,  c8, bin8( c8),  c8);
         printf("\n       d8  |     %03d | %02X    | %s           | %d",  d8,  d8, bin8( d8),  d8);
@@ -220,7 +220,7 @@ void dbg_RegisterState()
 //
 void dbg_MemoryState()
 {
-    switch (1){
+    switch (0){
     case 0:
     {
         printf("\n MEMORY: DEC, HEX\n");
@@ -266,7 +266,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         gp__memory_tape = gp__memory_tape + (*(++gp__memory_tape)); // jump offset
         goto repeat;
     }
-    case 0x01: // 8-bit's addr-on | mov i8, a8
+    case 0x01: // 8-bit's addr-on | mov a8, i8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 = *(++gp__memory_tape);
@@ -280,31 +280,38 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x03: // 8-bit's addr-on | add i8 a8 ; сложение
+    case 0x03: // 8-bit's addr-on | add a8, i8 ; сложение
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 += *(++gp__memory_tape);
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x04: // 8-bit's addr-on | sub i8 a8 ; вычитание
+    case 0x04: // 8-bit's addr-on | sub a8, i8 ; вычитание
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 -= *(++gp__memory_tape);
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x05: // 8-bit's addr-on | mul i8 a8 ; умножение
+    case 0x05: // 8-bit's addr-on | mul a8, i8 ; умножение
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 *= *(++gp__memory_tape);
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x06: // 8-bit's addr-on | div i8 a8 ; деление
+    case 0x06: // 8-bit's addr-on | div a8, i8 ; деление
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 /= *(++gp__memory_tape);
+        ++gp__memory_tape;
+        goto repeat;
+    }
+    case 0x07: // 8-bit's addr-on | neg a8 ; поменять знак регистра a8 на противоположное
+    {
+        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        a8 = -a8;
         ++gp__memory_tape;
         goto repeat;
     }
