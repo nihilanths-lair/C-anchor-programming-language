@@ -1181,9 +1181,8 @@ printf("\n %s%s | Постфиксная форма", ga__operand_stack, ga__ope
 ///////////////////////////////////////////
 void _$()
 {
-    setlocale(LC_ALL, "");
-    // Включаем системную локаль для форматирования чисел
-    setlocale(LC_NUMERIC, "");
+    setlocale(0, "");
+    //setlocale(LC_NUMERIC, ""); // Системная локаль для форматирования чисел
     //
     const char code[] = "5 + 3 * (6 - 2 / 2)";//x = 123";\ny = 12\nz = 1
     /*
