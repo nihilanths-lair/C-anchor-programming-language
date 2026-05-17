@@ -287,7 +287,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x04: // 8-bit's addr-on | sub a8, i8 ; вычитание
+    case 0x04: // 8-bit's addr-on | sub a8, i8 ; вычитание | a8 = a8 - i8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 -= *(++gp__memory_tape);
@@ -301,14 +301,28 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x06: // 8-bit's addr-on | div a8, i8 ; деление
+    case 0x06: // 8-bit's addr-on | div a8, i8 ; деление | a8 = a8 / i8
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 /= *(++gp__memory_tape);
         ++gp__memory_tape;
         goto repeat;
     }
-    case 0x07: // 8-bit's addr-on | neg a8 ; поменять знак регистра a8 на противоположное
+    case 0x07: // 8-bit's addr-on | rsub a8, i8 ; обратное вычитание | a8 = i8 - a8
+    {
+        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        a8 = *(++gp__memory_tape) - a8;
+        ++gp__memory_tape;
+        goto repeat;
+    }
+    case 0x08: // 8-bit's addr-on | rdiv a8, i8 ; обратное деление | a8 = i8 / a8
+    {
+        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        a8 = *(++gp__memory_tape) / a8;
+        ++gp__memory_tape;
+        goto repeat;
+    }
+    case 0x09: // 8-bit's addr-on | neg a8 ; поменять знак регистра a8 на противоположное
     {
         printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
         a8 = -a8;
