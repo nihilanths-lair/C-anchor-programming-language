@@ -5,16 +5,26 @@ unsigned char ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская мо
 unsigned char * gp__memory_tape = ga__memory_tape;
 
 uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-uint8_t ip8 = -1; // (unsigned char) 8-bit's регистр-указатель на инструкцию
-uint8_t sp8 = -1; // (unsigned char) 8-bit's регистр-указатель на стек
-uint8_t  a8 = -1; //          (char) 8-bit's регистр общего назначения
-int8_t   b8 = 0; //          (char) 8-bit's регистр общего назначения
+uint8_t ip8 = 0; // (unsigned char) 8-bit's регистр-указатель на инструкцию
+uint8_t sp8 = 0; // (unsigned char) 8-bit's регистр-указатель на стек
+uint8_t dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
+uint8_t si8 = 0; // (unsigned char) 8-bit's
+uint8_t di8 = 0; // (unsigned char) 8-bit's
+uint8_t  a8 = 0; //          (char) 8-bit's регистр общего назначения
+uint8_t  b8 = 0; //          (char) 8-bit's регистр общего назначения
+uint8_t  c8 = 0; //          (char) 8-bit's регистр общего назначения
+uint8_t  d8 = 0; //          (char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
 
 uint16_t cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
-uint16_t ip16 = -1; // (unsigned short) 16-bit's регистр-указатель на инструкцию
-uint16_t sp16 = -1; // (unsigned short) 16-bit's регистр-указатель на стек
-uint16_t  a16 = -1; //          (short) 16-bit's регистр общего назначения
-int16_t   b16 = 0; //          (short) 16-bit's регистр общего назначения
+uint16_t ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
+uint16_t sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
+uint16_t dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
+uint16_t si16 = 0; // (unsigned short) 16-bit's
+uint16_t di16 = 0; // (unsigned short) 16-bit's
+uint16_t  a16 = 0; //          (short) 16-bit's регистр общего назначения
+uint16_t  b16 = 0; //          (short) 16-bit's регистр общего назначения
+uint16_t  c16 = 0; //          (short) 16-bit's регистр общего назначения
+uint16_t  d16 = 0; //          (short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
 
 uint32_t cs24 = 0; // (unsigned int) 32-bit's сегментный-регистр
 uint32_t ip24 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
@@ -156,11 +166,23 @@ void dbg_RegisterState()
         printf("\n           |         |       |");
         printf("\n      ip8  |     %03d | %02X    | %d", ip8, ip8, ip8);
         printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
+        printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
+        printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
+        printf("\n      di8  |     %03d | %02X    | %d", di8, di8, di8);
         printf("\n       a8  |     %03d | %02X    | %d",  a8,  a8,  a8);
+        printf("\n       b8  |     %03d | %02X    | %d",  b8,  b8,  b8);
+        printf("\n       c8  |     %03d | %02X    | %d",  c8,  c8,  c8);
+        printf("\n       d8  |     %03d | %02X    | %d",  d8,  d8,  d8);
         printf("\n           |         |       |");
         printf("\n      ip16 | %03d %03d | %02X %02X | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, numf(ip16));
         printf("\n      sp16 | %03d %03d | %02X %02X | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, numf(sp16));
+        printf("\n      dp16 | %03d %03d | %02X %02X | %s", dp16>>8, dp16&0xFF, dp16>>8, dp16&0xFF, numf(dp16));
+        printf("\n      si16 | %03d %03d | %02X %02X | %s", si16>>8, si16&0xFF, si16>>8, si16&0xFF, numf(si16));
+        printf("\n      di16 | %03d %03d | %02X %02X | %s", di16>>8, di16&0xFF, di16>>8, di16&0xFF, numf(di16));
         printf("\n       a16 | %03d %03d | %02X %02X | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF,  numf(a16));
+        printf("\n       b16 | %03d %03d | %02X %02X | %s",  b16>>8,  b16&0xFF,  b16>>8,  b16&0xFF,  numf(b16));
+        printf("\n       c16 | %03d %03d | %02X %02X | %s",  c16>>8,  c16&0xFF,  c16>>8,  c16&0xFF,  numf(c16));
+        printf("\n       d16 | %03d %03d | %02X %02X | %s",  d16>>8,  d16&0xFF,  d16>>8,  d16&0xFF,  numf(d16));
         printf("\n -------------------------------------");
         break;
     }
@@ -172,36 +194,62 @@ void dbg_RegisterState()
         // Вывод 8-битных регистров
         printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip8, ip8, bin8(ip8), ip8);
         printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
+        printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
+        printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
+        printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
+
         printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8,  a8, bin8( a8),  a8);
+        printf("\n       b8  |     %03d | %02X    | %s           | %d",  b8,  b8, bin8( b8),  b8);
+        printf("\n       c8  |     %03d | %02X    | %s           | %d",  c8,  c8, bin8( c8),  c8);
+        printf("\n       d8  |     %03d | %02X    | %s           | %d",  d8,  d8, bin8( d8),  d8);
         printf("\n           |         |       |                     |");
         // Вывод 16-битных регистров
         // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
         printf("\n      ip16 | %03d %03d | %02X %02X | %s | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, bin16(ip16), numf(ip16));
         printf("\n      sp16 | %03d %03d | %02X %02X | %s | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, bin16(sp16), numf(sp16));
+        printf("\n      dp16 | %03d %03d | %02X %02X | %s | %s", dp16>>8, dp16&0xFF, dp16>>8, dp16&0xFF, bin16(dp16), numf(dp16));
+        printf("\n      si16 | %03d %03d | %02X %02X | %s | %s", si16>>8, si16&0xFF, si16>>8, si16&0xFF, bin16(si16), numf(si16));
+        printf("\n      di16 | %03d %03d | %02X %02X | %s | %s", di16>>8, di16&0xFF, di16>>8, di16&0xFF, bin16(di16), numf(di16));
         printf("\n       a16 | %03d %03d | %02X %02X | %s | %s",  a16>>8,  a16&0xFF,  a16>>8,  a16&0xFF, bin16( a16),  numf(a16));
+        printf("\n       b16 | %03d %03d | %02X %02X | %s | %s",  b16>>8,  b16&0xFF,  b16>>8,  b16&0xFF, bin16( b16),  numf(b16));
+        printf("\n       c16 | %03d %03d | %02X %02X | %s | %s",  c16>>8,  c16&0xFF,  c16>>8,  c16&0xFF, bin16( c16),  numf(c16));
+        printf("\n       d16 | %03d %03d | %02X %02X | %s | %s",  d16>>8,  d16&0xFF,  d16>>8,  d16&0xFF, bin16( d16),  numf(d16));
         printf("\n -----------------------------------------------------------");
     }}
 }
 //
 void dbg_MemoryState()
 {
-    printf("\n MEMORY: DEC, HEX\n");
-    unsigned char i2;
-    for (unsigned char i = 0; i < 16; i++)
+    switch (1){
+    case 0:
     {
-        i2 = i*16;
-        printf("\n  %3d | ", i2);
-        for (unsigned char j = 0; j < 8; j++) printf("%03d ", ga__memory_tape[i2+j]);
-        printf(" \t %2X | ", i2);
-        for (unsigned char j = 0; j < 8; j++) printf("%02X ", ga__memory_tape[i2+j]);
+        printf("\n MEMORY: DEC, HEX\n");
+        unsigned char i2;
+        for (unsigned char i = 0; i < 16; i++)
+        {
+            i2 = i*16;
+            printf("\n  %3d | ", i2);
+            for (unsigned char j = 0; j < 8; j++) printf("%03d ", ga__memory_tape[i2+j]);
+            printf(" \t %2X | ", i2);
+            for (unsigned char j = 0; j < 8; j++) printf("%02X ", ga__memory_tape[i2+j]);
 
-        i2 += 8;
-        printf("\n  %3d | ", i2);
-        for (unsigned char j = 8; j < 16; j++) printf("%03d ", ga__memory_tape[i2+j]);
-        printf(" \t %2X | ", i2);
-        for (unsigned char j = 8; j < 16; j++) printf("%02X ", ga__memory_tape[i2+j]);
-        printf("\n ---------------------------------------\t------------------------------");
+            i2 += 8;
+            printf("\n  %3d | ", i2);
+            for (unsigned char j = 8; j < 16; j++) printf("%03d ", ga__memory_tape[i2+j]);
+            printf(" \t %2X | ", i2);
+            for (unsigned char j = 8; j < 16; j++) printf("%02X ", ga__memory_tape[i2+j]);
+            //printf("\n ---------------------------------------\t------------------------------");
+        }
     }
+    case 1:
+    {
+        // ... //
+    }}
+}
+//
+void Disassembly()
+{
+    // ... //
 }
 //
 void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (древоходец)
