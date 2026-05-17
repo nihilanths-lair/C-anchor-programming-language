@@ -252,108 +252,143 @@ void Disassembly()
     // ... //
 }
 //
+// Для отключения отладки и включения турбо-режима необходимо закомментировать строку ниже:
+#define VM_DEBUG_MODE
+//
 void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (древоходец)
 {
     //dbg_RegisterState();
     repeat:
     dbg_RegisterState();
     dbg_MemoryState();
-    switch (*gp__memory_tape){
-    //
-    case 0x75: // 8-bit's addr-on | jmp i8
+    static void * transaction_codes[256] =
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
-        gp__memory_tape = gp__memory_tape + (*(++gp__memory_tape)); // jump offset
-        goto repeat;
+        [0 ... 255] = &&_80h,
+        [0x01] = &&_01h, [0x02] = &&_02h, [0x03] = &&_03h,
+        [0x04] = &&_04h, [0x05] = &&_05h, [0x06] = &&_06h,
+        [0x07] = &&_07h, [0x08] = &&_08h, [0x09] = &&_09h,
+        [0x75] = &&_75h, [0x76] = &&_76h, [0x77] = &&_77h,
+        [0x78] = &&_78h, [0x79] = &&_79h
+    };
+    // Интеллектуальный макрос диспетчеризации
+    #ifdef VM_DEBUG_MODE
+        #define DISPATCH() \
+            dbg_RegisterState(); \
+            dbg_MemoryState(); \
+            goto *transaction_codes[*gp__memory_tape]
+        
+        // В режиме отладки макрос PRINT_OPCODE будет выводить логи
+        #define PRINT_OPCODE() printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape)
+    #else
+        // В турбо-режиме макрос превращается в ОДНУ строчку перехода, без вызова функций отладки
+        #define DISPATCH() goto *transaction_codes[*gp__memory_tape]
+        
+        // В турбо-режиме принт превращается в пустоту и полностью удаляется компилятором
+        #define PRINT_OPCODE() 
+    #endif
+
+    // Старт виртуалки
+    DISPATCH();
+
+    _75h: // jmp i8
+    {
+        PRINT_OPCODE();
+        gp__memory_tape += (char) gp__memory_tape[1] + 2;
+        DISPATCH();
     }
-    case 0x01: // 8-bit's addr-on | mov a8, i8
+    _01h: // mov a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 = *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x02: // 8-bit's addr-on | mov i8, b8
+    _02h: // mov i8, b8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         b8 = *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x03: // 8-bit's addr-on | add a8, i8 ; сложение
+    _03h: // add a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 += *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x04: // 8-bit's addr-on | sub a8, i8 ; вычитание | a8 = a8 - i8
+    _04h: // sub a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 -= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x05: // 8-bit's addr-on | mul a8, i8 ; умножение
+    _05h: // mul a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 *= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x06: // 8-bit's addr-on | div a8, i8 ; деление | a8 = a8 / i8
+    _06h: // div a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 /= *(++gp__memory_tape);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x07: // 8-bit's addr-on | rsub a8, i8 ; обратное вычитание | a8 = i8 - a8
+    _07h: // rsub a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 = *(++gp__memory_tape) - a8;
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x08: // 8-bit's addr-on | rdiv a8, i8 ; обратное деление | a8 = i8 / a8
+    _08h: // rdiv a8, i8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 = *(++gp__memory_tape) / a8;
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x09: // 8-bit's addr-on | neg a8 ; поменять знак регистра a8 на противоположное
+    _09h: // neg a8
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         a8 = -a8;
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x76: // OUT (распечатать строку на консоль)
+    _76h: // OUT string
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         printf("%s", _rcv8);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x77: // OUT (распечатать число на консоль)
+    _77h: // OUT number
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         printf("%d", a8);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x78: // OUT (распечатать символ на консоль)
+    _78h: // OUT char
     {
-        printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape);
+        PRINT_OPCODE();
         putchar(a8);
         ++gp__memory_tape;
-        goto repeat;
+        DISPATCH();
     }
-    case 0x79: printf("\n Stopped.."); return;
-    default: printf("\n Unknown opcode, stopped.."); return;
-    //
-    }
+    _79h:
+        printf("\n Stopped.."); 
+        return;
+    _80h:
+        printf("\n Unknown opcode 0x%02X, stopped..", *gp__memory_tape); 
+        return;
+
+    #undef DISPATCH
+    #undef PRINT_OPCODE
 }
 /*
 char * Bin()
