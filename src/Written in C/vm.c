@@ -2,7 +2,7 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
 unsigned char ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская модель памяти, стек находится здесь же (заполнение с конца)
-unsigned char * gp__memory_tape = ga__memory_tape;
+unsigned char * _ip = ga__memory_tape; // исправил вместо gp__memory_tape = ga__memory_tape
 
 // Стек изначально указывает на самый последний байт вашей плоской памяти
 unsigned char * _sp = &ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
@@ -75,7 +75,7 @@ void Loader_VM()
 void Debug_Loader_VM()
 {
     //putchar('\n');
-    int len = strlen(gp__memory_tape);//+1
+    int len = strlen(_ip);//+1
     printf("\n Оп-код (dec):");
     for (int i = 0; i < len; i++) printf(" %03d", ga__memory_tape[i]);
     printf("\n Оп-код (hex):");
@@ -195,13 +195,14 @@ void dbg_RegisterState()
     }
     case 1:
     {
+        unsigned char ip = _ip-ga__memory_tape;
         printf("\n ---------------------------------------------------------");
         printf("\n  REGISTER |   DEC   |  HEX  |         BIN         | TEXT");
         printf("\n           |         |       |                     |");
         // Вывод 8-битных регистров
         printf("\n       zf  |     %03d | %02X    | %s           | %d",  zf,  zf, bin8( zf),  zf);
         printf("\n           |         |       |                     |");
-        printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip8, ip8, bin8(ip8), ip8);
+        printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip,  ip,  bin8(ip),  ip);
         printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
         printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
@@ -281,13 +282,13 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         #define DISPATCH() \
             dbg_RegisterState(); \
             dbg_MemoryState(); \
-            goto *transaction_codes[*gp__memory_tape]
+            goto *transaction_codes[*_ip]
         
         // В режиме отладки макрос PRINT_OPCODE будет выводить логи
-        #define PRINT_OPCODE() printf("\n \\d%03d = \\h%02X", *gp__memory_tape, *gp__memory_tape)
+        #define PRINT_OPCODE() printf("\n \\d%03d = \\h%02X", *_ip, *_ip)
     #else
         // В турбо-режиме макрос превращается в ОДНУ строчку перехода, без вызова функций отладки
-        #define DISPATCH() goto *transaction_codes[*gp__memory_tape]
+        #define DISPATCH() goto *transaction_codes[*_ip]
         
         // В турбо-режиме принт превращается в пустоту и полностью удаляется компилятором
         #define PRINT_OPCODE() 
@@ -299,107 +300,107 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     _75h: // jmp i8
     {
         PRINT_OPCODE();
-        gp__memory_tape += (char) gp__memory_tape[1] + 2;
+        _ip += (char) _ip[1] + 2;
         DISPATCH();
     }
     _1: // mov a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++gp__memory_tape);
-        ++gp__memory_tape;
+        a8 = *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _2: // mov i8, b8
     {
         PRINT_OPCODE();
-        b8 = *(++gp__memory_tape);
-        ++gp__memory_tape;
+        b8 = *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _3: // add a8, i8
     {
         PRINT_OPCODE();
-        a8 += *(++gp__memory_tape);
-        ++gp__memory_tape;
+        a8 += *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _4: // sub a8, i8
     {
         PRINT_OPCODE();
-        a8 -= *(++gp__memory_tape);
-        ++gp__memory_tape;
+        a8 -= *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _5: // mul a8, i8
     {
         PRINT_OPCODE();
-        a8 *= *(++gp__memory_tape);
-        ++gp__memory_tape;
+        a8 *= *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _6: // div a8, i8
     {
         PRINT_OPCODE();
-        a8 /= *(++gp__memory_tape);
-        ++gp__memory_tape;
+        a8 /= *(++_ip);
+        ++_ip;
         DISPATCH();
     }
     _7: // rsub a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++gp__memory_tape) - a8;
-        ++gp__memory_tape;
+        a8 = *(++_ip) - a8;
+        ++_ip;
         DISPATCH();
     }
     _8: // rdiv a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++gp__memory_tape) / a8;
-        ++gp__memory_tape;
+        a8 = *(++_ip) / a8;
+        ++_ip;
         DISPATCH();
     }
     _9: // neg a8
     {
         PRINT_OPCODE();
         a8 = -a8;
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _10: // 8-bit's addr-on | cmp a8, i8 ; сравнение
     {
         PRINT_OPCODE();
-        unsigned char i8 = *(++gp__memory_tape);
+        unsigned char i8 = *(++_ip);
         if (a8 == i8) zf = 1;
         else zf = 0;
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _11: // 8-bit's addr-on | je i8 ; перейти, если равно (zf == 1)
     {
         PRINT_OPCODE();
-        if (zf == 1) gp__memory_tape += (char) gp__memory_tape[1] + 2; // Прыгаем вперед или назад по знаковому смещению
-        else gp__memory_tape += 2; // Если условия нет, просто перешагиваем аргумент смещения
+        if (zf == 1) _ip += (char) _ip[1] + 2; // Прыгаем вперед или назад по знаковому смещению
+        else _ip += 2; // Если условия нет, просто перешагиваем аргумент смещения
         DISPATCH();
     }
     _12: // 8-bit's addr-on | jne i8 ; перейти, если не равно (zf == 0)
     {
         PRINT_OPCODE();
-        if (zf == 0) gp__memory_tape += (char) gp__memory_tape[1] + 2; // Прыгаем вперед или назад по знаковому смещению
-        else gp__memory_tape += 2; // Если условия нет, просто перешагиваем аргумент смещения
+        if (zf == 0) _ip += (char) _ip[1] + 2; // Прыгаем вперед или назад по знаковому смещению
+        else _ip += 2; // Если условия нет, просто перешагиваем аргумент смещения
         DISPATCH();
     }
     _13: // 8-bit's addr-on | inc a8 ; инкремент регистра a8
     {
         PRINT_OPCODE();
         ++a8;
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _14: // 8-bit's addr-on | dec a8 ; декремент регистра a8
     {
         PRINT_OPCODE();
         --a8;
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _15: // 8-bit's addr-on | push a8 ; стек растет вниз (к началу памяти)
@@ -407,7 +408,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         PRINT_OPCODE();
         --_sp;     // Сдвигаем указатель стека вниз
         *_sp = a8; // Записываем значение регистра
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _16: // 8-bit's addr-on | pop a8
@@ -415,47 +416,50 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         PRINT_OPCODE();
         a8 = *_sp; // Читаем значение из стека
         ++_sp;     // Сдвигаем указатель стека вверх
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
-    _17: // 8-bit's addr-on | call a8
+    _17: // 2 байта | call i8 ; Вызов процедуры (Максимальная оптимизация)
     {
         PRINT_OPCODE();
-        // ... //
+        // 1. Толкаем адрес возврата в стек.
+        *(--_sp) = (_ip+2) - ga__memory_tape; // _ip сейчас стоит на опкоде. Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
+        // 2. Осуществляем переход.
+        _ip = ga__memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
         DISPATCH();
     }
-    _18: // 8-bit's addr-on | ret
+    _18: // 1 байт | ret ; Вернуться из процедуры
     {
         PRINT_OPCODE();
-        // ... //
+        _ip = ga__memory_tape + *(_sp++); // Достаем индекс возврата из стека, восстанавливаем указатель хоста и сдвигаем стек вверх.
         DISPATCH();
     }
     _76h: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _77h: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _78h: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
-        ++gp__memory_tape;
+        ++_ip;
         DISPATCH();
     }
     _79h:
         printf("\n Stopped.."); 
         return;
     _80h:
-        printf("\n Unknown opcode 0x%02X, stopped..", *gp__memory_tape); 
+        printf("\n Unknown opcode 0x%02X, stopped..", *_ip); 
         return;
 
     #undef DISPATCH
