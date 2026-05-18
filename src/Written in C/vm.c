@@ -277,7 +277,11 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [36] = &&_36,
         [37] = &&_37,
         [38] = &&_38,
-        [39 ... 255] = &&_255
+        [39] = &&_39,
+        [40] = &&_40,
+        [41] = &&_41,
+        [42] = &&_42,
+        [43 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -331,7 +335,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++_ip;
         DISPATCH();
     }
-    // MOV //-/
+    // MOV /-//
     _5: // add a8, i8
     {
         PRINT_OPCODE();
@@ -550,21 +554,51 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++_ip;
         DISPATCH();
     }
-    _36: // OUT string
+    //-/ Логические побитовые операции //
+    _36: // Двухбайтовая инструкция | and a8, i8 ; побитовое И
+    {
+        PRINT_OPCODE();
+        a8 &= _ip[1];
+        _ip += 2;
+        DISPATCH();
+    }
+    _37: // Двухбайтовая инструкция | or a8, i8 ; побитовое ИЛИ
+    {
+        PRINT_OPCODE();
+        a8 |= _ip[1];
+        _ip += 2;
+        DISPATCH();
+    }
+    _38: // Двухбайтовая инструкция | xor a8, i8 ; побитовое исключающее ИЛИ
+    {
+        PRINT_OPCODE();
+        a8 ^= _ip[1];
+        _ip += 2;
+        DISPATCH();
+    }
+    _39: // Однобайтовая инструкция | not a8 ; побитовая инверсия (НЕ)
+    {
+        PRINT_OPCODE();
+        a8 = ~a8;
+        ++_ip;
+        DISPATCH();
+    }
+    // Логические побитовые операции /-//
+    _40: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _37: // OUT number
+    _41: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _38: // OUT char
+    _42: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
