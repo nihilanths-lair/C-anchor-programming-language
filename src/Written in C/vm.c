@@ -2,7 +2,7 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
 unsigned char ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская модель памяти, стек находится здесь же (заполнение с конца)
-unsigned char * _ip = ga__memory_tape; // исправил вместо gp__memory_tape = ga__memory_tape
+unsigned char * _ip = ga__memory_tape; // вместо gp__memory_tape = ga__memory_tape
 
 // Стек изначально указывает на самый последний байт вашей плоской памяти
 unsigned char * _sp = &ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
