@@ -10,7 +10,7 @@ volatile unsigned char * _dp = memory_tape;
 volatile unsigned char * _si = memory_tape;
 volatile unsigned char * _di = memory_tape;
 
-unsigned char  a8 = 0;
+char a8 = 0;
 
 unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 unsigned char  b8 = 0;
@@ -132,7 +132,7 @@ void dbg_RegisterState()
     int dp8 = _dp - memory_tape;
     int si8 = _si - memory_tape;
     int di8 = _di - memory_tape;
-    static unsigned short step = -1;
+    static unsigned short step = 0;
     printf("\n -----------\n Шаг: %d", step++);
     switch (1){
     case 0:
@@ -148,7 +148,7 @@ void dbg_RegisterState()
         printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
         printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
         printf("\n      di8  |     %03d | %02X    | %d", di8, di8, di8);
-        printf("\n       a8  |     %03d | %02X    | %d",  a8,  a8,  a8);
+        printf("\n       a8  |     %03d | %02X    | %d",  a8&0xFF,  a8&0xFF, a8);
         printf("\n       b8  |     %03d | %02X    | %d",  b8,  b8,  b8);
         printf("\n       c8  |     %03d | %02X    | %d",  c8,  c8,  c8);
         printf("\n       d8  |     %03d | %02X    | %d",  d8,  d8,  d8);
@@ -179,7 +179,7 @@ void dbg_RegisterState()
         printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
         printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
-        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8,  a8, bin8( a8), (signed char) a8);
+        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8&0xFF,  a8&0xFF, bin8( a8),  a8);
         printf("\n       b8  |     %03d | %02X    | %s           | %d",  b8,  b8, bin8( b8),  b8);
         printf("\n       c8  |     %03d | %02X    | %s           | %d",  c8,  c8, bin8( c8),  c8);
         printf("\n       d8  |     %03d | %02X    | %s           | %d",  d8,  d8, bin8( d8),  d8);
@@ -376,14 +376,11 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         DISPATCH();
     }
     */
-    _11: // cmp a8, i8 ; Сравнение с поддержкой знака
+    _11: // cmp a8, i8
     {
         PRINT_OPCODE();
-        // Приводим оба операнда к знаковым 8-битным числам
-        signed char op1 = (signed char) a8;
-        signed char op2 = (signed char) _ip[1];
-        zf = (op1 == op2); // Выставляем флаг нуля
-        sf = (op1 < op2); // Выставляем флаг знака (1 если op1 меньше op2, то есть результат вычитания отрицательный)
+        zf = (a8 == (signed char) _ip[1]);
+        sf = (a8 <  (signed char) _ip[1]);
         _ip += 2;
         DISPATCH();
     }
