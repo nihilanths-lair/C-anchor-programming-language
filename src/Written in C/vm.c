@@ -4,10 +4,10 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
 unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // Лента памяти.
-unsigned char * _ip = memory_tape; // Указатель инструкции.
-unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1]; // Указатель стека.
-unsigned char * _si = memory_tape; // Указатель источника.
-unsigned char * _di = memory_tape; // Указатель приемника.
+volatile unsigned char * _ip = memory_tape; // Указатель инструкции.
+volatile unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1]; // Указатель стека.
+volatile unsigned char * _si = memory_tape; // Указатель источника.
+volatile unsigned char * _di = memory_tape; // Указатель приемника.
 
 unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 unsigned char dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
@@ -33,21 +33,21 @@ unsigned char zf = 0; // Флаг нуля: 1 если результаты ра
 int8_t * _rcv8 = "Hello";
 char rcv8 = 0;
 char src8 = 0;
-//-/
-void Loader_VM()
+
+// Загрузчик теперь принимает точный размер байт-кода
+void Loader_VM(int code_size)
 {
-    int len = strlen(ga__opcodes);
-    for (int i = 0; i < len; i++) memory_tape[i] = ga__opcodes[i];
+    // Безопасное копирование бинарных данных, включая нули
+    for (int i = 0; i < code_size; i++) memory_tape[i] = ga__opcodes[i];
 }
-//
-void Debug_Loader_VM()
+
+// Отладчик выводит ровно столько байт, сколько было загружено
+void Debug_Loader_VM(int code_size)
 {
-    //putchar('\n');
-    int len = strlen(_ip);//+1
     printf("\n Оп-код (dec):");
-    for (int i = 0; i < len; i++) printf(" %03d", memory_tape[i]);
+    for (int i = 0; i < code_size; i++) printf(" %03d", memory_tape[i]);
     printf("\n Оп-код (hex):");
-    for (int i = 0; i < len; i++) printf("  %02X", memory_tape[i]);
+    for (int i = 0; i < code_size; i++) printf("  %02X", memory_tape[i]);
 }
 //
 // Функция для 8-битных регистров (вывод в формате 0000:0000)
@@ -235,7 +235,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
 {
     static void * transaction_codes[256] =
     {
-        [0 ... 255] = &&_80h,
+        [0] = &&_0,
         [1] = &&_1,
         [2] = &&_2,
         [3] = &&_3,
@@ -260,8 +260,11 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [22] = &&_22,
         [23] = &&_23,
         [24] = &&_24,
-        [0x75] = &&_75h, [0x76] = &&_76h, [0x77] = &&_77h,
-        [0x78] = &&_78h, [0x79] = &&_79h
+        [25] = &&_25,
+        [26] = &&_26,
+        [27] = &&_27,
+        [28] = &&_28,
+        [29 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -281,66 +284,65 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     #endif
 
     DISPATCH();
-    _75h: // jmp i8
+    _0: // hlt
     {
-        PRINT_OPCODE();
-        _ip += (char) _ip[1] + 2;
-        DISPATCH();
+        printf("\n Stopped..");
+        return;
     }
     _1: // mov a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++_ip);
-        ++_ip;
+        a8 = _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _2: // mov i8, b8
     {
         PRINT_OPCODE();
-        b8 = *(++_ip);
-        ++_ip;
+        b8 = _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _3: // add a8, i8
     {
         PRINT_OPCODE();
-        a8 += *(++_ip);
-        ++_ip;
+        a8 += _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _4: // sub a8, i8
     {
         PRINT_OPCODE();
-        a8 -= *(++_ip);
-        ++_ip;
+        a8 -= _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _5: // mul a8, i8
     {
         PRINT_OPCODE();
-        a8 *= *(++_ip);
-        ++_ip;
+        a8 *= _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _6: // div a8, i8
     {
         PRINT_OPCODE();
-        a8 /= *(++_ip);
-        ++_ip;
+        a8 /= _ip[1];
+        _ip += 2;
         DISPATCH();
     }
     _7: // rsub a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++_ip) - a8;
-        ++_ip;
+        a8 = _ip[1] - a8;
+        _ip += 2;
         DISPATCH();
     }
     _8: // rdiv a8, i8
     {
         PRINT_OPCODE();
-        a8 = *(++_ip) / a8;
-        ++_ip;
+        a8 = _ip[1] / a8;
+        _ip += 2;
         DISPATCH();
     }
     _9: // neg a8
@@ -350,144 +352,144 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++_ip;
         DISPATCH();
     }
-    _10: // 8-bit's addr-on | cmp a8, i8 ; сравнение
+    _10: // jmp i8
     {
         PRINT_OPCODE();
-        unsigned char i8 = *(++_ip);
-        if (a8 == i8) zf = 1;
-        else zf = 0;
-        ++_ip;
+        _ip += (((char) _ip[1])+2);
         DISPATCH();
     }
-    _11: // 8-bit's addr-on | je i8 ; перейти, если равно (zf == 1)
+    _11: // cmp a8, i8
     {
         PRINT_OPCODE();
-        if (zf == 1) _ip += (char) _ip[1] + 2; // Прыгаем вперед или назад по знаковому смещению
-        else _ip += 2; // Если условия нет, просто перешагиваем аргумент смещения
+        zf = (a8 == _ip[1]);
+        _ip += 2;
         DISPATCH();
     }
-    _12: // 8-bit's addr-on | jne i8 ; перейти, если не равно (zf == 0)
+    _12: // je i8
     {
         PRINT_OPCODE();
-        if (zf == 0) _ip += (char) _ip[1] + 2; // Прыгаем вперед или назад по знаковому смещению
-        else _ip += 2; // Если условия нет, просто перешагиваем аргумент смещения
+        if (zf == 1) _ip += (((char)_ip[1])+2); // Прыгаем вперед или назад по знаковому смещению
+        else _ip += 2;
         DISPATCH();
     }
-    _13: // 8-bit's addr-on | inc a8 ; инкремент регистра a8
+    _13: // jne i8
+    {
+        PRINT_OPCODE();
+        if (zf == 0) _ip += (((char)_ip[1])+2); // Прыгаем вперед или назад по знаковому смещению.
+        else _ip += 2;
+        DISPATCH();
+    }
+    _14: // inc a8 ; Инкремент регистра a8.
     {
         PRINT_OPCODE();
         ++a8;
         ++_ip;
         DISPATCH();
     }
-    _14: // 8-bit's addr-on | dec a8 ; декремент регистра a8
+    _15: // dec a8 ; Декремент регистра a8.
     {
         PRINT_OPCODE();
         --a8;
         ++_ip;
         DISPATCH();
     }
-    _15: // 8-bit's addr-on | push a8 ; стек растет вниз (к началу памяти)
+    _16: // push a8 ; Положить в стек значение взятое из регистра a8.
     {
         PRINT_OPCODE();
-        --_sp;     // Сдвигаем указатель стека вниз
-        *_sp = a8; // Записываем значение регистра
+        *(--_sp) = a8;
         ++_ip;
         DISPATCH();
     }
-    _16: // 8-bit's addr-on | pop a8
+    _17: // pop a8 ; Снять со стека значение и поместить в регистр a8.
     {
         PRINT_OPCODE();
-        a8 = *_sp; // Читаем значение из стека
-        ++_sp;     // Сдвигаем указатель стека вверх
+        a8 = *(_sp++);
         ++_ip;
         DISPATCH();
     }
-    _17: // 2 байта | call i8 ; Вызов процедуры (Максимальная оптимизация)
+    _18: // 2 байта | call i8 ; Вызов процедуры.
     {
         PRINT_OPCODE();
         // 1. Толкаем адрес возврата в стек.
-        *(--_sp) = (_ip+2) - memory_tape; // _ip сейчас стоит на опкоде. Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
+        *(--_sp) = (_ip+2) - memory_tape; // Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
         // 2. Осуществляем переход.
         _ip = memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
         DISPATCH();
     }
-    _18: // 1 байт | ret ; Возврат из процедуры.
+    _19: // 1 байт | ret ; Возврат из процедуры.
     {
         PRINT_OPCODE();
         _ip = memory_tape + *(_sp++); // Достаем индекс возврата из стека, восстанавливаем указатель хоста и сдвигаем стек вверх.
         DISPATCH();
     }
-    _19: // 2 байта | mov si, i8 ; Инициализация указателя источника.
+    _20: // mov si, i8
     {
         PRINT_OPCODE();
-        _si = memory_tape + *(++_ip); // Читаем 8-битный адрес из следующего байта и прибавляем к базе нашей памяти.
-        ++_ip;
+        _si = memory_tape + _ip[1];
+        _ip += 2;
         DISPATCH();
     }
-    _20: // 2 байта | mov di, i8 ; Инициализация указателя приемника.
+    _21: // mov di, i8
     {
         PRINT_OPCODE();
-        _di = memory_tape + *(++_ip);
-        ++_ip;
+        _di = memory_tape + _ip[1];
+        _ip += 2;
         DISPATCH();
     }
-    _21: // 1 байт | ld a8, [si] ; Косвенное чтение (a8 = *_si).
+    _22: // 1 байт | ld a8, [si] ; Косвенное чтение (a8 = *_si).
     {
         PRINT_OPCODE();
         a8 = *_si; // Мгновенное разыменование без сложения баз памяти!
         ++_ip;
         DISPATCH();
     }
-    _22: // 1 байт | st [di], a8 ; Косвенная запись (*_di = a8).
+    _23: // 1 байт | st [di], a8 ; Косвенная запись (*_di = a8).
     {
         PRINT_OPCODE();
         *_di = a8; // Мгновенная запись
         ++_ip;
         DISPATCH();
     }
-    _23: // 1 байт | inc si ; Продвижение источника (для строк/буферов).
+    _24: // 1 байт | inc si ; Продвижение источника (для строк/буферов).
     {
         PRINT_OPCODE();
         ++_si;
         ++_ip;
         DISPATCH();
     }
-    _24: // 1 байт | inc di ; Продвижение приемника.
+    _25: // 1 байт | inc di ; Продвижение приемника.
     {
         PRINT_OPCODE();
         ++_di;
         ++_ip;
         DISPATCH();
     }
-    _76h: // OUT string
+    _26: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _77h: // OUT number
+    _27: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _78h: // OUT char
+    _28: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
         ++_ip;
         DISPATCH();
     }
-    _79h:
-        printf("\n Stopped.."); 
+    _255:
+    {
+        printf("\n Unknown opcode 0x%02X, stopped..", *_ip);
         return;
-    _80h:
-        printf("\n Unknown opcode 0x%02X, stopped..", *_ip); 
-        return;
-
+    }
     #undef DISPATCH
     #undef PRINT_OPCODE
 }
