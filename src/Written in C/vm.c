@@ -271,7 +271,11 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [30] = &&_30,
         [31] = &&_31,
         [32] = &&_32,
-        [29 ... 255] = &&_255
+        [33] = &&_33,
+        [34] = &&_34,
+        [35] = &&_35,
+        [36] = &&_36,
+        [37 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -500,21 +504,49 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         else _ip += 2;
         DISPATCH();
     }
-    _30: // OUT string
+    _30: // 1 байт | mov bp, sp ; Зафиксировать базу кадра функции
+    {
+        PRINT_OPCODE();
+        _bp = _sp;
+        ++_ip;
+        DISPATCH();
+    }
+    _31: // 1 байt | mov sp, bp ; Освободить локальные переменные перед RET
+    {
+        PRINT_OPCODE();
+        _sp = _bp;
+        ++_ip;
+        DISPATCH();
+    }
+    _32: // 1 байт | push bp ; Сохранить старый якорь на стеке
+    {
+        PRINT_OPCODE();
+        *(--_sp) = _bp - memory_tape; // Стек хранит байты, поэтому переводим указатель хоста в индекс
+        ++_ip;
+        DISPATCH();
+    }
+    _33: // 1 байт | pop bp ; Восстановить старый якорь
+    {
+        PRINT_OPCODE();
+        _bp = memory_tape + *(_sp++);
+        ++_ip;
+        DISPATCH();
+    }
+    _34: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _31: // OUT number
+    _35: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _32: // OUT char
+    _36: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
