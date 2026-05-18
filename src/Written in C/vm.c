@@ -9,14 +9,12 @@ volatile unsigned char * _sp = &memory_tape[255];
 volatile unsigned char * _dp = memory_tape;
 volatile unsigned char * _si = memory_tape;
 volatile unsigned char * _di = memory_tape;
-
 char a8 = 0;
+char b8 = 0;
+char c8 = 0;
+char d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
 
 unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-unsigned char  b8 = 0;
-unsigned char  c8 = 0;
-unsigned char  d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
-
 unsigned short cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
 unsigned short ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
 unsigned short sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
@@ -148,10 +146,10 @@ void dbg_RegisterState()
         printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
         printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
         printf("\n      di8  |     %03d | %02X    | %d", di8, di8, di8);
-        printf("\n       a8  |     %03d | %02X    | %d",  a8&0xFF,  a8&0xFF, a8);
-        printf("\n       b8  |     %03d | %02X    | %d",  b8,  b8,  b8);
-        printf("\n       c8  |     %03d | %02X    | %d",  c8,  c8,  c8);
-        printf("\n       d8  |     %03d | %02X    | %d",  d8,  d8,  d8);
+        printf("\n       a8  |     %03d | %02X    | %d", a8&0xFF, a8&0xFF, a8);
+        printf("\n       b8  |     %03d | %02X    | %d", b8&0xFF, b8&0xFF, b8);
+        printf("\n       c8  |     %03d | %02X    | %d", c8&0xFF, c8&0xFF, c8);
+        printf("\n       d8  |     %03d | %02X    | %d", d8&0xFF, d8&0xFF, d8);
         printf("\n           |         |       |");
         printf("\n      ip16 | %03d %03d | %02X %02X | %s", ip16>>8, ip16&0xFF, ip16>>8, ip16&0xFF, numf(ip16));
         printf("\n      sp16 | %03d %03d | %02X %02X | %s", sp16>>8, sp16&0xFF, sp16>>8, sp16&0xFF, numf(sp16));
@@ -179,10 +177,10 @@ void dbg_RegisterState()
         printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
         printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
-        printf("\n       a8  |     %03d | %02X    | %s           | %d",  a8&0xFF,  a8&0xFF, bin8( a8),  a8);
-        printf("\n       b8  |     %03d | %02X    | %s           | %d",  b8,  b8, bin8( b8),  b8);
-        printf("\n       c8  |     %03d | %02X    | %s           | %d",  c8,  c8, bin8( c8),  c8);
-        printf("\n       d8  |     %03d | %02X    | %s           | %d",  d8,  d8, bin8( d8),  d8);
+        printf("\n       a8  |     %03d | %02X    | %s           | %d", a8&0xFF, a8&0xFF, bin8(a8), a8);
+        printf("\n       b8  |     %03d | %02X    | %s           | %d", b8&0xFF, b8&0xFF, bin8(b8), b8);
+        printf("\n       c8  |     %03d | %02X    | %s           | %d", c8&0xFF, c8&0xFF, bin8(c8), c8);
+        printf("\n       d8  |     %03d | %02X    | %s           | %d", d8&0xFF, d8&0xFF, bin8(d8), d8);
         printf("\n           |         |       |                     |");
         // Вывод 16-битных регистров
         // Разделяем hex на старший и младший байт через битовые сдвиги для формата %02X,%02X
