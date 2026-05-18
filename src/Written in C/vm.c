@@ -1,13 +1,11 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
-unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT];
-unsigned char * _ip = memory_tape;
-unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
+unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // Лента памяти
+unsigned char * _ip = memory_tape; // Регистр-указатель на инструкцию
+unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1]; // Регистр-указатель на стек
 
 uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-uint8_t ip8 = 0; // (unsigned char) 8-bit's регистр-указатель на инструкцию
-uint8_t sp8 = 0; // (unsigned char) 8-bit's регистр-указатель на стек
 uint8_t dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
 uint8_t si8 = 0; // (unsigned char) 8-bit's
 uint8_t di8 = 0; // (unsigned char) 8-bit's
@@ -160,6 +158,7 @@ char * numf(long long num)
 void dbg_RegisterState()
 {
     unsigned char ip = _ip - memory_tape;
+    unsigned char sp = _sp - memory_tape;
     static unsigned short step = -1;
     printf("\n -----------\n Шаг: %d", step++);
     switch (1){
@@ -170,8 +169,8 @@ void dbg_RegisterState()
         printf("\n           |         |       |");
         printf("\n       zf  |     %03d | %02X    | %d",  zf,  zf,  zf);
         printf("\n           |         |       |");
-        printf("\n      ip8  |     %03d | %02X    | %d", ip, ip, ip);
-        printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
+        printf("\n      ip8  |     %03d | %02X    | %d", ip,  ip,  ip);
+        printf("\n      sp8  |     %03d | %02X    | %d", sp,  sp,  sp);
         printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
         printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
         printf("\n      di8  |     %03d | %02X    | %d", di8, di8, di8);
@@ -201,7 +200,7 @@ void dbg_RegisterState()
         printf("\n       zf  |     %03d | %02X    | %s           | %d",  zf,  zf, bin8( zf),  zf);
         printf("\n           |         |       |                     |");
         printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip,  ip,  bin8(ip),  ip);
-        printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
+        printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp,  sp,  bin8(sp),  sp);
         printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
         printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
