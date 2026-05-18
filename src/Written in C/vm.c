@@ -11,20 +11,20 @@ unsigned char * _di = memory_tape; // Указатель приемника.
 
 unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 unsigned char dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
-unsigned char  a8 = 0; // (unsigned char) 8-bit's регистр общего назначения
-unsigned char  b8 = 0; // (unsigned char) 8-bit's регистр общего назначения
-unsigned char  c8 = 0; // (unsigned char) 8-bit's регистр общего назначения
+unsigned char  a8 = 0;
+unsigned char  b8 = 0;
+unsigned char  c8 = 0;
 unsigned char  d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
 
 unsigned short cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
 unsigned short ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
 unsigned short sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
 unsigned short dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
-unsigned short si16 = 0; // (unsigned short) 16-bit's
-unsigned short di16 = 0; // (unsigned short) 16-bit's
-unsigned short  a16 = 0; // (unsigned short) 16-bit's регистр общего назначения
-unsigned short  b16 = 0; // (unsigned short) 16-bit's регистр общего назначения
-unsigned short  c16 = 0; // (unsigned short) 16-bit's регистр общего назначения
+unsigned short si16 = 0;
+unsigned short di16 = 0;
+unsigned short  a16 = 0;
+unsigned short  b16 = 0;
+unsigned short  c16 = 0;
 unsigned short  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
 
 unsigned char zf = 0; // Флаг нуля: 1 если результаты равны, 0 если нет
