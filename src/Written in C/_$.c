@@ -1270,8 +1270,8 @@ void _$()
     ga__opcodes[gi__opcodes++] = 0x03; ga__opcodes[gi__opcodes++] = 5; // add a8, i8 ; a8 = 20 = 15 + 5
     ga__opcodes[gi__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
-    Loader_VM();
-    Debug_Loader_VM();
+    Loader_VM(gi__opcodes);
+    Debug_Loader_VM(gi__opcodes);
     Executor_VM();
     /*
     putchar('\n');
