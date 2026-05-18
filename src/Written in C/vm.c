@@ -10,8 +10,9 @@ volatile unsigned char * _dp = memory_tape;
 volatile unsigned char * _si = memory_tape;
 volatile unsigned char * _di = memory_tape;
 
-unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 unsigned char  a8 = 0;
+
+unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 unsigned char  b8 = 0;
 unsigned char  c8 = 0;
 unsigned char  d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
@@ -268,6 +269,10 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [26] = &&_26,
         [27] = &&_27,
         [28] = &&_28,
+        [29] = &&_29,
+        [30] = &&_30,
+        [31] = &&_31,
+        [32] = &&_32,
         [29 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
@@ -359,7 +364,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     _10: // jmp i8
     {
         PRINT_OPCODE();
-        _ip += (((char) _ip[1])+2);
+        _ip += (( (char) _ip[1]) + 2);
         DISPATCH();
     }
     /*
@@ -377,27 +382,22 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         // Приводим оба операнда к знаковым 8-битным числам
         signed char op1 = (signed char) a8;
         signed char op2 = (signed char) _ip[1];
-
-        // Выставляем флаг нуля
-        zf = (op1 == op2);
-
-        // Выставляем флаг знака (1 если op1 меньше op2, то есть результат вычитания отрицательный)
-        sf = (op1 < op2);
-
+        zf = (op1 == op2); // Выставляем флаг нуля
+        sf = (op1 < op2); // Выставляем флаг знака (1 если op1 меньше op2, то есть результат вычитания отрицательный)
         _ip += 2;
         DISPATCH();
     }
     _12: // je i8
     {
         PRINT_OPCODE();
-        if (zf == 1) _ip += (((char)_ip[1])+2); // Прыгаем вперед или назад по знаковому смещению
+        if (zf == 1) _ip += (( (char) _ip[1]) + 2); // Прыгаем вперед или назад по знаковому смещению
         else _ip += 2;
         DISPATCH();
     }
     _13: // jne i8
     {
         PRINT_OPCODE();
-        if (zf == 0) _ip += (((char)_ip[1])+2); // Прыгаем вперед или назад по знаковому смещению.
+        if (zf == 0) _ip += (( (char) _ip[1]) + 2); // Прыгаем вперед или назад по знаковому смещению.
         else _ip += 2;
         DISPATCH();
     }
@@ -486,21 +486,49 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++_ip;
         DISPATCH();
     }
-    _26: // OUT string
+    _26: // jl i8 ; Меньше (sf == 1)
+    {
+        PRINT_OPCODE();
+        if (sf == 1) _ip += (( (char) _ip[1]) + 2);
+        else _ip += 2;
+        DISPATCH();
+    }
+    _27: // jle i8 ; Меньше или равно (sf == 1 или zf == 1)
+    {
+        PRINT_OPCODE();
+        if (sf == 1 || zf == 1) _ip += (( (char) _ip[1]) + 2);
+        else _ip += 2;
+        DISPATCH();
+    }
+    _28: // jg i8 ; Больше (sf == 0 и zf == 0)
+    {
+        PRINT_OPCODE();
+        if (sf == 0 && zf == 0) _ip += (( (char) _ip[1]) + 2);
+        else _ip += 2;
+        DISPATCH();
+    }
+    _29: // jge i8 ; Больше или равно (sf == 0)
+    {
+        PRINT_OPCODE();
+        if (sf == 0) _ip += (( (char) _ip[1]) + 2);
+        else _ip += 2;
+        DISPATCH();
+    }
+    _30: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _27: // OUT number
+    _31: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _28: // OUT char
+    _32: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
