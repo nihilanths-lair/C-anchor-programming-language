@@ -7,41 +7,23 @@ unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1]; // Указат
 unsigned char * _si = memory_tape; // Указатель источника.
 unsigned char * _di = memory_tape; // Указатель приемника.
 
-uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-uint8_t dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
-uint8_t  a8 = 0; // (unsigned char) 8-bit's регистр общего назначения
-uint8_t  b8 = 0; // (unsigned char) 8-bit's регистр общего назначения
-uint8_t  c8 = 0; // (unsigned char) 8-bit's регистр общего назначения
-uint8_t  d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
+unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
+unsigned char dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
+unsigned char  a8 = 0; // (unsigned char) 8-bit's регистр общего назначения
+unsigned char  b8 = 0; // (unsigned char) 8-bit's регистр общего назначения
+unsigned char  c8 = 0; // (unsigned char) 8-bit's регистр общего назначения
+unsigned char  d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
 
-uint16_t cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
-uint16_t ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
-uint16_t sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
-uint16_t dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
-uint16_t si16 = 0; // (unsigned short) 16-bit's
-uint16_t di16 = 0; // (unsigned short) 16-bit's
-uint16_t  a16 = 0; // (unsigned short) 16-bit's регистр общего назначения
-uint16_t  b16 = 0; // (unsigned short) 16-bit's регистр общего назначения
-uint16_t  c16 = 0; // (unsigned short) 16-bit's регистр общего назначения
-uint16_t  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
-
-uint32_t cs24 = 0; // (unsigned int) 32-bit's сегментный-регистр
-uint32_t ip24 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
-uint32_t sp24 = 0; // (unsigned int) 32-bit's регистр-указатель на стек
-int32_t   a24 = 0; //          (int) 32-bit's регистр общего назначения
-int32_t   b24 = 0; //          (int) 32-bit's регистр общего назначения
-
-uint32_t cs32 = 0; // (unsigned int) 32-bit's сегментный-регистр
-uint32_t ip32 = 0; // (unsigned int) 32-bit's регистр-указатель на инструкцию
-uint32_t sp32 = 0; // (unsigned int) 32-bit's регистр-указатель на стек
-int32_t   a32 = 0; //          (int) 32-bit's регистр общего назначения
-int32_t   b32 = 0; //          (int) 32-bit's регистр общего назначения
-
-uint64_t cs64 = 0; // (unsigned long long) 64-bit's сегментный-регистр
-uint64_t ip64 = 0; // (unsigned long long) 64-bit's регистр-указатель на инструкцию
-uint64_t sp64 = 0; // (unsigned long long) 64-bit's регистр-указатель на стек
-int64_t   a64 = 0; //          (long long) 64-bit's регистр общего назначения
-int64_t   b64 = 0; //          (long long) 64-bit's регистр общего назначения
+unsigned short cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
+unsigned short ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
+unsigned short sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
+unsigned short dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
+unsigned short si16 = 0; // (unsigned short) 16-bit's
+unsigned short di16 = 0; // (unsigned short) 16-bit's
+unsigned short  a16 = 0; // (unsigned short) 16-bit's регистр общего назначения
+unsigned short  b16 = 0; // (unsigned short) 16-bit's регистр общего назначения
+unsigned short  c16 = 0; // (unsigned short) 16-bit's регистр общего назначения
+unsigned short  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
 
 unsigned char zf = 0; // Флаг нуля: 1 если результаты равны, 0 если нет
 //
@@ -52,12 +34,6 @@ int8_t src8 = 0; // char
 
 int16_t rcv16 = 0; // short
 int16_t src16 = 0; // short
-
-int32_t rcv32 = 0; // int
-int32_t src32 = 0; // int
-
-int64_t rcv64 = 0; // long long
-int64_t src64 = 0; // long long
 //-/
 void Loader_VM()
 {
