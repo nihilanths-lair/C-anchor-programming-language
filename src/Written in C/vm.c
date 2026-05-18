@@ -28,6 +28,7 @@ unsigned short  c16 = 0;
 unsigned short  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
 
 unsigned char zf = 0; // Флаг нуля: 1 если результаты равны, 0 если нет
+unsigned char sf = 0; // 1 если результат CMP отрицательный (a8 < i8)
 //
 /// Для экспериментов ///
 int8_t * _rcv8 = "Hello";
@@ -139,6 +140,7 @@ void dbg_RegisterState()
         printf("\n  REGISTER |   DEC   |  HEX  | TEXT");
         printf("\n           |         |       |");
         printf("\n       zf  |     %03d | %02X    | %d",  zf,  zf,  zf);
+        printf("\n       sf  |     %03d | %02X    | %d",  sf,  sf,  sf);
         printf("\n           |         |       |");
         printf("\n      ip8  |     %03d | %02X    | %d", ip8, ip8, ip8);
         printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
@@ -169,6 +171,7 @@ void dbg_RegisterState()
         printf("\n           |         |       |                     |");
         // Вывод 8-битных регистров
         printf("\n       zf  |     %03d | %02X    | %s           | %d",  zf,  zf, bin8( zf),  zf);
+        printf("\n       sf  |     %03d | %02X    | %s           | %d",  sf,  sf, bin8( sf),  sf);
         printf("\n           |         |       |                     |");
         printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip8, ip8, bin8(ip8), ip8);
         printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
@@ -359,10 +362,28 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip += (((char) _ip[1])+2);
         DISPATCH();
     }
+    /*
     _11: // cmp a8, i8
     {
         PRINT_OPCODE();
         zf = (a8 == _ip[1]);
+        _ip += 2;
+        DISPATCH();
+    }
+    */
+    _11: // cmp a8, i8 ; Сравнение с поддержкой знака
+    {
+        PRINT_OPCODE();
+        // Приводим оба операнда к знаковым 8-битным числам
+        signed char op1 = (signed char) a8;
+        signed char op2 = (signed char) _ip[1];
+
+        // Выставляем флаг нуля
+        zf = (op1 == op2);
+
+        // Выставляем флаг знака (1 если op1 меньше op2, то есть результат вычитания отрицательный)
+        sf = (op1 < op2);
+
         _ip += 2;
         DISPATCH();
     }
