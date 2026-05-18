@@ -1,11 +1,9 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
-unsigned char ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // плоская модель памяти, стек находится здесь же (заполнение с конца)
-unsigned char * _ip = ga__memory_tape; // вместо gp__memory_tape = ga__memory_tape
-
-// Стек изначально указывает на самый последний байт вашей плоской памяти
-unsigned char * _sp = &ga__memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
+unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT];
+unsigned char * _ip = memory_tape;
+unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
 
 uint8_t cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
 uint8_t ip8 = 0; // (unsigned char) 8-bit's регистр-указатель на инструкцию
@@ -68,7 +66,7 @@ void Loader_VM()
     //printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
     //printf("\n    До | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
     int len = strlen(ga__opcodes);//+1
-    for (int i = 0; i < len; i++) ga__memory_tape[i] = ga__opcodes[i];
+    for (int i = 0; i < len; i++) memory_tape[i] = ga__opcodes[i];
     //printf("\n После | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
 }
 //
@@ -77,9 +75,9 @@ void Debug_Loader_VM()
     //putchar('\n');
     int len = strlen(_ip);//+1
     printf("\n Оп-код (dec):");
-    for (int i = 0; i < len; i++) printf(" %03d", ga__memory_tape[i]);
+    for (int i = 0; i < len; i++) printf(" %03d", memory_tape[i]);
     printf("\n Оп-код (hex):");
-    for (int i = 0; i < len; i++) printf("  %02X", ga__memory_tape[i]);
+    for (int i = 0; i < len; i++) printf("  %02X", memory_tape[i]);
 }
 //
 // Функция для 8-битных регистров (вывод в формате 0000:0000)
@@ -161,6 +159,7 @@ char * numf(long long num)
 //
 void dbg_RegisterState()
 {
+    unsigned char ip = _ip - memory_tape;
     static unsigned short step = -1;
     printf("\n -----------\n Шаг: %d", step++);
     switch (1){
@@ -171,7 +170,7 @@ void dbg_RegisterState()
         printf("\n           |         |       |");
         printf("\n       zf  |     %03d | %02X    | %d",  zf,  zf,  zf);
         printf("\n           |         |       |");
-        printf("\n      ip8  |     %03d | %02X    | %d", ip8, ip8, ip8);
+        printf("\n      ip8  |     %03d | %02X    | %d", ip, ip, ip);
         printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
         printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
         printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
@@ -195,7 +194,6 @@ void dbg_RegisterState()
     }
     case 1:
     {
-        unsigned char ip = _ip-ga__memory_tape;
         printf("\n ---------------------------------------------------------");
         printf("\n  REGISTER |   DEC   |  HEX  |         BIN         | TEXT");
         printf("\n           |         |       |                     |");
@@ -238,15 +236,15 @@ void dbg_MemoryState()
         {
             i2 = i*16;
             printf("\n  %3d | ", i2);
-            for (unsigned char j = 0; j < 8; j++) printf("%03d ", ga__memory_tape[i2+j]);
+            for (unsigned char j = 0; j < 8; j++) printf("%03d ", memory_tape[i2+j]);
             printf(" \t %2X | ", i2);
-            for (unsigned char j = 0; j < 8; j++) printf("%02X ", ga__memory_tape[i2+j]);
+            for (unsigned char j = 0; j < 8; j++) printf("%02X ", memory_tape[i2+j]);
 
             i2 += 8;
             printf("\n  %3d | ", i2);
-            for (unsigned char j = 8; j < 16; j++) printf("%03d ", ga__memory_tape[i2+j]);
+            for (unsigned char j = 8; j < 16; j++) printf("%03d ", memory_tape[i2+j]);
             printf(" \t %2X | ", i2);
-            for (unsigned char j = 8; j < 16; j++) printf("%02X ", ga__memory_tape[i2+j]);
+            for (unsigned char j = 8; j < 16; j++) printf("%02X ", memory_tape[i2+j]);
             //printf("\n ---------------------------------------\t------------------------------");
         }
     }
@@ -423,15 +421,15 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     {
         PRINT_OPCODE();
         // 1. Толкаем адрес возврата в стек.
-        *(--_sp) = (_ip+2) - ga__memory_tape; // _ip сейчас стоит на опкоде. Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
+        *(--_sp) = (_ip+2) - memory_tape; // _ip сейчас стоит на опкоде. Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
         // 2. Осуществляем переход.
-        _ip = ga__memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
+        _ip = memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
         DISPATCH();
     }
     _18: // 1 байт | ret ; Вернуться из процедуры
     {
         PRINT_OPCODE();
-        _ip = ga__memory_tape + *(_sp++); // Достаем индекс возврата из стека, восстанавливаем указатель хоста и сдвигаем стек вверх.
+        _ip = memory_tape + *(_sp++); // Достаем индекс возврата из стека, восстанавливаем указатель хоста и сдвигаем стек вверх.
         DISPATCH();
     }
     _76h: // OUT string
