@@ -275,7 +275,9 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [34] = &&_34,
         [35] = &&_35,
         [36] = &&_36,
-        [37 ... 255] = &&_255
+        [37] = &&_37,
+        [38] = &&_38,
+        [39 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -300,76 +302,92 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         printf("\n Stopped..");
         return;
     }
-    _1: // mov a8, i8
+    //-/ MOV //
+    _1: // mov a8, i8 ; переместить из памяти i8 в регистр a8
     {
         PRINT_OPCODE();
         a8 = _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _2: // mov i8, b8
+    _2: // mov b8, i8 ; переместить из памяти i8 в регистр b8
     {
         PRINT_OPCODE();
         b8 = _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _3: // add a8, i8
+    _3: // mov a8, b8 ; переместить из регистра b8 в регистр a8
+    {
+        PRINT_OPCODE();
+        a8 = b8;
+        ++_ip;
+        DISPATCH();
+    }
+    _4: // mov b8, a8 ; переместить из регистра a8 в регистр b8
+    {
+        PRINT_OPCODE();
+        b8 = a8;
+        ++_ip;
+        DISPATCH();
+    }
+    // MOV //-/
+    _5: // add a8, i8
     {
         PRINT_OPCODE();
         a8 += _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _4: // sub a8, i8
+    _6: // sub a8, i8
     {
         PRINT_OPCODE();
         a8 -= _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _5: // mul a8, i8
+    _7: // mul a8, i8
     {
         PRINT_OPCODE();
         a8 *= _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _6: // div a8, i8
+    _8: // div a8, i8
     {
         PRINT_OPCODE();
         a8 /= _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _7: // rsub a8, i8
+    _9: // rsub a8, i8
     {
         PRINT_OPCODE();
         a8 = _ip[1] - a8;
         _ip += 2;
         DISPATCH();
     }
-    _8: // rdiv a8, i8
+    _10: // rdiv a8, i8
     {
         PRINT_OPCODE();
         a8 = _ip[1] / a8;
         _ip += 2;
         DISPATCH();
     }
-    _9: // neg a8
+    _11: // neg a8
     {
         PRINT_OPCODE();
         a8 = -a8;
         ++_ip;
         DISPATCH();
     }
-    _10: // jmp i8
+    _12: // jmp i8
     {
         PRINT_OPCODE();
         _ip += (( (char) _ip[1]) + 2);
         DISPATCH();
     }
-    _11: // cmp a8, i8
+    _13: // cmp a8, i8
     {
         PRINT_OPCODE();
         zf = (a8 == (signed char) _ip[1]);
@@ -377,49 +395,49 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip += 2;
         DISPATCH();
     }
-    _12: // je i8
+    _14: // je i8
     {
         PRINT_OPCODE();
         if (zf == 1) _ip += (( (char) _ip[1]) + 2); // Прыгаем вперед или назад по знаковому смещению
         else _ip += 2;
         DISPATCH();
     }
-    _13: // jne i8
+    _15: // jne i8
     {
         PRINT_OPCODE();
         if (zf == 0) _ip += (( (char) _ip[1]) + 2); // Прыгаем вперед или назад по знаковому смещению.
         else _ip += 2;
         DISPATCH();
     }
-    _14: // inc a8 ; Инкремент регистра a8.
+    _16: // inc a8 ; Инкремент регистра a8.
     {
         PRINT_OPCODE();
         ++a8;
         ++_ip;
         DISPATCH();
     }
-    _15: // dec a8 ; Декремент регистра a8.
+    _17: // dec a8 ; Декремент регистра a8.
     {
         PRINT_OPCODE();
         --a8;
         ++_ip;
         DISPATCH();
     }
-    _16: // push a8 ; Положить в стек значение взятое из регистра a8.
+    _18: // push a8 ; Положить в стек значение взятое из регистра a8.
     {
         PRINT_OPCODE();
         *(--_sp) = a8;
         ++_ip;
         DISPATCH();
     }
-    _17: // pop a8 ; Снять со стека значение и поместить в регистр a8.
+    _19: // pop a8 ; Снять со стека значение и поместить в регистр a8.
     {
         PRINT_OPCODE();
         a8 = *(_sp++);
         ++_ip;
         DISPATCH();
     }
-    _18: // 2 байта | call i8 ; Вызов процедуры.
+    _20: // 2 байта | call i8 ; Вызов процедуры.
     {
         PRINT_OPCODE();
         // 1. Толкаем адрес возврата в стек.
@@ -428,125 +446,125 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip = memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
         DISPATCH();
     }
-    _19: // 1 байт | ret ; Возврат из процедуры.
+    _21: // 1 байт | ret ; Возврат из процедуры.
     {
         PRINT_OPCODE();
         _ip = memory_tape + *(_sp++); // Достаем индекс возврата из стека, восстанавливаем указатель хоста и сдвигаем стек вверх.
         DISPATCH();
     }
-    _20: // mov si, i8
+    _22: // mov si, i8
     {
         PRINT_OPCODE();
         _si = memory_tape + _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _21: // mov di, i8
+    _23: // mov di, i8
     {
         PRINT_OPCODE();
         _di = memory_tape + _ip[1];
         _ip += 2;
         DISPATCH();
     }
-    _22: // 1 байт | ld a8, [si] ; Косвенное чтение (a8 = *_si).
+    _24: // 1 байт | ld a8, [si] ; Косвенное чтение (a8 = *_si).
     {
         PRINT_OPCODE();
         a8 = *_si; // Мгновенное разыменование без сложения баз памяти!
         ++_ip;
         DISPATCH();
     }
-    _23: // 1 байт | st [di], a8 ; Косвенная запись (*_di = a8).
+    _25: // 1 байт | st [di], a8 ; Косвенная запись (*_di = a8).
     {
         PRINT_OPCODE();
         *_di = a8; // Мгновенная запись
         ++_ip;
         DISPATCH();
     }
-    _24: // 1 байт | inc si ; Продвижение источника (для строк/буферов).
+    _26: // 1 байт | inc si ; Продвижение источника (для строк/буферов).
     {
         PRINT_OPCODE();
         ++_si;
         ++_ip;
         DISPATCH();
     }
-    _25: // 1 байт | inc di ; Продвижение приемника.
+    _27: // 1 байт | inc di ; Продвижение приемника.
     {
         PRINT_OPCODE();
         ++_di;
         ++_ip;
         DISPATCH();
     }
-    _26: // jl i8 ; Меньше (sf == 1)
+    _28: // jl i8 ; Меньше (sf == 1)
     {
         PRINT_OPCODE();
         if (sf == 1) _ip += (( (char) _ip[1]) + 2);
         else _ip += 2;
         DISPATCH();
     }
-    _27: // jle i8 ; Меньше или равно (sf == 1 или zf == 1)
+    _29: // jle i8 ; Меньше или равно (sf == 1 или zf == 1)
     {
         PRINT_OPCODE();
         if (sf == 1 || zf == 1) _ip += (( (char) _ip[1]) + 2);
         else _ip += 2;
         DISPATCH();
     }
-    _28: // jg i8 ; Больше (sf == 0 и zf == 0)
+    _30: // jg i8 ; Больше (sf == 0 и zf == 0)
     {
         PRINT_OPCODE();
         if (sf == 0 && zf == 0) _ip += (( (char) _ip[1]) + 2);
         else _ip += 2;
         DISPATCH();
     }
-    _29: // jge i8 ; Больше или равно (sf == 0)
+    _31: // jge i8 ; Больше или равно (sf == 0)
     {
         PRINT_OPCODE();
         if (sf == 0) _ip += (( (char) _ip[1]) + 2);
         else _ip += 2;
         DISPATCH();
     }
-    _30: // 1 байт | mov bp, sp ; Зафиксировать базу кадра функции
+    _32: // 1 байт | mov bp, sp ; Зафиксировать базу кадра функции
     {
         PRINT_OPCODE();
         _bp = _sp;
         ++_ip;
         DISPATCH();
     }
-    _31: // 1 байт | mov sp, bp ; Освободить локальные переменные перед RET
+    _33: // 1 байт | mov sp, bp ; Освободить локальные переменные перед RET
     {
         PRINT_OPCODE();
         _sp = _bp;
         ++_ip;
         DISPATCH();
     }
-    _32: // 1 байт | push bp ; Сохранить старый якорь на стеке
+    _34: // 1 байт | push bp ; Сохранить старый якорь на стеке
     {
         PRINT_OPCODE();
         *(--_sp) = _bp - memory_tape; // Стек хранит байты, поэтому переводим указатель хоста в индекс
         ++_ip;
         DISPATCH();
     }
-    _33: // 1 байт | pop bp ; Восстановить старый якорь
+    _35: // 1 байт | pop bp ; Восстановить старый якорь
     {
         PRINT_OPCODE();
         _bp = memory_tape + *(_sp++);
         ++_ip;
         DISPATCH();
     }
-    _34: // OUT string
+    _36: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _35: // OUT number
+    _37: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _36: // OUT char
+    _38: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
