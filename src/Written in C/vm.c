@@ -511,7 +511,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         ++_ip;
         DISPATCH();
     }
-    _31: // 1 байt | mov sp, bp ; Освободить локальные переменные перед RET
+    _31: // 1 байт | mov sp, bp ; Освободить локальные переменные перед RET
     {
         PRINT_OPCODE();
         _sp = _bp;
