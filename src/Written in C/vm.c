@@ -31,19 +31,13 @@ unsigned char zf = 0; // Флаг нуля: 1 если результаты ра
 //
 /// Для экспериментов ///
 int8_t * _rcv8 = "Hello";
-int8_t rcv8 = 0; // char
-int8_t src8 = 0; // char
-
-int16_t rcv16 = 0; // short
-int16_t src16 = 0; // short
+char rcv8 = 0;
+char src8 = 0;
 //-/
 void Loader_VM()
 {
-    //printf("\n    До | %03d %03d %03d = %02X %02X %02X", opcodes[0], opcodes[1], opcodes[2], opcodes[0], opcodes[1], opcodes[2]);
-    //printf("\n    До | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
-    int len = strlen(ga__opcodes);//+1
+    int len = strlen(ga__opcodes);
     for (int i = 0; i < len; i++) memory_tape[i] = ga__opcodes[i];
-    //printf("\n После | %03d %03d %03d = %02X %02X %02X", memory_tape[0], memory_tape[1], memory_tape[2], memory_tape[0], memory_tape[1], memory_tape[2]);
 }
 //
 void Debug_Loader_VM()
@@ -62,12 +56,10 @@ char * bin8(unsigned char num)
     static char sbin[9+1]; // 8 бит + 1 двоеточие + 1 нуль-терминал
     sbin[9] = '\0';
     sbin[4] = '_'; // Разделитель тетрад
-
     int pos = 8;
     for (int i = 0; i < 8; i++)
     {
         if (pos == 4) pos--; // Пропускаем позицию двоеточия
-
         sbin[pos--] = (num % 2 == 0) ? '0':'1';
         num /= 2;
     }
@@ -82,12 +74,10 @@ char * bin16(unsigned short num)
     sbin[4]  = '_'; // Разделитель тетрад
     sbin[9]  = ' ';
     sbin[14] = '_'; // Разделитель тетрад
-
     int pos = 18;
     for (int i = 0; i < 16; i++)
     {
         if (pos == 14 || pos == 9 || pos == 4) pos--; // Пропускаем разделители
-
         sbin[pos--] = (num % 2 == 0) ? '0':'1';
         num /= 2;
     }
@@ -290,9 +280,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         #define PRINT_OPCODE() 
     #endif
 
-    // Старт виртуалки
     DISPATCH();
-
     _75h: // jmp i8
     {
         PRINT_OPCODE();
