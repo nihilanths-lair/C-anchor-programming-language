@@ -3,9 +3,9 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
-unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT];
+unsigned char memory_tape[256];
 volatile unsigned char * _ip = memory_tape;
-volatile unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
+volatile unsigned char * _sp = &memory_tape[255];
 volatile unsigned char * _dp = memory_tape;
 volatile unsigned char * _si = memory_tape;
 volatile unsigned char * _di = memory_tape;
