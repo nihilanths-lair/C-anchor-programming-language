@@ -3,14 +3,14 @@
 //#define MACRO__VIRTUAL_ADDRESS (cs8 << 8) + ip8 // максимально допустимая при двух 8-ми битных регистрах
 //#define MACRO__VIRTUAL_ADDRESS (cs16 << 8) + ip16 // максимально допустимая при двух 16-ти битных регистрах
 
-unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT]; // Лента памяти.
-volatile unsigned char * _ip = memory_tape; // Указатель инструкции.
-volatile unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1]; // Указатель стека.
-volatile unsigned char * _si = memory_tape; // Указатель источника.
-volatile unsigned char * _di = memory_tape; // Указатель приемника.
+unsigned char memory_tape[MACRO__MAXIMUM_CODE_LIMIT];
+volatile unsigned char * _ip = memory_tape;
+volatile unsigned char * _sp = &memory_tape[MACRO__MAXIMUM_CODE_LIMIT-1];
+volatile unsigned char * _dp = memory_tape;
+volatile unsigned char * _si = memory_tape;
+volatile unsigned char * _di = memory_tape;
 
 unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-unsigned char dp8 = 0; // (unsigned char) 8-bit's регистр-указатель на данные
 unsigned char  a8 = 0;
 unsigned char  b8 = 0;
 unsigned char  c8 = 0;
@@ -125,10 +125,11 @@ char * numf(long long num)
 //
 void dbg_RegisterState()
 {
-    unsigned char ip8 = _ip - memory_tape;
-    unsigned char sp8 = _sp - memory_tape;
-    unsigned char si8 = _si - memory_tape;
-    unsigned char di8 = _di - memory_tape;
+    int ip8 = _ip - memory_tape;
+    int sp8 = _sp - memory_tape;
+    int dp8 = _dp - memory_tape;
+    int si8 = _si - memory_tape;
+    int di8 = _di - memory_tape;
     static unsigned short step = -1;
     printf("\n -----------\n Шаг: %d", step++);
     switch (1){
