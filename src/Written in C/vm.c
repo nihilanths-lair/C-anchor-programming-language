@@ -494,26 +494,3 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     #undef DISPATCH
     #undef PRINT_OPCODE
 }
-/*
-char * Bin()
-{
-    long long num = 4; //snum[0]-'0';
-    static char sbin[64+1]; // tetrad
-    sbin[64] = '\0';
-    // Обработка случая, если изначально был введен 0
-    if (!num) sbin[63] = '0';
-    // Цикл деления на 2
-    unsigned char pos = 63;
-    while (num > 0)
-    {
-        if (num % 2 == 0) sbin[--pos] = '0'; // Если делится без остатка
-        else sbin[--pos] = '1'; // Если есть остаток 1
-        num /= 2; // Уменьшаем число в 2 раза
-    }
-    // Указатель на начало получившейся бинарной строки
-    char * result = &sbin[pos];
-    return result; // Возвращаем бинарные данные в виде текста
-    //return atoi(result); // Возвращаем бинарные данные в виде числа
-}
-printf("\n Binary result: \"%s\".\n", result);
-*/
