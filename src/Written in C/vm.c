@@ -14,18 +14,6 @@ char b8 = 0;
 char c8 = 0;
 char d8 = 0; // (unsigned char) 8-bit's регистр общего назначения (для работы со строками, через указатель)
 
-unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
-unsigned short cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
-unsigned short ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
-unsigned short sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
-unsigned short dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
-unsigned short si16 = 0;
-unsigned short di16 = 0;
-unsigned short  a16 = 0;
-unsigned short  b16 = 0;
-unsigned short  c16 = 0;
-unsigned short  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
-
 unsigned char zf = 0; // Флаг нуля: 1 если результаты равны, 0 если нет
 unsigned char sf = 0; // 1 если результат CMP отрицательный (a8 < i8)
 //
@@ -130,6 +118,17 @@ void dbg_RegisterState()
     int dp8 = _dp - memory_tape;
     int si8 = _si - memory_tape;
     int di8 = _di - memory_tape;
+    static unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
+    static unsigned short cs16 = 0; // (unsigned short) 16-bit's сегментный-регистр
+    static unsigned short ip16 = 0; // (unsigned short) 16-bit's регистр-указатель на инструкцию
+    static unsigned short sp16 = 0; // (unsigned short) 16-bit's регистр-указатель на стек
+    static unsigned short dp16 = 0; // (unsigned short) 16-bit's регистр-указатель на данные
+    static unsigned short si16 = 0;
+    static unsigned short di16 = 0;
+    static unsigned short  a16 = 0;
+    static unsigned short  b16 = 0;
+    static unsigned short  c16 = 0;
+    static unsigned short  d16 = 0; // (unsigned short) 16-bit's регистр общего назначения (для работы со строками, через указатель)
     static unsigned short step = 0;
     printf("\n -----------\n Шаг: %d", step++);
     switch (1){
@@ -365,15 +364,6 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip += (( (char) _ip[1]) + 2);
         DISPATCH();
     }
-    /*
-    _11: // cmp a8, i8
-    {
-        PRINT_OPCODE();
-        zf = (a8 == _ip[1]);
-        _ip += 2;
-        DISPATCH();
-    }
-    */
     _11: // cmp a8, i8
     {
         PRINT_OPCODE();
