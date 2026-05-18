@@ -1268,6 +1268,7 @@ void _$()
     //ga__opcodes[gi__opcodes++] = 0x09;                                 // neg a8     ; a8 = 5 / меняем знак регистра a8 на противоположный
     ga__opcodes[gi__opcodes++] = 0x05; ga__opcodes[gi__opcodes++] = 3; // mul a8, i8 ; a8 = 15 = 5 * 3
     ga__opcodes[gi__opcodes++] = 0x03; ga__opcodes[gi__opcodes++] = 5; // add a8, i8 ; a8 = 20 = 15 + 5
+    //ga__opcodes[gi__opcodes++] = 0x01; ga__opcodes[gi__opcodes++] = -1;
     ga__opcodes[gi__opcodes] = 0x79; // Останова
     //Debug_Loader_VM();
     Loader_VM(gi__opcodes);
