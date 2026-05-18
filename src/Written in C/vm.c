@@ -6,7 +6,8 @@
 unsigned char memory_tape[256];
 volatile unsigned char * _ip = memory_tape;
 volatile unsigned char * _sp = &memory_tape[255];
-volatile unsigned char * _dp = memory_tape;
+volatile unsigned char * _bp = memory_tape; // Базовый указатель кадра стека
+//volatile unsigned char * _dp = memory_tape;
 volatile unsigned char * _si = memory_tape;
 volatile unsigned char * _di = memory_tape;
 char a8 = 0;
@@ -115,7 +116,7 @@ void dbg_RegisterState()
 {
     int ip8 = _ip - memory_tape;
     int sp8 = _sp - memory_tape;
-    int dp8 = _dp - memory_tape;
+    int bp8 = _bp - memory_tape;
     int si8 = _si - memory_tape;
     int di8 = _di - memory_tape;
     static unsigned char cs8 = 0; // (unsigned char) 8-bit's сегментный-регистр
@@ -142,7 +143,7 @@ void dbg_RegisterState()
         printf("\n           |         |       |");
         printf("\n      ip8  |     %03d | %02X    | %d", ip8, ip8, ip8);
         printf("\n      sp8  |     %03d | %02X    | %d", sp8, sp8, sp8);
-        printf("\n      dp8  |     %03d | %02X    | %d", dp8, dp8, dp8);
+        printf("\n      bp8  |     %03d | %02X    | %d", bp8, bp8, bp8);
         printf("\n      si8  |     %03d | %02X    | %d", si8, si8, si8);
         printf("\n      di8  |     %03d | %02X    | %d", di8, di8, di8);
         printf("\n       a8  |     %03d | %02X    | %d", a8&0xFF, a8&0xFF, a8);
@@ -173,7 +174,7 @@ void dbg_RegisterState()
         printf("\n           |         |       |                     |");
         printf("\n      ip8  |     %03d | %02X    | %s           | %d", ip8, ip8, bin8(ip8), ip8);
         printf("\n      sp8  |     %03d | %02X    | %s           | %d", sp8, sp8, bin8(sp8), sp8);
-        printf("\n      dp8  |     %03d | %02X    | %s           | %d", dp8, dp8, bin8(dp8), dp8);
+        printf("\n      bp8  |     %03d | %02X    | %s           | %d", bp8, bp8, bin8(bp8), bp8);
         printf("\n      si8  |     %03d | %02X    | %s           | %d", si8, si8, bin8(si8), si8);
         printf("\n      di8  |     %03d | %02X    | %s           | %d", di8, di8, bin8(di8), di8);
         printf("\n       a8  |     %03d | %02X    | %s           | %d", a8&0xFF, a8&0xFF, bin8(a8), a8);
