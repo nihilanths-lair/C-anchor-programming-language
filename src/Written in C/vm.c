@@ -341,6 +341,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         DISPATCH();
     }
     // Перессылка данных /-//
+
     //-/ Арифметико-логические операции //
     _5: // add a8, i8
     {
@@ -363,10 +364,12 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip += 2;
         DISPATCH();
     }
-    _8: // div a8, i8
+    _8: // 2 байта | div a8, i8 ; Разделить a8 на константу i8
     {
         PRINT_OPCODE();
-        a8 /= _ip[1];
+        unsigned char divisor = _ip[1];
+        divisor |= (divisor == 0);
+        a8 /= divisor;
         _ip += 2;
         DISPATCH();
     }
@@ -377,10 +380,12 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         _ip += 2;
         DISPATCH();
     }
-    _10: // rdiv a8, i8
+    _10: // 2 байта | rdiv a8, i8 ; Обратное деление: a8 = i8 / a8
     {
         PRINT_OPCODE();
-        a8 = _ip[1] / a8;
+        unsigned char divisor = a8;
+        divisor |= (divisor == 0);
+        a8 = _ip[1] / divisor;
         _ip += 2;
         DISPATCH();
     }
@@ -629,16 +634,12 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     // Логические сдвиги битов /-//
 
     //-/ Остаток от деления //
-    _44: // mod a8, i8 ; взять остаток от деления a8 на константу i8
+    _44: // 2 байта | mod a8, i8 ; Взять остаток от деления a8 на константу i8
     {
         PRINT_OPCODE();
-        // Защита от деления на ноль (чтобы эмулятор хоста не крашнулся)
-        if (_ip[1] != 0) a8 %= _ip[1];
-        else
-        {
-            printf("\n Ошибка ВМ: Деление на ноль в операции взятия от остатка!");
-            return;
-        }
+        unsigned char divisor = _ip[1];
+        divisor |= (divisor == 0);
+        a8 %= divisor;
         _ip += 2;
         DISPATCH();
     }
