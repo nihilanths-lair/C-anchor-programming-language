@@ -1,82 +1,84 @@
 // ============================================================================
-// Спецификация Архитектуры Виртуальной Машины (ISA)
-// Формат макроса: MACRO__IDENTIFICATION_OPKODES(имя, номер, размер, "описание")
+// Спецификация Архитектуры Виртуальной Машины (ISA) — ЦИФРОВЫЕ МЕТКИ
+// Формат макроса: MACRO__IDENTIFICATION_OPKODES(номер_метки, номер_опкода, размер, "описание")
 // ============================================================================
 
 // --- СИСТЕМНЫЕ И БЕЗУСЛОВНЫЕ ПЕРЕХОДЫ ---
-MACRO__IDENTIFICATION_OPKODES(HLT,      0,  1, "HLT: Останова процессора")
-MACRO__IDENTIFICATION_OPKODES(JMP_I8,  12,  2, "JMP i8: Безусловный знаковый прыжок")
-MACRO__IDENTIFICATION_OPKODES(CALL_I8, 20,  2, "CALL i8: Вызов процедуры")
-MACRO__IDENTIFICATION_OPKODES(RET,     21,  1, "RET: Возврат из процедуры")
+MACRO__IDENTIFICATION_OPKODES(0,   0,   1, "HLT: Останова процессора")
+MACRO__IDENTIFICATION_OPKODES(12,  12,  2, "JMP i8: Безусловный знаковый прыжок")
+MACRO__IDENTIFICATION_OPKODES(20,  20,  2, "CALL i8: Вызов процедуры")
+MACRO__IDENTIFICATION_OPKODES(21,  21,  1, "RET: Возврат из процедуры")
 
 // --- ПЕРЕСЫЛКА ДАННЫХ И РЕГИСТРЫ ---
-MACRO__IDENTIFICATION_OPKODES(MOV_A_I8,  1,  2, "MOV a8, i8: Загрузить константу в a8")
-MACRO__IDENTIFICATION_OPKODES(MOV_B_I8,  2,  2, "MOV b8, i8: Загрузить константу в b8")
-MACRO__IDENTIFICATION_OPKODES(MOV_A_B,   3,  1, "MOV a8, b8: Скопировать b8 в a8")
-MACRO__IDENTIFICATION_OPKODES(MOV_B_A,   4,  1, "MOV b8, a8: Скопировать a8 в b8")
+MACRO__IDENTIFICATION_OPKODES(1,   1,   2, "MOV a8, i8: Загрузить константу в a8")
+MACRO__IDENTIFICATION_OPKODES(2,   2,   2, "MOV b8, i8: Загрузить константу в b8")
+MACRO__IDENTIFICATION_OPKODES(3,   3,   1, "MOV a8, b8: Скопировать b8 в a8")
+MACRO__IDENTIFICATION_OPKODES(4,   4,   1, "MOV b8, a8: Скопировать a8 в b8")
 
 // --- БИНАРНАЯ И УНАРНАЯ АРИФМЕТИКА (КОНСТАНТЫ) ---
-MACRO__IDENTIFICATION_OPKODES(ADD_A_I8,  5,  2, "ADD a8, i8: Сложить a8 с константой")
-MACRO__IDENTIFICATION_OPKODES(SUB_A_I8,  6,  2, "SUB a8, i8: Вычесть константу из a8")
-MACRO__IDENTIFICATION_OPKODES(MUL_A_I8,  7,  2, "MUL a8, i8: Умножить a8 на константу")
-MACRO__IDENTIFICATION_OPKODES(DIV_A_I8,  8,  2, "DIV a8, i8: Разделить a8 на константу (с защитой)")
-MACRO__IDENTIFICATION_OPKODES(RSUB_A_I8, 9,  2, "RSUB a8, i8: Обратное вычитание (i8 - a8)")
-MACRO__IDENTIFICATION_OPKODES(RDIV_A_I8,10,  2, "RDIV a8, i8: Обратное деление (i8 / a8 с защитой)")
-MACRO__IDENTIFICATION_OPKODES(NEG_A8,   11,  1, "NEG a8: Поменять знак аккумулятора")
+MACRO__IDENTIFICATION_OPKODES(5,   5,   2, "ADD a8, i8: Сложить a8 с константой")
+MACRO__IDENTIFICATION_OPKODES(6,   6,   2, "SUB a8, i8: Вычесть константу из a8")
+MACRO__IDENTIFICATION_OPKODES(7,   7,   2, "MUL a8, i8: Умножить a8 на константу")
+MACRO__IDENTIFICATION_OPKODES(8,   8,   2, "DIV a8, i8: Разделить a8 на константу (с защитой)")
+MACRO__IDENTIFICATION_OPKODES(9,   9,   2, "RSUB a8, i8: Обратное вычитание (i8 - a8)")
+MACRO__IDENTIFICATION_OPKODES(10,  10,  2, "RDIV a8, i8: Обратное деление (i8 / a8 с защитой)")
+MACRO__IDENTIFICATION_OPKODES(11,  11,  1, "NEG a8: Поменять знак аккумулятора")
 
 // --- ЛОГИКА СРАВНЕНИЯ И МОДИФИКАЦИЯ РЕГИСТРОВ ---
-MACRO__IDENTIFICATION_OPKODES(CMP_A_I8, 13,  2, "CMP a8, i8: Знаковое сравнение a8 с константой")
-MACRO__IDENTIFICATION_OPKODES(INC_A8,   16,  1, "INC a8: Инкремент регистра a8")
-MACRO__IDENTIFICATION_OPKODES(DEC_A8,   17,  1, "DEC a8: Декремент регистра a8")
+MACRO__IDENTIFICATION_OPKODES(13,  13,  2, "CMP a8, i8: Знаковое сравнение a8 с константой")
+MACRO__IDENTIFICATION_OPKODES(16,  16,  1, "INC a8: Инкремент регистра a8")
+MACRO__IDENTIFICATION_OPKODES(17,  17,  1, "DEC a8: Декремент регистра a8")
 
 // --- УПРАВЛЕНИЕ СТЕКОМ ---
-MACRO__IDENTIFICATION_OPKODES(PUSH_A8,  18,  1, "PUSH a8: Положить a8 в стек")
-MACRO__IDENTIFICATION_OPKODES(POP_A8,   19,  1, "POP a8: Снять из стека в a8")
+MACRO__IDENTIFICATION_OPKODES(18,  18,  1, "PUSH a8: Положить a8 в стек")
+MACRO__IDENTIFICATION_OPKODES(19,  19,  1, "POP a8: Снять из стека в a8")
 
 // --- ИНДЕКСНАЯ АДРЕСАЦИЯ И КОСВЕННАЯ РАБОТА С ПАМЯТЬЮ ---
-MACRO__IDENTIFICATION_OPKODES(MOV_SI_I8,22,  2, "MOV si, i8: Направить SI на адрес памяти")
-MACRO__IDENTIFICATION_OPKODES(MOV_DI_I8,23,  2, "MOV di, i8: Направить DI на адрес памяти")
-MACRO__IDENTIFICATION_OPKODES(LD_A_MSI, 24,  1, "LD a8, [si]: Косвенное чтение из источника")
-MACRO__IDENTIFICATION_OPKODES(ST_MDI_A, 25,  1, "ST [di], a8: Косвенная запись в приемник")
-MACRO__IDENTIFICATION_OPKODES(INC_SI,   26,  1, "INC si: Продвижение источника вперед")
-MACRO__IDENTIFICATION_OPKODES(INC_DI,   27,  1, "INC di: Продвижение接收цы вперед")
+MACRO__IDENTIFICATION_OPKODES(22,  22,  2, "MOV si, i8: Направить SI на адрес памяти")
+MACRO__IDENTIFICATION_OPKODES(23,  23,  2, "MOV di, i8: Направить DI на адрес памяти")
+MACRO__IDENTIFICATION_OPKODES(24,  24,  1, "LD a8, [si]: Косвенное чтение из источника")
+MACRO__IDENTIFICATION_OPKODES(25,  25,  1, "ST [di], a8: Косвенная запись в приемник")
+MACRO__IDENTIFICATION_OPKODES(26,  26,  1, "INC si: Продвижение источника вперед")
+MACRO__IDENTIFICATION_OPKODES(27,  27,  1, "INC di: Продвижение приемника вперед")
 
 // --- УСЛОВНЫЕ ПЕРЕХОДЫ (ВЕТВЛЕНИЕ) ---
-MACRO__IDENTIFICATION_OPKODES(JE_I8,   14,  2, "JE i8: Прыжок, если равно (ZF == 1)")
-MACRO__IDENTIFICATION_OPKODES(JNE_I8,  15,  2, "JNE i8: Прыжок, если не равно (ZF == 0)")
-MACRO__IDENTIFICATION_OPKODES(JL_I8,   28,  2, "JL i8: Прыжок, если меньше (SF == 1)")
-MACRO__IDENTIFICATION_OPKODES(JLE_I8,  29,  2, "JLE i8: Прыжок, если меньше или равно")
-MACRO__IDENTIFICATION_OPKODES(JG_I8,   30,  2, "JG i8: Прыжок, если больше (SF == 0 и ZF == 0)")
-MACRO__IDENTIFICATION_OPKODES(JGE_I8,  31,  2, "JGE i8: Прыжок, если больше или равно (SF == 0)")
+MACRO__IDENTIFICATION_OPKODES(14,  14,  2, "JE i8: Прыжок, если равно (ZF == 1)")
+MACRO__IDENTIFICATION_OPKODES(15,  15,  2, "JNE i8: Прыжок, если не равно (ZF == 0)")
+MACRO__IDENTIFICATION_OPKODES(28,  28,  2, "JL i8: Прыжок, если меньше (SF == 1)")
+MACRO__IDENTIFICATION_OPKODES(29,  29,  2, "JLE i8: Прыжок, если меньше или равно")
+MACRO__IDENTIFICATION_OPKODES(30,  30,  2, "JG i8: Прыжок, если больше (SF == 0 и ZF == 0)")
+MACRO__IDENTIFICATION_OPKODES(31,  31,  2, "JGE i8: Прыжок, если больше или равно (SF == 0)")
 
 // --- УПРАВЛЕНИЕ КАДРОМ СТЕКА (BP) ---
-MACRO__IDENTIFICATION_OPKODES(MOV_BP_SP,32,  1, "MOV bp, sp: Зафиксировать базу кадра функции")
-MACRO__IDENTIFICATION_OPKODES(MOV_SP_BP,33,  1, "MOV sp, bp: Освободить локальные переменные")
-MACRO__IDENTIFICATION_OPKODES(PUSH_BP,  34,  1, "PUSH bp: Сохранить старый якорь кадра")
-MACRO__IDENTIFICATION_OPKODES(POP_BP,   35,  1, "POP bp: Восстановить старый якорь кадра")
+MACRO__IDENTIFICATION_OPKODES(32,  32,  1, "MOV bp, sp: Зафиксировать базу кадра функции")
+MACRO__IDENTIFICATION_OPKODES(33,  33,  1, "MOV sp, bp: Освободить локальные переменные")
+MACRO__IDENTIFICATION_OPKODES(34,  34,  1, "PUSH bp: Сохранить старый якорь кадра")
+MACRO__IDENTIFICATION_OPKODES(35,  35,  1, "POP bp: Восстановить старый якорь кадра")
 
 // --- ПОБИТОВАЯ ЛОГИКА ---
-MACRO__IDENTIFICATION_OPKODES(AND_A_I8, 36,  2, "AND a8, i8: Побитовое И с константой")
-MACRO__IDENTIFICATION_OPKODES(OR_A_I8,  37,  2, "OR a8, i8: Побитовое ИЛИ с константой")
-MACRO__IDENTIFICATION_OPKODES(XOR_A_I8, 38,  2, "XOR a8, i8: Побитовое исключающее ИЛИ")
-MACRO__IDENTIFICATION_OPKODES(NOT_A8,   39,  1, "NOT a8: Побитовая инверсия аккумулятора")
+MACRO__IDENTIFICATION_OPKODES(36,  36,  2, "AND a8, i8: Побитовое И с константой")
+MACRO__IDENTIFICATION_OPKODES(37,  37,  2, "OR a8, i8: Побитовое ИЛИ с константой")
+MACRO__IDENTIFICATION_OPKODES(38,  38,  2, "XOR a8, i8: Побитовое исключающее ИЛИ")
+MACRO__IDENTIFICATION_OPKODES(39,  39,  1, "NOT a8: Побитовая инверсия аккумулятора")
 
 // --- ПРЯМОЙ ДОСТУП К ПАМЯТИ (ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ) ---
-MACRO__IDENTIFICATION_OPKODES(LD_A_M,   40,  2, "LD a8, [i8]: Загрузить в a8 из ячейки памяти i8")
-MACRO__IDENTIFICATION_OPKODES(ST_M_A,   41,  2, "ST [i8], a8: Записать из a8 в ячейку памяти i8")
+MACRO__IDENTIFICATION_OPKODES(40,  40,  2, "LD a8, [i8]: Загрузить в a8 из ячейки памяти i8")
+MACRO__IDENTIFICATION_OPKODES(41,  41,  2, "ST [i8], a8: Записать из a8 в ячейку памяти i8")
 
 // --- БИТОВЫЕ СДВИГИ И ОСТАТОК ---
-MACRO__IDENTIFICATION_OPKODES(SHL_A_I8, 42,  2, "SHL a8, i8: Логический сдвиг влево (умножение на 2^i8)")
-MACRO__IDENTIFICATION_OPKODES(SHR_A_I8, 43,  2, "SHR a8, i8: Логический сдвиг вправо (деление на 2^i8)")
-MACRO__IDENTIFICATION_OPKODES(MOD_A_I8, 44,  2, "MOD a8, i8: Взять остаток от деления a8 на i8")
+MACRO__IDENTIFICATION_OPKODES(42,  42,  2, "SHL a8, i8: Логический сдвиг влево (умножение на 2^i8)")
+MACRO__IDENTIFICATION_OPKODES(43,  43,  2, "SHR a8, i8: Логический сдвиг вправо (деление на 2^i8)")
+MACRO__IDENTIFICATION_OPKODES(44,  44,  2, "MOD a8, i8: Взять остаток от деления a8 на i8")
 
 // --- РЕГИСТРОВАЯ АРИФМЕТИКА (МЕЖДУ РЕГИСТРАМИ) ---
-MACRO__IDENTIFICATION_OPKODES(ADD_A_B,  45,  1, "ADD a8, b8: Сложить значения регистров")
-MACRO__IDENTIFICATION_OPKODES(SUB_A_B,  46,  1, "SUB a8, b8: Вычесть b8 из аккумулятора a8")
-MACRO__IDENTIFICATION_OPKODES(MUL_A_B,  47,  1, "MUL a8, b8: Перемножить регистры a8 и b8")
-MACRO__IDENTIFICATION_OPKODES(DIV_A_B,  48,  1, "DIV a8, b8: Разделить a8 на b8 (с защитой)")
+MACRO__IDENTIFICATION_OPKODES(45,  45,  1, "ADD a8, b8: Сложить значения регистров")
+MACRO__IDENTIFICATION_OPKODES(46,  46,  1, "SUB a8, b8: Вычесть b8 из аккумулятора a8")
+MACRO__IDENTIFICATION_OPKODES(47,  47,  1, "MUL a8, b8: Перемножить регистры a8 и b8")
+MACRO__IDENTIFICATION_OPKODES(48,  48,  1, "DIV a8, b8: Разделить a8 на b8 (с защитой)")
 
 // --- СИСТЕМНЫЙ ВВОД-ВЫВОД ---
-MACRO__IDENTIFICATION_OPKODES(OUT_STR,  49,  1, "OUT string: Печать строки на консоль")
-MACRO__IDENTIFICATION_OPKODES(OUT_NUM,  50,  1, "OUT number: Печать регистра a8 как числа")
-MACRO__IDENTIFICATION_OPKODES(OUT_CHR,  51,  1, "OUT char: Печать регистра a8 как символа")
+MACRO__IDENTIFICATION_OPKODES(49,  49,  1, "OUT string: Печать строки на консоль")
+MACRO__IDENTIFICATION_OPKODES(50,  50,  1, "OUT number: Печать регистра a8 как числа")
+MACRO__IDENTIFICATION_OPKODES(51,  51,  1, "OUT char: Печать регистра a8 как символа")
+
+// - EOF - //
