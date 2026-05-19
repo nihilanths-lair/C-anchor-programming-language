@@ -1,70 +1,70 @@
 // ============================================================================
 // Спецификация Архитектуры Виртуальной Машины (ISA)
-// Формат макроса: DEF_OP(имя_метки, номер_опкода, размер_в_байтах, "описание")
+// Формат макроса: MACRO__IDENTIFICATION_OPKODES(имя_метки, номер_опкода, размер_в_байтах, "описание")
 // ============================================================================
 
 // --- ГРУППА 0: СИСТЕМНЫЕ И БЕЗУСЛОВНЫЕ ПЕРЕХОДЫ ---
-DEF_OP(0,   0,   1, "HLT: Остановка процессора")
-DEF_OP(10,  10,  2, "JMP i8: Безусловный знаковый прыжок")
-DEF_OP(18,  18,  2, "CALL i8: Вызов подпрограммы")
-DEF_OP(19,  19,  1, "RET: Возврат из подпрограммы")
+MACRO__IDENTIFICATION_OPKODES(0,   0,   1, "HLT: Остановка процессора")
+MACRO__IDENTIFICATION_OPKODES(10,  10,  2, "JMP i8: Безусловный знаковый прыжок")
+MACRO__IDENTIFICATION_OPKODES(18,  18,  2, "CALL i8: Вызов подпрограммы")
+MACRO__IDENTIFICATION_OPKODES(19,  19,  1, "RET: Возврат из подпрограммы")
 
 // --- ГРУППА 1: УПРАВЛЕНИЕ ДАННЫМИ (MOV) ---
-DEF_OP(1,   1,   2, "MOV a8, i8: Загрузка константы в a8")
-DEF_OP(2,   2,   2, "MOV b8, i8: Загрузка константы в b8")
-DEF_OP(3,   3,   1, "MOV a8, b8: Скопировать b8 в a8")
-DEF_OP(4,   4,   1, "MOV b8, a8: Скопировать a8 в b8")
+MACRO__IDENTIFICATION_OPKODES(1,   1,   2, "MOV a8, i8: Загрузка константы в a8")
+MACRO__IDENTIFICATION_OPKODES(2,   2,   2, "MOV b8, i8: Загрузка константы в b8")
+MACRO__IDENTIFICATION_OPKODES(3,   3,   1, "MOV a8, b8: Скопировать b8 в a8")
+MACRO__IDENTIFICATION_OPKODES(4,   4,   1, "MOV b8, a8: Скопировать a8 в b8")
 
 // --- ГРУППА 2: БИНАРНАЯ И УНАРНАЯ АРИФМЕТИКА (КОНСТАНТЫ) ---
-DEF_OP(5,   5,   2, "ADD a8, i8: Сложить a8 с константой")
-DEF_OP(6,   6,   2, "SUB a8, i8: Вычесть из a8 константу")
-DEF_OP(7,   7,   2, "MUL a8, i8: Перемножить a8 на константу")
-DEF_OP(8,   8,   2, "DIV a8, i8: Разделить a8 на константу (с защитой)")
-DEF_OP(9,   9,   2, "RSUB a8, i8: Обратное вычитание (i8 - a8)")
-DEF_OP(255, 255, 2, "RDIV a8, i8: Обратное деление (i8 / a8 с защитой)") // Перенесен в конец
-DEF_OP(254, 254, 1, "NEG a8: Смена знака аккумулятора")                  // Перенесен в конец
+MACRO__IDENTIFICATION_OPKODES(5,   5,   2, "ADD a8, i8: Сложить a8 с константой")
+MACRO__IDENTIFICATION_OPKODES(6,   6,   2, "SUB a8, i8: Вычесть из a8 константу")
+MACRO__IDENTIFICATION_OPKODES(7,   7,   2, "MUL a8, i8: Перемножить a8 на константу")
+MACRO__IDENTIFICATION_OPKODES(8,   8,   2, "DIV a8, i8: Разделить a8 на константу (с защитой)")
+MACRO__IDENTIFICATION_OPKODES(9,   9,   2, "RSUB a8, i8: Обратное вычитание (i8 - a8)")
+MACRO__IDENTIFICATION_OPKODES(255, 255, 2, "RDIV a8, i8: Обратное деление (i8 / a8 с защитой)") // Перенесен в конец
+MACRO__IDENTIFICATION_OPKODES(254, 254, 1, "NEG a8: Смена знака аккумулятора")                  // Перенесен в конец
 
 // --- ГРУППА 3: СРАВНЕНИЕ И УСЛОВНЫЕ ПЕРЕХОДЫ (ВЕТВЛЕНИЕ) ---
-DEF_OP(11,  11,  2, "CMP a8, i8: Знаковое сравнение аккумулятора с i8")
-DEF_OP(12,  12,  2, "JE i8: Прыжок, если равно (ZF == 1)")
-DEF_OP(13,  13,  2, "JNE i8: Прыжок, если НЕ равно (ZF == 0)")
-DEF_OP(26,  26,  2, "JL i8: Прыжок, если меньше (SF == 1)")
-DEF_OP(27,  27,  2, "JLE i8: Прыжок, если меньше-равно (SF == 1 или ZF == 1)")
-DEF_OP(28,  28,  2, "JG i8: Прыжок, если больше (SF == 0 и ZF == 0)")
-DEF_OP(29,  29,  2, "JGE i8: Прыжок, если больше-равно (SF == 0)")
+MACRO__IDENTIFICATION_OPKODES(11,  11,  2, "CMP a8, i8: Знаковое сравнение аккумулятора с i8")
+MACRO__IDENTIFICATION_OPKODES(12,  12,  2, "JE i8: Прыжок, если равно (ZF == 1)")
+MACRO__IDENTIFICATION_OPKODES(13,  13,  2, "JNE i8: Прыжок, если НЕ равно (ZF == 0)")
+MACRO__IDENTIFICATION_OPKODES(26,  26,  2, "JL i8: Прыжок, если меньше (SF == 1)")
+MACRO__IDENTIFICATION_OPKODES(27,  27,  2, "JLE i8: Прыжок, если меньше-равно (SF == 1 или ZF == 1)")
+MACRO__IDENTIFICATION_OPKODES(28,  28,  2, "JG i8: Прыжок, если больше (SF == 0 и ZF == 0)")
+MACRO__IDENTIFICATION_OPKODES(29,  29,  2, "JGE i8: Прыжок, если больше-равно (SF == 0)")
 
 // --- ГРУППА 4: ИНКРЕМЕНТЫ И ДЕКРЕМЕНТЫ ---
-DEF_OP(14,  14,  1, "INC a8: Увеличить a8 на 1")
-DEF_OP(15,  15,  1, "DEC a8: Уменьшить a8 на 1")
-DEF_OP(24,  24,  1, "INC si: Сдвинуть указатель источника вперед")
-DEF_OP(25,  25,  1, "INC di: Сдвинуть указатель приемника вперед")
+MACRO__IDENTIFICATION_OPKODES(14,  14,  1, "INC a8: Увеличить a8 на 1")
+MACRO__IDENTIFICATION_OPKODES(15,  15,  1, "DEC a8: Уменьшить a8 на 1")
+MACRO__IDENTIFICATION_OPKODES(24,  24,  1, "INC si: Сдвинуть указатель источника вперед")
+MACRO__IDENTIFICATION_OPKODES(25,  25,  1, "INC di: Сдвинуть указатель приемника вперед")
 
 // --- ГРУППА 5: РАБОТА СО СТЕКОМ ---
-DEF_OP(16,  16,  1, "PUSH a8: Положить аккумулятор в стек")
-DEF_OP(17,  17,  1, "POP a8: Достать из стека в аккумулятор")
-DEF_OP(32,  32,  1, "PUSH bp: Сохранить базу кадра стека")
-DEF_OP(33,  33,  1, "POP bp: Восстановить базу кадра стека")
-DEF_OP(30,  30,  1, "MOV bp, sp: Зафиксировать базу кадра функции")
-DEF_OP(31,  31,  1, "MOV sp, bp: Освободить кадр перед RET")
+MACRO__IDENTIFICATION_OPKODES(16,  16,  1, "PUSH a8: Положить аккумулятор в стек")
+MACRO__IDENTIFICATION_OPKODES(17,  17,  1, "POP a8: Достать из стека в аккумулятор")
+MACRO__IDENTIFICATION_OPKODES(32,  32,  1, "PUSH bp: Сохранить базу кадра стека")
+MACRO__IDENTIFICATION_OPKODES(33,  33,  1, "POP bp: Восстановить базу кадра стека")
+MACRO__IDENTIFICATION_OPKODES(30,  30,  1, "MOV bp, sp: Зафиксировать базу кадра функции")
+MACRO__IDENTIFICATION_OPKODES(31,  31,  1, "MOV sp, bp: Освободить кадр перед RET")
 
 // --- ГРУППА 6: АДРЕСАЦИЯ И РАБОТА С ПАМЯТЬЮ ---
-DEF_OP(20,  20,  2, "MOV si, i8: Направить SI на адрес памяти")
-DEF_OP(21,  21,  2, "MOV di, i8: Направить DI на адрес памяти")
-DEF_OP(22,  22,  1, "LD a8, [si]: Косвенное чтение из источника")
-DEF_OP(23,  23,  1, "ST [di], a8: Косвенная запись в приемник")
+MACRO__IDENTIFICATION_OPKODES(20,  20,  2, "MOV si, i8: Направить SI на адрес памяти")
+MACRO__IDENTIFICATION_OPKODES(21,  21,  2, "MOV di, i8: Направить DI на адрес памяти")
+MACRO__IDENTIFICATION_OPKODES(22,  22,  1, "LD a8, [si]: Косвенное чтение из источника")
+MACRO__IDENTIFICATION_OPKODES(23,  23,  1, "ST [di], a8: Косвенная запись в приемник")
 
 // --- ГРУППА 7: ПОБИТОВАЯ ЛОГИКА И СДВИГИ ---
-DEF_OP(36,  36,  2, "AND a8, i8: Побитовое И с константой")
-DEF_OP(37,  37,  2, "OR a8, i8: Побитовое ИЛИ с константой")
-DEF_OP(38,  38,  2, "XOR a8, i8: Побитовое исключающее ИЛИ")
-DEF_OP(39,  39,  1, "NOT a8: Побитовая инверсия аккумулятора")
-DEF_OP(40,  40,  2, "SHL a8, i8: Логический сдвиг влево")
-DEF_OP(41,  41,  2, "SHR a8, i8: Логический сдвиг вправо")
-DEF_OP(42,  42,  2, "MOD a8, i8: Взять остаток от деления (с защитой)")
+MACRO__IDENTIFICATION_OPKODES(36,  36,  2, "AND a8, i8: Побитовое И с константой")
+MACRO__IDENTIFICATION_OPKODES(37,  37,  2, "OR a8, i8: Побитовое ИЛИ с константой")
+MACRO__IDENTIFICATION_OPKODES(38,  38,  2, "XOR a8, i8: Побитовое исключающее ИЛИ")
+MACRO__IDENTIFICATION_OPKODES(39,  39,  1, "NOT a8: Побитовая инверсия аккумулятора")
+MACRO__IDENTIFICATION_OPKODES(40,  40,  2, "SHL a8, i8: Логический сдвиг влево")
+MACRO__IDENTIFICATION_OPKODES(41,  41,  2, "SHR a8, i8: Логический сдвиг вправо")
+MACRO__IDENTIFICATION_OPKODES(42,  42,  2, "MOD a8, i8: Взять остаток от деления (с защитой)")
 
 // --- ГРУППА 8: СИСТЕМНЫЙ ВВОД-ВЫВОД (ОТЛАДКА) ---
-DEF_OP(34,  34,  1, "OUT_STR: Вывести отладочную строку")
-DEF_OP(35,  35,  1, "OUT_NUM: Вывести значение a8 как число")
-DEF_OP(36,  36,  1, "OUT_CHR: Вывести значение a8 как символ")
+MACRO__IDENTIFICATION_OPKODES(34,  34,  1, "OUT_STR: Вывести отладочную строку")
+MACRO__IDENTIFICATION_OPKODES(35,  35,  1, "OUT_NUM: Вывести значение a8 как число")
+MACRO__IDENTIFICATION_OPKODES(36,  36,  1, "OUT_CHR: Вывести значение a8 как символ")
 
 // - EOF - //
