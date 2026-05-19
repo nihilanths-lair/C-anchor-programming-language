@@ -285,7 +285,8 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [44] = &&_44,
         [45] = &&_45,
         [46] = &&_46,
-        [47 ... 255] = &&_255
+        [47] = &&_47,
+        [48 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -627,21 +628,37 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     }
     // Логические сдвиги битов /-//
 
-    _44: // OUT string
+    //-/ Остаток от деления //
+    _44: // mod a8, i8 ; взять остаток от деления a8 на константу i8
+    {
+        PRINT_OPCODE();
+        // Защита от деления на ноль (чтобы эмулятор хоста не крашнулся)
+        if (_ip[1] != 0) a8 %= _ip[1];
+        else
+        {
+            printf("\n Ошибка ВМ: Деление на ноль в операции взятия от остатка!");
+            return;
+        }
+        _ip += 2;
+        DISPATCH();
+    }
+    // Остаток от деления /-//
+
+    _45: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _45: // OUT number
+    _46: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _46: // OUT char
+    _47: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
