@@ -286,7 +286,11 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         [45] = &&_45,
         [46] = &&_46,
         [47] = &&_47,
-        [48 ... 255] = &&_255
+        [48] = &&_48,
+        [49] = &&_49,
+        [50] = &&_50,
+        [51] = &&_51,
+        [52 ... 255] = &&_255
     };
     // Интеллектуальный макрос диспетчеризации
     #ifdef VM_DEBUG_MODE
@@ -596,6 +600,7 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         DISPATCH();
     }
     // Логические побитовые операции /-//
+
     //-/ Прямой доступ к памяти //
     _40: // ld a8, [i8] ; Загрузить в a8 значение из ячейки памяти с адресом i8
     {
@@ -645,21 +650,54 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     }
     // Остаток от деления /-//
 
-    _45: // OUT string
+    //-/ Регистраная арифметика (1-байтовые) //
+    _45: // 1 байт | add a8, b8 ; Сложить значения регистров: a8 = a8 + b8
+    {
+        PRINT_OPCODE();
+        a8 += b8;
+        ++_ip;
+        DISPATCH();
+    }
+    _46: // 1 байт | sub a8, b8 ; Вычесть из аккумулятора: a8 = a8 - b8
+    {
+        PRINT_OPCODE();
+        a8 -= b8;
+        ++_ip;
+        DISPATCH();
+    }
+    _47: // 1 байт | mul a8, b8 ; Перемножить регистры: a8 = a8 * b8
+    {
+        PRINT_OPCODE();
+        a8 *= b8;
+        ++_ip;
+        DISPATCH();
+    }
+    _48: // 1 байт | div a8, b8 ; Разделить регистры: a8 = a8 / b8
+    {
+        PRINT_OPCODE();
+        unsigned char divisor = b8;
+        divisor |= (divisor == 0);
+        a8 /= divisor;
+        ++_ip;
+        DISPATCH();
+    }
+    // Регистровая арифметика /-//
+
+    _49: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _46: // OUT number
+    _50: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _47: // OUT char
+    _51: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
