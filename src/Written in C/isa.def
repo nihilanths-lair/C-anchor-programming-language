@@ -29,9 +29,12 @@ MACRO__IDENTIFICATION_OPKODES(10,  10,  2, "RDIV a8, i8 ; Обратное де�
 MACRO__IDENTIFICATION_OPKODES(11,  11,  1, "NEG a8      ; Поменять знак аккумулятора")
 
 // --- ЛОГИКА СРАВНЕНИЯ И МОДИФИКАЦИЯ РЕГИСТРОВ ---
-MACRO__IDENTIFICATION_OPKODES(13,  13,  2, "CMP a8, i8 ; Знаковое сравнение a8 с константой")
-MACRO__IDENTIFICATION_OPKODES(16,  16,  1, "INC a8     ; Инкремент регистра a8")
-MACRO__IDENTIFICATION_OPKODES(17,  17,  1, "DEC a8     ; Декремент регистра a8")
+MACRO__IDENTIFICATION_OPKODES(13,  13,  2, "CMP a8, i8     ; Знаковое сравнение a8 с константой")
+MACRO__IDENTIFICATION_OPKODES(51,  51,  1, "CMP a8, [si]   ; Сравнить аккумулятор с памятью по SI")
+MACRO__IDENTIFICATION_OPKODES(52,  52,  1, "CMP [si], [di] ; Аппаратное сравнение байт строк по SI и DI")
+
+MACRO__IDENTIFICATION_OPKODES(16,  16,  1, "INC a8 ; Инкремент регистра a8")
+MACRO__IDENTIFICATION_OPKODES(17,  17,  1, "DEC a8 ; Декремент регистра a8")
 
 // --- УПРАВЛЕНИЕ СТЕКОМ ---
 MACRO__IDENTIFICATION_OPKODES(18,  18,  1, "PUSH a8 ; Положить a8 в стек")
@@ -81,8 +84,8 @@ MACRO__IDENTIFICATION_OPKODES(47,  47,  1, "MUL a8, b8 ; Перемножить 
 MACRO__IDENTIFICATION_OPKODES(48,  48,  1, "DIV a8, b8 ; Разделить a8 на b8 (с защитой)")
 
 // --- СИСТЕМНЫЙ ВВОД-ВЫВОД ---
-MACRO__IDENTIFICATION_OPKODES(51,  51,  1, "OUT string ; Печать строки на консоль")
-MACRO__IDENTIFICATION_OPKODES(52,  52,  1, "OUT number ; Печать регистра a8 как числа")
-MACRO__IDENTIFICATION_OPKODES(53,  53,  1, "OUT char   ; Печать регистра a8 как символа")
+MACRO__IDENTIFICATION_OPKODES(53,  53,  1, "OUT string ; Печать строки на консоль")
+MACRO__IDENTIFICATION_OPKODES(54,  54,  1, "OUT number ; Печать регистра a8 как числа")
+MACRO__IDENTIFICATION_OPKODES(55,  55,  1, "OUT char   ; Печать регистра a8 как символа")
 
 // - EOF - //
