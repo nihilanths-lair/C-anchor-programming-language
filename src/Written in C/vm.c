@@ -657,21 +657,43 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
         DISPATCH();
     }
 
-    _51: // OUT string
+    _51: // 1 байт | cmp a8, [si] ; Сравнить регистр с памятью по указателю источника
+    {
+        PRINT_OPCODE();
+        // Приводим к знаковым char, так как наш a8 теперь знаковый
+        signed char op1 = a8;
+        signed char op2 = (signed char) (*_si);
+        zf = (op1 == op2);
+        sf = (op1 <  op2);
+        ++_ip;
+        DISPATCH();
+    }
+    _52: // 1 байт | cmp [si], [di] ; Прямое аппаратное сравнение строк (strcmp за 1 такт)
+    {
+        PRINT_OPCODE();
+        signed char op1 = (signed char) (*_si);
+        signed char op2 = (signed char) (*_di);
+        zf = (op1 == op2);
+        sf = (op1 <  op2);
+        ++_ip;
+        DISPATCH();
+    }
+
+    _53: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _52: // OUT number
+    _54: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _53: // OUT char
+    _55: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
