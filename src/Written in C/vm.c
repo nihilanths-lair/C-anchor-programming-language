@@ -202,6 +202,7 @@ void dbg_MemoryState()
     switch (0){
     case 0:
     {
+        printf("\n ---------------------------------------\t------------------------------");
         printf("\n MEMORY: DEC, HEX\n");
         unsigned char i2;
         for (unsigned char i = 0; i < 16; i++)
@@ -219,6 +220,7 @@ void dbg_MemoryState()
             for (unsigned char j = 8; j < 16; j++) printf("%02X ", memory_tape[i2+j]);
             //printf("\n ---------------------------------------\t------------------------------");
         }
+        printf("\n ---------------------------------------\t------------------------------");
     }
     case 1:
     {
@@ -233,7 +235,7 @@ void Disassembly()
 //
 // 1. Автоматически генерируем перечисление идентификаторов оп-кодов для компилятора
 enum Opcodes {
-#define MACRO__IDENTIFICATION_OPKODES(name, num, size, desc) OP_##name = num,
+#define MACRO__IDENTIFICATION_OPKODES(label, opcode, size, desc) _##label = opcode,
  #include "isa.def"
 #undef MACRO__IDENTIFICATION_OPKODES
 };
@@ -246,10 +248,10 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     // 2. Автоматически заполняем transaction_codes
     static void * transaction_codes[256] = // Монолитный статический массив
     {
-        [0 ... 255] = &&_255,
         #define MACRO__IDENTIFICATION_OPKODES(label, opcode, size, desc) [opcode] = &&_##label,
          #include "isa.def"
         #undef MACRO__IDENTIFICATION_OPKODES
+        [54 ... 255] = &&_255,
     };
     //[52 ... 255] = &&_255
     // Интеллектуальный макрос диспетчеризации
@@ -420,10 +422,8 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     _20: // call i8 ; Вызов процедуры.
     {
         PRINT_OPCODE();
-        // 1. Толкаем адрес возврата в стек.
-        *(--_sp) = (_ip+2) - memory_tape; // Следующий байт — аргумент. Инструкция возврата находится ровно через 2 байта от текущего положения.
-        // 2. Осуществляем переход.
-        _ip = memory_tape + _ip[1]; // Читаем адрес назначения из следующего байта (_ip[1]) и прибавляем к базе памяти.
+        *(--_sp) = (_ip + 2) - memory_tape;
+        _ip = memory_tape + _ip[1];
         DISPATCH();
     }
     _21: // ret ; Возврат из процедуры.
@@ -643,21 +643,35 @@ void Executor_VM() // Spin / Executor (исполнитель) / Evaluator (др
     }
     // Регистровая арифметика /-//
 
-    _49: // OUT string
+    _49: // 2 байта | jmp [i8] ; Прямой косвенный переход
+    {
+        PRINT_OPCODE();
+        _ip = memory_tape + memory_tape[_ip[1]];
+        DISPATCH();
+    }
+    _50: // 2 байта | call [i8] ; Прямой косвенный вызов
+    {
+        PRINT_OPCODE();
+        *(--_sp) = (_ip + 2) - memory_tape; // Толкаем адрес возврата в стек (ровно 2 байта от начала опкода)
+        _ip = memory_tape + memory_tape[_ip[1]]; // Осуществляем переход напрямую через вложенную адресацию
+        DISPATCH();
+    }
+
+    _51: // OUT string
     {
         PRINT_OPCODE();
         printf("%s", _rcv8);
         ++_ip;
         DISPATCH();
     }
-    _50: // OUT number
+    _52: // OUT number
     {
         PRINT_OPCODE();
         printf("%d", a8);
         ++_ip;
         DISPATCH();
     }
-    _51: // OUT char
+    _53: // OUT char
     {
         PRINT_OPCODE();
         putchar(a8);
