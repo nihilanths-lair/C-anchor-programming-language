@@ -9,6 +9,7 @@
 #define TOK_ID    2
 #define TOK_NUM   3
 #define TOK_OP    4
+#define TOK_DEC   5  // Новый токен для оператора --
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
@@ -61,7 +62,16 @@ void next_token()
         return;
     }
 
-    // 4. Разбираем операторы (=, +, {, }, (, ))
+    // 4. Разбираем операторы и знаки
+    if (*src_ptr == '-' && *(src_ptr + 1) == '-')
+    {
+        tok_text[0] = '-'; tok_text[1] = '-'; tok_text[2] = '\0';
+        tok_type = TOK_DEC;
+        src_ptr += 2; // Шагаем сразу через два символа
+        return;
+    }
+
+    // Все остальные одиночные символы (=, +, {, }, (, ))
     tok_text[0] = *src_ptr;
     tok_text[1] = '\0';
     tok_type = TOK_OP;
@@ -90,11 +100,20 @@ void parse_assignment()
 {
     char var_name[64];
     strcpy(var_name, tok_text); // Запомнили имя переменной
-    next_token(); // Шагаем к '='
+    next_token(); // Шагаем дальше
 
+    // ПРОВЕРКА: Если встретили оператор декремента x--
+    if (tok_type == TOK_DEC)
+    {
+        printf("    %s--;\n", var_name); // ГЕНЕРАЦИЯ Си-кода
+        next_token(); // Переходим к следующей команде
+        return;
+    }
+
+    // Если это не декремент, значит должно быть обычное присваивание через '='
     if (tok_type != TOK_OP || tok_text[0] != '=')
     {
-        printf("// Ошибка синтаксиса: Ожидался знак '='\n");
+        printf("// Ошибка синтаксиса: Ожидался знак '=' или '--'\n");
         return;
     }
     next_token(); // Шагаем к числу
@@ -104,10 +123,9 @@ void parse_assignment()
         printf("// Ошибка синтаксиса: Ожидалось число\n");
         return;
     }
-
-    // ГЕНЕРАЦИЯ: Сразу выводим Си-строку
+    // ГЕНЕРАЦИЯ: Обычное присваивание
     printf("    %s = %d;\n", var_name, tok_value);
-    next_token(); // Переходим к следующему токену
+    next_token();
 }
 
 // Разбор цикла вида: while x { ... }
@@ -148,7 +166,7 @@ int main()
     const char *code = 
      "x = 5 "
      "while x { "
-     "    y = 10 "
+     "    x-- "
      "}"
     ;
     src_ptr = code;
