@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <locale.h>
 
-// Константы типов токенов (в Pawn это были бы дефайны)
+// Константы типов токенов
 #define TOK_EOF   0
 #define TOK_WHILE 1
 #define TOK_ID    2
 #define TOK_NUM   3
 #define TOK_OP    4
-#define TOK_DEC   5  // Новый токен для оператора --
+#define TOK_DEC   5
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
