@@ -68,30 +68,104 @@ void next_token()
     src_ptr++;
 }
 
+// Прототипы функций, чтобы Си не ругался на порядок их объявления
+void parse_statements();
+void parse_assignment();
+void parse_while();
+
+// Функция разбора блока команд (внутри фигурных скобок или до конца файла)
+void parse_statements()
+{
+    // Крутим цикл, пока не встретим закрывающую скобку или конец текста
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
+    {
+        if (tok_type == TOK_WHILE) { parse_while(); } 
+        else if (tok_type == TOK_ID) { parse_assignment(); } 
+        else { next_token(); } // Если встретили что-то непонятное (например, случайную точку с запятой), просто пропускаем
+    }
+}
+
+// Разбор присваивания вида: x = 42
+void parse_assignment()
+{
+    char var_name[64];
+    strcpy(var_name, tok_text); // Запомнили имя переменной
+    next_token(); // Шагаем к '='
+
+    if (tok_type != TOK_OP || tok_text[0] != '=')
+    {
+        printf("// Ошибка синтаксиса: Ожидался знак '='\n");
+        return;
+    }
+    next_token(); // Шагаем к числу
+
+    if (tok_type != TOK_NUM)
+    {
+        printf("// Ошибка синтаксиса: Ожидалось число\n");
+        return;
+    }
+
+    // ГЕНЕРАЦИЯ: Сразу выводим Си-строку
+    printf("    %s = %d;\n", var_name, tok_value);
+    next_token(); // Переходим к следующему токену
+}
+
+// Разбор цикла вида: while x { ... }
+void parse_while()
+{
+    next_token(); // Пропускаем само слово "while"
+    if (tok_type != TOK_ID)
+    {
+        printf("// Ошибка синтаксиса: Ожидалось условие (имя переменной)\n");
+        return;
+    }
+    // ГЕНЕРАЦИЯ: Пишем начало си-шного цикла с нашим условием
+    printf("    while (%s) {\n", tok_text);
+    next_token(); // Шагаем к открывающей скобке '{'
+
+    if (tok_type != TOK_OP || tok_text[0] != '{')
+    {
+        printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
+        return;
+    }
+    next_token(); // Пропускаем '{' и заходим внутрь цикла
+    parse_statements(); // Рекурсивно парсим все команды внутри тела цикла
+
+    if (tok_type != TOK_OP || tok_text[0] != '}')
+    {
+        printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
+        return;
+    }
+    // ГЕНЕРАЦИЯ: Закрываем цикл в Си
+    printf("    }\n");
+    next_token(); // Пропускаем '}'
+}
+
 int main()
 {
     setlocale(0, "");
-
-    // Наш подопытный исходный код (Мини-Си)
-    const char *code = "while x = 42";
-    
-    // Инициализируем указатель лексера на начало строки
+    // Первая подопытная программа на DSL, имеющая чистый синтаксис!
+    const char *code = 
+     "x = 5 "
+     "while x { "
+     "    y = 10 "
+     "}"
+    ;
     src_ptr = code;
-    
-    printf("\n Разбор строки: \"%s\"\n", code);
-    
-    // Запускаем цикл, пока лексер не встретит конец файла (TOK_EOF)
-    next_token();
-    while (tok_type != TOK_EOF)
-    {
-        if (tok_type == TOK_WHILE) { printf("\n Токен: КЛЮЧЕВОЕ СЛОВО [while]"); } 
-        else if (tok_type == TOK_ID) { printf("\n Токен: ИДЕНТИФИКАТОР (имя) [%s]", tok_text); } 
-        else if (tok_type == TOK_NUM) { printf("\n Токен: ЧИСЛО [%d]\n", tok_value); } 
-        else if (tok_type == TOK_OP) { printf("\n Токен: ОПЕРАТОР/ЗНАК [%s]", tok_text); }
-        
-        // Просим лексер выдать следующий токен
-        next_token();
-    }
-    printf("\n Разбор успешно завершен!\n");
+
+    // Выводим каркас будущего Си-файла
+    printf("\n #include <stdio.h>\n");
+    printf("\n int main()");
+    printf("\n {");
+    printf("\n    // Наша спартанская память");
+    printf("\n    int x = 0;");
+    printf("\n    int y = 0;\n");
+
+    next_token();       // Заряжаем первый токен в лексер
+    parse_statements(); // Запускаем парсер
+
+    printf("\n    return 0;");
+    printf("\n }\n");
+
     return 0;
 }
