@@ -11,7 +11,9 @@
 #define TOK_NUM   3
 #define TOK_OP    4
 #define TOK_DEC   5
-#define TOK_IF    6
+#define TOK_IF    6  // Уникальный номер для if
+#define TOK_EQ    7  // Уникальный номер для ==
+#define TOK_NEQ   8  // Уникальный номер для !=
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
@@ -73,6 +75,22 @@ void next_token()
         src_ptr += 2; // Шагаем сразу через два символа
         return;
     }
+    // ПРОВЕРКА НА ОПЕРАТОР ==
+    if (*src_ptr == '=' && *(src_ptr + 1) == '=')
+    {
+        tok_text[0] = '='; tok_text[1] = '='; tok_text[2] = '\0';
+        tok_type = TOK_EQ;
+        src_ptr += 2;
+        return;
+    }
+    // ПРОВЕРКА НА ОПЕРАТОР !=
+    if (*src_ptr == '!' && *(src_ptr + 1) == '=')
+    {
+        tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
+        tok_type = TOK_NEQ;
+        src_ptr += 2;
+        return;
+    }
     // Все остальные одиночные символы (=, +, {, }, (, ))
     tok_text[0] = *src_ptr;
     tok_text[1] = '\0';
@@ -81,47 +99,132 @@ void next_token()
 }
 
 // Прототипы функций, чтобы Си не ругался на порядок их объявления
+void parse_memory_store();
 void parse_statements();
 void parse_assignment();
 void parse_while();
 void parse_if(); // Прототип перед parse_statements
 
+// Разбор записи в память вида: [индекс] = значение
+void parse_memory_store()
+{
+    next_token(); // Пропускаем открывающую '['
+    
+    char index_var[64];
+    int is_num_idx = 0;
+    int num_idx_val = 0;
+    
+    if (tok_type == TOK_NUM)
+    {
+        is_num_idx = 1;
+        num_idx_val = tok_value;
+    }
+    else if (tok_type == TOK_ID)
+    {
+        strcpy(index_var, tok_text);
+    }
+    else
+    {
+        printf("// Ошибка синтаксиса: Ожидался индекс внутри '[' ']' \n");
+        return;
+    }
+    
+    next_token(); // Шагаем к закрывающей ']'
+    if (tok_type != TOK_OP || tok_text[0] != ']')
+    {
+        printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка ']'\n");
+        return;
+    }
+    
+    next_token(); // Шагаем к '='
+    if (tok_type != TOK_OP || tok_text[0] != '=')
+    {
+        printf("// Ошибка синтаксиса: Ожидался знак '='\n");
+        return;
+    }
+    
+    next_token(); // Шагаем к тому, что присваиваем
+    
+    print_indent();
+    if (is_num_idx) { printf("__[%d] = ", num_idx_val); }
+    else { printf("__[%s] = ", index_var); }
+    
+    // Что именно присваиваем (число или переменную)
+    if (tok_type == TOK_NUM) { printf("%d;\n", tok_value); }
+    else if (tok_type == TOK_ID) { printf("%s;\n", tok_text); }
+    else { printf("0; // Ошибка: неверное значение\n"); }
+    
+    next_token();
+}
+
 // Функция разбора блока команд (внутри фигурных скобок или до конца файла)
 void parse_statements()
 {
-    // Крутим цикл, пока не встретим закрывающую скобку или конец текста
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
         if (tok_type == TOK_WHILE) { parse_while(); } 
-        else if (tok_type == TOK_IF) { parse_if(); } // Ловим наш сахарный IF
-        else if (tok_type == TOK_ID) { parse_assignment(); } 
+        else if (tok_type == TOK_IF) { parse_if(); } 
+        else if (tok_type == TOK_ID) { parse_assignment(); }
+        else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); } // Ловим запись [idx] = ...
         else { next_token(); } 
     }
 }
 
-// Разбор "сахарного" условия: if x { ... } -> превращается в одноразовый while со скрытым флагом
+// Разбор "сахарного" условия: if x == 5 { ... } -> превращается в одноразовый while со скрытым флагом
 void parse_if()
 {
     next_token(); // Пропускаем "if"
     if (tok_type != TOK_ID)
     {
-        printf("// Ошибка синтаксиса: Ожидалось условие\n");
+        printf("// Ошибка синтаксиса: Ожидалась переменная слева в условии\n");
         return;
     }
-    // Запоминаем оригинальное имя переменной условия (её мы портить НЕ будем)
-    char cond_var[64];
-    strcpy(cond_var, tok_text);
+    
+    char left_var[64];
+    strcpy(left_var, tok_text);
+    
+    next_token(); // Шагаем к оператору сравнения (== или !=)
+    
+    char op_str[4];
+    if (tok_type == TOK_EQ) { strcpy(op_str, "=="); }
+    else if (tok_type == TOK_NEQ) { strcpy(op_str, "!="); }
+    else
+    {
+        printf("// Ошибка синтаксиса: Ожидался оператор == или !=\n");
+        return;
+    }
+    
+    next_token(); // Шагаем к значению справа (число или переменная)
+    
+    char right_val[64];
+    if (tok_type == TOK_NUM)
+    {
+        sprintf(right_val, "%d", tok_value);
+    }
+    else if (tok_type == TOK_ID)
+    {
+        strcpy(right_val, tok_text);
+    }
+    else
+    {
+        printf("// Ошибка синтаксиса: Справа в условии должно быть число или переменная\n");
+        return;
+    }
+    
     // Генерируем уникальный номер флага для этого конкретного if
     int current_if_id = if_counter;
-    if_counter++; // Сдвигаем счетчик для следующего if
-    // 1. Создаем скрытый флаг в Си и присваиваем ему значение нашего условия
+    if_counter++; 
+    
+    // 1. Создаем скрытый флаг в Си и записываем туда результат сравнения!
     print_indent();
-    printf("int __flag_%d = %s;\n", current_if_id, cond_var);
+    printf("int __flag_%d = (%s %s %s);\n", current_if_id, left_var, op_str, right_val);
+    
     // 2. Запускаем цикл while по нашему флагу
     print_indent(); 
     printf("while (__flag_%d)\n", current_if_id); 
     print_indent(); 
     printf("{\n");
+    
     next_token(); // Шагаем к '{'
     if (tok_type != TOK_OP || tok_text[0] != '{')
     {
@@ -129,12 +232,15 @@ void parse_if()
         return;
     }
     next_token(); // Заходим внутрь тела if
+    
     indent_level++; 
     parse_statements(); // Парсим внутренности 
-    // 3. МАГИЯ ДЕСУГАРИНГА: Перед выходом гасим скрытый флаг, а не оригинальную переменную!
+    
+    // 3. МАГИЯ ДЕСУГАРИНГА: Перед выходом гасим флаг
     print_indent();
     printf("__flag_%d = 0;\n", current_if_id);
     indent_level--; 
+    
     if (tok_type != TOK_OP || tok_text[0] != '}')
     {
         printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
@@ -151,57 +257,35 @@ void parse_assignment()
     char var_name[64];
     strcpy(var_name, tok_text);
     next_token(); // Шагаем к следующему токену за именем
+    
     // Сценарий 1: Работа со скобками (Вызов или Объявление функции)
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
         next_token(); // Пропускаем '('
-        // Переменные для проверки аргументов
         int has_arg = 0;
         int arg_num = 0;
         char arg_id[64] = {0};
-        if (tok_type == TOK_NUM)
-        {
-            has_arg = 1;
-            arg_num = tok_value;
-            next_token();
-        }
-        else if (tok_type == TOK_ID)
-        {
-            has_arg = 2;
-            strcpy(arg_id, tok_text);
-            next_token();
-        }
-        if (tok_type != TOK_OP || tok_text[0] != ')')
-        {
-            printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка ')'\n");
-            return;
-        }
-        next_token(); // Шагаем за закрывающую скобку ')'
-        // ПРОВЕРКА: Если дальше идет открывающая скобка '{' — это ОБЪЯВЛЕНИЕ функции!
+        if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
+        else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
+        
+        if (tok_type != TOK_OP || tok_text[0] != ')') { printf("// Ошибка синтаксиса\n"); return; }
+        next_token(); 
+        
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
-            // Наш уровень отступа сбрасывается в 0, так как функция глобальная
             indent_level = 0; 
-            // Если пользователь объявил main, переименовываем для Си в c_main
             if (strcmp(var_name, "main") == 0) { printf("void __main()\n"); }
             else { printf("void %s()\n", var_name); }
             printf("{\n");
-            next_token(); // Пропускаем '{' и заходим в тело функции
-            indent_level = 1; // Внутри функции отступ равен 1
-            // Парсим внутренности функции. Они напечатаются внутри тела
+            next_token(); 
+            indent_level = 1; 
             parse_statements();
-            if (tok_type != TOK_OP || tok_text[0] != '}')
-            {
-                printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}' в конце функции\n");
-                return;
-            }
-            printf("}\n\n"); // Закрываем нашу функцию в Си
-            next_token(); // Пропускаем '}'
+            if (tok_type != TOK_OP || tok_text[0] != '}') { printf("// Ошибка\n"); return; }
+            printf("}\n\n"); 
+            next_token(); 
             return;
         }
-        // Если дальше НЕ скобка '{' — это обычный ВЫЗОВ функции
         print_indent();
-        // Если пользователь вызывает main(), подменяем имя на c_main()
         if (strcmp(var_name, "main") == 0) { printf("__main("); }
         else { printf("%s(", var_name); }
         if (has_arg == 1) printf("%d", arg_num);
@@ -209,6 +293,7 @@ void parse_assignment()
         printf(");\n");
         return;
     }
+    
     // Сценарий 2: Декремент (x--)
     if (tok_type == TOK_DEC)
     {
@@ -217,52 +302,110 @@ void parse_assignment()
         next_token();
         return;
     }
-    // Сценарий 3: Обычное присваивание числа (x = 42)
-    if (tok_type != TOK_OP || tok_text[0] != '=')
+    
+    // Сценарий 3: Присваивание переменной (x = 42 или x = [0])
+    if (tok_type != TOK_OP || tok_text[0] != '=') { printf("// Ошибка\n"); return; }
+    next_token(); // Шагаем за '='
+    
+    // Новая магия: чтение из памяти вида x = [0] или x = [y]
+    if (tok_type == TOK_OP && tok_text[0] == '[')
     {
-        printf("// Ошибка синтаксиса: Ожидался знак '=', '--' или '('\n");
+        next_token(); // Пропускаем '['
+        print_indent();
+        if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
+        else if (tok_type == TOK_ID) { printf("%s = __[%s];\n", var_name, tok_text); }
+        
+        next_token(); // Шагаем к ']'
+        next_token(); // Пропускаем ']'
         return;
     }
-    next_token();
-    if (tok_type != TOK_NUM)
-    {
-        printf("// Ошибка синтаксиса: Ожидалось число\n");
-        return;
-    }
+    
+    // Старое доброе присваивание константного числа x = 42
+    if (tok_type != TOK_NUM) { printf("// Ошибка\n"); return; }
     print_indent();
     printf("%s = %d;\n", var_name, tok_value);
     next_token();
 }
 
-// Разбор цикла вида: while x { ... }
+// Разбор цикла вида: while x == 5 { ... } или while x { ... }
 void parse_while()
 {
     next_token(); // Пропускаем "while"
     if (tok_type != TOK_ID)
     {
-        printf("// Ошибка синтаксиса: Ожидалось условие\n");
+        printf("// Ошибка синтаксиса: Ожидалась переменная в условии цикла\n");
         return;
     }
-    print_indent(); // Отступ для самого ключевого слова while
-    printf("while (%s)\n", tok_text);
-    print_indent(); // Отступ для открывающей скобки на отдельной строке
+    
+    char left_var[64];
+    strcpy(left_var, tok_text);
+    
+    next_token(); // Шагаем дальше, чтобы проверить, есть ли сравнение
+    
+    char op_str[8] = "";
+    char right_val[64] = "";
+    int is_comparison = 0;
+    
+    // Если обнаружили оператор сравнения
+    if (tok_type == TOK_EQ || tok_type == TOK_NEQ)
+    {
+        is_comparison = 1;
+        if (tok_type == TOK_EQ) { strcpy(op_str, "=="); }
+        else { strcpy(op_str, "!="); }
+        
+        next_token(); // Шагаем к правому значению условия
+        
+        if (tok_type == TOK_NUM)
+        {
+            sprintf(right_val, "%d", tok_value);
+        }
+        else if (tok_type == TOK_ID)
+        {
+            strcpy(right_val, tok_text);
+        }
+        else
+        {
+            printf("// Ошибка синтаксиса: Справа в условии цикла должно быть число или переменная\n");
+            return;
+        }
+        next_token(); // Шагаем к следующему токену (ожидаем '{')
+    }
+    
+    // ГЕНЕРАЦИЯ Си-кода для цикла
+    print_indent(); 
+    if (is_comparison)
+    {
+        printf("while (%s %s %s)\n", left_var, op_str, right_val);
+    }
+    else
+    {
+        printf("while (%s)\n", left_var);
+    }
+    
+    print_indent(); 
     printf("{\n");
-    next_token(); // Шагаем к '{'
+    
+    // Проверяем открывающую скобку цикла
     if (tok_type != TOK_OP || tok_text[0] != '{')
     {
         printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
         return;
     }
-    next_token(); // Заходим внутрь цикла
-    indent_level++; // Магия: увеличиваем уровень отступа для внутренностей цикла!
-    parse_statements(); // Парсим внутренности (они напечатаются со смещением +1 таб)
-    indent_level--; // Возвращаем уровень отступа назад
+    
+    next_token(); // Заходим внутрь тела цикла
+    
+    indent_level++; 
+    parse_statements(); // Рекурсивно разбираем команды
+    indent_level--; 
+    
+    // Проверяем закрывающую скобку цикла
     if (tok_type != TOK_OP || tok_text[0] != '}')
     {
         printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
         return;
     }
-    print_indent(); // Отступ для закрывающей скобки на отдельной строке
+    
+    print_indent(); 
     printf("}\n");
     next_token(); // Пропускаем '}'
 }
@@ -305,9 +448,8 @@ int main(int argc, char *argv[])
     printf("#include <stdio.h>\n");
     printf("#include <locale.h>\n\n");
     printf("// Глобальная спартанская память языка C$\n");
-    printf("int x = 0;\n");
-    printf("int y = 0;\n");
-    printf("int z = 0;\n\n");
+    printf("int __[100000]; // Единая лента памяти на 100k ячеек\n");
+    printf("int x = 0, y = 0, z = 0;\n\n");
     next_token(); // Заряжаем первый токен из файла
     // 8. Запускаем парсер. Он разберет функции на глобальном уровне
     parse_statements();
