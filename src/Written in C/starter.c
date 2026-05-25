@@ -11,6 +11,7 @@
 #define TOK_NUM   3
 #define TOK_OP    4
 #define TOK_DEC   5
+#define TOK_IF    6
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
@@ -29,14 +30,12 @@ void next_token()
 {
     // 1. Пропускаем пробелы
     while (*src_ptr != '\0' && isspace(*src_ptr)) { src_ptr++; }
-
     // Если дошли до конца текста
     if (*src_ptr == '\0')
     {
         tok_type = TOK_EOF;
         return;
     }
-
     // 2. Разбираем числа
     if (isdigit(*src_ptr))
     {
@@ -49,7 +48,6 @@ void next_token()
         tok_type = TOK_NUM;
         return;
     }
-
     // 3. Разбираем имена переменных и ключевые слова
     if (isalpha(*src_ptr) || *src_ptr == '_')
     {
@@ -60,13 +58,12 @@ void next_token()
             src_ptr++;
         }
         tok_text[len] = '\0'; // Закрываем строку
-
-        // Проверяем на ключевое слово "while"
+        // Проверяем на ключевое слово "while" или "if"
         if (strcmp(tok_text, "while") == 0) { tok_type = TOK_WHILE; }
+        else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; } // Сахарный IF!
         else { tok_type = TOK_ID; } // Просто переменная
         return;
     }
-
     // 4. Разбираем операторы и знаки
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
@@ -75,7 +72,6 @@ void next_token()
         src_ptr += 2; // Шагаем сразу через два символа
         return;
     }
-
     // Все остальные одиночные символы (=, +, {, }, (, ))
     tok_text[0] = *src_ptr;
     tok_text[1] = '\0';
@@ -87,6 +83,7 @@ void next_token()
 void parse_statements();
 void parse_assignment();
 void parse_while();
+void parse_if(); // Прототип перед parse_statements
 
 // Функция разбора блока команд (внутри фигурных скобок или до конца файла)
 void parse_statements()
@@ -95,9 +92,49 @@ void parse_statements()
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
         if (tok_type == TOK_WHILE) { parse_while(); } 
+        else if (tok_type == TOK_IF) { parse_if(); } // Ловим наш сахарный IF
         else if (tok_type == TOK_ID) { parse_assignment(); } 
-        else { next_token(); } // Если встретили что-то непонятное (например, случайную точку с запятой), просто пропускаем
+        else { next_token(); } 
     }
+}
+
+// Разбор "сахарного" условия: if x { ... } -> превращается в одноразовый while
+void parse_if()
+{
+    next_token(); // Пропускаем "if"
+    if (tok_type != TOK_ID)
+    {
+        printf("// Ошибка синтаксиса: Ожидалось условие\n");
+        return;
+    }
+    // Запоминаем имя переменной условия, чтобы обнулить её в конце цикла
+    char cond_var[64];
+    strcpy(cond_var, tok_text);
+    print_indent(); 
+    printf("while (%s)\n", cond_var); // Для Си это будет обычный цикл while
+    print_indent(); 
+    printf("{\n");
+    next_token(); // Шагаем к '{'
+    if (tok_type != TOK_OP || tok_text[0] != '{')
+    {
+        printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
+        return;
+    }
+    next_token(); // Заходим внутрь цикла
+    indent_level++; 
+    parse_statements(); // Парсим внутренности 
+    // МАГИЯ ДЕСУГАРИНГА: Перед самым выходом из цикла принудительно гасим условие!
+    print_indent();
+    printf("%s = 0;\n", cond_var);
+    indent_level--; 
+    if (tok_type != TOK_OP || tok_text[0] != '}')
+    {
+        printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
+        return;
+    }
+    print_indent(); 
+    printf("}\n");
+    next_token(); // Пропускаем '}'
 }
 
 // Разбор присваивания вида: x = 42
