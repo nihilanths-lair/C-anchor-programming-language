@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     putchar('\n');
     printf("\nint main()");
     printf("\n{");
-    printf("\n    // Наша спартанская память");
+    printf("\n    // Спартанская память");
     printf("\n    int x = 0;");
     printf("\n    int y = 0;");
     printf("\n    /***/\n");
