@@ -1,30 +1,30 @@
 #include <stdio.h>
 #include <locale.h>
 
-int main()
-{
-    setlocale(0, "");
-    // Спартанская память
-    int x = 0;
-    int y = 0;
-    int z = 0;
-    /***/
-    __main_block_rule();
-}
+// Глобальная спартанская память языка C$
+int x = 0;
+int y = 0;
+int z = 0;
 
-int rule()
+void rule()
 {
     y = 10;
 }
 
-int __main_block_rule()
+void __main()
 {
     x = 5;
     while (x)
     {
         rule();
+        __main();
         x--;
     }
-    /***/
+}
+
+int main()
+{
+    setlocale(0, "");
+    __main(); // Вызов главной функции
     return 0;
 }
