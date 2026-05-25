@@ -22,6 +22,7 @@ char tok_text[64];
 const char *src_ptr;
 char *file_buffer = NULL;
 int indent_level = 1; // По умолчанию 1 таб для тела main()
+int if_counter = 0; // Счетчик для генерации уникальных имен флагов
 
 void print_indent() { for (int i = 0; i < indent_level; i++) { printf("\x20\x20\x20\x20"); } }
 
@@ -98,7 +99,7 @@ void parse_statements()
     }
 }
 
-// Разбор "сахарного" условия: if x { ... } -> превращается в одноразовый while
+// Разбор "сахарного" условия: if x { ... } -> превращается в одноразовый while со скрытым флагом
 void parse_if()
 {
     next_token(); // Пропускаем "if"
@@ -107,11 +108,18 @@ void parse_if()
         printf("// Ошибка синтаксиса: Ожидалось условие\n");
         return;
     }
-    // Запоминаем имя переменной условия, чтобы обнулить её в конце цикла
+    // Запоминаем оригинальное имя переменной условия (её мы портить НЕ будем)
     char cond_var[64];
     strcpy(cond_var, tok_text);
+    // Генерируем уникальный номер флага для этого конкретного if
+    int current_if_id = if_counter;
+    if_counter++; // Сдвигаем счетчик для следующего if
+    // 1. Создаем скрытый флаг в Си и присваиваем ему значение нашего условия
+    print_indent();
+    printf("int __flag_%d = %s;\n", current_if_id, cond_var);
+    // 2. Запускаем цикл while по нашему флагу
     print_indent(); 
-    printf("while (%s)\n", cond_var); // Для Си это будет обычный цикл while
+    printf("while (__flag_%d)\n", current_if_id); 
     print_indent(); 
     printf("{\n");
     next_token(); // Шагаем к '{'
@@ -120,12 +128,12 @@ void parse_if()
         printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
         return;
     }
-    next_token(); // Заходим внутрь цикла
+    next_token(); // Заходим внутрь тела if
     indent_level++; 
     parse_statements(); // Парсим внутренности 
-    // МАГИЯ ДЕСУГАРИНГА: Перед самым выходом из цикла принудительно гасим условие!
+    // 3. МАГИЯ ДЕСУГАРИНГА: Перед выходом гасим скрытый флаг, а не оригинальную переменную!
     print_indent();
-    printf("%s = 0;\n", cond_var);
+    printf("__flag_%d = 0;\n", current_if_id);
     indent_level--; 
     if (tok_type != TOK_OP || tok_text[0] != '}')
     {
@@ -137,22 +145,52 @@ void parse_if()
     next_token(); // Пропускаем '}'
 }
 
-// Разбор присваивания вида: x = 42
+// Разбор идентификатора: присваивание, декремент или вызов функции
 void parse_assignment()
 {
     char var_name[64];
     strcpy(var_name, tok_text);
-    next_token();
+    next_token(); // Шагаем к следующему токену за именем
+    // Сценарий 1: Вызов бестиповой функции вида name() или name(42)
+    if (tok_type == TOK_OP && tok_text[0] == '(')
+    {
+        print_indent();
+        printf("%s(", var_name); // Выводим имя функции и открывающую скобку для Си
+        next_token(); // Пропускаем '('
+        // Если внутри есть числовой аргумент (например, print_value(5))
+        if (tok_type == TOK_NUM)
+        {
+            printf("%d", tok_value);
+            next_token();
+        }
+        // Если внутри имя переменной (например, print_value(x))
+        else if (tok_type == TOK_ID)
+        {
+            printf("%s", tok_text);
+            next_token();
+        }
+        // Проверяем закрывающую скобку
+        if (tok_type != TOK_OP || tok_text[0] != ')')
+        {
+            printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка ')'\n");
+            return;
+        }
+        printf(");\n"); // Закрываем вызов функции в Си с точкой с запятой
+        next_token();   // Пропускаем ')'
+        return;
+    }
+    // Сценарий 2: Декремент (x--)
     if (tok_type == TOK_DEC)
     {
-        print_indent(); // Печатаем правильный отступ динамически
+        print_indent(); 
         printf("%s--;\n", var_name);
         next_token();
         return;
     }
+    // Сценарий 3: Обычное присваивание числа (x = 42)
     if (tok_type != TOK_OP || tok_text[0] != '=')
     {
-        printf("// Ошибка синтаксиса: Ожидался знак '=' или '--'\n");
+        printf("// Ошибка синтаксиса: Ожидался знак '=', '--' или '('\n");
         return;
     }
     next_token();
@@ -161,7 +199,7 @@ void parse_assignment()
         printf("// Ошибка синтаксиса: Ожидалось число\n");
         return;
     }
-    print_indent(); // Печатаем правильный отступ динамически
+    print_indent(); 
     printf("%s = %d;\n", var_name, tok_value);
     next_token();
 }
@@ -235,12 +273,15 @@ int main(int argc, char *argv[])
     src_ptr = file_buffer;
     // 7. Выводим каркас будущего Си-файла в стиле Allman
     printf("#include <stdio.h>");
+    printf("\n#include <locale.h>");
     putchar('\n');
     printf("\nint main()");
     printf("\n{");
+    printf("\n    setlocale(0, \"\");");
     printf("\n    // Спартанская память");
     printf("\n    int x = 0;");
     printf("\n    int y = 0;");
+    printf("\n    int z = 0;");
     printf("\n    /***/\n");
     next_token();       // Заряжаем первый токен из файла
     parse_statements(); // Запускаем парсер
