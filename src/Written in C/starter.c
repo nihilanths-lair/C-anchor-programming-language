@@ -177,19 +177,18 @@ void parse_assignment()
             return;
         }
         next_token(); // Шагаем за закрывающую скобку ')'
-        // МАГИЯ: Проверяем, идет ли дальше открывающая скобка '{'. 
-        // Если ДА — это ОБЪЯВЛЕНИЕ функции!
+        // ПРОВЕРКА: Если дальше идет открывающая скобка '{' — это ОБЪЯВЛЕНИЕ функции!
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
-            print_indent();
-            printf("__main_block_%s();\n", var_name);
-            // Выпрыгиваем из си-шной функции main()
-            printf("}\n\n"); 
-            // Пишем заголовок новой глобальной функции в Си (бестиповой, возвращает int)
-            printf("int %s()\n", var_name);
+            // Наш уровень отступа сбрасывается в 0, так как функция глобальная
+            indent_level = 0; 
+            // Если пользователь объявил main, переименовываем для Си в c_main
+            if (strcmp(var_name, "main") == 0) { printf("void __main()\n"); }
+            else { printf("void %s()\n", var_name); }
             printf("{\n");
             next_token(); // Пропускаем '{' и заходим в тело функции
-            // Парсим внутренности функции. Они напечатаются внутри тела новой функции Си!
+            indent_level = 1; // Внутри функции отступ равен 1
+            // Парсим внутренности функции. Они напечатаются внутри тела
             parse_statements();
             if (tok_type != TOK_OP || tok_text[0] != '}')
             {
@@ -197,19 +196,14 @@ void parse_assignment()
                 return;
             }
             printf("}\n\n"); // Закрываем нашу функцию в Си
-            // Возвращаемся обратно, открывая "продолжение" кода, который Си проглотит!
-            // Мы просто открываем блок, как будто main продолжается в теле фиктивной функции,
-            // либо лениво открываем заново main (но Си не даст объявить main дважды).
-            // Чтобы Си не ругался на дубликат main, мы назовем ее уникально, 
-            // но для простоты MVP мы договорились, что функции пишутся В НАЧАЛЕ файла,
-            // а основной скрипт — В КОНЦЕ. Поэтому мы просто открываем следующую секцию кода:
-            printf("int __main_block_%s()\n{\n", var_name);
             next_token(); // Пропускаем '}'
             return;
         }
         // Если дальше НЕ скобка '{' — это обычный ВЫЗОВ функции
         print_indent();
-        printf("%s(", var_name);
+        // Если пользователь вызывает main(), подменяем имя на c_main()
+        if (strcmp(var_name, "main") == 0) { printf("__main("); }
+        else { printf("%s(", var_name); }
         if (has_arg == 1) printf("%d", arg_num);
         if (has_arg == 2) printf("%s", arg_id);
         printf(");\n");
@@ -218,7 +212,7 @@ void parse_assignment()
     // Сценарий 2: Декремент (x--)
     if (tok_type == TOK_DEC)
     {
-        print_indent(); 
+        print_indent();
         printf("%s--;\n", var_name);
         next_token();
         return;
@@ -235,7 +229,7 @@ void parse_assignment()
         printf("// Ошибка синтаксиса: Ожидалось число\n");
         return;
     }
-    print_indent(); 
+    print_indent();
     printf("%s = %d;\n", var_name, tok_value);
     next_token();
 }
@@ -307,23 +301,23 @@ int main(int argc, char *argv[])
     fclose(file);
     // 6. Направляем указатель лексера на считанный из файла текст
     src_ptr = file_buffer;
-    // 7. Выводим каркас будущего Си-файла в стиле Allman
-    printf("#include <stdio.h>");
-    printf("\n#include <locale.h>");
-    putchar('\n');
-    printf("\nint main()");
-    printf("\n{");
-    printf("\n    setlocale(0, \"\");");
-    printf("\n    // Спартанская память");
-    printf("\n    int x = 0;");
-    printf("\n    int y = 0;");
-    printf("\n    int z = 0;");
-    printf("\n    /***/\n");
-    next_token();       // Заряжаем первый токен из файла
-    parse_statements(); // Запускаем парсер
-    printf("    /***/");
-    printf("\n    return 0;");
-    printf("\n}");
+    // 7. Выводим глобальную шапку Си-файла в стиле Allman
+    printf("#include <stdio.h>\n");
+    printf("#include <locale.h>\n\n");
+    printf("// Глобальная спартанская память языка C$\n");
+    printf("int x = 0;\n");
+    printf("int y = 0;\n");
+    printf("int z = 0;\n\n");
+    next_token(); // Заряжаем первый токен из файла
+    // 8. Запускаем парсер. Он разберет функции на глобальном уровне
+    parse_statements();
+    // 9. Автоматически дописываем точку входа Си, которая вызовет нашу функцию main()
+    printf("int main()\n");
+    printf("{\n");
+    printf("    setlocale(0, \"\");\n");
+    printf("    __main(); // Вызов главной функции\n");
+    printf("    return 0;\n");
+    printf("}\n");
     // Освобождаем память
     free(file_buffer);
     return 0;
