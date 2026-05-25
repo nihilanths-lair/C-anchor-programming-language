@@ -1,4 +1,36 @@
-x = 1
-if x {
-    y = 42
+putchar(4)
+x = 5
+while x
+{
+    putchar(45)
+    x--
+}
+putchar(4)
+x = 5
+y = 53
+putchar(10)
+while x
+{
+    putchar(32)
+    putchar(67)
+    putchar(36)
+    putchar(58)
+    putchar(32)
+    putchar(y)
+    y--
+    if x { putchar(10) }
+    x--
+}
+putchar(4)
+x = 5
+while x
+{
+    putchar(45)
+    x--
+}
+z = 1
+if z
+{
+    putchar(4)
+    putchar(32)
 }
