@@ -1,10 +1,10 @@
 main()
 {
     i = 0
-    while i != 5
-    {
-        printf("\n Шаг компиляции.")
-        i = i + 1
-    }
+    cond = 'A'
+    __[i] = cond
+    res = __[0]
+    putchar('\n')
+    putchar(res)
     putchar('\n')
 }
