@@ -1,11 +1,10 @@
 main()
 {
-    [0] = 5
-    x = [0]
-    while x != 0
+    i = 3
+    while i != 0
     {
-        putchar(65)
-        x--
-        [0] = x
+        printf("\n C$ is awesome!")
+        i--
     }
+    printf("\n С-бакс ты потрясающий!\n")
 }
