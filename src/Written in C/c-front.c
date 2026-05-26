@@ -10,9 +10,9 @@ intptr_t i = 0, res = 0, flag = 0, cond = 0;
 void __main__()
 {
     printf("\n ");
-    __[5] = (intptr_t)"C$ is awesome!";
-    res = __[5];
-    printf((char*)res);
+    __['$'] = (intptr_t)"C$ is awesome!";
+    res = __['$'];
+    printf((char*) res);
     putchar('\n');
 }
 
