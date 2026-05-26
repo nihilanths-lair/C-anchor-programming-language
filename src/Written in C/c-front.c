@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <windows.h>
+#include <stdint.h>
 
 // Глобальная спартанская память языка C$
-int __[100000]; // Единая лента памяти на 100k ячеек
+intptr_t __[100000]; // Единая лента памяти на 100k ячеек
 // Пользовательские переменные (выделяем спартанский пул)
-int i = 0, res = 0, flag = 0, cond = 0;
+intptr_t i = 0, res = 0, flag = 0, cond = 0;
 
 void __main__()
 {
-    i = 0;
-    cond = 'A';
-    __[i] = cond;
-    res = __[0];
-    putchar('\n');
-    putchar(res);
+    printf("\n ");
+    __[5] = (intptr_t)"C$ is awesome!";
+    res = __[5];
+    printf((char*)res);
     putchar('\n');
 }
 
