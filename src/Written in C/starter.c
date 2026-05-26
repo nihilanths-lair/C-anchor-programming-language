@@ -162,11 +162,12 @@ void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
-        if (tok_type == TOK_WHILE) { parse_while(); } 
-        else if (tok_type == TOK_IF) { parse_if(); } 
+        if (tok_type == TOK_WHILE) { parse_while(); }
+        else if (tok_type == TOK_IF) { parse_if(); }
+        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { parse_memory_store(); }
         else if (tok_type == TOK_ID) { parse_assignment(); }
-        else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); } // Ловим запись [idx] = ...
-        else { next_token(); } 
+        else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
+        else { next_token(); }
     }
 }
 
