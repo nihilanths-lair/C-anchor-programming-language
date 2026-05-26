@@ -143,14 +143,14 @@ void parse_assignment();
 void parse_while();
 void parse_if(); // Прототип перед parse_statements
 
-// Разбор записи в память вида: __[i] = c или __ = 42
+// Разбор записи в память вида: __[i] = c, __[5] = 42, или __[0] = "строка"
 void parse_memory_store()
 {
     if (tok_type != TOK_OP || tok_text[0] != '[') { print_indent(); printf("// Ошибка: Ожидалась '['\n"); return; }
     next_token(); // Пропускаем открывающую '[' и шагаем к индексу
     int is_num_idx = 0;
     int num_idx_val = 0;
-    char index_var[64]; // ИСПРАВЛЕНО: Теперь стек защищен от переполнения
+    char index_var[64]; // ИСПРАВЛЕНО: Теперь это честный строковый буфер на 64 байта
     if (tok_type == TOK_NUM) { is_num_idx = 1; num_idx_val = tok_value; }
     else if (tok_type == TOK_ID) { strcpy(index_var, tok_text); }
     else { print_indent(); printf("// Ошибка синтаксиса: Ожидался индекс\n"); return; }
@@ -162,9 +162,11 @@ void parse_memory_store()
     print_indent();
     if (is_num_idx) { printf("__[%d] = ", num_idx_val); }
     else { printf("__[%s] = ", index_var); }
+    // Проверяем, что именно присваиваем (число, переменную, символ или СТРОКУ)
     if (tok_type == TOK_NUM) { printf("%d;\n", tok_value); }
     else if (tok_type == TOK_ID) { printf("%s;\n", tok_text); }
     else if (tok_type == TOK_CHAR) { printf("'%s';\n", tok_text); }
+    else if (tok_type == TOK_STR) { printf("(intptr_t)\"%s\";\n", tok_text); } // Магия адресов: приводим к intptr_t
     else { printf("0; // Ошибка значения\n"); }
     next_token();
 }
@@ -312,7 +314,7 @@ void parse_assignment()
         if (strcmp(var_name, "main") == 0) { printf("__main__("); }
         else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
-        if (has_arg == 2) { printf("%s", arg_id); }
+        if (has_arg == 2) { printf("(char*)%s", arg_id); } // Насильно приводим число-адрес к указателю на строку
         if (has_arg == 3) { printf("\"%s\"", arg_str); }
         if (has_arg == 4) { printf("'%s'", arg_char); } // Выводим одиночный символ в одинарных кавычках для Си
         printf(");\n");
@@ -485,15 +487,14 @@ int main(int argc, char *argv[])
     // 6. Направляем указатель лексера на считанный из файла текст
     src_ptr = file_buffer;
     // 7. Выводим глобальную шапку Си-файла в стиле Allman
-    printf("#include <stdio.h>");
-    //printf("\n#include <locale.h>");
-    printf("\n#include <windows.h>");
-    putchar('\n');
-    putchar('\n');
+    printf("#include <stdio.h>\n");
+    printf("#include <windows.h>\n");
+    printf("#include <stdint.h>\n\n"); // Нужен для типа intptr_t
     printf("// Глобальная спартанская память языка C$\n");
-    printf("int __[100000]; // Единая лента памяти на 100k ячеек\n");
+    printf("intptr_t __[100000]; // Единая лента памяти на 100k ячеек\n");
     printf("// Пользовательские переменные (выделяем спартанский пул)\n");
-    printf("int i = 0, res = 0, flag = 0, cond = 0;\n\n");
+    printf("intptr_t i = 0, res = 0, flag = 0, cond = 0;\n");
+    putchar('\n');
     next_token(); // Заряжаем первый токен из файла
     // 8. Запускаем парсер. Он разберет функции на глобальном уровне
     parse_statements();
