@@ -16,6 +16,7 @@
 #define TOK_EQ    7  // Уникальный номер для ==
 #define TOK_NEQ   8  // Уникальный номер для !=
 #define TOK_STR   9  // Токен для строк в кавычках "текст"
+#define TOK_CHAR  10 // Токен для одиночных символов в кавычках 'x'
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
@@ -66,6 +67,26 @@ void next_token()
         tok_text[len] = '\0';
         if (*src_ptr == '"') { src_ptr++; } // Пропускаем закрывающую кавычку
         tok_type = TOK_STR;
+        return;
+    }
+    // НОВАЯ ФИЧА: Разбираем СИМВОЛЬНЫЕ литералы в одинарных кавычках (Например: '\n')
+    if (*src_ptr == '\'')
+    {
+        src_ptr++; // Пропускаем открывающую кавычку
+        int len = 0;
+        // Считываем, пока не встретим закрывающую кавычку или конец строки
+        while (*src_ptr != '\'' && *src_ptr != '\0')
+        {
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') // Обработка экранирования
+            {
+                tok_text[len++] = *src_ptr++;
+            }
+            if (len < 63) { tok_text[len++] = *src_ptr; }
+            src_ptr++;
+        }
+        tok_text[len] = '\0';
+        if (*src_ptr == '\'') { src_ptr++; } // Пропускаем закрывающую кавычку
+        tok_type = TOK_CHAR;
         return;
     }
     // 3. Разбираем имена переменных и ключевые слова
@@ -283,9 +304,11 @@ void parse_assignment()
         int arg_num = 0;
         char arg_id[64] = {0};
         char arg_str[64] = {0};
+        char arg_char[64] = {0};
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
-        else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); } // НОВАЯ ФИЧА: Строковый аргумент
+        else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
+        else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(arg_char, tok_text); next_token(); } // НОВАЯ ФИЧА: Символьный аргумент
         if (tok_type != TOK_OP || tok_text[0] != ')')
         {
             print_indent();
@@ -317,11 +340,12 @@ void parse_assignment()
         else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("%s", arg_id); }
-        if (has_arg == 3) { printf("\"%s\"", arg_str); } // Выводим строку в кавычках для Си
+        if (has_arg == 3) { printf("\"%s\"", arg_str); }
+        if (has_arg == 4) { printf("'%s'", arg_char); } // Выводим одиночный символ в одинарных кавычках для Си
         printf(");\n");
         return;
     }
-    // Сценарий 2: Декремент (x--)
+    // Сценарий 2: Декремент (x--) - для обратной совместимости
     if (tok_type == TOK_DEC)
     {
         print_indent();
@@ -356,14 +380,27 @@ void parse_assignment()
         next_token();
         return;
     }
-    // Присваивание другой переменной (x = y)
+    // Продвинутое присваивание идентификатора (x = y или x = y + 1)
     if (tok_type == TOK_ID)
     {
+        char first_id[64];
+        strcpy(first_id, tok_text);
+        next_token(); 
+        if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
+        {
+            char op = tok_text[0];
+            next_token(); 
+            print_indent();
+            if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
+            else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
+            next_token();
+            return;
+        }
         print_indent();
-        printf("%s = %s;\n", var_name, tok_text);
-        next_token();
+        printf("%s = %s;\n", var_name, first_id);
         return;
     }
+    print_indent();
     printf("// Ошибка синтаксиса: Ожидалось число, переменная или массив\n");
 }
 
@@ -494,9 +531,6 @@ int main(int argc, char *argv[])
     putchar('\n');
     printf("// Глобальная спартанская память языка C$\n");
     printf("int __[100000]; // Единая лента памяти на 100k ячеек\n");
-    printf("// Системные переменные для работы встроенного лексера\n");
-    printf("int tok_type = 0;\n");
-    printf("int tok_value = 0;\n");
     printf("// Пользовательские переменные (выделяем спартанский пул)\n");
     printf("int i = 0, res = 0, flag = 0, cond = 0;\n\n");
     next_token(); // Заряжаем первый токен из файла
