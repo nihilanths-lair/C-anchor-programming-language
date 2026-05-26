@@ -2,7 +2,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <locale.h>
+//#include <locale.h>
+#include <windows.h>
 
 // Константы типов токенов
 #define TOK_EOF   0
@@ -14,6 +15,7 @@
 #define TOK_IF    6  // Уникальный номер для if
 #define TOK_EQ    7  // Уникальный номер для ==
 #define TOK_NEQ   8  // Уникальный номер для !=
+#define TOK_STR   9  // Токен для строк в кавычках "текст"
 
 // Глобальное состояние текущего токена (наши "структуры")
 int tok_type;
@@ -49,6 +51,21 @@ void next_token()
             src_ptr++;
         }
         tok_type = TOK_NUM;
+        return;
+    }
+    // НОВАЯ ФИЧА: Разбираем СТРОКИ в кавычках (Например: "Итерация цикла\n")
+    if (*src_ptr == '"')
+    {
+        src_ptr++; // Пропускаем открывающую кавычку
+        int len = 0;
+        while (*src_ptr != '"' && *src_ptr != '\0')
+        {
+            if (len < 63) { tok_text[len++] = *src_ptr; }
+            src_ptr++;
+        }
+        tok_text[len] = '\0';
+        if (*src_ptr == '"') { src_ptr++; } // Пропускаем закрывающую кавычку
+        tok_type = TOK_STR;
         return;
     }
     // 3. Разбираем имена переменных и ключевые слова
@@ -87,7 +104,7 @@ void next_token()
     if (*src_ptr == '!' && *(src_ptr + 1) == '=')
     {
         tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
-        tok_type = TOK_NEQ;
+        tok_type = TOK_NEQ; // Привели к единому имени TOK_NEQ
         src_ptr += 2;
         return;
     }
@@ -258,7 +275,6 @@ void parse_assignment()
     char var_name[64];
     strcpy(var_name, tok_text);
     next_token(); // Шагаем к следующему токену за именем
-    
     // Сценарий 1: Работа со скобками (Вызов или Объявление функции)
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
@@ -266,12 +282,17 @@ void parse_assignment()
         int has_arg = 0;
         int arg_num = 0;
         char arg_id[64] = {0};
+        char arg_str[64] = {0};
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
-        
-        if (tok_type != TOK_OP || tok_text[0] != ')') { printf("// Ошибка синтаксиса\n"); return; }
-        next_token(); 
-        
+        else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); } // НОВАЯ ФИЧА: Строковый аргумент
+        if (tok_type != TOK_OP || tok_text[0] != ')')
+        {
+            print_indent();
+            printf("// Ошибка синтаксиса\n");
+            return;
+        }
+        next_token();
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
             indent_level = 0; 
@@ -281,7 +302,12 @@ void parse_assignment()
             next_token(); 
             indent_level = 1; 
             parse_statements();
-            if (tok_type != TOK_OP || tok_text[0] != '}') { printf("// Ошибка\n"); return; }
+            if (tok_type != TOK_OP || tok_text[0] != '}')
+            {
+                print_indent();
+                printf("// Ошибка\n");
+                return;
+            }
             printf("}\n\n"); 
             next_token(); 
             return;
@@ -289,12 +315,12 @@ void parse_assignment()
         print_indent();
         if (strcmp(var_name, "main") == 0) { printf("__main("); }
         else { printf("%s(", var_name); }
-        if (has_arg == 1) printf("%d", arg_num);
-        if (has_arg == 2) printf("%s", arg_id);
+        if (has_arg == 1) { printf("%d", arg_num); }
+        if (has_arg == 2) { printf("%s", arg_id); }
+        if (has_arg == 3) { printf("\"%s\"", arg_str); } // Выводим строку в кавычках для Си
         printf(");\n");
         return;
     }
-    
     // Сценарий 2: Декремент (x--)
     if (tok_type == TOK_DEC)
     {
@@ -303,29 +329,42 @@ void parse_assignment()
         next_token();
         return;
     }
-    
-    // Сценарий 3: Присваивание переменной (x = 42 или x = [0])
-    if (tok_type != TOK_OP || tok_text[0] != '=') { printf("// Ошибка\n"); return; }
+    // Сценарий 3: Присваивание переменной (x = 42, x = y, x = [0])
+    if (tok_type != TOK_OP || tok_text[0] != '=')
+    {
+        print_indent();
+        printf("// Ошибка\n");
+        return;
+    }
     next_token(); // Шагаем за '='
-    
-    // Новая магия: чтение из памяти вида x = [0] или x = [y]
+    // Чтение из памяти вида x = [0] или x = [y]
     if (tok_type == TOK_OP && tok_text[0] == '[')
     {
         next_token(); // Пропускаем '['
         print_indent();
         if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
         else if (tok_type == TOK_ID) { printf("%s = __[%s];\n", var_name, tok_text); }
-        
         next_token(); // Шагаем к ']'
         next_token(); // Пропускаем ']'
         return;
     }
-    
-    // Старое доброе присваивание константного числа x = 42
-    if (tok_type != TOK_NUM) { printf("// Ошибка\n"); return; }
-    print_indent();
-    printf("%s = %d;\n", var_name, tok_value);
-    next_token();
+    // Присваивание константного числа (x = 42)
+    if (tok_type == TOK_NUM)
+    {
+        print_indent();
+        printf("%s = %d;\n", var_name, tok_value);
+        next_token();
+        return;
+    }
+    // Присваивание другой переменной (x = y)
+    if (tok_type == TOK_ID)
+    {
+        print_indent();
+        printf("%s = %s;\n", var_name, tok_text);
+        next_token();
+        return;
+    }
+    printf("// Ошибка синтаксиса: Ожидалось число, переменная или массив\n");
 }
 
 // Разбор цикла вида: while x == 5 { ... } или while x { ... }
@@ -413,7 +452,9 @@ void parse_while()
 
 int main(int argc, char *argv[])
 {
-    setlocale(0, "");
+    //setlocale(0, "");
+    // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли
+    system("chcp 1251 > nul");
     // 1. Проверяем, передал ли пользователь имя файла
     if (argc < 2)
     {
@@ -446,18 +487,26 @@ int main(int argc, char *argv[])
     // 6. Направляем указатель лексера на считанный из файла текст
     src_ptr = file_buffer;
     // 7. Выводим глобальную шапку Си-файла в стиле Allman
-    printf("#include <stdio.h>\n");
-    printf("#include <locale.h>\n\n");
+    printf("#include <stdio.h>");
+    //printf("\n#include <locale.h>");
+    printf("\n#include <windows.h>");
+    putchar('\n');
+    putchar('\n');
     printf("// Глобальная спартанская память языка C$\n");
     printf("int __[100000]; // Единая лента памяти на 100k ячеек\n");
-    printf("int x = 0, y = 0, z = 0;\n\n");
+    printf("// Системные переменные для работы встроенного лексера\n");
+    printf("int tok_type = 0;\n");
+    printf("int tok_value = 0;\n");
+    printf("// Пользовательские переменные (выделяем спартанский пул)\n");
+    printf("int i = 0, res = 0, flag = 0, cond = 0;\n\n");
     next_token(); // Заряжаем первый токен из файла
     // 8. Запускаем парсер. Он разберет функции на глобальном уровне
     parse_statements();
     // 9. Автоматически дописываем точку входа Си, которая вызовет нашу функцию main()
     printf("int main()\n");
     printf("{\n");
-    printf("    setlocale(0, \"\");\n");
+    printf("    // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли\n");
+    printf("    system(\"chcp 1251 > nul\");\n"); // Железный кросс-компиляторный способ
     printf("    __main(); // Вызов главной функции\n");
     printf("    return 0;\n");
     printf("}\n");
