@@ -143,66 +143,39 @@ void parse_assignment();
 void parse_while();
 void parse_if(); // Прототип перед parse_statements
 
-// Разбор записи в память вида: [индекс] = значение
+// Разбор записи в память вида: __[i] = c или __ = 42
 void parse_memory_store()
 {
-    next_token(); // Пропускаем открывающую '['
-    
-    char index_var[64];
+    if (tok_type != TOK_OP || tok_text[0] != '[') { print_indent(); printf("// Ошибка: Ожидалась '['\n"); return; }
+    next_token(); // Пропускаем открывающую '[' и шагаем к индексу
     int is_num_idx = 0;
     int num_idx_val = 0;
-    
-    if (tok_type == TOK_NUM)
-    {
-        is_num_idx = 1;
-        num_idx_val = tok_value;
-    }
-    else if (tok_type == TOK_ID)
-    {
-        strcpy(index_var, tok_text);
-    }
-    else
-    {
-        printf("// Ошибка синтаксиса: Ожидался индекс внутри '[' ']' \n");
-        return;
-    }
-    
+    char index_var[64]; // ИСПРАВЛЕНО: Теперь стек защищен от переполнения
+    if (tok_type == TOK_NUM) { is_num_idx = 1; num_idx_val = tok_value; }
+    else if (tok_type == TOK_ID) { strcpy(index_var, tok_text); }
+    else { print_indent(); printf("// Ошибка синтаксиса: Ожидался индекс\n"); return; }
     next_token(); // Шагаем к закрывающей ']'
-    if (tok_type != TOK_OP || tok_text[0] != ']')
-    {
-        printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка ']'\n");
-        return;
-    }
-    
+    if (tok_type != TOK_OP || tok_text[0] != ']') { print_indent(); printf("// Ошибка: Ожидалась ']'\n"); return; }
     next_token(); // Шагаем к '='
-    if (tok_type != TOK_OP || tok_text[0] != '=')
-    {
-        printf("// Ошибка синтаксиса: Ожидался знак '='\n");
-        return;
-    }
-    
-    next_token(); // Шагаем к тому, что присваиваем
-    
+    if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка: Ожидался знак '='\n"); return; }
+    next_token(); // Шагаем к значению
     print_indent();
     if (is_num_idx) { printf("__[%d] = ", num_idx_val); }
     else { printf("__[%s] = ", index_var); }
-    
-    // Что именно присваиваем (число или переменную)
     if (tok_type == TOK_NUM) { printf("%d;\n", tok_value); }
     else if (tok_type == TOK_ID) { printf("%s;\n", tok_text); }
-    else { printf("0; // Ошибка: неверное значение\n"); }
-    
+    else if (tok_type == TOK_CHAR) { printf("'%s';\n", tok_text); }
+    else { printf("0; // Ошибка значения\n"); }
     next_token();
 }
 
-// Функция разбора блока команд (внутри фигурных скобок или до конца файла)
 void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { parse_memory_store(); }
+        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { next_token(); parse_memory_store(); } // Ловим __, сдвигаем лексер на '[' и отдаем парсеру памяти
         else if (tok_type == TOK_ID) { parse_assignment(); }
         else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
         else { next_token(); }
@@ -319,7 +292,7 @@ void parse_assignment()
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
             indent_level = 0; 
-            if (strcmp(var_name, "main") == 0) { printf("void __main()\n"); }
+            if (strcmp(var_name, "main") == 0) { printf("void __main__()\n"); }
             else { printf("void %s()\n", var_name); }
             printf("{\n");
             next_token(); 
@@ -336,7 +309,7 @@ void parse_assignment()
             return;
         }
         print_indent();
-        if (strcmp(var_name, "main") == 0) { printf("__main("); }
+        if (strcmp(var_name, "main") == 0) { printf("__main__("); }
         else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("%s", arg_id); }
@@ -353,7 +326,7 @@ void parse_assignment()
         next_token();
         return;
     }
-    // Сценарий 3: Присваивание переменной (x = 42, x = y, x = [0])
+    // Сценарий 3: Присваивание переменной (x = 42, x = y, x = __[0], x = 'A')
     if (tok_type != TOK_OP || tok_text[0] != '=')
     {
         print_indent();
@@ -361,9 +334,11 @@ void parse_assignment()
         return;
     }
     next_token(); // Шагаем за '='
-    // Чтение из памяти вида x = [0] или x = [y]
-    if (tok_type == TOK_OP && tok_text[0] == '[')
+    // Чтение из памяти вида: x = __[0] или x = __[y]
+    if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0)
     {
+        next_token(); // Пропускаем "__"
+        if (tok_type != TOK_OP || tok_text[0] != '[') { print_indent(); printf("// Ошибка: Ожидалась '['\n"); return; }
         next_token(); // Пропускаем '['
         print_indent();
         if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
@@ -377,6 +352,14 @@ void parse_assignment()
     {
         print_indent();
         printf("%s = %d;\n", var_name, tok_value);
+        next_token();
+        return;
+    }
+    // Присваивание символа (x = 'A')
+    if (tok_type == TOK_CHAR)
+    {
+        print_indent();
+        printf("%s = '%s';\n", var_name, tok_text);
         next_token();
         return;
     }
@@ -401,7 +384,7 @@ void parse_assignment()
         return;
     }
     print_indent();
-    printf("// Ошибка синтаксиса: Ожидалось число, переменная или массив\n");
+    printf("// Ошибка синтаксиса: Ожидалось число, переменная, символ или массив\n");
 }
 
 // Разбор цикла вида: while x == 5 { ... } или while x { ... }
@@ -413,33 +396,21 @@ void parse_while()
         printf("// Ошибка синтаксиса: Ожидалась переменная в условии цикла\n");
         return;
     }
-    
     char left_var[64];
     strcpy(left_var, tok_text);
-    
     next_token(); // Шагаем дальше, чтобы проверить, есть ли сравнение
-    
     char op_str[8] = "";
     char right_val[64] = "";
     int is_comparison = 0;
-    
     // Если обнаружили оператор сравнения
     if (tok_type == TOK_EQ || tok_type == TOK_NEQ)
     {
         is_comparison = 1;
         if (tok_type == TOK_EQ) { strcpy(op_str, "=="); }
         else { strcpy(op_str, "!="); }
-        
         next_token(); // Шагаем к правому значению условия
-        
-        if (tok_type == TOK_NUM)
-        {
-            sprintf(right_val, "%d", tok_value);
-        }
-        else if (tok_type == TOK_ID)
-        {
-            strcpy(right_val, tok_text);
-        }
+        if (tok_type == TOK_NUM) { sprintf(right_val, "%d", tok_value); }
+        else if (tok_type == TOK_ID) { strcpy(right_val, tok_text); }
         else
         {
             printf("// Ошибка синтаксиса: Справа в условии цикла должно быть число или переменная\n");
@@ -447,42 +418,29 @@ void parse_while()
         }
         next_token(); // Шагаем к следующему токену (ожидаем '{')
     }
-    
     // ГЕНЕРАЦИЯ Си-кода для цикла
-    print_indent(); 
-    if (is_comparison)
-    {
-        printf("while (%s %s %s)\n", left_var, op_str, right_val);
-    }
-    else
-    {
-        printf("while (%s)\n", left_var);
-    }
-    
-    print_indent(); 
+    print_indent();
+    if (is_comparison) { printf("while (%s %s %s)\n", left_var, op_str, right_val); }
+    else { printf("while (%s)\n", left_var); }
+    print_indent();
     printf("{\n");
-    
     // Проверяем открывающую скобку цикла
     if (tok_type != TOK_OP || tok_text[0] != '{')
     {
         printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
         return;
     }
-    
     next_token(); // Заходим внутрь тела цикла
-    
-    indent_level++; 
+    indent_level++;
     parse_statements(); // Рекурсивно разбираем команды
-    indent_level--; 
-    
+    indent_level--;
     // Проверяем закрывающую скобку цикла
     if (tok_type != TOK_OP || tok_text[0] != '}')
     {
         printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
         return;
     }
-    
-    print_indent(); 
+    print_indent();
     printf("}\n");
     next_token(); // Пропускаем '}'
 }
@@ -490,8 +448,11 @@ void parse_while()
 int main(int argc, char *argv[])
 {
     //setlocale(0, "");
+    // Нативное и безопасное переключение кодировки консоли Windows без system()
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли
-    system("chcp 1251 > nul");
+    //system("chcp 1251 > nul");
     // 1. Проверяем, передал ли пользователь имя файла
     if (argc < 2)
     {
@@ -539,9 +500,10 @@ int main(int argc, char *argv[])
     // 9. Автоматически дописываем точку входа Си, которая вызовет нашу функцию main()
     printf("int main()\n");
     printf("{\n");
-    printf("    // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли\n");
-    printf("    system(\"chcp 1251 > nul\");\n"); // Железный кросс-компиляторный способ
-    printf("    __main(); // Вызов главной функции\n");
+    printf("    // Нативное и безопасное переключение кодировки консоли Windows без system()\n");
+    printf("    SetConsoleCP(1251);\n");
+    printf("    SetConsoleOutputCP(1251);\n");
+    printf("    __main__(); // Вызов главной функции\n");
     printf("    return 0;\n");
     printf("}");
     // Освобождаем память
