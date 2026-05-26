@@ -143,16 +143,19 @@ void parse_assignment();
 void parse_while();
 void parse_if(); // Прототип перед parse_statements
 
-// Разбор записи в память вида: __[i] = c, __[5] = 42, или __[0] = "строка"
+// Разбор записи в память вида: __[i] = c, __['$'] = 42, или __ = "строка"
 void parse_memory_store()
 {
     if (tok_type != TOK_OP || tok_text[0] != '[') { print_indent(); printf("// Ошибка: Ожидалась '['\n"); return; }
     next_token(); // Пропускаем открывающую '[' и шагаем к индексу
     int is_num_idx = 0;
+    int is_char_idx = 0;
     int num_idx_val = 0;
-    char index_var[64]; // ИСПРАВЛЕНО: Теперь это честный строковый буфер на 64 байта
+    char index_var[64];
+    char char_idx_val[64];
     if (tok_type == TOK_NUM) { is_num_idx = 1; num_idx_val = tok_value; }
     else if (tok_type == TOK_ID) { strcpy(index_var, tok_text); }
+    else if (tok_type == TOK_CHAR) { is_char_idx = 1; strcpy(char_idx_val, tok_text); } // НОВАЯ ФИЧА: Символьный индекс
     else { print_indent(); printf("// Ошибка синтаксиса: Ожидался индекс\n"); return; }
     next_token(); // Шагаем к закрывающей ']'
     if (tok_type != TOK_OP || tok_text[0] != ']') { print_indent(); printf("// Ошибка: Ожидалась ']'\n"); return; }
@@ -161,12 +164,13 @@ void parse_memory_store()
     next_token(); // Шагаем к значению
     print_indent();
     if (is_num_idx) { printf("__[%d] = ", num_idx_val); }
+    else if (is_char_idx) { printf("__['%s'] = ", char_idx_val); } // Генерируем символьный индекс для Си
     else { printf("__[%s] = ", index_var); }
     // Проверяем, что именно присваиваем (число, переменную, символ или СТРОКУ)
     if (tok_type == TOK_NUM) { printf("%d;\n", tok_value); }
     else if (tok_type == TOK_ID) { printf("%s;\n", tok_text); }
     else if (tok_type == TOK_CHAR) { printf("'%s';\n", tok_text); }
-    else if (tok_type == TOK_STR) { printf("(intptr_t)\"%s\";\n", tok_text); } // Магия адресов: приводим к intptr_t
+    else if (tok_type == TOK_STR) { printf("(intptr_t)\"%s\";\n", tok_text); } 
     else { printf("0; // Ошибка значения\n"); }
     next_token();
 }
@@ -314,7 +318,7 @@ void parse_assignment()
         if (strcmp(var_name, "main") == 0) { printf("__main__("); }
         else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
-        if (has_arg == 2) { printf("(char*)%s", arg_id); } // Насильно приводим число-адрес к указателю на строку
+        if (has_arg == 2) { printf("(char*) %s", arg_id); } // Насильно приводим число-адрес к указателю на строку
         if (has_arg == 3) { printf("\"%s\"", arg_str); }
         if (has_arg == 4) { printf("'%s'", arg_char); } // Выводим одиночный символ в одинарных кавычках для Си
         printf(");\n");
@@ -336,7 +340,7 @@ void parse_assignment()
         return;
     }
     next_token(); // Шагаем за '='
-    // Чтение из памяти вида: x = __[0] или x = __[y]
+    // Чтение из памяти вида: x = __[0] или x = __['$']
     if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0)
     {
         next_token(); // Пропускаем "__"
@@ -345,7 +349,9 @@ void parse_assignment()
         print_indent();
         if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
         else if (tok_type == TOK_ID) { printf("%s = __[%s];\n", var_name, tok_text); }
+        else if (tok_type == TOK_CHAR) { printf("%s = __['%s'];\n", var_name, tok_text); } // НОВАЯ ФИЧА: Символьный индекс при чтении
         next_token(); // Шагаем к ']'
+        if (tok_type != TOK_OP || tok_text[0] != ']') { print_indent(); printf("// Ошибка: Ожидалась ']'\n"); return; }
         next_token(); // Пропускаем ']'
         return;
     }
