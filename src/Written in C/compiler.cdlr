@@ -1,0 +1,10 @@
+main()
+{
+    i = 3
+    while i != 0
+    {
+        printf("\n C$ is awesome!")
+        i--
+    }
+    printf("\n С-бакс ты потрясающий!\n")
+}
