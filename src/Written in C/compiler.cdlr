@@ -1,10 +1,8 @@
 main()
 {
-    i = 0
-    cond = 'A'
-    __[i] = cond
-    res = __[0]
-    putchar('\n')
-    putchar(res)
+    printf("\n ")
+    __[5] = "C$ is awesome!"
+    res = __[5]
+    printf(res)
     putchar('\n')
 }
