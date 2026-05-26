@@ -1,8 +1,8 @@
 main()
 {
     printf("\n ")
-    __[5] = "C$ is awesome!"
-    res = __[5]
+    __['$'] = "C$ is awesome!"
+    res = __['$']
     printf(res)
     putchar('\n')
 }
