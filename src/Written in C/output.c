@@ -1,25 +1,29 @@
 #include <stdio.h>
-#include <locale.h>
+#include <windows.h>
 
 // Глобальная спартанская память языка C$
 int __[100000]; // Единая лента памяти на 100k ячеек
-int x = 0, y = 0, z = 0;
+// Системные переменные для работы встроенного лексера
+int tok_type = 0;
+int tok_value = 0;
+// Пользовательские переменные (выделяем спартанский пул)
+int i = 0, res = 0, flag = 0, cond = 0;
 
 void __main()
 {
-    __[0] = 5;
-    x = __[0];
-    while (x != 0)
+    i = 3;
+    while (i != 0)
     {
-        putchar(65);
-        x--;
-        __[0] = x;
+        printf("\n C$ is awesome!");
+        i--;
     }
+    printf("\n С-бакс ты потрясающий!\n");
 }
 
 int main()
 {
-    setlocale(0, "");
+    // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли
+    system("chcp 1251 > nul");
     __main(); // Вызов главной функции
     return 0;
 }
