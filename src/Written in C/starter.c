@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
     printf("    system(\"chcp 1251 > nul\");\n"); // Железный кросс-компиляторный способ
     printf("    __main(); // Вызов главной функции\n");
     printf("    return 0;\n");
-    printf("}\n");
+    printf("}");
     // Освобождаем память
     free(file_buffer);
     return 0;
