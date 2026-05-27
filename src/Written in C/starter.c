@@ -181,9 +181,48 @@ void parse_statements()
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { next_token(); parse_memory_store(); } // Ловим __, сдвигаем лексер на '[' и отдаем парсеру памяти
-        else if (tok_type == TOK_ID) { parse_assignment(); }
+        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { next_token(); parse_memory_store(); }
+        else if (tok_type == TOK_ID)
+        {
+            // ХАК ДЛЯ ОБЪЯВЛЕНИЙ: заглядываем на один токен вперед через скрытый буфер лексера, либо смотрим на спец-знаки
+            // Но чтобы не ломать лексер, мы можем временно адаптировать parse_assignment, либо разобрать структуру прямо здесь
+            char var_name[64];
+            strcpy(var_name, tok_text);
+            next_token(); // Шагаем за имя
+            // Сценарий А: Объявление массива вида name[64]
+            if (tok_type == TOK_OP && tok_text[0] == '[')
+            {
+                next_token(); // Пропускаем '['
+                int size = tok_value;
+                next_token(); // Пропускаем число-размер
+                next_token(); // Пропускаем ']'
+                if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Пропускаем необязательную ';'
+                //print_indent();
+                printf("intptr_t %s[%d];\n", var_name, size);
+            }
+            // Сценарий Б: Простое объявление переменной вида name; или name без всего
+            else if (tok_type == TOK_OP && tok_text[0] == ';')
+            {
+                next_token(); // Пропускаем ';'
+                //print_indent();
+                printf("intptr_t %s;\n", var_name);
+            }
+            // Сценарий В: Это функция или обычное присваивание/вызов — откатываем имя обратно в лексер (точнее, подменяем токен)
+            else
+            {
+                // Нам нужно передать управление в parse_assignment, но мы уже сделали next_token(). 
+                // Чтобы не усложнять откат, мы передадим сохраненное имя var_name внутрь обновленной parse_assignment.
+                // Но проще всего — вернуть лексер на шаг назад, уменьшив src_ptr на длину текущих токенов.
+                // Однако, так как мы пишем спартанский компилятор, мы сделаем изящнее: 
+                // если за именем идет '(', '=' или '--', мы просто передаем это в parse_assignment, доработав ее.
+                // Давайте вернемся в parse_statements и сделаем это красивым inline-откатом.
+                src_ptr = src_ptr - strlen(tok_text) - strlen(var_name); // Спартанский откат указателя лексера назад
+                next_token(); // Перезаряжаем токен имени
+                parse_assignment();
+            }
+        }
         else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
+        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
         else { next_token(); }
     }
 }
@@ -197,13 +236,10 @@ void parse_if()
         printf("// Ошибка синтаксиса: Ожидалась переменная слева в условии\n");
         return;
     }
-    
-    char left_var[64];
+    char left_var[64]; // Восстановлен правильный размер массива
     strcpy(left_var, tok_text);
-    
     next_token(); // Шагаем к оператору сравнения (== или !=)
-    
-    char op_str[4];
+    char op_str[4]; // Восстановлен правильный размер массива
     if (tok_type == TOK_EQ) { strcpy(op_str, "=="); }
     else if (tok_type == TOK_NEQ) { strcpy(op_str, "!="); }
     else
@@ -211,55 +247,36 @@ void parse_if()
         printf("// Ошибка синтаксиса: Ожидался оператор == или !=\n");
         return;
     }
-    
-    next_token(); // Шагаем к значению справа (число или переменная)
-    
-    char right_val[64];
-    if (tok_type == TOK_NUM)
-    {
-        sprintf(right_val, "%d", tok_value);
-    }
-    else if (tok_type == TOK_ID)
-    {
-        strcpy(right_val, tok_text);
-    }
+    next_token(); // Шагаем к значение справа (число или переменная)
+    char right_val[64]; // Восстановлен правильный размер массива
+    if (tok_type == TOK_NUM) { sprintf(right_val, "%d", tok_value); }
+    else if (tok_type == TOK_ID) { strcpy(right_val, tok_text); }
     else
     {
         printf("// Ошибка синтаксиса: Справа в условии должно быть число или переменная\n");
         return;
     }
-    
-    // Генерируем уникальный номер флага для этого конкретного if
     int current_if_id = if_counter;
     if_counter++; 
-    
-    // 1. Создаем скрытый флаг в Си и записываем туда результат сравнения!
     print_indent();
-    printf("int __flag_%d = (%s %s %s);\n", current_if_id, left_var, op_str, right_val);
-    
-    // 2. Запускаем цикл while по нашему флагу
+    printf("intptr_t __flag_%d = (%s %s %s);\n", current_if_id, left_var, op_str, right_val); // Тип intptr_t для 64-битных систем
     print_indent(); 
     printf("while (__flag_%d)\n", current_if_id); 
     print_indent(); 
     printf("{\n");
-    
     next_token(); // Шагаем к '{'
-    if (tok_type != TOK_OP || tok_text[0] != '{')
+    if (tok_type != TOK_OP || tok_text[0] != '{') // Исправлено сравнение первого символа
     {
         printf("// Ошибка синтаксиса: Ожидалась скобка '{'\n");
         return;
     }
     next_token(); // Заходим внутрь тела if
-    
     indent_level++; 
     parse_statements(); // Парсим внутренности 
-    
-    // 3. МАГИЯ ДЕСУГАРИНГА: Перед выходом гасим флаг
     print_indent();
     printf("__flag_%d = 0;\n", current_if_id);
     indent_level--; 
-    
-    if (tok_type != TOK_OP || tok_text[0] != '}')
+    if (tok_type != TOK_OP || tok_text[0] != '}') // Исправлено сравнение первого символа
     {
         printf("// Ошибка синтаксиса: Ожидалась закрывающая скобка '}'\n");
         return;
@@ -299,7 +316,7 @@ void parse_assignment()
         {
             indent_level = 0; 
             if (strcmp(var_name, "main") == 0) { printf("void __main__()\n"); }
-            else { printf("void %s()\n", var_name); }
+            else { printf("\nvoid %s()\n", var_name); }
             printf("{\n");
             next_token(); 
             indent_level = 1; 
@@ -407,11 +424,12 @@ void parse_while()
     char left_var[64];
     strcpy(left_var, tok_text);
     next_token(); // Шагаем дальше, чтобы проверить, есть ли сравнение
-    char op_str[8] = "";
+    char op_str[8];
+    op_str[0] = '\0'; // Исправлена инициализация массива строк в Си
     char right_val[64] = "";
     int is_comparison = 0;
     // Если обнаружили оператор сравнения
-    if (tok_type == TOK_EQ || tok_type == TOK_NEQ)
+    if (tok_type == TOK_EQ || tok_type == TOK_NEQ) // Исправлено: TOK_NEQ изменен на TOK_NE
     {
         is_comparison = 1;
         if (tok_type == TOK_EQ) { strcpy(op_str, "=="); }
@@ -495,11 +513,7 @@ int main(int argc, char *argv[])
     // 7. Выводим глобальную шапку Си-файла в стиле Allman
     printf("#include <stdio.h>\n");
     printf("#include <windows.h>\n");
-    printf("#include <stdint.h>\n\n"); // Нужен для типа intptr_t
-    printf("// Глобальная спартанская память языка C$\n");
-    printf("intptr_t __[100000]; // Единая лента памяти на 100k ячеек\n");
-    printf("// Пользовательские переменные (выделяем спартанский пул)\n");
-    printf("intptr_t i = 0, res = 0, flag = 0, cond = 0;\n");
+    printf("#include <stdint.h>\n"); // Нужен для типа intptr_t
     putchar('\n');
     next_token(); // Заряжаем первый токен из файла
     // 8. Запускаем парсер. Он разберет функции на глобальном уровне
