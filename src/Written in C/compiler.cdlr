@@ -1,8 +1,13 @@
+token_type;
+token_value;
+token_text[64];
+
+print()
+{
+    printf("\n MVP-компилятор мета-языка C$.\n");
+}
+
 main()
 {
-    printf("\n ")
-    __['$'] = "C$ is awesome!"
-    res = __['$']
-    printf(res)
-    putchar('\n')
+	print();
 }
