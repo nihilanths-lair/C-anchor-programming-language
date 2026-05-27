@@ -2,18 +2,18 @@
 #include <windows.h>
 #include <stdint.h>
 
-// Глобальная спартанская память языка C$
-intptr_t __[100000]; // Единая лента памяти на 100k ячеек
-// Пользовательские переменные (выделяем спартанский пул)
-intptr_t i = 0, res = 0, flag = 0, cond = 0;
+intptr_t token_type;
+intptr_t token_value;
+intptr_t token_text[64];
+
+void print()
+{
+    printf("\n MVP-компилятор мета-языка C$.\n");
+}
 
 void __main__()
 {
-    printf("\n ");
-    __['$'] = (intptr_t)"C$ is awesome!";
-    res = __['$'];
-    printf((char*) res);
-    putchar('\n');
+    print();
 }
 
 int main()
