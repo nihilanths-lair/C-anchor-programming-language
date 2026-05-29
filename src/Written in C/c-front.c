@@ -9,18 +9,20 @@ intptr_t token_text[64];
 void print()
 {
     printf("\n MVP-компилятор мета-языка C$.\n");
+    token_type = 5;
 }
 
-void __main__()
+
+void c_main()
 {
     print();
 }
 
+
 int main()
 {
-    // Нативное и безопасное переключение кодировки консоли Windows без system()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    __main__(); // Вызов главной функции
+    c_main();
     return 0;
 }
