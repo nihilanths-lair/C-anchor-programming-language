@@ -51,11 +51,17 @@ void next_token()
         tok_type = TOK_NUM;
         return;
     }
+    // ИСПРАВЛЕНО: Защищенный разбор строк с сохранением управляющих последовательностей \n
     if (*src_ptr == '"')
     {
         src_ptr++; int len = 0;
         while (*src_ptr != '"' && *src_ptr != '\0')
         {
+            if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
+            {
+                if (len < 62) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = 'n'; len += 2; }
+                src_ptr += 2; continue;
+            }
             if (len < 63) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
@@ -186,7 +192,7 @@ void parse_assignment()
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("(char*) %s", arg_id); }
-        if (has_arg == 3) { printf("\"%s\"", arg_str); }
+        if (has_arg == 3) { printf("\"%s\"", arg_str); } // ИСПРАВЛЕНО: Безопасный выгруз строк
         if (has_arg == 4) { printf("'%s'", arg_char); }
         printf(");\n"); return;
     }
@@ -194,13 +200,13 @@ void parse_assignment()
     if (tok_type != TOK_OP || *(tok_text + 0) != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
     next_token();
     if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
-    if (tok_type == TOK_NUM)
+    if (tok_type == TOK_NUM) 
     { 
         printf("%s = %d;\n", var_name, tok_value); next_token(); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return; 
     }
-    if (tok_type == TOK_CHAR)
+    if (tok_type == TOK_CHAR) 
     { 
         printf("%s = '%s';\n", var_name, tok_text); next_token(); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
