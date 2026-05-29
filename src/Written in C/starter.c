@@ -34,15 +34,12 @@ void print_indent() { for (int i = 0; i < indent_level; i++) { printf("\x20\x20\
 // Поточная функция: считывает ровно ОДИН следующий токен
 void next_token()
 {
-    // 1. Пропускаем пробелы
     while (*src_ptr != '\0' && isspace((unsigned char)*src_ptr)) { src_ptr++; }
-    // Если дошли до конца текста
     if (*src_ptr == '\0')
     {
         tok_type = TOK_EOF;
         return;
     }
-    // 2. Разбираем числа
     if (isdigit((unsigned char)*src_ptr))
     {
         tok_value = 0;
@@ -54,41 +51,33 @@ void next_token()
         tok_type = TOK_NUM;
         return;
     }
-    // Разбираем СТРОКИ в кавычках (Например: "Итерация цикла\n")
     if (*src_ptr == '"')
     {
-        src_ptr++; // Пропускаем открывающую кавычку
-        int len = 0;
+        src_ptr++; int len = 0;
         while (*src_ptr != '"' && *src_ptr != '\0')
         {
             if (len < 63) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
         tok_text[len] = '\0';
-        if (*src_ptr == '"') { src_ptr++; } // Пропускаем закрывающую кавычку
+        if (*src_ptr == '"') { src_ptr++; }
         tok_type = TOK_STR;
         return;
     }
-    // Разбираем СИМВОЛЬНЫЕ литералы в одинарных кавычках (Например: '\n')
     if (*src_ptr == '\'')
     {
-        src_ptr++; // Пропускаем открывающую кавычку
-        int len = 0;
+        src_ptr++; int len = 0;
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') // Обработка экранирования
-            {
-                tok_text[len++] = *src_ptr++;
-            }
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len++] = *src_ptr++; }
             if (len < 63) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
         tok_text[len] = '\0';
-        if (*src_ptr == '\'') { src_ptr++; } // Пропускаем закрывающую кавычку
+        if (*src_ptr == '\'') { src_ptr++; }
         tok_type = TOK_CHAR;
         return;
     }
-    // 3. Разбираем имена переменных и ключевые слова
     if (isalpha((unsigned char)*src_ptr) || *src_ptr == '_')
     {
         int len = 0;
@@ -97,42 +86,28 @@ void next_token()
             if (len < 63) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
-        tok_text[len] = '\0'; // Закрываем строку
-        // Проверяем на ключевое слово "while" или "if"
+        tok_text[len] = '\0';
         if (strcmp(tok_text, "while") == 0) { tok_type = TOK_WHILE; }
-        else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; } // Сахарный IF!
-        else { tok_type = TOK_ID; } // Просто переменная
+        else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; }
+        else { tok_type = TOK_ID; }
         return;
     }
-    // 4. Разбираем операторы и знаки
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
         tok_text[0] = '-'; tok_text[1] = '-'; tok_text[2] = '\0';
-        tok_type = TOK_DEC;
-        src_ptr += 2; // Шагаем сразу через два символа
-        return;
+        tok_type = TOK_DEC; src_ptr += 2; return;
     }
-    // ПРОВЕРКА НА ОПЕРАТОР ==
     if (*src_ptr == '=' && *(src_ptr + 1) == '=')
     {
         tok_text[0] = '='; tok_text[1] = '='; tok_text[2] = '\0';
-        tok_type = TOK_EQ;
-        src_ptr += 2;
-        return;
+        tok_type = TOK_EQ; src_ptr += 2; return;
     }
-    // ПРОВЕРКА НА ОПЕРАТОР !=
     if (*src_ptr == '!' && *(src_ptr + 1) == '=')
     {
         tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
-        tok_type = TOK_NEQ; // Привели к единому имени TOK_NEQ
-        src_ptr += 2;
-        return;
+        tok_type = TOK_NEQ; src_ptr += 2; return;
     }
-    // Все остальные одиночные символы (=, +, {, }, (, ))
-    tok_text[0] = *src_ptr;
-    tok_text[1] = '\0';
-    tok_type = TOK_OP;
-    src_ptr++;
+    tok_text[0] = *src_ptr; tok_text[1] = '\0'; tok_type = TOK_OP; src_ptr++;
 }
 
 // Прототипы функций, чтобы Си не ругался на порядок их объявления
@@ -179,14 +154,12 @@ void parse_assignment()
     char var_name[64];
     strcpy(var_name, tok_text);
     next_token();
-    // Глобальное объявление массива вида: token_text[64]
     if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
         if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         printf("intptr_t %s[%d];\n", var_name, size); return;
     }
-    // Глобальное объявление переменной без инициализации вида: token_type;
     if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == ';')
     {
         next_token(); printf("intptr_t %s;\n", var_name); return;
@@ -207,8 +180,7 @@ void parse_assignment()
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
-            printf("}\n"); next_token(); 
-            indent_level = 0; return;
+            printf("}\n"); next_token(); indent_level = 0; return;
         }
         print_indent();
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
@@ -221,22 +193,17 @@ void parse_assignment()
     if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", var_name); next_token(); return; }
     if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
     next_token();
-    
-    // Вывод типа переменной на глобальном уровне
     if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
-    
-    // БЛОК ЛЕНТЫ ПАМЯТИ __ ПОЛНОСТЬЮ ВЫРЕЗАН ИЗ КОДА РАЗ И НАВСЕГДА
-    
     if (tok_type == TOK_NUM) 
     { 
         printf("%s = %d;\n", var_name, tok_value); next_token(); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_CHAR) 
     { 
         printf("%s = '%s';\n", var_name, tok_text); next_token(); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_ID)
@@ -248,11 +215,11 @@ void parse_assignment()
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
             next_token(); 
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
             return;
         }
         printf("%s = %s;\n", var_name, first_id); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         return;
     }
     printf("// Ошибка синтаксиса\n");
