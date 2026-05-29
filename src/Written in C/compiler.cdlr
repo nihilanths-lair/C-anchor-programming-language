@@ -1,15 +1,14 @@
-token_type;
-token_value;
-token_text[64];
+token__type_eof = 0
+token__while = 1
+token__identifier = 2
+token__number = 3
+token__operator = 4
+token__keyword_if = 6
 
-print()
-{
-    printf(" Call: print.");
-}
+token_text[64]
 
 main()
 {
-    putchar('\n');
-    print();
-    putchar('\n');
+	printf("\n Запущен независимый компилятор compiler.cdlr с глобальной инициализацией!\n")
+	printf(" Код токена WHILE: %d\n", token__while)
 }
