@@ -2,14 +2,13 @@
 #include <windows.h>
 #include <stdint.h>
 
-    token__type_eof = 0;
-    token__while = 1;
-    token__identifier = 2;
-    token__number = 3;
-    token__operator = 4;
-    token__keyword_if = 6;
-    // Ошибка: Ожидался знак '=' 
-    // Ошибка: Ожидался знак '='
+intptr_t token__type_eof = 0;
+intptr_t token__while = 1;
+intptr_t token__identifier = 2;
+intptr_t token__number = 3;
+intptr_t token__operator = 4;
+intptr_t token__keyword_if = 6;
+intptr_t token_text[64];
 void cdlr__main()
 {
     printf("\n Запущен независимый компилятор compiler.cdlr с глобальной ин");
