@@ -35,7 +35,7 @@ void print_indent() { for (int i = 0; i < indent_level; i++) { printf("\x20\x20\
 void next_token()
 {
     // 1. Пропускаем пробелы
-    while (*src_ptr != '\0' && isspace(*src_ptr)) { src_ptr++; }
+    while (*src_ptr != '\0' && isspace((unsigned char)*src_ptr)) { src_ptr++; }
     // Если дошли до конца текста
     if (*src_ptr == '\0')
     {
@@ -43,10 +43,10 @@ void next_token()
         return;
     }
     // 2. Разбираем числа
-    if (isdigit(*src_ptr))
+    if (isdigit((unsigned char)*src_ptr))
     {
         tok_value = 0;
-        while (isdigit(*src_ptr))
+        while (isdigit((unsigned char)*src_ptr))
         {
             tok_value = tok_value * 10 + (*src_ptr - '0');
             src_ptr++;
@@ -54,7 +54,7 @@ void next_token()
         tok_type = TOK_NUM;
         return;
     }
-    // НОВАЯ ФИЧА: Разбираем СТРОКИ в кавычках (Например: "Итерация цикла\n")
+    // Разбираем СТРОКИ в кавычках (Например: "Итерация цикла\n")
     if (*src_ptr == '"')
     {
         src_ptr++; // Пропускаем открывающую кавычку
@@ -69,12 +69,11 @@ void next_token()
         tok_type = TOK_STR;
         return;
     }
-    // НОВАЯ ФИЧА: Разбираем СИМВОЛЬНЫЕ литералы в одинарных кавычках (Например: '\n')
+    // Разбираем СИМВОЛЬНЫЕ литералы в одинарных кавычках (Например: '\n')
     if (*src_ptr == '\'')
     {
         src_ptr++; // Пропускаем открывающую кавычку
         int len = 0;
-        // Считываем, пока не встретим закрывающую кавычку или конец строки
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
             if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') // Обработка экранирования
@@ -90,10 +89,10 @@ void next_token()
         return;
     }
     // 3. Разбираем имена переменных и ключевые слова
-    if (isalpha(*src_ptr) || *src_ptr == '_')
+    if (isalpha((unsigned char)*src_ptr) || *src_ptr == '_')
     {
         int len = 0;
-        while (isalnum(*src_ptr) || *src_ptr == '_')
+        while (isalnum((unsigned char)*src_ptr) || *src_ptr == '_')
         {
             if (len < 63) { tok_text[len++] = *src_ptr; }
             src_ptr++;
@@ -175,116 +174,85 @@ void parse_memory_store()
     next_token();
 }
 
-// Разбор идентификатора: присваивание, декремент, вызов или объявление функции
 void parse_assignment()
 {
     char var_name[64];
     strcpy(var_name, tok_text);
-    next_token(); // Шагаем к следующему токену за именем
-    
-    // Новая фича: Одиночное объявление глобального массива без инициализации (например, token_text)
+    next_token();
+    // Глобальное объявление массива вида: token_text[64]
     if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == '[')
     {
-        next_token(); // Пропускаем '['
-        int size = tok_value;
-        next_token(); // Пропускаем число
-        next_token(); // Пропускаем ']'
+        next_token(); int size = tok_value; next_token(); next_token();
         if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
-        printf("intptr_t %s[%d];\n", var_name, size);
-        return;
+        printf("intptr_t %s[%d];\n", var_name, size); return;
     }
-    // Новая фича: Одиночное объявление глобальной переменной без инициализации (например, token_type;)
+    // Глобальное объявление переменной без инициализации вида: token_type;
     if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == ';')
     {
-        next_token(); // Пропускаем ';'
-        printf("intptr_t %s;\n", var_name);
-        return;
+        next_token(); printf("intptr_t %s;\n", var_name); return;
     }
-
-    // Сценарий 1: Работа со скобками (Вызов или Объявление функции)
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
-        next_token(); // Пропускаем '('
-        int has_arg = 0; int arg_num = 0; char arg_id[64] = {0}; char arg_str[64] = {0}; char arg_char[64] = {0};
+        next_token(); int has_arg = 0; int arg_num = 0; char arg_id[64] = {0}; char arg_str[64] = {0}; char arg_char[64] = {0};
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
         else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(arg_char, tok_text); next_token(); }
         if (tok_type != TOK_OP || tok_text[0] != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
         next_token();
-        // ОБЪЯВЛЕНИЕ ФУНКЦИИ
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
-            indent_level = 0; 
+            indent_level = 0;
             if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
-            printf("{\n");
-            next_token(); 
-            indent_level = 1; 
-            parse_statements();
+            printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
-            printf("}\n\n"); 
-            next_token(); 
-            indent_level = 0; // Возвращаемся на глобальный уровень
-            return;
+            printf("}\n"); next_token(); 
+            indent_level = 0; return;
         }
-        // ВЫЗОВ ФУНКЦИИ
         print_indent();
-        if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); }
-        else { printf("%s(", var_name); }
+        if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("(char*) %s", arg_id); }
         if (has_arg == 3) { printf("\"%s\"", arg_str); }
         if (has_arg == 4) { printf("'%s'", arg_char); }
-        printf(");\n");
-        return;
+        printf(");\n"); return;
     }
-    // Сценарий 2: Декремент (x--)
-    if (tok_type == TOK_DEC)
-    {
-        print_indent();
-        printf("%s--;\n", var_name);
-        next_token();
-        return;
-    }
-    // Сценарий 3: Присваивание переменной (x = 42, x = y, x = __, x = 'A')
-    if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка\n"); return; }
-    next_token(); // Шагаем за '='
+    if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", var_name); next_token(); return; }
+    if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
+    next_token();
     
-    // ПРОВЕРКА НА ГЛОБАЛЬНЫЙ УРОВЕНЬ: Выводим тип intptr_t для инициализации в шапке
-    if (indent_level == 0) { printf("intptr_t "); }
-    else { print_indent(); }
-
-    if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0)
-    {
-        next_token();
-        if (tok_type != TOK_OP || tok_text[0] != '[') { printf("// Ошибка: Ожидалась '['\n"); return; }
-        next_token();
-        if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
-        else if (tok_type == TOK_ID) { printf("%s = __[%s];\n", var_name, tok_text); }
-        else if (tok_type == TOK_CHAR) { printf("%s = __['%s'];\n", var_name, tok_text); }
-        next_token();
-        if (tok_type != TOK_OP || tok_text[0] != ']') { printf("// Ошибка: Ожидалась ']'\n"); return; }
-        next_token();
-        return;
+    // Вывод типа переменной на глобальном уровне
+    if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
+    
+    // БЛОК ЛЕНТЫ ПАМЯТИ __ ПОЛНОСТЬЮ ВЫРЕЗАН ИЗ КОДА РАЗ И НАВСЕГДА
+    
+    if (tok_type == TOK_NUM) 
+    { 
+        printf("%s = %d;\n", var_name, tok_value); next_token(); 
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+        return; 
     }
-    if (tok_type == TOK_NUM) { printf("%s = %d;\n", var_name, tok_value); next_token(); return; }
-    if (tok_type == TOK_CHAR) { printf("%s = '%s';\n", var_name, tok_text); next_token(); return; }
+    if (tok_type == TOK_CHAR) 
+    { 
+        printf("%s = '%s';\n", var_name, tok_text); next_token(); 
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
+        return; 
+    }
     if (tok_type == TOK_ID)
     {
-        char first_id[64];
-        strcpy(first_id, tok_text);
-        next_token(); 
+        char first_id[64]; strcpy(first_id, tok_text); next_token();
         if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
         {
-            char op = tok_text[0];
-            next_token(); 
+            char op = tok_text[0]; next_token();
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
-            next_token();
+            next_token(); 
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
             return;
         }
-        printf("%s = %s;\n", var_name, first_id);
+        printf("%s = %s;\n", var_name, first_id); 
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Съедаем необязательную ';'
         return;
     }
     printf("// Ошибка синтаксиса\n");
@@ -296,9 +264,14 @@ void parse_statements()
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID) { parse_assignment(); } // Чистый, единый путь для всех идентификаторов
+        else if (tok_type == TOK_ID) 
+        { 
+            parse_assignment(); 
+            // МАГИЯ НЕОБЯЗАТЕЛЬНОЙ ';': если после выполнения команды лексер видит ';', мы её молча съедаем!
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
+        }
         else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
-        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
+        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Пропускаем одиночные точки с запятой
         else { next_token(); }
     }
 }
