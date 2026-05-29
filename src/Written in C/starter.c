@@ -59,7 +59,17 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '"' && *src_ptr != '\0')
         {
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) == '"')
+            {
+                if (len < 1000) { tok_text[len++] = '"'; }
+                src_ptr += 2; continue;
+            }
+            if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
+            {
+                if (len < 1000) { tok_text[len++] = '\n'; }
+                src_ptr += 2; continue;
+            }
+            if (len < 1000) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
         tok_text[len] = '\0';
@@ -72,8 +82,8 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len] = *src_ptr; len++; src_ptr++; }
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len++] = *src_ptr++; }
+            if (len < 1000) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
         tok_text[len] = '\0';
@@ -86,7 +96,7 @@ void next_token()
         int len = 0;
         while (isalnum((unsigned char)*src_ptr) || *src_ptr == '_')
         {
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (len < 1000) { tok_text[len++] = *src_ptr; }
             src_ptr++;
         }
         tok_text[len] = '\0';
@@ -147,9 +157,7 @@ void parse_assignment()
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
-        char arg_id_buf[64]; char arg_str_buf[1024]; char arg_char_buf[64];
-        char *arg_id = arg_id_buf; char *arg_str = arg_str_buf; char *arg_char = arg_char_buf;
-        memset(arg_id_buf, 0, 64); memset(arg_str_buf, 0, 1024); memset(arg_char_buf, 0, 64);
+        char arg_id[64] = {0}; char arg_str[1024] = {0}; char arg_char[64] = {0};
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
@@ -176,7 +184,17 @@ void parse_assignment()
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("(char*) %s", arg_id); }
-        if (has_arg == 3) { printf("\"%s\"", arg_str); }
+        if (has_arg == 3) 
+        {
+            printf("\"");
+            for (int i = 0; arg_str[i] != '\0'; i++)
+            {
+                if (arg_str[i] == '\n') { printf("\\n"); }
+                else if (arg_str[i] == '"') { printf("\\\""); }
+                else { putchar(arg_str[i]); }
+            }
+            printf("\"");
+        }
         if (has_arg == 4) { printf("'%s'", arg_char); }
         printf(");\n"); return;
     }
@@ -198,8 +216,7 @@ void parse_assignment()
     }
     if (tok_type == TOK_ID)
     {
-        char first_id_buffer[64];
-        char *first_id = first_id_buffer;
+        char first_id[64];
         strcpy(first_id, tok_text); next_token();
         if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
         {
