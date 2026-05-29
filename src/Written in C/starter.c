@@ -35,6 +35,7 @@ void print_indent()
     for (int i = 0; i < indent_level; i++) { printf("    "); }
 }
 
+// Поточная функция: считывает ровно ОДИН следующий токен
 void next_token()
 {
     while (*src_ptr != '\0' && isspace((unsigned char)*src_ptr)) { src_ptr++; }
@@ -59,20 +60,21 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '"' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) == '"')
-            {
-                if (len < 1000) { tok_text[len++] = '"'; }
-                src_ptr += 2; continue;
-            }
+            // БУКВАЛЬНЫЙ ПЕРЕНОС: сохраняем обратный слэш и символ 'n' / '"' отдельно через указатели
             if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
             {
-                if (len < 1000) { tok_text[len++] = '\n'; }
+                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = 'n'; len += 2; }
                 src_ptr += 2; continue;
             }
-            if (len < 1000) { tok_text[len++] = *src_ptr; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) == '"')
+            {
+                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = '"'; len += 2; }
+                src_ptr += 2; continue;
+            }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (*src_ptr == '"') { src_ptr++; }
         tok_type = TOK_STR;
         return;
@@ -82,11 +84,11 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len++] = *src_ptr++; }
-            if (len < 1000) { tok_text[len++] = *src_ptr; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { *(tok_text + len) = *src_ptr; len++; src_ptr++; }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (*src_ptr == '\'') { src_ptr++; }
         tok_type = TOK_CHAR;
         return;
@@ -96,10 +98,10 @@ void next_token()
         int len = 0;
         while (isalnum((unsigned char)*src_ptr) || *src_ptr == '_')
         {
-            if (len < 1000) { tok_text[len++] = *src_ptr; }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (strcmp(tok_text, "while") == 0) { tok_type = TOK_WHILE; }
         else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; }
         else { tok_type = TOK_ID; }
@@ -107,20 +109,20 @@ void next_token()
     }
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
-        tok_text[0] = '-'; tok_text[1] = '-'; tok_text[2] = '\0';
+        *(tok_text + 0) = '-'; *(tok_text + 1) = '-'; *(tok_text + 2) = '\0';
         tok_type = TOK_DEC; src_ptr += 2; return;
     }
     if (*src_ptr == '=' && *(src_ptr + 1) == '=')
     {
-        tok_text[0] = '='; tok_text[1] = '='; tok_text[2] = '\0';
+        *(tok_text + 0) = '='; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
         tok_type = TOK_EQ; src_ptr += 2; return;
     }
     if (*src_ptr == '!' && *(src_ptr + 1) == '=')
     {
-        tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
+        *(tok_text + 0) = '!'; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
         tok_type = TOK_NEQ; src_ptr += 2; return;
     }
-    tok_text[0] = *src_ptr; tok_text[1] = '\0'; tok_type = TOK_OP; src_ptr++;
+    *(tok_text + 0) = *src_ptr; *(tok_text + 1) = '\0'; tok_type = TOK_OP; src_ptr++;
 }
 
 void parse_statements()
