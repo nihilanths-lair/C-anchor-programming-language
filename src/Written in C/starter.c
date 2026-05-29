@@ -181,46 +181,7 @@ void parse_statements()
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0) { next_token(); parse_memory_store(); }
-        else if (tok_type == TOK_ID)
-        {
-            // ХАК ДЛЯ ОБЪЯВЛЕНИЙ: заглядываем на один токен вперед через скрытый буфер лексера, либо смотрим на спец-знаки
-            // Но чтобы не ломать лексер, мы можем временно адаптировать parse_assignment, либо разобрать структуру прямо здесь
-            char var_name[64];
-            strcpy(var_name, tok_text);
-            next_token(); // Шагаем за имя
-            // Сценарий А: Объявление массива вида name[64]
-            if (tok_type == TOK_OP && tok_text[0] == '[')
-            {
-                next_token(); // Пропускаем '['
-                int size = tok_value;
-                next_token(); // Пропускаем число-размер
-                next_token(); // Пропускаем ']'
-                if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Пропускаем необязательную ';'
-                //print_indent();
-                printf("intptr_t %s[%d];\n", var_name, size);
-            }
-            // Сценарий Б: Простое объявление переменной вида name; или name без всего
-            else if (tok_type == TOK_OP && tok_text[0] == ';')
-            {
-                next_token(); // Пропускаем ';'
-                //print_indent();
-                printf("intptr_t %s;\n", var_name);
-            }
-            // Сценарий В: Это функция или обычное присваивание/вызов — откатываем имя обратно в лексер (точнее, подменяем токен)
-            else
-            {
-                // Нам нужно передать управление в parse_assignment, но мы уже сделали next_token(). 
-                // Чтобы не усложнять откат, мы передадим сохраненное имя var_name внутрь обновленной parse_assignment.
-                // Но проще всего — вернуть лексер на шаг назад, уменьшив src_ptr на длину текущих токенов.
-                // Однако, так как мы пишем спартанский компилятор, мы сделаем изящнее: 
-                // если за именем идет '(', '=' или '--', мы просто передаем это в parse_assignment, доработав ее.
-                // Давайте вернемся в parse_statements и сделаем это красивым inline-откатом.
-                src_ptr = src_ptr - strlen(tok_text) - strlen(var_name); // Спартанский откат указателя лексера назад
-                next_token(); // Перезаряжаем токен имени
-                parse_assignment();
-            }
-        }
+        else if (tok_type == TOK_ID) { parse_assignment(); } // Теперь любой ID (включая __) идёт по единому чистому пути
         else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
         else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
         else { next_token(); }
@@ -473,61 +434,50 @@ void parse_while()
 
 int main(int argc, char *argv[])
 {
-    //setlocale(0, "");
-    // Нативное и безопасное переключение кодировки консоли Windows без system()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    // Насильно включаем кодировку Windows-1251 для ввода и вывода консоли
-    //system("chcp 1251 > nul");
-    // 1. Проверяем, передал ли пользователь имя файла
-    if (argc < 2)
-    {
-        printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]);
-        return 1;
-    }
-    // 2. Открываем файл для чтения в бинарном режиме
+    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); return 1; }
     FILE *file = fopen(argv[1], "rb");
-    if (file == NULL)
-    {
-        printf("Ошибка: Не удалось открыть файл %s\n", argv[1]);
-        return 1;
-    }
-    // 3. Узнаем размер файла
+    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    // 4. Выделяем память под текст файла (+1 байт для финала строки '\0')
     file_buffer = (char *) malloc(file_size + 1);
-    if (file_buffer == NULL)
-    {
-        printf("Ошибка: Не удалось выделить память\n");
-        fclose(file);
-        return 1;
-    }
-    // 5. Считываем весь файл целиком в наш буфер
+    if (file_buffer == NULL) { printf("Ошибка: Не удалось выделить память\n"); fclose(file); return 1; }
     fread(file_buffer, 1, file_size, file);
-    file_buffer[file_size] = '\0'; // Обязательно закрываем строку null-терминатором
+    file_buffer[file_size] = '\0';
     fclose(file);
-    // 6. Направляем указатель лексера на считанный из файла текст
     src_ptr = file_buffer;
-    // 7. Выводим глобальную шапку Си-файла в стиле Allman
-    printf("#include <stdio.h>\n");
-    printf("#include <windows.h>\n");
-    printf("#include <stdint.h>\n"); // Нужен для типа intptr_t
-    putchar('\n');
-    next_token(); // Заряжаем первый токен из файла
-    // 8. Запускаем парсер. Он разберет функции на глобальном уровне
+    printf("#include <stdio.h>\n#include <windows.h>\n#include <stdint.h>\n\n"); // Оставили только чистые системные инклуды
+    next_token();
+    // ЭТАП 1: Разбор глобальной шапки (переменные и массивы)
+    while (tok_type == TOK_ID)
+    {
+        char var_name[64];
+        strcpy(var_name, tok_text);
+        next_token();
+        if (tok_type == TOK_OP && tok_text[0] == '[')
+        {
+            next_token(); int size = tok_value; next_token(); next_token();
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+            printf("intptr_t %s[%d];\n", var_name, size);
+        }
+        else if (tok_type == TOK_OP && tok_text[0] == ';')
+        {
+            next_token();
+            printf("intptr_t %s;\n", var_name);
+        }
+        else
+        {
+            src_ptr = src_ptr - strlen(tok_text);
+            strcpy(tok_text, var_name);
+            tok_type = TOK_ID;
+            break;
+        }
+    }
+    // ЭТАП 2: Разбор функций
     parse_statements();
-    // 9. Автоматически дописываем точку входа Си, которая вызовет нашу функцию main()
-    printf("int main()\n");
-    printf("{\n");
-    printf("    // Нативное и безопасное переключение кодировки консоли Windows без system()\n");
-    printf("    SetConsoleCP(1251);\n");
-    printf("    SetConsoleOutputCP(1251);\n");
-    printf("    __main__(); // Вызов главной функции\n");
-    printf("    return 0;\n");
-    printf("}");
-    // Освобождаем память
+    printf("\nint main()\n{\n    SetConsoleCP(1251);\n    SetConsoleOutputCP(1251);\n    c_main();\n    return 0;\n}"); // Убран перевод строки в самом конце файла
     free(file_buffer);
     return 0;
 }
