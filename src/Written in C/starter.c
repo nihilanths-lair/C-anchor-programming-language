@@ -227,18 +227,16 @@ void parse_assignment()
 
 void parse_statements()
 {
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '}'))
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
         else if (tok_type == TOK_ID) 
         { 
             parse_assignment(); 
-            // МАГИЯ НЕОБЯЗАТЕЛЬНОЙ ';': если после выполнения команды лексер видит ';', мы её молча съедаем!
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); } 
         }
-        else if (tok_type == TOK_OP && tok_text[0] == '[') { parse_memory_store(); }
-        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } // Пропускаем одиночные точки с запятой
+        else if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         else { next_token(); }
     }
 }
@@ -365,25 +363,40 @@ int main(int argc, char *argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); return 1; }
+    if (argc < 2) 
+    { 
+        printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); 
+        return 1; 
+    }
     FILE *file = fopen(argv[1], "rb");
-    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
+    if (file == NULL) 
+    { 
+        printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); 
+        return 1; 
+    }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
     file_buffer = (char *) malloc(file_size + 1);
-    if (file_buffer == NULL) { printf("Ошибка: Не удалось выделить память\n"); fclose(file); return 1; }
+    if (file_buffer == NULL) 
+    { 
+        printf("Ошибка: Не удалось выделить память\n"); 
+        fclose(file); 
+        return 1; 
+    }
     fread(file_buffer, 1, file_size, file);
     file_buffer[file_size] = '\0';
     fclose(file);
     src_ptr = file_buffer;
     
-    // Чистая шапка Си-файла
+    // Печатаем только чистые базовые инклуды Си
     printf("#include <stdio.h>\n#include <windows.h>\n#include <stdint.h>\n\n");
     
-    next_token(); // Заряжаем первый токен
-    parse_statements(); // Передаем ВСЁ управление единому парсеру
+    indent_level = 0; // Насильно сбрасываем уровень отступов перед стартом
+    next_token();     // Заряжаем первый токен из файла
+    parse_statements(); // Запускаем парсер, который сам всё прочитает
 
+    // Финальная точка входа Си
     printf("\nint main()\n{\n    SetConsoleCP(1251);\n    SetConsoleOutputCP(1251);\n    cdlr__main();\n    return 0;\n}");
     free(file_buffer);
     return 0;
