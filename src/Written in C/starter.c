@@ -160,7 +160,7 @@ void parse_assignment()
         if (tok_type == TOK_OP && *(tok_text + 0) == '{')
         {
             indent_level = 0;
-            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
+            if (strcmp(var_name, "main") == 0) { printf("\nvoid cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
