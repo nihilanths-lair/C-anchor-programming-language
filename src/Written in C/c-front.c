@@ -11,9 +11,7 @@ intptr_t token__keyword_if = 6;
 intptr_t token_text[64];
 void cdlr__main()
 {
-    printf("
- Запущен независимый компилятор compiler.cdlr с глобальной инициализацией!
-");
+    printf(\"\n Запущен независимый компилятор compiler.cdlr с глобальной инициализацией!\n\");
 }
 
 int main()
