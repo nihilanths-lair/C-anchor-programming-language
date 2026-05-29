@@ -132,8 +132,8 @@ void parse_statements()
 
 void parse_assignment()
 {
-    char var_name_buffer[256];
-    char *var_name = var_name_buffer;
+    char var_name_buffer[64];
+    char *var_name = &var_name_buffer[0];
     strcpy(var_name, tok_text);
     next_token();
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
@@ -149,8 +149,9 @@ void parse_assignment()
     if (tok_type == TOK_OP && *(tok_text + 0) == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
-        char arg_id_buf[256] = {0}; char arg_str_buf[1024] = {0}; char arg_char_buf[64] = {0};
-        char *arg_id = arg_id_buf; char *arg_str = arg_str_buf; char *arg_char = arg_char_buf;
+        char arg_id_buf[64]; char arg_str_buf[1000]; char arg_char_buf[64];
+        char *arg_id = &arg_id_buf[0]; char *arg_str = &arg_str_buf[0]; char *arg_char = &arg_char_buf[0];
+        memset(arg_id_buf, 0, 64); memset(arg_str_buf, 0, 1000); memset(arg_char_buf, 0, 64);
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
@@ -160,11 +161,18 @@ void parse_assignment()
         if (tok_type == TOK_OP && *(tok_text + 0) == '{')
         {
             indent_level = 0;
-            if (strcmp(var_name, "main") == 0) { printf("\nvoid cdlr__main()\n"); }
+            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
+        }
+        if (strcmp(var_name, "native_c") == 0)
+        {
+            print_indent();
+            if (has_arg == 3) { printf("%s\n", arg_str); }
+            else { printf("// Ошибка: native_c ожидает строковый литерал\n"); }
+            return;
         }
         print_indent();
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
@@ -192,8 +200,8 @@ void parse_assignment()
     }
     if (tok_type == TOK_ID)
     {
-        char first_id_buffer[256];
-        char *first_id = first_id_buffer;
+        char first_id_buffer[64];
+        char *first_id = &first_id_buffer[0];
         strcpy(first_id, tok_text); next_token();
         if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
         {
