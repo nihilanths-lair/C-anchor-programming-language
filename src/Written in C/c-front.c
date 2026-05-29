@@ -8,14 +8,14 @@ intptr_t token_text[64];
 
 void print()
 {
-    printf("\n MVP-компилятор мета-языка C$.\n");
-    token_type = 5;
+    printf(" Call: print.");
 }
 
-
-void c_main()
+void cdlr__main()
 {
+    putchar('\n');
     print();
+    putchar('\n');
 }
 
 
@@ -23,6 +23,6 @@ int main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    c_main();
+    cdlr__main(); // Вызов главной функции языка C$
     return 0;
 }
