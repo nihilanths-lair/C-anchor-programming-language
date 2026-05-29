@@ -4,11 +4,12 @@ token_text[64];
 
 print()
 {
-    printf("\n MVP-компилятор мета-языка C$.\n")
-    token_type = 5;
+    printf(" Call: print.");
 }
 
-c_main()
+main()
 {
-	print()
+    putchar('\n');
+    print();
+    putchar('\n');
 }
