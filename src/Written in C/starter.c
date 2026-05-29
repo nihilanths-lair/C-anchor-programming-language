@@ -181,15 +181,31 @@ void parse_assignment()
     char var_name[64];
     strcpy(var_name, tok_text);
     next_token(); // Шагаем к следующему токену за именем
+    
+    // Новая фича: Одиночное объявление глобального массива без инициализации (например, token_text)
+    if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == '[')
+    {
+        next_token(); // Пропускаем '['
+        int size = tok_value;
+        next_token(); // Пропускаем число
+        next_token(); // Пропускаем ']'
+        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        printf("intptr_t %s[%d];\n", var_name, size);
+        return;
+    }
+    // Новая фича: Одиночное объявление глобальной переменной без инициализации (например, token_type;)
+    if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == ';')
+    {
+        next_token(); // Пропускаем ';'
+        printf("intptr_t %s;\n", var_name);
+        return;
+    }
+
     // Сценарий 1: Работа со скобками (Вызов или Объявление функции)
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
         next_token(); // Пропускаем '('
-        int has_arg = 0;
-        int arg_num = 0;
-        char arg_id[64] = {0};
-        char arg_str[64] = {0};
-        char arg_char[64] = {0};
+        int has_arg = 0; int arg_num = 0; char arg_id[64] = {0}; char arg_str[64] = {0}; char arg_char[64] = {0};
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
@@ -200,8 +216,8 @@ void parse_assignment()
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
             indent_level = 0; 
-            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); } // ПОДМЕНА ТОЛЬКО ДЛЯ MAIN
-            else { printf("\nvoid %s()\n", var_name); } // Остальные функции остаются как есть
+            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
+            else { printf("\nvoid %s()\n", var_name); }
             printf("{\n");
             next_token(); 
             indent_level = 1; 
@@ -209,12 +225,13 @@ void parse_assignment()
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n\n"); 
             next_token(); 
+            indent_level = 0; // Возвращаемся на глобальный уровень
             return;
         }
-        // ВЫЗОВ ФУНКЦИИ (Включая нативный printf)
+        // ВЫЗОВ ФУНКЦИИ
         print_indent();
-        if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } // ПОДМЕНА ТОЛЬКО ДЛЯ ВЫЗОВА MAIN
-        else { printf("%s(", var_name); } // Нативные Си-функции и другие имена выводятся без изменений
+        if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); }
+        else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("(char*) %s", arg_id); }
         if (has_arg == 3) { printf("\"%s\"", arg_str); }
@@ -233,22 +250,26 @@ void parse_assignment()
     // Сценарий 3: Присваивание переменной (x = 42, x = y, x = __, x = 'A')
     if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка\n"); return; }
     next_token(); // Шагаем за '='
+    
+    // ПРОВЕРКА НА ГЛОБАЛЬНЫЙ УРОВЕНЬ: Выводим тип intptr_t для инициализации в шапке
+    if (indent_level == 0) { printf("intptr_t "); }
+    else { print_indent(); }
+
     if (tok_type == TOK_ID && strcmp(tok_text, "__") == 0)
     {
         next_token();
-        if (tok_type != TOK_OP || tok_text[0] != '[') { print_indent(); printf("// Ошибка: Ожидалась '['\n"); return; }
+        if (tok_type != TOK_OP || tok_text[0] != '[') { printf("// Ошибка: Ожидалась '['\n"); return; }
         next_token();
-        print_indent();
         if (tok_type == TOK_NUM) { printf("%s = __[%d];\n", var_name, tok_value); }
         else if (tok_type == TOK_ID) { printf("%s = __[%s];\n", var_name, tok_text); }
         else if (tok_type == TOK_CHAR) { printf("%s = __['%s'];\n", var_name, tok_text); }
         next_token();
-        if (tok_type != TOK_OP || tok_text[0] != ']') { print_indent(); printf("// Ошибка: Ожидалась ']'\n"); return; }
+        if (tok_type != TOK_OP || tok_text[0] != ']') { printf("// Ошибка: Ожидалась ']'\n"); return; }
         next_token();
         return;
     }
-    if (tok_type == TOK_NUM) { print_indent(); printf("%s = %d;\n", var_name, tok_value); next_token(); return; }
-    if (tok_type == TOK_CHAR) { print_indent(); printf("%s = '%s';\n", var_name, tok_text); next_token(); return; }
+    if (tok_type == TOK_NUM) { printf("%s = %d;\n", var_name, tok_value); next_token(); return; }
+    if (tok_type == TOK_CHAR) { printf("%s = '%s';\n", var_name, tok_text); next_token(); return; }
     if (tok_type == TOK_ID)
     {
         char first_id[64];
@@ -258,18 +279,15 @@ void parse_assignment()
         {
             char op = tok_text[0];
             next_token(); 
-            print_indent();
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
             next_token();
             return;
         }
-        print_indent();
         printf("%s = %s;\n", var_name, first_id);
         return;
     }
-    print_indent();
-    printf("// Ошибка синтаксиса: Ожидалось число, переменная, символ или массив\n");
+    printf("// Ошибка синтаксиса\n");
 }
 
 void parse_statements()
@@ -420,40 +438,13 @@ int main(int argc, char *argv[])
     fclose(file);
     src_ptr = file_buffer;
     
-    // Чистая шапка Си без капризных макросов подмены
+    // Чистая шапка Си-файла
     printf("#include <stdio.h>\n#include <windows.h>\n#include <stdint.h>\n\n");
     
-    next_token();
-    // ЭТАП 1: Разбор глобальной шапки (переменные и массивы)
-    while (tok_type == TOK_ID)
-    {
-        char var_name[64];
-        strcpy(var_name, tok_text);
-        next_token();
-        if (tok_type == TOK_OP && tok_text[0] == '[')
-        {
-            next_token(); int size = tok_value; next_token(); next_token();
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
-            printf("intptr_t %s[%d];\n", var_name, size);
-        }
-        else if (tok_type == TOK_OP && tok_text[0] == ';')
-        {
-            next_token();
-            printf("intptr_t %s;\n", var_name);
-        }
-        else
-        {
-            src_ptr = src_ptr - strlen(tok_text);
-            strcpy(tok_text, var_name);
-            tok_type = TOK_ID;
-            break;
-        }
-    }
-    // ЭТАП 2: Разбор функций
-    parse_statements();
+    next_token(); // Заряжаем первый токен
+    parse_statements(); // Передаем ВСЁ управление единому парсеру
 
-    // Настоящая точка входа Си вызывает безопасную c_main()
-    printf("\nint main()\n{\n    SetConsoleCP(1251);\n    SetConsoleOutputCP(1251);\n    cdlr__main(); // Вызов главной функции языка C$\n    return 0;\n}");
+    printf("\nint main()\n{\n    SetConsoleCP(1251);\n    SetConsoleOutputCP(1251);\n    cdlr__main();\n    return 0;\n}");
     free(file_buffer);
     return 0;
 }
