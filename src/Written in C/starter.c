@@ -190,9 +190,12 @@ void parse_assignment()
 {
     strcpy(global_var_name, tok_text);
     next_token();
+    
+    // ИСПРАВЛЕНО: Безопасный перехват глобальной строки без рассинхронизации токенов чисел
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
     {
-        next_token();
+        // Делаем шаг только внутри, зная, что за знаком '=' точно что-то есть
+        next_token(); 
         if (tok_type == TOK_STR)
         {
             printf("intptr_t %s = (intptr_t)\"%s\";\n", global_var_name, tok_text);
@@ -200,7 +203,39 @@ void parse_assignment()
             if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
+        // ОГРОМНЫЙ ИСПРАВЛЯЮЩИЙ ХАК: если за '=' идет число или ID, мы НЕ ломаем разбор,
+        // а аккуратно подсовываем Си-генерацию глобального присваивания
+        if (indent_level == 0) { printf("intptr_t "); }
+        if (tok_type == TOK_NUM) 
+        { 
+            printf("%s = %d;\n", global_var_name, tok_value); next_token(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            return; 
+        }
+        if (tok_type == TOK_CHAR) 
+        { 
+            printf("%s = '%s';\n", global_var_name, tok_text); next_token(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            return; 
+        }
+        if (tok_type == TOK_ID)
+        {
+            strcpy(global_first_id, tok_text); next_token();
+            if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
+            {
+                char op = *(tok_text + 0); next_token();
+                if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
+                else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
+                next_token(); 
+                if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+                return;
+            }
+            printf("%s = %s;\n", global_var_name, global_first_id); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            return;
+        }
     }
+
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
@@ -230,7 +265,6 @@ void parse_assignment()
             if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
-        // ИМЯ ПРОВЕРКИ ВНУТРИ ФУНКЦИЙ ОБНОВЛЕНО: теперь это emit_c!
         if (strcmp(global_var_name, "emit_c") == 0)
         {
             print_indent();
