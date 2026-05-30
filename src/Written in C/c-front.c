@@ -9,12 +9,18 @@ intptr_t token__number = 3;
 intptr_t token__operator = 4;
 intptr_t token__keyword_if = 6;
 intptr_t token__text[64];
+intptr_t i = 6;
 
 void cdlr__main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    printf("\n Я родился!\n");
+    while (i != 0)
+    {
+        printf("\n Я родился!");
+        i--;
+    }
+    putchar('\n');
 }
 
 int main()
