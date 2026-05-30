@@ -6,9 +6,16 @@ token__operator = 4
 token__keyword_if = 6
 token__text[64]
 
+i = 6
+
 main()
 {
     native_c "SetConsoleCP(1251);"
     native_c "SetConsoleOutputCP(1251);"
-    native_c "printf(\"\n Я родился!\n\");"
+    while (i != 0)
+    {
+        native_c "printf(\"\n Я родился!\");"
+        i--
+    }
+    native_c "putchar('\n');"
 }
