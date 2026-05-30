@@ -22,6 +22,7 @@ char tok_text[1024]; // Полноценный массив на 1024 байта
 char *file_buffer;
 char *src_ptr;
 int indent_level = 0;
+int blank_line = 0; // Новый флаг для красивых переносов строк
 
 void next_token();
 void parse_statements();
@@ -35,10 +36,16 @@ void print_indent()
     for (int i = 0; i < indent_level; i++) { printf("    "); }
 }
 
-// Поточная функция: считывает ровно ОДИН следующий токен
 void next_token()
 {
-    while (*src_ptr != '\0' && isspace((unsigned char)*src_ptr)) { src_ptr++; }
+    int nl_count = 0;
+    while (*src_ptr != '\0' && isspace((unsigned char)*src_ptr)) 
+    { 
+        if (*src_ptr == '\n') { nl_count++; }
+        src_ptr++; 
+    }
+    if (nl_count > 1) { blank_line = 1; } // Найдена пустая строка!
+    
     if (*src_ptr == '\0')
     {
         tok_type = TOK_EOF;
@@ -60,7 +67,6 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '"' && *src_ptr != '\0')
         {
-            // БУКВАЛЬНЫЙ ПЕРЕНОС: сохраняем обратный слэш и символ 'n' / '"' отдельно через указатели
             if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
             {
                 if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = 'n'; len += 2; }
@@ -129,16 +135,19 @@ void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '}'))
     {
+        if (blank_line == 1)
+        {
+            printf("\n");
+            blank_line = 0; // Сбросили флаг
+        }
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        // НОВЫЙ ОПЕРАТОР: native_c перехвачен на уровне стейтментов!
         else if (tok_type == TOK_ID && strcmp(tok_text, "native_c") == 0)
         {
-            next_token(); // Шагаем за ключевое слово native_c к строке
+            next_token();
             if (tok_type == TOK_STR)
             {
                 print_indent();
-                // Безопасный вывод строки без бэкслэшей перед внутренними кавычками Си
                 int i = 0;
                 while (*(tok_text + i) != '\0')
                 {
@@ -146,16 +155,15 @@ void parse_statements()
                     else { putchar(*(tok_text + i)); i++; }
                 }
                 printf("\n");
-                next_token(); // Шагаем за закрывающую кавычку строки
+                next_token();
             }
             else { printf("// Ошибка: Оператор native_c ожидает строковый литерал\n"); next_token(); }
-            // Если после оператора программист поставил необязательную ';', съедаем её
             if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         }
-        else if (tok_type == TOK_ID)
-        {
-            parse_assignment();
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        else if (tok_type == TOK_ID) 
+        { 
+            parse_assignment(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); } 
         }
         else if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         else { next_token(); }
@@ -192,7 +200,7 @@ void parse_assignment()
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
             indent_level = 0;
-            if (strcmp(var_name, "main") == 0) { printf("\nvoid cdlr__main()\n"); }
+            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
