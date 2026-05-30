@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <windows.h>
 #include <stdint.h>
-
 intptr_t token__type_eof = 0;
 intptr_t token__while = 1;
 intptr_t token__identifier = 2;
