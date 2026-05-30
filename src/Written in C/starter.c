@@ -26,6 +26,13 @@ char *src_ptr;
 int indent_level = 0;
 int blank_line = 0;
 
+// Безопасные глобальные буферы для парсера функций и аргументов
+char global_var_name[256];
+char global_first_id[256];
+char global_arg_id[256];
+char global_arg_str[1024];
+char global_arg_char[256];
+
 void next_token();
 void parse_statements();
 void parse_assignment();
@@ -180,86 +187,110 @@ void parse_statements()
 
 void parse_assignment()
 {
-    char var_name_buffer[64];
-    char *var_name = var_name_buffer;
-    strcpy(var_name, tok_text);
+    strcpy(global_var_name, tok_text);
     next_token();
+    
+    // Новая фича: Глобальная инициализация строки в C$ вида: имя = "текст"
+    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
+    {
+        next_token();
+        if (tok_type == TOK_STR)
+        {
+            printf("intptr_t %s = (intptr_t)\"%s\";\n", global_var_name, tok_text);
+            next_token();
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            return;
+        }
+    }
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
-        printf("intptr_t %s[%d];\n", var_name, size); return;
+        printf("intptr_t %s[%d];\n", global_var_name, size); return;
     }
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == ';')
     {
-        next_token(); printf("intptr_t %s;\n", var_name); return;
+        next_token(); printf("intptr_t %s;\n", global_var_name); return;
     }
     if (tok_type == TOK_OP && *(tok_text + 0) == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
-        char arg_id_buf[64]; char arg_str_buf[1024]; char arg_char_buf[64];
-        char *arg_id = arg_id_buf; char *arg_str = arg_str_buf; char *arg_char = arg_char_buf;
+        global_arg_id[0] = '\0'; global_arg_str[0] = '\0'; global_arg_char[0] = '\0';
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
-        else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
-        else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
-        else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(arg_char, tok_text); next_token(); }
+        else if (tok_type == TOK_ID) { has_arg = 2; strcpy(global_arg_id, tok_text); next_token(); }
+        else if (tok_type == TOK_STR) { has_arg = 3; strcpy(global_arg_str, tok_text); next_token(); }
+        else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(global_arg_char, tok_text); next_token(); }
         if (tok_type != TOK_OP || *(tok_text + 0) != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
         next_token();
         if (tok_type == TOK_OP && *(tok_text + 0) == '{')
         {
             indent_level = 0;
-            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
-            else { printf("\nvoid %s()\n", var_name); }
+            if (strcmp(global_var_name, "main") == 0) { printf("void cdlr__main()\n"); }
+            else { printf("\nvoid %s()\n", global_var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
+        if (strcmp(global_var_name, "native_c") == 0)
+        {
+            print_indent();
+            if (has_arg == 3) 
+            { 
+                int i = 0;
+                while (global_arg_str[i] != '\0')
+                {
+                    if (global_arg_str[i] == '\\' && global_arg_str[i+1] == '"') { putchar('"'); i += 2; }
+                    else { putchar(global_arg_str[i]); i++; }
+                }
+                printf("\n");
+            }
+            else { printf("// Ошибка: native_c ожидает строковый литерал\n"); }
+            return;
+        }
         print_indent();
-        if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
+        if (strcmp(global_var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", global_var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
-        if (has_arg == 2) { printf("(char*) %s", arg_id); }
-        if (has_arg == 3) { printf("\"%s\"", arg_str); }
-        if (has_arg == 4) { printf("'%s'", arg_char); }
+        if (has_arg == 2) { printf("(char*) %s", global_arg_id); }
+        if (has_arg == 3) { printf("\"%s\"", global_arg_str); }
+        if (has_arg == 4) { printf("'%s'", global_arg_char); }
         printf(");\n"); return;
     }
     if (tok_type == TOK_INC)
     {
         print_indent();
-        printf("%s++;\n", var_name);
+        printf("%s++;\n", global_var_name);
         next_token();
         return;
     }
-    if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", var_name); next_token(); return; }
+    if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", global_var_name); next_token(); return; }
     if (tok_type != TOK_OP || *(tok_text + 0) != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
     next_token();
     if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
     if (tok_type == TOK_NUM) 
     { 
-        printf("%s = %d;\n", var_name, tok_value); next_token(); 
+        printf("%s = %d;\n", global_var_name, tok_value); next_token(); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_CHAR) 
     { 
-        printf("%s = '%s';\n", var_name, tok_text); next_token(); 
+        printf("%s = '%s';\n", global_var_name, tok_text); next_token(); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
-        return; 
+        return;
     }
     if (tok_type == TOK_ID)
     {
-        char first_id_buffer[64];
-        char *first_id = first_id_buffer;
-        strcpy(first_id, tok_text); next_token();
+        strcpy(global_first_id, tok_text); next_token();
         if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
         {
             char op = *(tok_text + 0); next_token();
-            if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
-            else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
+            if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
+            else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
             next_token(); 
             if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
-        printf("%s = %s;\n", var_name, first_id); 
+        printf("%s = %s;\n", global_var_name, global_first_id); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return;
     }
