@@ -187,8 +187,8 @@ void parse_statements()
         else if (tok_type == TOK_EMIT_BLOCK)
         {
             printf("%s\n", tok_text);
-            blank_line = 0;
             next_token();
+            blank_line = 0; // Гасим флаг, который лексер взвёл, когда перешагнул через \n за блоком
         }
         else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
         {
