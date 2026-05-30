@@ -4,7 +4,6 @@ token__identifier = 2
 token__number = 3
 token__operator = 4
 token__keyword_if = 6
-
 token__text[64]
 
 main()
