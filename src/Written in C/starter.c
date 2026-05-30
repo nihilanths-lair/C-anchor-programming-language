@@ -157,7 +157,8 @@ void parse_statements()
 
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID && strcmp(tok_text, "native_c") == 0)
+        // ИМЯ ОПЕРАТОРА ОБНОВЛЕНО: теперь это emit_c!
+        else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
         {
             next_token();
             if (tok_type == TOK_STR)
@@ -172,7 +173,7 @@ void parse_statements()
                 printf("\n");
                 next_token();
             }
-            else { printf("// Ошибка: Оператор native_c ожидает строковый литерал\n"); next_token(); }
+            else { printf("// Ошибка: Оператор emit_c ожидает строковый литерал\n"); next_token(); }
             if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         }
         else if (tok_type == TOK_ID) 
@@ -189,8 +190,6 @@ void parse_assignment()
 {
     strcpy(global_var_name, tok_text);
     next_token();
-    
-    // Новая фича: Глобальная инициализация строки в C$ вида: имя = "текст"
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
     {
         next_token();
@@ -231,7 +230,8 @@ void parse_assignment()
             if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
-        if (strcmp(global_var_name, "native_c") == 0)
+        // ИМЯ ПРОВЕРКИ ВНУТРИ ФУНКЦИЙ ОБНОВЛЕНО: теперь это emit_c!
+        if (strcmp(global_var_name, "emit_c") == 0)
         {
             print_indent();
             if (has_arg == 3) 
@@ -244,7 +244,7 @@ void parse_assignment()
                 }
                 printf("\n");
             }
-            else { printf("// Ошибка: native_c ожидает строковый литерал\n"); }
+            else { printf("// Ошибка: emit_c ожидает строковый литерал\n"); }
             return;
         }
         print_indent();
@@ -276,7 +276,7 @@ void parse_assignment()
     { 
         printf("%s = '%s';\n", global_var_name, tok_text); next_token(); 
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
-        return;
+        return; 
     }
     if (tok_type == TOK_ID)
     {
