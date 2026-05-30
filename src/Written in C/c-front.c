@@ -2,16 +2,16 @@
 #include <windows.h>
 #include <stdint.h>
 
-// Ошибка: Ожидался знак '=' 
-// Ошибка: Ожидался знак '=' 
-// Ошибка: Ожидался знак '=' 
-// Ошибка: Ожидался знак '=' 
-// Ошибка: Ожидался знак '=' 
-// Ошибка: Ожидался знак '=' 
+intptr_t token__eof = 0;
+intptr_t token__keyword_while = 1;
+intptr_t token__identifier = 2;
+intptr_t token__number = 3;
+intptr_t token__operator = 4;
+intptr_t token__keyword_if = 6;
 
 intptr_t source_code = (intptr_t)"Я C$ строка инициализированная как глобальная";
 
-// Ошибка: Ожидался знак '=' 
+intptr_t i = 0;
 
 void cdlr__main()
 {
@@ -20,7 +20,7 @@ void cdlr__main()
     while (i != 6)
     {
         printf("\n Я родился %d!", i);
-        i++;
+        i = i + 1;
     }
     putchar('\n');
 }
