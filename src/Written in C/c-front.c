@@ -14,7 +14,7 @@ void cdlr__main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    printf("\n Запущен независимый компилятор compiler.cdlr с глобальной инициализацией!\n");
+    printf("\n Я родился!\n");
 }
 
 int main()
