@@ -1,3 +1,7 @@
+native_c "#include <stdio.h>"
+native_c "#include <windows.h>"
+native_c "#include <stdint.h>"
+
 token__type_eof = 0
 token__while = 1
 token__identifier = 2
