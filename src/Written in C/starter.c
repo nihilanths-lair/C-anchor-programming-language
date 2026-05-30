@@ -4,32 +4,33 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define TOK_EOF   0
-#define TOK_WHILE 1
-#define TOK_ID    2
-#define TOK_NUM   3
-#define TOK_OP    4
-#define TOK_DEC   5
-#define TOK_IF    6
-#define TOK_STR   7
-#define TOK_CHAR  8
-#define TOK_EQ    9
-#define TOK_NEQ   10
+#define TOK_EOF         0
+#define TOK_WHILE       1
+#define TOK_ID          2
+#define TOK_NUM         3
+#define TOK_OP          4
+#define TOK_DEC         5
+#define TOK_IF          6
+#define TOK_STR         7
+#define TOK_CHAR        8
+#define TOK_EQ          9
+#define TOK_NEQ         10
+#define TOK_EMIT_BLOCK  12 // Новый тип токена для вложенных блоков Си
 
 intptr_t tok_type;
 intptr_t tok_value;
-char tok_text_storage[1024]; // Защищено от срезания
-char *tok_text = tok_text_storage;
+char tok_text_buffer[8192]; // Увеличили буфер до 8КБ для больших блоков Си-кода
+char *tok_text = tok_text_buffer;
 char *file_buffer;
 char *src_ptr;
 int indent_level = 0;
 int blank_line = 0;
 
-// Честные глобальные массивы, защищенные от искажений интерфейса чата
+// Глобальные фиксированные буферы
 char global_var_name_storage[256];
 char global_first_id_storage[256];
 char global_arg_id_storage[256];
-char global_arg_str_storage[2048];
+char global_arg_str_storage[1024];
 char global_arg_char_storage[256];
 
 char *global_var_name = global_var_name_storage;
@@ -64,6 +65,28 @@ void next_token()
         tok_type = TOK_EOF;
         return;
     }
+    
+    // ПРОВЕРКА НА БЛОЧНЫЙ ОПЕРАТОР <emit_c
+    if (*src_ptr == '<' && strncmp(src_ptr + 1, "emit_c", 6) == 0)
+    {
+        src_ptr += 7; // Шагаем за "<emit_c"
+        int len = 0;
+        // Посимвольно читаем всё внутрь блока, пока не встретим закрывающий тег "emit_c>"
+        while (*src_ptr != '\0')
+        {
+            if (strncmp(src_ptr, "emit_c>", 7) == 0)
+            {
+                src_ptr += 7; // Шагаем за закрывающий тег
+                break;
+            }
+            if (len < 8190) { *(tok_text + len) = *src_ptr; len++; }
+            src_ptr++;
+        }
+        *(tok_text + len) = '\0';
+        tok_type = TOK_EMIT_BLOCK;
+        return;
+    }
+    
     if (isdigit((unsigned char)*src_ptr))
     {
         tok_value = 0;
@@ -82,18 +105,18 @@ void next_token()
         {
             if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
             {
-                if (len < 999) { tok_text[len] = '\\'; tok_text[len + 1] = 'n'; len += 2; }
+                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = 'n'; len += 2; }
                 src_ptr += 2; continue;
             }
             if (*src_ptr == '\\' && *(src_ptr + 1) == '"')
             {
-                if (len < 999) { tok_text[len] = '\\'; tok_text[len + 1] = '"'; len += 2; }
+                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = '"'; len += 2; }
                 src_ptr += 2; continue;
             }
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (*src_ptr == '"') { src_ptr++; }
         tok_type = TOK_STR;
         return;
@@ -103,11 +126,11 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len] = *src_ptr; len++; src_ptr++; }
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { *(tok_text + len) = *src_ptr; len++; src_ptr++; }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (*src_ptr == '\'') { src_ptr++; }
         tok_type = TOK_CHAR;
         return;
@@ -117,10 +140,10 @@ void next_token()
         int len = 0;
         while (isalnum((unsigned char)*src_ptr) || *src_ptr == '_')
         {
-            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
+            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
             src_ptr++;
         }
-        tok_text[len] = '\0';
+        *(tok_text + len) = '\0';
         if (strcmp(tok_text, "while") == 0) { tok_type = TOK_WHILE; }
         else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; }
         else { tok_type = TOK_ID; }
@@ -128,25 +151,25 @@ void next_token()
     }
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
-        tok_text[0] = '-'; tok_text[1] = '-'; tok_text[2] = '\0';
+        *(tok_text + 0) = '-'; *(tok_text + 1) = '-'; *(tok_text + 2) = '\0';
         tok_type = TOK_DEC; src_ptr += 2; return;
     }
     if (*src_ptr == '=' && *(src_ptr + 1) == '=')
     {
-        tok_text[0] = '='; tok_text[1] = '='; tok_text[2] = '\0';
+        *(tok_text + 0) = '='; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
         tok_type = TOK_EQ; src_ptr += 2; return;
     }
     if (*src_ptr == '!' && *(src_ptr + 1) == '=')
     {
-        tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
+        *(tok_text + 0) = '!'; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
         tok_type = TOK_NEQ; src_ptr += 2; return;
     }
-    tok_text[0] = *src_ptr; tok_text[1] = '\0'; tok_type = TOK_OP; src_ptr++;
+    *(tok_text + 0) = *src_ptr; *(tok_text + 1) = '\0'; tok_type = TOK_OP; src_ptr++;
 }
 
 void parse_statements()
 {
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '}'))
     {
         if (blank_line == 1)
         {
@@ -156,6 +179,12 @@ void parse_statements()
 
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
+        // ОБРАБОТКА БЛОЧНОГО ОПЕРАТОРА: выгружаем весь текст из тегов напрямую в Си-файл
+        else if (tok_type == TOK_EMIT_BLOCK)
+        {
+            printf("%s\n", tok_text);
+            next_token();
+        }
         else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
         {
             next_token();
@@ -163,23 +192,23 @@ void parse_statements()
             {
                 print_indent();
                 int i = 0;
-                while (tok_text[i] != '\0')
+                while (*(tok_text + i) != '\0')
                 {
-                    if (tok_text[i] == '\\' && tok_text[i + 1] == '"') { putchar('"'); i += 2; }
-                    else { putchar(tok_text[i]); i++; }
+                    if (*(tok_text + i) == '\\' && *(tok_text + i + 1) == '"') { putchar('"'); i += 2; }
+                    else { putchar(*(tok_text + i)); i++; }
                 }
                 printf("\n");
                 next_token();
             }
             else { printf("// Ошибка: emit_c ожидает строковый литерал\n"); next_token(); }
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         }
         else if (tok_type == TOK_ID) 
         { 
             parse_assignment(); 
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); } 
         }
-        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        else if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         else { next_token(); }
     }
 }
@@ -371,7 +400,7 @@ int main(int argc, char *argv[])
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv); return 1; }
-    FILE *file = fopen(argv[1], "rb");
+    FILE *file = fopen(argv[1], "rb"); // ИСПРАВЛЕНО: Четкий индекс аргумента командной строки
     if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
