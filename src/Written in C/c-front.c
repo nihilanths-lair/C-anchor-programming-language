@@ -24,9 +24,9 @@ void cdlr__main()
     while (((char*)source_code)[position] != token__eof)
     {
         printf("\n Текущий символ (%d): '%c'.", position, ((char*)source_code)[position]);
-        if (((char*)source_code)[position] ==  )
+        if (((char*)source_code)[position] == 32)
         {
-            printf(" Обнаружен пробельный символ (%d).")
+            printf(" Обнаружен пробельный символ (%d).", position);
         }
         position = position + 1;
     }
