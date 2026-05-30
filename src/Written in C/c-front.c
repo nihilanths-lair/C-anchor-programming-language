@@ -1,6 +1,12 @@
+
+
 #include <stdio.h>
+
 #include <windows.h>
+
 #include <stdint.h>
+
+
 
 intptr_t token__eof = 0;
 intptr_t token__keyword_while = 1;
@@ -16,8 +22,13 @@ intptr_t source_code_2[128];
 
 void cdlr__main()
 {
+
+
     SetConsoleCP(1251);
+
     SetConsoleOutputCP(1251);
+
+    
 
     strcpy((char*)source_code_2, "// Исходный код C$ для самораскрутки!");
 
