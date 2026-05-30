@@ -3,7 +3,7 @@ native_c "#include <windows.h>"
 native_c "#include <stdint.h>"
 
 token__type_eof = 0
-token__while = 1
+token__keyword_while = 1
 token__identifier = 2
 token__number = 3
 token__operator = 4
