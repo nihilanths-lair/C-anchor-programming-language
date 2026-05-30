@@ -408,9 +408,9 @@ int main(int argc, char *argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv); return 1; }
-    FILE *file = fopen(argv, "rb");
-    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv); return 1; }
+    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); return 1; }
+    FILE *file = fopen(argv[1], "rb");
+    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
