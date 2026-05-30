@@ -176,12 +176,10 @@ void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
+        // 1. Возвращаем честный вывод пустых строк для ВСЕХ типов токенов
         if (blank_line == 1)
         {
-            if (tok_type != TOK_EMIT_BLOCK && !(tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0))
-            {
-                printf("\n");
-            }
+            printf("\n");
             blank_line = 0;
         }
 
@@ -191,7 +189,8 @@ void parse_statements()
         {
             printf("%s\n", tok_text);
             next_token();
-            blank_line = 0; // Гасим флаг, который лексер взвёл, когда перешагнул через \n за блоком
+            // 2. УБРАЛИ жесткое зануление blank_line = 0;
+            // Теперь, если после emit_c> идет намеренная пустая строка, она честно напечатается!
         }
         else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
         {
