@@ -22,7 +22,6 @@ main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     emit_c>
-
     emit_c "strcpy((char*)source_code_2, \"// Исходный код C$ для самораскрутки!\");"
 
     while (((char*)source_code)[position] != token__eof)
