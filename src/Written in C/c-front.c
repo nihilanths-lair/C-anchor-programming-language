@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 intptr_t token__type_eof = 0;
-intptr_t token__while = 1;
+intptr_t token__keyword_while = 1;
 intptr_t token__identifier = 2;
 intptr_t token__number = 3;
 intptr_t token__operator = 4;
