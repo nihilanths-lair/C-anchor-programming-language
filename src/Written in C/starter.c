@@ -74,6 +74,9 @@ void next_token()
                 if (*src_ptr == '\n') { src_ptr++; }
                 break;
             }
+            // ТОЧЕЧНЫЙ ФИКС: полностью игнорируем виндовсовый \r внутри блока Си-кода!
+            if (*src_ptr == '\r') { src_ptr++; continue; }
+            
             if (len < 8190) { tok_text[len] = *src_ptr; len++; }
             src_ptr++;
         }
