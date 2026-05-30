@@ -2,7 +2,7 @@ emit_c "#include <stdio.h>"
 emit_c "#include <windows.h>"
 emit_c "#include <stdint.h>"
 
-token__type_eof = 0
+token__eof = 0
 token__keyword_while = 1
 token__identifier = 2
 token__number = 3
