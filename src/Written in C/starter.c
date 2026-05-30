@@ -15,14 +15,16 @@
 #define TOK_CHAR  8
 #define TOK_EQ    9
 #define TOK_NEQ   10
+#define TOK_INC   11
 
 intptr_t tok_type;
 intptr_t tok_value;
-char tok_text[1024]; // Полноценный массив на 1024 байта для любых длинных строк native_c
+char tok_text_buffer[1024];
+char *tok_text = tok_text_buffer;
 char *file_buffer;
 char *src_ptr;
 int indent_level = 0;
-int blank_line = 0; // Новый флаг для красивых переносов строк
+int blank_line = 0;
 
 void next_token();
 void parse_statements();
@@ -44,7 +46,7 @@ void next_token()
         if (*src_ptr == '\n') { nl_count++; }
         src_ptr++; 
     }
-    if (nl_count > 1) { blank_line = 1; } // Найдена пустая строка!
+    if (nl_count > 1) { blank_line = 1; }
     
     if (*src_ptr == '\0')
     {
@@ -113,6 +115,11 @@ void next_token()
         else { tok_type = TOK_ID; }
         return;
     }
+    if (*src_ptr == '+' && *(src_ptr + 1) == '+')
+    {
+        *(tok_text + 0) = '+'; *(tok_text + 1) = '+'; *(tok_text + 2) = '\0';
+        tok_type = TOK_INC; src_ptr += 2; return;
+    }
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
         *(tok_text + 0) = '-'; *(tok_text + 1) = '-'; *(tok_text + 2) = '\0';
@@ -138,8 +145,9 @@ void parse_statements()
         if (blank_line == 1)
         {
             printf("\n");
-            blank_line = 0; // Сбросили флаг
+            blank_line = 0;
         }
+
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
         else if (tok_type == TOK_ID && strcmp(tok_text, "native_c") == 0)
@@ -176,17 +184,17 @@ void parse_assignment()
     char *var_name = var_name_buffer;
     strcpy(var_name, tok_text);
     next_token();
-    if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == '[')
+    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         printf("intptr_t %s[%d];\n", var_name, size); return;
     }
-    if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == ';')
+    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == ';')
     {
         next_token(); printf("intptr_t %s;\n", var_name); return;
     }
-    if (tok_type == TOK_OP && tok_text[0] == '(')
+    if (tok_type == TOK_OP && *(tok_text + 0) == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
         char arg_id_buf[64]; char arg_str_buf[1024]; char arg_char_buf[64];
@@ -195,34 +203,16 @@ void parse_assignment()
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
         else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(arg_char, tok_text); next_token(); }
-        if (tok_type != TOK_OP || tok_text[0] != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
+        if (tok_type != TOK_OP || *(tok_text + 0) != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
         next_token();
-        if (tok_type == TOK_OP && tok_text[0] == '{')
+        if (tok_type == TOK_OP && *(tok_text + 0) == '{')
         {
             indent_level = 0;
             if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
-            if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
+            if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
-        }
-        // БЛОК ИСПРАВЛЕНИЯ NATIVE_C: Безопасный вывод без лишних слэшей перед кавычками
-        if (strcmp(var_name, "native_c") == 0)
-        {
-            print_indent();
-            if (has_arg == 3)
-            { 
-                int i = 0;
-                while (arg_str[i] != '\0')
-                {
-                    // Если видим \ и дальше идет кавычка ", печатаем только кавычку и шагаем через два символа
-                    if (arg_str[i] == '\\' && arg_str[i+1] == '"') { putchar('"'); i += 2; }
-                    else { putchar(arg_str[i]); i++; }
-                }
-                printf("\n");
-            }
-            else { printf("// Ошибка: native_c ожидает строковый литерал\n"); }
-            return;
         }
         print_indent();
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
@@ -232,20 +222,27 @@ void parse_assignment()
         if (has_arg == 4) { printf("'%s'", arg_char); }
         printf(");\n"); return;
     }
+    if (tok_type == TOK_INC)
+    {
+        print_indent();
+        printf("%s++;\n", var_name);
+        next_token();
+        return;
+    }
     if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", var_name); next_token(); return; }
-    if (tok_type != TOK_OP || tok_text[0] != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
+    if (tok_type != TOK_OP || *(tok_text + 0) != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
     next_token();
     if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
     if (tok_type == TOK_NUM) 
     { 
         printf("%s = %d;\n", var_name, tok_value); next_token(); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_CHAR) 
     { 
         printf("%s = '%s';\n", var_name, tok_text); next_token(); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_ID)
@@ -253,17 +250,17 @@ void parse_assignment()
         char first_id_buffer[64];
         char *first_id = first_id_buffer;
         strcpy(first_id, tok_text); next_token();
-        if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
+        if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
         {
-            char op = tok_text[0]; next_token();
+            char op = *(tok_text + 0); next_token();
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", var_name, first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", var_name, first_id, op, tok_text); }
             next_token(); 
-            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
         printf("%s = %s;\n", var_name, first_id); 
-        if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         return;
     }
     printf("// Ошибка синтаксиса\n");
@@ -273,54 +270,52 @@ void parse_while()
 {
     print_indent();
     printf("while ");
-    next_token(); // Пропускаем ключевое слово "while"
-    // Собираем и печатаем условие с красивыми отступами вокруг операторов
+    next_token();
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
-        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); } // Отступы вокруг == и !=
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); } // Отступы вокруг < и >
-        else { printf("%s", tok_text); } // Все остальные знаки (круглые скобки) выводятся без лишних пробелов
+        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else { printf("%s", tok_text); }
         next_token();
     }
     printf("\n");
     print_indent();
     printf("{\n");
-    next_token(); // Пропускаем '{'
+    next_token();
     indent_level++;
     parse_statements();
     indent_level--;
     print_indent();
     printf("}\n");
-    next_token(); // Пропускаем '}'
+    next_token();
 }
 
 void parse_if()
 {
     print_indent();
     printf("if ");
-    next_token(); // Пропускаем ключевое слово "if"
-    // Собираем и печатаем условие с красивыми отступами вокруг операторов
+    next_token();
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
-        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); } // Отступы вокруг == и !=
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); } // Отступы вокруг < и >
-        else { printf("%s", tok_text); } // Все остальные знаки
+        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else { printf("%s", tok_text); }
         next_token();
     }
     printf("\n");
     print_indent();
     printf("{\n");
-    next_token(); // Пропускаем '{'
+    next_token();
     indent_level++;
     parse_statements();
     indent_level--;
     print_indent();
     printf("}\n");
-    next_token(); // Пропускаем '}'
+    next_token();
 }
 
 void parse_memory_store() { next_token(); }
@@ -341,9 +336,11 @@ int main(int argc, char *argv[])
     file_buffer[file_size] = '\0';
     fclose(file);
     src_ptr = file_buffer;
+    
     indent_level = 0;
     next_token();
     parse_statements();
+
     printf("\nint main()\n{\n    cdlr__main();\n    return 0;\n}");
     free(file_buffer);
     return 0;
