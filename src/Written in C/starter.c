@@ -357,12 +357,12 @@ void parse_while()
     print_indent();
     printf("while ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (tok_text == '<' || tok_text == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
@@ -383,12 +383,12 @@ void parse_if()
     print_indent();
     printf("if ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (tok_text == '<' || tok_text == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
