@@ -333,7 +333,6 @@ int main(int argc, char *argv[])
     file_buffer[file_size] = '\0';
     fclose(file);
     src_ptr = file_buffer;
-    printf("#include <stdio.h>\n#include <windows.h>\n#include <stdint.h>\n\n");
     indent_level = 0;
     next_token();
     parse_statements();
