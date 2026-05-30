@@ -176,6 +176,7 @@ void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
+        printf("// Трассировка: токен=%s, флаг=%d\n", tok_text, blank_line);
         // 1. Возвращаем честный вывод пустых строк для ВСЕХ типов токенов
         if (blank_line == 1)
         {
@@ -223,8 +224,9 @@ void parse_statements()
 void parse_assignment()
 {
     strcpy(global_var_name, tok_text);
-    next_token(); 
-
+    int old_blank = blank_line; // Сохраняем честно обнаруженный перенос строки
+    next_token();
+    if (old_blank == 1) { blank_line = 1; } // Восстанавливаем его, если лексер его стёр
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
     {
         next_token(); 
