@@ -19,7 +19,7 @@ main()
     while (i != 6)
     {
         native_c "printf(\"\n Я родился %d!\", i);"
-        i = i + 1
+        i++
     }
     native_c "putchar('\n');"
 }
