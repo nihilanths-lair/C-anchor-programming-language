@@ -9,18 +9,17 @@ intptr_t token__number = 3;
 intptr_t token__operator = 4;
 intptr_t token__keyword_if = 6;
 
-intptr_t source_code = (intptr_t)"Я C$ строка инициализированная как глобальная";
-
-intptr_t i = 0;
+intptr_t source_code = (intptr_t)"// Исходный код C$ для самораскрутки!";
+intptr_t position = 0;
 
 void cdlr__main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    while (i != 6)
+    while (source_code[position] != token__eof)
     {
-        printf("\n Я родился %d!", i);
-        i = i + 1;
+        printf("\n Текущий символ: '%d'.", source_code[position]);
+        position = position + 1;
     }
     putchar('\n');
 }
