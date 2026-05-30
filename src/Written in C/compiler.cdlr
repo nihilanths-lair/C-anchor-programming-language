@@ -10,5 +10,5 @@ main()
 {
     native_c "SetConsoleCP(1251);"
     native_c "SetConsoleOutputCP(1251);"
-    native_c "printf(\"\n Запущен независимый компилятор compiler.cdlr с глобальной инициализацией!\n\");"
+    native_c "printf(\"\n Я родился!\n\");"
 }
