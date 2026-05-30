@@ -9,16 +9,25 @@ token__number = 3
 token__operator = 4
 token__keyword_if = 6
 
-source_code = "// Исходный код C$ для самораскрутки!"
+source_code = "// Через эту переменную будем делать самораскрутку компилятора"
 position = 0
+
+source_code_2[128]
 
 main()
 {
     emit_c "SetConsoleCP(1251);"
     emit_c "SetConsoleOutputCP(1251);"
-    while (source_code[position] != token__eof)
+
+    emit_c "strcpy((char*)source_code_2, \"// Исходный код C$ для самораскрутки!\");"
+
+    while (((char*)source_code)[position] != token__eof)
     {
-        emit_c "printf(\"\n Текущий символ: '%d'.\", source_code[position]);"
+        emit_c "printf(\"\n Текущий символ (%d): '%c'.\", position, ((char*)source_code)[position]);"
+        if (((char*)source_code)[position] == ' ')
+        {
+            emit_c "printf(\" Обнаружен пробельный символ (%d).\")"
+        }
         position = position + 1
     }
     emit_c "putchar('\n');"
