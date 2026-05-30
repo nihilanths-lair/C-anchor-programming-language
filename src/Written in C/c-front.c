@@ -2,15 +2,16 @@
 #include <windows.h>
 #include <stdint.h>
 
-intptr_t token__type_eof = 0;
-intptr_t token__keyword_while = 1;
-intptr_t token__identifier = 2;
-intptr_t token__number = 3;
-intptr_t token__operator = 4;
-intptr_t token__keyword_if = 6;
-intptr_t token__text[64];
+// Ошибка: Ожидался знак '=' 
+// Ошибка: Ожидался знак '=' 
+// Ошибка: Ожидался знак '=' 
+// Ошибка: Ожидался знак '=' 
+// Ошибка: Ожидался знак '=' 
+// Ошибка: Ожидался знак '=' 
 
-intptr_t i = 0;
+intptr_t source_code = (intptr_t)"Я C$ строка инициализированная как глобальная";
+
+// Ошибка: Ожидался знак '=' 
 
 void cdlr__main()
 {
