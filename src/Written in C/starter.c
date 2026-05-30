@@ -131,10 +131,31 @@ void parse_statements()
     {
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        else if (tok_type == TOK_ID) 
-        { 
-            parse_assignment(); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); } 
+        // НОВЫЙ ОПЕРАТОР: native_c перехвачен на уровне стейтментов!
+        else if (tok_type == TOK_ID && strcmp(tok_text, "native_c") == 0)
+        {
+            next_token(); // Шагаем за ключевое слово native_c к строке
+            if (tok_type == TOK_STR)
+            {
+                print_indent();
+                // Безопасный вывод строки без бэкслэшей перед внутренними кавычками Си
+                int i = 0;
+                while (*(tok_text + i) != '\0')
+                {
+                    if (*(tok_text + i) == '\\' && *(tok_text + i + 1) == '"') { putchar('"'); i += 2; }
+                    else { putchar(*(tok_text + i)); i++; }
+                }
+                printf("\n");
+                next_token(); // Шагаем за закрывающую кавычку строки
+            }
+            else { printf("// Ошибка: Оператор native_c ожидает строковый литерал\n"); next_token(); }
+            // Если после оператора программист поставил необязательную ';', съедаем её
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        }
+        else if (tok_type == TOK_ID)
+        {
+            parse_assignment();
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         }
         else if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         else { next_token(); }
