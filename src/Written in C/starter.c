@@ -261,8 +261,60 @@ void parse_assignment()
     printf("// Ошибка синтаксиса\n");
 }
 
-void parse_while() { next_token(); printf("while(...)\n{\n"); parse_statements(); printf("}\n"); next_token(); }
-void parse_if() { next_token(); printf("if(...)\n{\n"); parse_statements(); printf("}\n"); next_token(); }
+void parse_while()
+{
+    print_indent();
+    printf("while ");
+    next_token(); // Пропускаем ключевое слово "while"
+    // Собираем и печатаем условие с красивыми отступами вокруг операторов
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    {
+        if (tok_type == TOK_NUM) { printf("%d", tok_value); }
+        else if (tok_type == TOK_ID) { printf("%s", tok_text); }
+        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); } // Отступы вокруг == и !=
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); } // Отступы вокруг < и >
+        else { printf("%s", tok_text); } // Все остальные знаки (круглые скобки) выводятся без лишних пробелов
+        next_token();
+    }
+    printf("\n");
+    print_indent();
+    printf("{\n");
+    next_token(); // Пропускаем '{'
+    indent_level++;
+    parse_statements();
+    indent_level--;
+    print_indent();
+    printf("}\n");
+    next_token(); // Пропускаем '}'
+}
+
+void parse_if()
+{
+    print_indent();
+    printf("if ");
+    next_token(); // Пропускаем ключевое слово "if"
+    // Собираем и печатаем условие с красивыми отступами вокруг операторов
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    {
+        if (tok_type == TOK_NUM) { printf("%d", tok_value); }
+        else if (tok_type == TOK_ID) { printf("%s", tok_text); }
+        else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); } // Отступы вокруг == и !=
+        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); } // Отступы вокруг < и >
+        else { printf("%s", tok_text); } // Все остальные знаки
+        next_token();
+    }
+    printf("\n");
+    print_indent();
+    printf("{\n");
+    next_token(); // Пропускаем '{'
+    indent_level++;
+    parse_statements();
+    indent_level--;
+    print_indent();
+    printf("}\n");
+    next_token(); // Пропускаем '}'
+}
+
 void parse_memory_store() { next_token(); }
 
 int main(int argc, char *argv[])
