@@ -15,23 +15,22 @@
 #define TOK_CHAR        8
 #define TOK_EQ          9
 #define TOK_NEQ         10
-#define TOK_EMIT_BLOCK  12 // Новый тип токена для вложенных блоков Си
+#define TOK_EMIT_BLOCK  12
 
 intptr_t tok_type;
 intptr_t tok_value;
-char tok_text_buffer[8192]; // Увеличили буфер до 8КБ для больших блоков Си-кода
+char tok_text_buffer[8192];
 char *tok_text = tok_text_buffer;
 char *file_buffer;
 char *src_ptr;
 int indent_level = 0;
 int blank_line = 0;
 
-// Глобальные фиксированные буферы
-char global_var_name_storage[256];
-char global_first_id_storage[256];
-char global_arg_id_storage[256];
+char global_var_name_storage[64];
+char global_first_id_storage[64];
+char global_arg_id_storage[64];
 char global_arg_str_storage[1024];
-char global_arg_char_storage[256];
+char global_arg_char_storage[64];
 
 char *global_var_name = global_var_name_storage;
 char *global_first_id = global_first_id_storage;
@@ -66,17 +65,15 @@ void next_token()
         return;
     }
     
-    // ПРОВЕРКА НА БЛОЧНЫЙ ОПЕРАТОР <emit_c
     if (*src_ptr == '<' && strncmp(src_ptr + 1, "emit_c", 6) == 0)
     {
-        src_ptr += 7; // Шагаем за "<emit_c"
+        src_ptr += 7; 
         int len = 0;
-        // Посимвольно читаем всё внутрь блока, пока не встретим закрывающий тег "emit_c>"
         while (*src_ptr != '\0')
         {
             if (strncmp(src_ptr, "emit_c>", 7) == 0)
             {
-                src_ptr += 7; // Шагаем за закрывающий тег
+                src_ptr += 7; 
                 break;
             }
             if (len < 8190) { *(tok_text + len) = *src_ptr; len++; }
@@ -171,7 +168,9 @@ void parse_statements()
 {
     while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '}'))
     {
-        if (blank_line == 1)
+        // Для блочного эммита игнорируем автоматическую вставку пустых строк,
+        // чтобы не раздувать отступы вокруг него
+        if (blank_line == 1 && tok_type != TOK_EMIT_BLOCK)
         {
             printf("\n");
             blank_line = 0;
@@ -179,10 +178,11 @@ void parse_statements()
 
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        // ОБРАБОТКА БЛОЧНОГО ОПЕРАТОРА: выгружаем весь текст из тегов напрямую в Си-файл
         else if (tok_type == TOK_EMIT_BLOCK)
         {
-            printf("%s\n", tok_text);
+            // Выводим сырой блок "как есть"
+            printf("%s", tok_text);
+            blank_line = 0; // Сбрасываем флаг, чтобы после блока не лепился пустой перевод
             next_token();
         }
         else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
@@ -299,7 +299,7 @@ void parse_assignment()
                 }
                 printf("\n");
             }
-            else { printf("// Ошибка: emit_c ожидает строковый литерал\n"); }
+            else { printf("// Ошибка: emit_c ожичает строковый литерал\n"); }
             return;
         }
         print_indent();
@@ -329,9 +329,10 @@ void parse_assignment()
     if (tok_type == TOK_ID)
     {
         strcpy(global_first_id, tok_text); next_token();
-        if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
+        if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
         {
-            char op = *(tok_text + 0); next_token();
+            char op = tok_text[0];
+            next_token();
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
             next_token(); return;
@@ -348,12 +349,12 @@ void parse_while()
     print_indent();
     printf("while ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (tok_text[0] == '<' || tok_text[0] == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
@@ -374,12 +375,12 @@ void parse_if()
     print_indent();
     printf("if ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (tok_text[0] == '<' || tok_text[0] == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
@@ -399,9 +400,17 @@ int main(int argc, char *argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv); return 1; }
-    FILE *file = fopen(argv[1], "rb"); // ИСПРАВЛЕНО: Четкий индекс аргумента командной строки
-    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
+    if (argc < 2)
+    {
+        printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]);
+        return 1;
+    }
+    FILE *file = fopen(argv[1], "rb");
+    if (file == NULL)
+    {
+        printf("Ошибка: Не удалось открыть файл %s\n", argv[1]);
+        return 1;
+    }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
