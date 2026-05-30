@@ -143,7 +143,8 @@ void parse_statements()
 
 void parse_assignment()
 {
-    char var_name[64];
+    char var_name_buffer[64];
+    char *var_name = var_name_buffer;
     strcpy(var_name, tok_text);
     next_token();
     if (indent_level == 0 && tok_type == TOK_OP && tok_text[0] == '[')
@@ -159,7 +160,8 @@ void parse_assignment()
     if (tok_type == TOK_OP && tok_text[0] == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
-        char arg_id[64] = {0}; char arg_str[1024] = {0}; char arg_char[64] = {0};
+        char arg_id_buf[64]; char arg_str_buf[1024]; char arg_char_buf[64];
+        char *arg_id = arg_id_buf; char *arg_str = arg_str_buf; char *arg_char = arg_char_buf;
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(arg_str, tok_text); next_token(); }
@@ -175,10 +177,21 @@ void parse_assignment()
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
+        // БЛОК ИСПРАВЛЕНИЯ NATIVE_C: Безопасный вывод без лишних слэшей перед кавычками
         if (strcmp(var_name, "native_c") == 0)
         {
             print_indent();
-            if (has_arg == 3) { printf("%s\n", arg_str); }
+            if (has_arg == 3) 
+            { 
+                int i = 0;
+                while (arg_str[i] != '\0')
+                {
+                    // Если видим \ и дальше идет кавычка ", печатаем только кавычку и шагаем через два символа
+                    if (arg_str[i] == '\\' && arg_str[i+1] == '"') { putchar('"'); i += 2; }
+                    else { putchar(arg_str[i]); i++; }
+                }
+                printf("\n");
+            }
             else { printf("// Ошибка: native_c ожидает строковый литерал\n"); }
             return;
         }
@@ -186,17 +199,7 @@ void parse_assignment()
         if (strcmp(var_name, "main") == 0) { printf("cdlr__main("); } else { printf("%s(", var_name); }
         if (has_arg == 1) { printf("%d", arg_num); }
         if (has_arg == 2) { printf("(char*) %s", arg_id); }
-        if (has_arg == 3) 
-        {
-            printf("\"");
-            for (int i = 0; arg_str[i] != '\0'; i++)
-            {
-                if (arg_str[i] == '\n') { printf("\\n"); }
-                else if (arg_str[i] == '"') { printf("\\\""); }
-                else { putchar(arg_str[i]); }
-            }
-            printf("\"");
-        }
+        if (has_arg == 3) { printf("\"%s\"", arg_str); }
         if (has_arg == 4) { printf("'%s'", arg_char); }
         printf(");\n"); return;
     }
@@ -218,7 +221,8 @@ void parse_assignment()
     }
     if (tok_type == TOK_ID)
     {
-        char first_id[64];
+        char first_id_buffer[64];
+        char *first_id = first_id_buffer;
         strcpy(first_id, tok_text); next_token();
         if (tok_type == TOK_OP && (tok_text[0] == '+' || tok_text[0] == '-'))
         {
