@@ -1,6 +1,6 @@
-native_c "#include <stdio.h>"
-native_c "#include <windows.h>"
-native_c "#include <stdint.h>"
+emit_c "#include <stdio.h>"
+emit_c "#include <windows.h>"
+emit_c "#include <stdint.h>"
 
 token__type_eof = 0
 token__keyword_while = 1
@@ -15,12 +15,12 @@ i = 0
 
 main()
 {
-    native_c "SetConsoleCP(1251);"
-    native_c "SetConsoleOutputCP(1251);"
+    emit_c "SetConsoleCP(1251);"
+    emit_c "SetConsoleOutputCP(1251);"
     while (i != 6)
     {
-        native_c "printf(\"\n Я родился %d!\", i);"
+        emit_c "printf(\"\n Я родился %d!\", i);"
         i++
     }
-    native_c "putchar('\n');"
+    emit_c "putchar('\n');"
 }
