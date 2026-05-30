@@ -171,7 +171,7 @@ void parse_assignment()
         if (tok_type == TOK_OP && tok_text[0] == '{')
         {
             indent_level = 0;
-            if (strcmp(var_name, "main") == 0) { printf("void cdlr__main()\n"); }
+            if (strcmp(var_name, "main") == 0) { printf("\nvoid cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
             if (tok_type != TOK_OP || tok_text[0] != '}') { print_indent(); printf("// Ошибка\n"); return; }
@@ -181,7 +181,7 @@ void parse_assignment()
         if (strcmp(var_name, "native_c") == 0)
         {
             print_indent();
-            if (has_arg == 3) 
+            if (has_arg == 3)
             { 
                 int i = 0;
                 while (arg_str[i] != '\0')
@@ -260,14 +260,11 @@ int main(int argc, char *argv[])
     file_buffer[file_size] = '\0';
     fclose(file);
     src_ptr = file_buffer;
-    
     printf("#include <stdio.h>\n#include <windows.h>\n#include <stdint.h>\n\n");
-    
     indent_level = 0;
     next_token();
     parse_statements();
-
-    printf("\nint main()\n{\n    SetConsoleCP(1251);\n    SetConsoleOutputCP(1251);\n    cdlr__main();\n    return 0;\n}");
+    printf("\nint main()\n{\n    cdlr__main();\n    return 0;\n}");
     free(file_buffer);
     return 0;
 }
