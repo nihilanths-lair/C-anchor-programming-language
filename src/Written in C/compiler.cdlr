@@ -1,6 +1,8 @@
-emit_c "#include <stdio.h>"
-emit_c "#include <windows.h>"
-emit_c "#include <stdint.h>"
+<emit_c
+#include <stdio.h>
+#include <windows.h>
+#include <stdint.h>
+emit_c>
 
 token__eof = 0
 token__keyword_while = 1
@@ -16,8 +18,10 @@ source_code_2[128]
 
 main()
 {
-    emit_c "SetConsoleCP(1251);"
-    emit_c "SetConsoleOutputCP(1251);"
+    <emit_c
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    emit_c>
 
     emit_c "strcpy((char*)source_code_2, \"// Исходный код C$ для самораскрутки!\");"
 
