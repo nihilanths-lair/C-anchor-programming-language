@@ -9,18 +9,17 @@ token__number = 3
 token__operator = 4
 token__keyword_if = 6
 
-source_code = "Я C$ строка инициализированная как глобальная"
-
-i = 0
+source_code = "// Исходный код C$ для самораскрутки!"
+position = 0
 
 main()
 {
     emit_c "SetConsoleCP(1251);"
     emit_c "SetConsoleOutputCP(1251);"
-    while (i != 6)
+    while (source_code[position] != token__eof)
     {
-        emit_c "printf(\"\n Я родился %d!\", i);"
-        i = i + 1
+        emit_c "printf(\"\n Текущий символ: '%d'.\", source_code[position]);"
+        position = position + 1
     }
     emit_c "putchar('\n');"
 }
