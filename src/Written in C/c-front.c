@@ -19,7 +19,7 @@ void cdlr__main()
     while (i != 6)
     {
         printf("\n Я родился %d!", i);
-        i = i + 1;
+        i++;
     }
     putchar('\n');
 }
