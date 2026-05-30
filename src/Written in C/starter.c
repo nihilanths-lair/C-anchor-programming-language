@@ -15,30 +15,27 @@
 #define TOK_CHAR  8
 #define TOK_EQ    9
 #define TOK_NEQ   10
-#define TOK_INC   11
 
 intptr_t tok_type;
 intptr_t tok_value;
-char tok_text_buffer[1024];
-char *tok_text = tok_text_buffer;
+char tok_text[1024]; // Полноценный глобальный массив для строк
 char *file_buffer;
 char *src_ptr;
 int indent_level = 0;
 int blank_line = 0;
 
-// Глобальные фиксированные буферы, защищенные от порчи стека
-char global_var_name[1024];
-char global_first_id[1024];
-char global_arg_id[1024];
+// Честные глобальные массивы-буферы, защищенные от урезания
+char global_var_name[256];
+char global_first_id[256];
+char global_arg_id[256];
 char global_arg_str[1024];
-char global_arg_char[1024];
+char global_arg_char[256];
 
 void next_token();
 void parse_statements();
 void parse_assignment();
 void parse_while();
 void parse_if();
-void parse_memory_store();
 
 void print_indent()
 {
@@ -78,18 +75,18 @@ void next_token()
         {
             if (*src_ptr == '\\' && *(src_ptr + 1) == 'n')
             {
-                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = 'n'; len += 2; }
+                if (len < 999) { tok_text[len] = '\\'; tok_text[len + 1] = 'n'; len += 2; }
                 src_ptr += 2; continue;
             }
             if (*src_ptr == '\\' && *(src_ptr + 1) == '"')
             {
-                if (len < 999) { *(tok_text + len) = '\\'; *(tok_text + len + 1) = '"'; len += 2; }
+                if (len < 999) { tok_text[len] = '\\'; tok_text[len + 1] = '"'; len += 2; }
                 src_ptr += 2; continue;
             }
-            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
+            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
             src_ptr++;
         }
-        *(tok_text + len) = '\0';
+        tok_text[len] = '\0';
         if (*src_ptr == '"') { src_ptr++; }
         tok_type = TOK_STR;
         return;
@@ -99,11 +96,11 @@ void next_token()
         src_ptr++; int len = 0;
         while (*src_ptr != '\'' && *src_ptr != '\0')
         {
-            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { *(tok_text + len) = *src_ptr; len++; src_ptr++; }
-            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
+            if (*src_ptr == '\\' && *(src_ptr + 1) != '\0') { tok_text[len] = *src_ptr; len++; src_ptr++; }
+            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
             src_ptr++;
         }
-        *(tok_text + len) = '\0';
+        tok_text[len] = '\0';
         if (*src_ptr == '\'') { src_ptr++; }
         tok_type = TOK_CHAR;
         return;
@@ -113,41 +110,36 @@ void next_token()
         int len = 0;
         while (isalnum((unsigned char)*src_ptr) || *src_ptr == '_')
         {
-            if (len < 1000) { *(tok_text + len) = *src_ptr; len++; }
+            if (len < 1000) { tok_text[len] = *src_ptr; len++; }
             src_ptr++;
         }
-        *(tok_text + len) = '\0';
+        tok_text[len] = '\0';
         if (strcmp(tok_text, "while") == 0) { tok_type = TOK_WHILE; }
         else if (strcmp(tok_text, "if") == 0) { tok_type = TOK_IF; }
         else { tok_type = TOK_ID; }
         return;
     }
-    if (*src_ptr == '+' && *(src_ptr + 1) == '+')
-    {
-        *(tok_text + 0) = '+'; *(tok_text + 1) = '+'; *(tok_text + 2) = '\0';
-        tok_type = TOK_INC; src_ptr += 2; return;
-    }
     if (*src_ptr == '-' && *(src_ptr + 1) == '-')
     {
-        *(tok_text + 0) = '-'; *(tok_text + 1) = '-'; *(tok_text + 2) = '\0';
+        tok_text[0] = '-'; tok_text[1] = '-'; tok_text[2] = '\0';
         tok_type = TOK_DEC; src_ptr += 2; return;
     }
     if (*src_ptr == '=' && *(src_ptr + 1) == '=')
     {
-        *(tok_text + 0) = '='; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
+        tok_text[0] = '='; tok_text[1] = '='; tok_text[2] = '\0';
         tok_type = TOK_EQ; src_ptr += 2; return;
     }
     if (*src_ptr == '!' && *(src_ptr + 1) == '=')
     {
-        *(tok_text + 0) = '!'; *(tok_text + 1) = '='; *(tok_text + 2) = '\0';
+        tok_text[0] = '!'; tok_text[1] = '='; tok_text[2] = '\0';
         tok_type = TOK_NEQ; src_ptr += 2; return;
     }
-    *(tok_text + 0) = *src_ptr; *(tok_text + 1) = '\0'; tok_type = TOK_OP; src_ptr++;
+    tok_text[0] = *src_ptr; tok_text[1] = '\0'; tok_type = TOK_OP; src_ptr++;
 }
 
 void parse_statements()
 {
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '}'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text[0] != '}'))
     {
         if (blank_line == 1)
         {
@@ -164,23 +156,23 @@ void parse_statements()
             {
                 print_indent();
                 int i = 0;
-                while (*(tok_text + i) != '\0')
+                while (tok_text[i] != '\0')
                 {
-                    if (*(tok_text + i) == '\\' && *(tok_text + i + 1) == '"') { putchar('"'); i += 2; }
-                    else { putchar(*(tok_text + i)); i++; }
+                    if (tok_text[i] == '\\' && tok_text[i + 1] == '"') { putchar('"'); i += 2; }
+                    else { putchar(tok_text[i]); i++; }
                 }
                 printf("\n");
                 next_token();
             }
             else { printf("// Ошибка: emit_c ожидает строковый литерал\n"); next_token(); }
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         }
         else if (tok_type == TOK_ID) 
         { 
             parse_assignment(); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); } 
+            if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); } 
         }
-        else if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        else if (tok_type == TOK_OP && tok_text[0] == ';') { next_token(); }
         else { next_token(); }
     }
 }
@@ -188,74 +180,74 @@ void parse_statements()
 void parse_assignment()
 {
     strcpy(global_var_name, tok_text);
-    next_token();
+    next_token(); 
 
-    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
+    if (indent_level == 0 && tok_type == TOK_OP && tok_text == '=')
     {
         next_token(); 
         if (tok_type == TOK_STR)
         {
             printf("intptr_t %s = (intptr_t)\"%s\";\n", global_var_name, tok_text);
             next_token(); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
             return;
         }
         if (tok_type == TOK_NUM)
         {
             printf("intptr_t %s = %d;\n", global_var_name, tok_value);
             next_token(); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
             return;
         }
         if (tok_type == TOK_CHAR)
         {
             printf("intptr_t %s = '%s';\n", global_var_name, tok_text);
             next_token(); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
             return;
         }
         if (tok_type == TOK_ID)
         {
             strcpy(global_first_id, tok_text); next_token();
-            if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
+            if (tok_type == TOK_OP && (tok_text == '+' || tok_text == '-'))
             {
-                char op = *(tok_text + 0); next_token();
+                char op = tok_text; next_token();
                 if (tok_type == TOK_NUM) { printf("intptr_t %s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
                 else if (tok_type == TOK_ID) { printf("intptr_t %s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
                 next_token(); return;
             }
             printf("intptr_t %s = %s;\n", global_var_name, global_first_id); 
-            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
             return;
         }
     }
-    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
+    if (indent_level == 0 && tok_type == TOK_OP && tok_text == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
-        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
         printf("intptr_t %s[%d];\n", global_var_name, size); return;
     }
-    if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == ';')
+    if (indent_level == 0 && tok_type == TOK_OP && tok_text == ';')
     {
         next_token(); printf("intptr_t %s;\n", global_var_name); return;
     }
-    if (tok_type == TOK_OP && *(tok_text + 0) == '(')
+    if (tok_type == TOK_OP && tok_text == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
-        *(global_arg_id + 0) = '\0'; *(global_arg_str + 0) = '\0'; *(global_arg_char + 0) = '\0';
+        global_arg_id[0] = '\0'; global_arg_str[0] = '\0'; global_arg_char[0] = '\0';
         if (tok_type == TOK_NUM) { has_arg = 1; arg_num = tok_value; next_token(); }
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(global_arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(global_arg_str, tok_text); next_token(); }
         else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(global_arg_char, tok_text); next_token(); }
-        if (tok_type != TOK_OP || *(tok_text + 0) != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
+        if (tok_type != TOK_OP || tok_text != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
         next_token();
-        if (tok_type == TOK_OP && *(tok_text + 0) == '{')
+        if (tok_type == TOK_OP && tok_text == '{')
         {
             indent_level = 0;
             if (strcmp(global_var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", global_var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
-            if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
+            if (tok_type != TOK_OP || tok_text != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
         if (strcmp(global_var_name, "emit_c") == 0)
@@ -266,7 +258,7 @@ void parse_assignment()
                 int i = 0;
                 while (global_arg_str[i] != '\0')
                 {
-                    if (global_arg_str[i] == '\\' && global_arg_str[i+1] == '"') { putchar('"'); i += 2; }
+                    if (global_arg_str[i] == '\\' && global_arg_str[i + 1] == '"') { putchar('"'); i += 2; }
                     else { putchar(global_arg_str[i]); i++; }
                 }
                 printf("\n");
@@ -282,38 +274,34 @@ void parse_assignment()
         if (has_arg == 4) { printf("'%s'", global_arg_char); }
         printf(");\n"); return;
     }
-    if (tok_type == TOK_INC)
-    {
-        print_indent(); printf("%s++;\n", global_var_name); next_token(); return;
-    }
     if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", global_var_name); next_token(); return; }
-    if (tok_type != TOK_OP || *(tok_text + 0) != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
+    if (tok_type != TOK_OP || tok_text != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
     next_token();
     if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
     if (tok_type == TOK_NUM) 
     { 
         printf("%s = %d;\n", global_var_name, tok_value); next_token(); 
-        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_CHAR) 
     { 
         printf("%s = '%s';\n", global_var_name, tok_text); next_token(); 
-        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
         return; 
     }
     if (tok_type == TOK_ID)
     {
         strcpy(global_first_id, tok_text); next_token();
-        if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
+        if (tok_type == TOK_OP && (tok_text == '+' || tok_text == '-'))
         {
-            char op = *(tok_text + 0); next_token();
+            char op = tok_text; next_token();
             if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
             else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
             next_token(); return;
         }
         printf("%s = %s;\n", global_var_name, global_first_id); 
-        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        if (tok_type == TOK_OP && tok_text == ';') { next_token(); }
         return;
     }
     printf("// Ошибка синтаксиса\n");
@@ -324,12 +312,12 @@ void parse_while()
     print_indent();
     printf("while ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (tok_text == '<' || tok_text == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
@@ -350,12 +338,12 @@ void parse_if()
     print_indent();
     printf("if ");
     next_token();
-    while (tok_type != TOK_EOF && (tok_type != TOK_OP || *(tok_text + 0) != '{'))
+    while (tok_type != TOK_EOF && (tok_type != TOK_OP || tok_text != '{'))
     {
         if (tok_type == TOK_NUM) { printf("%d", tok_value); }
         else if (tok_type == TOK_ID) { printf("%s", tok_text); }
         else if (tok_type == TOK_EQ || tok_type == TOK_NEQ) { printf(" %s ", tok_text); }
-        else if (tok_type == TOK_OP && (*(tok_text + 0) == '<' || *(tok_text + 0) == '>')) { printf(" %s ", tok_text); }
+        else if (tok_type == TOK_OP && (tok_text == '<' || tok_text == '>')) { printf(" %s ", tok_text); }
         else { printf("%s", tok_text); }
         next_token();
     }
@@ -371,15 +359,13 @@ void parse_if()
     next_token();
 }
 
-void parse_memory_store() { next_token(); }
-
 int main(int argc, char *argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv); return 1; }
-    FILE *file = fopen(argv, "rb");
-    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv); return 1; }
+    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); return 1; }
+    FILE *file = fopen(argv[1], "rb");
+    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
