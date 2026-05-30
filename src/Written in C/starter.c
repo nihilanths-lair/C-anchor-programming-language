@@ -26,12 +26,12 @@ char *src_ptr;
 int indent_level = 0;
 int blank_line = 0;
 
-// Безопасные глобальные буферы для парсера функций и аргументов
-char global_var_name[256];
-char global_first_id[256];
-char global_arg_id[256];
+// Глобальные фиксированные буферы, защищенные от порчи стека
+char global_var_name[1024];
+char global_first_id[1024];
+char global_arg_id[1024];
 char global_arg_str[1024];
-char global_arg_char[256];
+char global_arg_char[1024];
 
 void next_token();
 void parse_statements();
@@ -157,7 +157,6 @@ void parse_statements()
 
         if (tok_type == TOK_WHILE) { parse_while(); }
         else if (tok_type == TOK_IF) { parse_if(); }
-        // ИМЯ ОПЕРАТОРА ОБНОВЛЕНО: теперь это emit_c!
         else if (tok_type == TOK_ID && strcmp(tok_text, "emit_c") == 0)
         {
             next_token();
@@ -173,7 +172,7 @@ void parse_statements()
                 printf("\n");
                 next_token();
             }
-            else { printf("// Ошибка: Оператор emit_c ожидает строковый литерал\n"); next_token(); }
+            else { printf("// Ошибка: emit_c ожидает строковый литерал\n"); next_token(); }
             if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         }
         else if (tok_type == TOK_ID) 
@@ -188,55 +187,58 @@ void parse_statements()
 
 void parse_assignment()
 {
-    // 1. Железно сохраняем имя переменной, которую мы только что встретили
     strcpy(global_var_name, tok_text);
-    
-    // 2. Делаем ровно один шаг лексера, чтобы узнать, какой оператор идёт СРАЗУ ЗА ИМЕНЕМ
-    next_token(); 
+    next_token();
 
-    // Сценарий 1: Глобальная инициализация строки вида: имя = "текст"
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '=')
     {
-        next_token(); // Шагаем за знак '=' к самому значению строки
+        next_token(); 
         if (tok_type == TOK_STR)
         {
             printf("intptr_t %s = (intptr_t)\"%s\";\n", global_var_name, tok_text);
-            next_token(); // Шагаем за строку, очищая её для следующей команды
+            next_token(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
-        
-        // Сценарий 1Б: Глобальная инициализация числа вида: имя = 0
         if (tok_type == TOK_NUM)
         {
             printf("intptr_t %s = %d;\n", global_var_name, tok_value);
-            next_token(); // Шагаем за число
+            next_token(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
-        
-        // Сценарий 1В: Глобальная инициализация символа вида: имя = 'A'
         if (tok_type == TOK_CHAR)
         {
             printf("intptr_t %s = '%s';\n", global_var_name, tok_text);
-            next_token(); // Шагаем за символ
+            next_token(); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+            return;
+        }
+        if (tok_type == TOK_ID)
+        {
+            strcpy(global_first_id, tok_text); next_token();
+            if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
+            {
+                char op = *(tok_text + 0); next_token();
+                if (tok_type == TOK_NUM) { printf("intptr_t %s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
+                else if (tok_type == TOK_ID) { printf("intptr_t %s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
+                next_token(); return;
+            }
+            printf("intptr_t %s = %s;\n", global_var_name, global_first_id); 
+            if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
             return;
         }
     }
-
-    // Сценарий 2: Глобальное объявление массива вида: имя[размер]
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == '[')
     {
         next_token(); int size = tok_value; next_token(); next_token();
         if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
         printf("intptr_t %s[%d];\n", global_var_name, size); return;
     }
-
-    // Сценарий 3: Глобальное объявление переменной без инициализации вида: имя;
     if (indent_level == 0 && tok_type == TOK_OP && *(tok_text + 0) == ';')
     {
         next_token(); printf("intptr_t %s;\n", global_var_name); return;
     }
-
-    // Сценарий 4: Работа со скобками (Вызов или Объявление функции)
     if (tok_type == TOK_OP && *(tok_text + 0) == '(')
     {
         next_token(); int has_arg = 0; int arg_num = 0; 
@@ -245,7 +247,7 @@ void parse_assignment()
         else if (tok_type == TOK_ID) { has_arg = 2; strcpy(global_arg_id, tok_text); next_token(); }
         else if (tok_type == TOK_STR) { has_arg = 3; strcpy(global_arg_str, tok_text); next_token(); }
         else if (tok_type == TOK_CHAR) { has_arg = 4; strcpy(global_arg_char, tok_text); next_token(); }
-        if (tok_type != TOK_OP || *(tok_text + 0) != ')') { print_indent(); printf("// Ошибка синтаксиса в аргументах\n"); return; }
+        if (tok_type != TOK_OP || *(tok_text + 0) != ')') { print_indent(); printf("// Ошибка синтаксиса\n"); return; }
         next_token();
         if (tok_type == TOK_OP && *(tok_text + 0) == '{')
         {
@@ -253,7 +255,7 @@ void parse_assignment()
             if (strcmp(global_var_name, "main") == 0) { printf("void cdlr__main()\n"); }
             else { printf("\nvoid %s()\n", global_var_name); }
             printf("{\n"); next_token(); indent_level = 1; parse_statements();
-            if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка конца функции\n"); return; }
+            if (tok_type != TOK_OP || *(tok_text + 0) != '}') { print_indent(); printf("// Ошибка\n"); return; }
             printf("}\n"); next_token(); indent_level = 0; return;
         }
         if (strcmp(global_var_name, "emit_c") == 0)
@@ -280,40 +282,41 @@ void parse_assignment()
         if (has_arg == 4) { printf("'%s'", global_arg_char); }
         printf(");\n"); return;
     }
-
-    // Сценарий 5: Локальный инкремент (i++) внутри функций
     if (tok_type == TOK_INC)
     {
         print_indent(); printf("%s++;\n", global_var_name); next_token(); return;
     }
-
-    // Сценарий 6: Локальный декремент (i--) внутри функций
-    if (tok_type == TOK_DEC)
-    {
-        print_indent(); printf("%s--;\n", global_var_name); next_token(); return;
+    if (tok_type == TOK_DEC) { print_indent(); printf("%s--;\n", global_var_name); next_token(); return; }
+    if (tok_type != TOK_OP || *(tok_text + 0) != '=') { print_indent(); printf("// Ошибка: Ожидался знак '=' \n"); return; }
+    next_token();
+    if (indent_level == 0) { printf("intptr_t "); } else { print_indent(); }
+    if (tok_type == TOK_NUM) 
+    { 
+        printf("%s = %d;\n", global_var_name, tok_value); next_token(); 
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        return; 
     }
-
-    // Сценарий 7: Локальное присваивание выражений внутри функций (i = 5 или i = y + 1)
-    if (tok_type == TOK_OP && *(tok_text + 0) == '=')
+    if (tok_type == TOK_CHAR) 
+    { 
+        printf("%s = '%s';\n", global_var_name, tok_text); next_token(); 
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        return; 
+    }
+    if (tok_type == TOK_ID)
     {
-        next_token(); print_indent();
-        if (tok_type == TOK_NUM) { printf("%s = %d;\n", global_var_name, tok_value); next_token(); return; }
-        if (tok_type == TOK_CHAR) { printf("%s = '%s';\n", global_var_name, tok_text); next_token(); return; }
-        if (tok_type == TOK_ID)
+        strcpy(global_first_id, tok_text); next_token();
+        if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
         {
-            strcpy(global_first_id, tok_text); next_token();
-            if (tok_type == TOK_OP && (*(tok_text + 0) == '+' || *(tok_text + 0) == '-'))
-            {
-                char op = *(tok_text + 0); next_token();
-                if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
-                else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
-                next_token(); return;
-            }
-            printf("%s = %s;\n", global_var_name, global_first_id); return;
+            char op = *(tok_text + 0); next_token();
+            if (tok_type == TOK_NUM) { printf("%s = %s %c %d;\n", global_var_name, global_first_id, op, tok_value); }
+            else if (tok_type == TOK_ID) { printf("%s = %s %c %s;\n", global_var_name, global_first_id, op, tok_text); }
+            next_token(); return;
         }
+        printf("%s = %s;\n", global_var_name, global_first_id); 
+        if (tok_type == TOK_OP && *(tok_text + 0) == ';') { next_token(); }
+        return;
     }
-
-    printf("// Ошибка синтаксиса: Неверное выражение с переменной %s\n", global_var_name);
+    printf("// Ошибка синтаксиса\n");
 }
 
 void parse_while()
@@ -374,9 +377,9 @@ int main(int argc, char *argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv[0]); return 1; }
-    FILE *file = fopen(argv[1], "rb");
-    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv[1]); return 1; }
+    if (argc < 2) { printf("\n Использование: %s <имя_файла.cdlr>\n", argv); return 1; }
+    FILE *file = fopen(argv, "rb");
+    if (file == NULL) { printf("Ошибка: Не удалось открыть файл %s\n", argv); return 1; }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
