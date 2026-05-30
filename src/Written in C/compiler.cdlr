@@ -20,7 +20,7 @@ main()
     while (i != 6)
     {
         emit_c "printf(\"\n Я родился %d!\", i);"
-        i++
+        i = i + 1
     }
     emit_c "putchar('\n');"
 }
