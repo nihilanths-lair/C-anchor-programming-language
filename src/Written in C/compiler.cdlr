@@ -24,9 +24,9 @@ main()
     while (((char*)source_code)[position] != token__eof)
     {
         emit_c "printf(\"\n Текущий символ (%d): '%c'.\", position, ((char*)source_code)[position]);"
-        if (((char*)source_code)[position] == ' ')
+        if (((char*)source_code)[position] == 32)
         {
-            emit_c "printf(\" Обнаружен пробельный символ (%d).\")"
+            emit_c "printf(\" Обнаружен пробельный символ (%d).\", position);"
         }
         position = position + 1
     }
