@@ -13,6 +13,21 @@ int main(int argc, char *argv[])\r\n\
 }\
 ";
 
+void Lexer(const char *source_code)
+{
+    putchar('\n');
+    while (*source_code != '\0')
+    {
+        //printf("%c", *source_code);
+        if (*source_code == 'e')
+        {
+            printf("%c", *source_code);
+            source_code++;
+        }
+        else source_code++;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     printf("\n argc: %d", argc);
@@ -20,6 +35,7 @@ int main(int argc, char *argv[])
     //printf("\n Текст на кириллице!");
     printf("\n\n");
     printf("\n stitched_source_code\n···\n%s\n···", stitched_source_code);
+    Lexer(stitched_source_code);
     printf("\n\n");
     for (int i = 0; stitched_source_code[i] != '\0'; i++) printf("%c", stitched_source_code[i]);
     if (argc < 2)
@@ -40,6 +56,7 @@ int main(int argc, char *argv[])
     fread(source_code, sizeof (char), file_size, file);
     source_code[file_size] = '\0';
     printf("\n source_code\n···\n%s\n···", source_code);
+    Lexer(source_code);
     putchar('\n');
     return 0;
 }
