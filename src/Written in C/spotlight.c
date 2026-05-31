@@ -26,20 +26,52 @@ void Lexer(const char *source_code)
             //printf("%c", *source_code);
             if (!strncmp(source_code, "</emit_c:", strlen("</emit_c:")))
             {
-                printf("\n Оператор вставки С-кода обнаружен.");
                 source_code += strlen("</emit_c:");
-                while (*source_code != '\0') // Идём по сырому тексту
+                // Проверим перенос строки, т.к. у нас строгий (жёсткий) стиль синтаксиса
+                if (*source_code == '\r' && *(source_code+1) == '\n')
                 {
-                    if (*source_code == '/' && *(source_code+1) == '>') // Выходим из режима записи сырого текста
+                    source_code += 2; // Перешагиваем
+                    printf("\n Оператор многострочной вставки С-кода обнаружен.");
+                    while (*source_code != '\0') // Идём по сырому тексту
                     {
-                        source_code += 2;
-                        break;
+                        if (*source_code == '/' && *(source_code+1) == '>') // Выходим из режима записи сырого текста
+                        {
+                            source_code += 2;
+                            break;
+                        }
+                        else
+                        {
+                            putchar(*source_code);
+                            source_code++;
+                        }
                     }
-                    putchar(*source_code);
                 }
+                else if (*source_code == '\n')
+                {
+                    source_code++; // Перешагиваем
+                    printf("\n Оператор многострочной вставки С-кода обнаружен.");
+                    while (*source_code != '\0') // Идём по сырому тексту
+                    {
+                        if (*source_code == '/' && *(source_code+1) == '>') // Выходим из режима записи сырого текста
+                        {
+                            source_code += 2;
+                            break;
+                        }
+                        else
+                        {
+                            putchar(*source_code);
+                            source_code++;
+                        }
+                    }
+                }
+                else source_code -= strlen("</emit_c:")-1;
             }
         }
-        source_code++;
+        else
+        {
+            putchar(*source_code);
+            source_code++;
+        }
     }
 }
 
