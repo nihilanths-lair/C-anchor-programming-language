@@ -23,6 +23,11 @@ void Lexer(const char *source_code)
         {
             printf("%c", *source_code);
             source_code++;
+            if (!strncmp(*source_code, "emit_c:", strlen("emit_c:")))
+            {
+                printf("\n Оператор вставки С-кода обнаружен.");
+                source_code += strlen("emit_c:");
+            }
         }
         else source_code++;
     }
