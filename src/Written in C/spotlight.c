@@ -29,7 +29,6 @@ void LexPars(const char *source_code)
                 if (*check_ptr == '\r' && *(check_ptr + 1) == '\n')
                 {
                     source_code = check_ptr + 2;
-                    // ИСПРАВЛЕНО: fprintf(stderr) выведет текст на экран консоли, и он НЕ попадет в Си-файл!
                     fprintf(stderr, "\n [Прожектор]: Оператор многострочной вставки С-кода обнаружен.");
                     is_tag_processed = 1;
                     while (*source_code != '\0')
@@ -39,7 +38,11 @@ void LexPars(const char *source_code)
                             source_code += 1;
                             break;
                         }
-                        // ИСПРАВЛЕНО: игнорируем возврат каретки, чтобы Windows не удваивала переносы строк
+                        // ИСПРАВЛЕНО: заглядываем вперёд. Если за текущим \n (или \r\n) сразу идёт тег />, 
+                        // то мы НЕ печатаем этот перенос строки, чтобы не плодить пустой хвост в Си-файле!
+                        if (*source_code == '\n' && *(source_code + 1) == '/' && *(source_code + 2) == '>') { source_code++; continue; }
+                        if (*source_code == '\r' && *(source_code + 1) == '\n' && *(source_code + 2) == '/' && *(source_code + 3) == '>') { source_code += 2; continue; }
+                        
                         if (*source_code != '\r') { putchar(*source_code); }
                         source_code++;
                     }
@@ -56,6 +59,8 @@ void LexPars(const char *source_code)
                             source_code += 1;
                             break;
                         }
+                        if (*source_code == '\n' && *(source_code + 1) == '/' && *(source_code + 2) == '>') { source_code++; continue; }
+                        
                         if (*source_code != '\r') { putchar(*source_code); }
                         source_code++;
                     }
