@@ -69,14 +69,12 @@ void LexPars(const char *source_code)
         }
         else { source_code++; }
     }
+    fprintf(stderr, "\n");
 }
 
 int main(int argc, char *argv[])
 {
-    printf("\n\n");
-    Lexer(stitched_source_code);
-    printf("\n\n");
-
+    //LexPars(stitched_source_code);
     if (argc < 2)
     {
         printf("\n compile: %s source_code.cdlr\n", argv[0]);
@@ -96,6 +94,5 @@ int main(int argc, char *argv[])
     source_code[file_size] = '\0';
     
     LexPars(source_code);
-    putchar('\n');
     return 0;
 }
