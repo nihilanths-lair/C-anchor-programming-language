@@ -31,7 +31,7 @@ void execute_meta_core(const int *rules_table)
             case OP_MATCH_CHAR:
             {
                 int expected_char = rules_table[pc+1];
-                if (src_char == expected_char) 
+                if (src_char == expected_char)
                 { 
                     fprintf(stderr, "\n [MVP]: Символ '%c' успешно совпал!", expected_char);
                     pc += 2;
