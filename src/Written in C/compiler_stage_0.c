@@ -30,8 +30,7 @@ void execute_meta_core(const int *rules_table)
             }
             case OP_MATCH_CHAR:
             {
-                int expected_char = rules_table[pc + 1];
-                if (src_char == expected_char) 
+                if (src_char == rules_table[pc+1])
                 { 
                     pc += 2;
                 }
@@ -49,7 +48,7 @@ void execute_meta_core(const int *rules_table)
                 {
                     if (source_code[src_idx] == '/')
                     {
-                        if (source_code[src_idx + 1] == '>')
+                        if (source_code[src_idx+1] == '>')
                         {
                             src_idx += 2;
                             src_char = source_code[src_idx];
@@ -93,7 +92,8 @@ int main(int argc, char *argv[])
     fclose(file);
 
     // УПРАВЛЯЮЩИЙ БАЙТ-КОД ХОСТА: ищет строго тег и вырезает Си-код
-    int host_rules[] = {
+    int host_rules[] =
+    {
         OP_READ_CHAR,
         OP_MATCH_CHAR, '<',
         OP_READ_CHAR,
