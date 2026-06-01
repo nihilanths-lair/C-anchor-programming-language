@@ -5,9 +5,10 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define OP_END_OF_FILE  0
-#define OP_READ_CHAR    1
-#define OP_MATCH_CHAR   2
+#define  OP_END_OF_FILE     0
+#define  OP_READ_CHAR       1
+#define  OP_MATCH_CHAR      2
+#define  OP_EMIT_UNTIL_TAG  3
 
 char source_code[0xFFFFFF];
 int src_idx = 0;
@@ -42,6 +43,27 @@ void execute_meta_core(const int *rules_table)
                 }
                 break;
             }
+            case OP_EMIT_UNTIL_TAG:
+            {
+                // Мета-команда слепо шпарит символы наружу, пока не наткнется на тег закрытия
+                while (source_code[src_idx] != '\0')
+                {
+                    if (source_code[src_idx] == '/')
+                    {
+                        if (source_code[src_idx+1] == '>')
+                        {
+                            src_idx += 2;
+                            src_char = source_code[src_idx];
+                            break;
+                        }
+                    }
+                    // Защита от Windows-переносов строк \r\n, чтобы код не растягивало
+                    if (source_code[src_idx] != '\r') { putchar(source_code[src_idx]); }
+                    src_idx++;
+                }
+                pc++;
+                break;
+            }
             default:
             {
                 pc++;
@@ -73,14 +95,41 @@ int main(int argc, char *argv[])
     source_code[file_size] = '\0';
     fclose(file);
 
-    int test_rules[] = {
+    int test_rules[] =
+    {
         OP_READ_CHAR,
         OP_MATCH_CHAR, '<',
         OP_READ_CHAR,
         OP_MATCH_CHAR, '/',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'c',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '-',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'i',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'n',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'j',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'e',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'c',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 't',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'i',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'o',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'n',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, ':',
+        // Перешагиваем возможные переводы строк после двоеточия
+        OP_READ_CHAR, 
+        OP_EMIT_UNTIL_TAG, // Включаем слепую инъекцию Си-кода!
         OP_END_OF_FILE
     };
-
     execute_meta_core(test_rules);
     return 0;
 }
