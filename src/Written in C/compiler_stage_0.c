@@ -1,73 +1,74 @@
+// </ compiler_stage_0.c />
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
 
+#define OP_END_OF_FILE     0
+#define OP_READ_CHAR       1
+#define OP_MATCH_CHAR      2
+#define OP_EMIT_UNTIL_TAG  3
+
 char source_code[0xFFFFFF];
+int src_idx = 0;
+char src_char = '\0';
+int pc = 0;
 
-void LexPars(const char *source_code)
+void execute_meta_core(const int *rules_table)
 {
-    while (*source_code != '\0')
+    while (rules_table[pc] != OP_END_OF_FILE)
     {
-        if (*source_code == '<' && !strncmp(source_code, "</c-injection:", 14))
+        switch (rules_table[pc])
         {
-            source_code += 14;
-            while (*source_code == '\r' || *source_code == '\n') { source_code++; }
-            fprintf(stderr, "\n [Прожектор]: Оператор многострочной вставки С-кода обнаружен.");
-            
-            while (*source_code != '\0')
+            case OP_READ_CHAR:
             {
-                // ЗАЩИТА №1: Перехват строковых литералов внутри Си-кода
-                if (*source_code == '"')
-                {
-                    putchar(*source_code); source_code++;
-                    while (*source_code != '"' && *source_code != '\0')
-                    {
-                        // Пропускаем экранированные кавычки \", чтобы не выйти раньше времени
-                        if (*source_code == '\\' && *(source_code + 1) == '"') { putchar('\\'); putchar('"'); source_code += 2; continue; }
-                        if (*source_code != '\r') { putchar(*source_code); }
-                        source_code++;
-                    }
-                    if (*source_code == '"') { putchar(*source_code); source_code++; }
-                    continue;
-                }
-
-                // ЗАЩИТА №2: Перехват символьных литералов внутри Си-кода (например, '>')
-                if (*source_code == '\'')
-                {
-                    putchar(*source_code); source_code++;
-                    while (*source_code != '\'' && *source_code != '\0')
-                    {
-                        if (*source_code == '\\' && *(source_code + 1) == '\'') { putchar('\\'); putchar('\''); source_code += 2; continue; }
-                        if (*source_code != '\r') { putchar(*source_code); }
-                        source_code++;
-                    }
-                    if (*source_code == '\'') { putchar(*source_code); source_code++; }
-                    continue;
-                }
-
-                // Настоящий закрывающий тег (сработает только ВНЕ кавычек!)
-                if (*source_code == '/' && *(source_code + 1) == '>')
-                {
-                    source_code += 2; 
-                    break;
-                }
-                
-                if (*source_code == '\n' && *(source_code + 1) == '/' && *(source_code + 2) == '>') { source_code++; continue; }
-                if (*source_code == '\r' && *(source_code + 1) == '\n' && *(source_code + 2) == '/' && *(source_code + 3) == '>') { source_code += 2; continue; }
-                
-                if (*source_code != '\r') { putchar(*source_code); }
-                source_code++;
+                src_char = source_code[src_idx];
+                if (src_char != '\0') { src_idx++; }
+                pc++;
+                break;
             }
-            
-            while (*source_code == ' ' || *source_code == '\t' || *source_code == '\r' || *source_code == '\n') { source_code++; }
-            continue; 
+            case OP_MATCH_CHAR:
+            {
+                int expected_char = rules_table[pc + 1];
+                if (src_char == expected_char) 
+                { 
+                    pc += 2;
+                }
+                else 
+                { 
+                    // Если символ не совпал (например, это обычный код C$, а не тег),
+                    // мы просто сбрасываем PC на начало цикла чтения следующего символа
+                    pc = 0; 
+                }
+                break;
+            }
+            case OP_EMIT_UNTIL_TAG:
+            {
+                while (source_code[src_idx] != '\0')
+                {
+                    if (source_code[src_idx] == '/')
+                    {
+                        if (source_code[src_idx + 1] == '>')
+                        {
+                            src_idx += 2;
+                            src_char = source_code[src_idx];
+                            break;
+                        }
+                    }
+                    if (source_code[src_idx] != '\r') { putchar(source_code[src_idx]); }
+                    src_idx++;
+                }
+                pc++;
+                break;
+            }
+            default:
+            {
+                pc++;
+                break;
+            }
         }
-        
-        if (*source_code != '<' && *source_code != '\r') { putchar(*source_code); }
-        source_code++;
     }
-    fprintf(stderr, "\n");
 }
 
 int main(int argc, char *argv[])
@@ -89,8 +90,53 @@ int main(int argc, char *argv[])
     
     fread(source_code, sizeof (char), file_size, file);
     source_code[file_size] = '\0';
-    fclose(file); // Добавили закрытие дескриптора, чтобы не утекала память
-    
-    LexPars(source_code);
+    fclose(file);
+
+    // УПРАВЛЯЮЩИЙ БАЙТ-КОД ХОСТА: ищет строго тег и вырезает Си-код
+    int host_rules[] = {
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '<',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '/',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'c',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '-',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'i',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'n',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'j',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'e',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'c',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 't',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'i',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'o',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, 'n',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, ':',
+        OP_READ_CHAR, 
+        OP_EMIT_UNTIL_TAG,
+        OP_END_OF_FILE
+    };
+
+    // Главный цикл хоста: бежим по файлу, пока не кончится исходник
+    while (source_code[src_idx] != '\0')
+    {
+        pc = 0; // Сбрасываем Program Counter на старт мета-цепочки
+        execute_meta_core(host_rules);
+        
+        // Если мета-цепочка сбросилась из-за несовпадения букв тега,
+        // мы просто продвигаем глобальный индекс хоста на 1 символ вперед
+        if (pc == 0 && source_code[src_idx] != '\0') { src_idx++; }
+    }
+
     return 0;
 }
