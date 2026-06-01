@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <windows.h>
+
+#define OP_END_OF_FILE  0
+#define OP_READ_CHAR    1
+#define OP_MATCH_CHAR   2
+
+char source_code[0xFFFFFF];
+int src_idx = 0;
+char src_char = '\0';
+int pc = 0;
+
+void execute_meta_core(const int *rules_table)
+{
+    while (rules_table[pc] != OP_END_OF_FILE)
+    {
+        switch (rules_table[pc])
+        {
+            case OP_READ_CHAR:
+            {
+                src_char = source_code[src_idx];
+                if (src_char != '\0') { src_idx++; }
+                pc++;
+                break;
+            }
+            case OP_MATCH_CHAR:
+            {
+                int expected_char = rules_table[pc + 1];
+                if (src_char == expected_char) 
+                { 
+                    fprintf(stderr, "\n [MVP]: Символ '%c' успешно совпал!", expected_char);
+                    pc += 2;
+                }
+                else 
+                { 
+                    fprintf(stderr, "\n [Ошибка]: Ожидался символ '%c', но пришел '%c'", expected_char, src_char);
+                    return; 
+                }
+                break;
+            }
+            default:
+            {
+                pc++;
+                break;
+            }
+        }
+    }
+    fprintf(stderr, "\n");
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 2)
+    {
+        printf("\n compile: %s source_code.meta\n", argv[0]);
+        return 1;
+    }
+    FILE *file = fopen(argv[1], "rb");
+    if (file == NULL)
+    {
+        printf("\n <Error>: Не удалось открыть файл ``%s``!", argv[1]);
+        return 1;
+    }
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    fread(source_code, sizeof (char), file_size, file);
+    source_code[file_size] = '\0';
+    fclose(file);
+
+    int test_rules[] = {
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '<',
+        OP_READ_CHAR,
+        OP_MATCH_CHAR, '/',
+        OP_END_OF_FILE
+    };
+
+    execute_meta_core(test_rules);
+    return 0;
+}
