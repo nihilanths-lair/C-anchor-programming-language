@@ -26,7 +26,6 @@ void execute_meta_core(const int *code_segment)
 {
     repeat: switch (code_segment[ip]) {
     case OP__END_OF_FILE: break;
-
     case OP__MATCH_STRING:
     {
         // 1. Вытаскиваем адрес строки из следующей ячейки массива и приводим обратно к типу char*
@@ -44,7 +43,6 @@ void execute_meta_core(const int *code_segment)
         ip += 2; 
         goto repeat;
     }
-
     case OP__JUMP_IF_NOT_EQUAL:
     {
         if (!is_match)
@@ -55,20 +53,17 @@ void execute_meta_core(const int *code_segment)
         else { ip += 2; }
         goto repeat;
     }
-
     case OP__STEP_FORWARD:
     {
         dp++;
         ip++;
         goto repeat;
     }
-
     case OP__JUMP:
     {
         ip = code_segment[ip+1];
         goto repeat;
     }
-
     case OP__INJECTION_UNTIL_TAG:
     {
         // 1. Ручным прыжком перешагиваем длину тега "</c-injection:" (14 символов)
@@ -93,7 +88,6 @@ void execute_meta_core(const int *code_segment)
         ip++; // Шагаем к следующей мета-команде
         goto repeat;
     }
-
     case OP__GENERATE_CODE:
     {
         // Читаем число-аргумент из сегмента кода
@@ -106,7 +100,6 @@ void execute_meta_core(const int *code_segment)
         ip += 2;
         goto repeat;
     }
-
     case OP__MOVE_BY:
     {
         // Прибавляем число-аргумент к нашему указателю данных dp
@@ -114,7 +107,6 @@ void execute_meta_core(const int *code_segment)
         ip += 2; // Перешагиваем команду и ее аргумент
         goto repeat;
     }
-
     default:
     {
         ip++;
@@ -147,38 +139,33 @@ int main(int argc, char *argv[])
     // Переводим указатель на строку в число и кладем аргументом прямо в правила!
     int test_rules[] =
     {
-        // Индекс 0: Проверяем "STEP"
+        // Индекс 0: Проверяем "STEP" (занимает 2 ячейки)
         OP__MATCH_STRING, (intptr_t)"STEP",
-        // Индекс 2: Если не "STEP" — прыгаем на проверку "JUMP" (теперь она на Индексе 9!)
+        // Индекс 2: Если не "STEP" — прыгаем строго на Индекс 9 (к проверке "JUMP")!
         OP__JUMP_IF_NOT_EQUAL, 9,
-        // Индекс 4: Генерируем код
+        // Индекс 4: Генерируем код (занимает 2 ячейки)
         OP__GENERATE_CODE, OP__STEP_FORWARD,
-        // Индекс 6: Перешагиваем 4 символа
+        // Индекс 6: Перешагиваем 4 символа слова STEP (занимает 2 ячейки)
         OP__MOVE_BY, 4,
-        // Индекс 8: Мгновенный возврат на Индекс 0!
+        // Индекс 8: Безусловный возврат на Индекс 0
         OP__JUMP, 0,
-
-        // Индекс 9: Проверяем "JUMP"
+        // Индекс 9: Проверяем "JUMP" (занимает 2 ячейки)
         OP__MATCH_STRING, (intptr_t)"JUMP",
-        // Индекс 11: Если не "JUMP" — прыгаем на пропуск текста (теперь он на Индексе 18!)
+        // Индекс 11: Если не "JUMP" — прыгаем строго на Индекс 18 (на пропуск символа)!
         OP__JUMP_IF_NOT_EQUAL, 18,
-        // Индекс 13: Генерируем код
+        // Индекс 13: Генерируем код (занимает 2 ячейки)
         OP__GENERATE_CODE, OP__JUMP,
-        // Индекс 15: Перешагиваем 4 символа
+        // Индекс 15: Перешагиваем 4 символа слова JUMP (занимает 2 ячейки)
         OP__MOVE_BY, 4,
-        // Индекс 17: Возврат на Индекс 0!
+        // Индекс 17: Безусловный возврат на Индекс 0
         OP__JUMP, 0,
-
-        // Индекс 18: Шаг вперед по обычному символу (пробелы, переводы строк)
+        // Индекс 18: Шаг вперед по обычному символу (\r, \n или пробелы)
         OP__STEP_FORWARD,
-        // Индекс 19: Возврат на Индекс 0
+        // Индекс 19: Безусловный возврат на Индекс 0
         OP__JUMP, 0
     };
-
     execute_meta_core(test_rules);
-
     // ОТЛАДОЧНЫЙ ЧЕК: смотрим, записало ли ядро хоть что-то в наш out_segment!
     fprintf(stderr, "\n [Генератор]: Всего команд записано в out_segment: %d. Первая команда: %d", rules_idx, out_segment[0]);
-
     return 0;
 }
