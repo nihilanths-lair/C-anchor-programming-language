@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     source_code[file_size] = '\0';
     fclose(file);
     for (int i = 0; i < file_size; i++) { fputc(source_code[i], stderr); }
-    for (int i = 0; i < file_size; i++) { putchar(source_code[i]); }
+    for (int i = 0; i < file_size; i++) { if (source_code[i] != '\r') { putchar(source_code[i]); } }
     return 0;
 }
 
