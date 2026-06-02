@@ -5,14 +5,14 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define  OP__END_OF_FILE        0
-#define  OP__MATCH_STRING       1
-#define  OP__JUMP_IF_NOT_EQUAL  2  // Условный переход по флагу is_match
-#define  OP__STEP_FORWARD       3  // Двигает курсор строго на +1
-#define  OP__JUMP               4
+#define  OP__END_OF_FILE          0
+#define  OP__MATCH_STRING         1
+#define  OP__JUMP_IF_NOT_EQUAL    2  // Условный переход по флагу is_match
+#define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
+#define  OP__JUMP                 4
+#define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
 
-#define  OP_MOVE_BY         5  // Двигает курсор на X
-#define  OP_EMIT_UNTIL_TAG  6  // Инъекция Си-кода
+#define  OP_MOVE_BY  6  // Двигает курсор на X
 
 int dp = 0; // Указатель на данные, которые парсим
 char data[0xFFFFFF]; // Сами данные
@@ -66,6 +66,31 @@ void execute_meta_core(const int *rules_table)
         goto repeat;
     }
 
+    case OP__INJECTION_UNTIL_TAG:
+    {
+        // 1. Ручным прыжком перешагиваем длину тега "</c-injection:" (14 символов)
+        dp += 14;
+        // 2. Внутренний цикл: слепо копируем код Си
+        while (data[dp] != '\0')
+        {
+            // Используем твою двухэтапную проверку закрывающего тега
+            if (data[dp] == '/')
+            {
+                if (data[dp + 1] == '>')
+                {
+                    dp += 2; // Перешагиваем сам закрывающий тег "/>"
+                    break;   // Выходим из режима инъекции Си-кода
+                }
+            }
+
+            // Защита от Windows-переносов строк \r\n, чтобы код не разрывало
+            if (data[dp] != '\r') { putchar(data[dp]); }
+            dp++;
+        }
+        ip++; // Шагаем к следующей мета-команде
+        goto repeat;
+    }
+
     default:
     {
         ip++;
@@ -100,17 +125,20 @@ int main(int argc, char *argv[])
     {
         // Индекс 0: Зорко проверяем, стоит ли перед нами тег
         OP__MATCH_STRING, (intptr_t)"</c-injection:",
-        
-        // Индекс 2: Если это НЕ тег (is_match == 0) — прыгаем на Индекс 5 (на шаг вперёд)
-        OP__JUMP_IF_NOT_EQUAL, 5,
-        
-        // Индекс 4: Если это тег — останавливаемся и выходим из ядра!
-        OP__END_OF_FILE,
-        
-        // Индекс 5: Сдвигаем курсор данных dp на +1 символ вперед
+
+        // Индекс 2: Если это НЕ тег (is_match == 0) — прыгаем на Индекс 6 (на шаг вперёд)
+        OP__JUMP_IF_NOT_EQUAL, 6,
+
+        // Индекс 4: Если это тег — включаем инъекцию Си-кода силами байт-кода!
+        OP__INJECTION_UNTIL_TAG,
+
+        // Индекс 5: После инъекции прыгаем на Индекс 0, чтобы продолжить искать следующие теги!
+        OP__JUMP, 0,
+
+        // Индекс 6: Сдвигаем курсор данных dp на +1 символ вперед (если это был обычный текст)
         OP__STEP_FORWARD,
-        
-        // Индекс 6: Безусловный прыжок обратно на Индекс 0 для проверки следующего символа
+
+        // Индекс 7: Безусловный прыжок обратно на Индекс 0 для проверки следующего символа
         OP__JUMP, 0
     };
 
