@@ -14,20 +14,28 @@
 int dp = 0; // Указатель на данные, которые парсим
 char data[0xFFFFFF]; // Сами данные
 int ip = 0; // Указатель на мета-инструкцию
+int is_match = 1; // Флаг совпадения
 
 void execute_meta_core(const int *rules_table)
 {
     repeat: switch (rules_table[ip]) {
     case OP__END_OF_FILE: break;
-    case OP_MATCH_STRING:
+
+    case OP__MATCH_STRING:
     {
-        // Заглядываем вперед прямо с текущей позиции dp
-        // Мы проверяем, совпадает ли текст в памяти с "</c-injection:"
-        if (!strncmp(&source_code[src_idx], "</c-injection:", 14)) { is_match = 1; } // Взводим флаг успеха!
-        else { is_match = 0; } // Символы не совпали
-        ip++; // Просто идем на следующую мета-команду. Курсор dp остаётся не тронутым!
+        // 1. Вытаскиваем адрес строки из следующей ячейки массива и приводим обратно к типу char*
+        const char *pattern = (const char *)(intptr_t)rules_table[ip+1];
+        
+        // 2. Сверяем текст в памяти с паттерном на всю его длину через стандартную функцию strncmp
+        if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
+        else { is_match = 0; }
+        
+        // 3. Так как эта команда теперь занимает 2 ячейки (команда + адрес строки),
+        // мы сдвигаем ip на +2, чтобы перешагнуть аргумент. Курсор данных dp по-прежнему на месте!
+        ip += 2; 
         break;
     }
+
     default:
     {
         ip++;
@@ -52,13 +60,14 @@ int main(int argc, char *argv[])
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
     
-    fread(source_code, sizeof (char), file_size, file);
+    fread(data, sizeof (char), file_size, file);
     data[file_size] = '\0';
     fclose(file);
 
+    // Переводим указатель на строку в число и кладем аргументом прямо в правила!
     int test_rules[] =
     {
-        OP__MATCH_STRING, // 1. Зорко проверяем, стоит ли прямо сейчас перед нами тег "</c-injection:"
+        OP__MATCH_STRING, (intptr_t)"</c-injection:", 
         OP__END_OF_FILE
     };
     execute_meta_core(test_rules);
