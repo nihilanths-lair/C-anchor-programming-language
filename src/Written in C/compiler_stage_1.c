@@ -4,60 +4,41 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define OP_END_OF_FILE     0
-#define OP_READ_CHAR       1
-#define OP_MATCH_CHAR      2
-#define OP_EMIT_UNTIL_TAG  3
+#define  OP__END_OF_FILE    0
+#define  OP_ADVANCE         1  // Двигает курсор строго на +1
+#define  OP_MOVE_BY         2  // Двигает курсор на X
+#define  OP__MATCH_STRING   3  // Зоркая проверка целой строки без сдвига курсора
+#define  OP_JUMP_IF_NOT     4  // Условный переход по флагу is_match
+#define  OP_EMIT_UNTIL_TAG  5  // Инъекция Си-кода
 
-char source_code[0xFFFFFF];
-int src_idx = 0;
-char src_char = '\0';
-int pc = 0;
+int dp = 0; // Указатель на данные, которые парсим
+char data[0xFFFFFF]; // Сами данные
+int ip = 0; // Указатель на мета-инструкцию
+int is_match = 1; // Флаг совпадения
 
 void execute_meta_core(const int *rules_table)
 {
-    repeat: switch (rules_table[pc]) {
-    case OP_END_OF_FILE: break;
-    case OP_READ_CHAR:
+    repeat: switch (rules_table[ip]) {
+    case OP__END_OF_FILE: break;
+
+    case OP__MATCH_STRING:
     {
-        src_char = source_code[src_idx];
-        if (src_char != '\0') { src_idx++; }
-        pc++;
-        goto repeat;
+        // 1. Вытаскиваем адрес строки из следующей ячейки массива и приводим обратно к типу char*
+        const char *pattern = (const char *)(intptr_t)rules_table[ip+1];
+        
+        // 2. Сверяем текст в памяти с паттерном на всю его длину через стандартную функцию strncmp
+        if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
+        else { is_match = 0; }
+        
+        // 3. Так как эта команда теперь занимает 2 ячейки (команда + адрес строки),
+        // мы сдвигаем ip на +2, чтобы перешагнуть аргумент. Курсор данных dp по-прежнему на месте!
+        ip += 2; 
+        break;
     }
-    case OP_MATCH_CHAR:
-    {
-        if (src_char == rules_table[pc+1]) { pc += 2; }
-        else
-        { 
-            // Если символ не совпал (например, это обычный код C$, а не тег),
-            // мы просто сбрасываем PC на начало цикла чтения следующего символа
-            pc = 0;
-        }
-        goto repeat;
-    }
-    case OP_EMIT_UNTIL_TAG:
-    {
-        while (source_code[src_idx] != '\0')
-        {
-            if (source_code[src_idx] == '/')
-            {
-                if (source_code[src_idx+1] == '>')
-                {
-                    src_idx += 2;
-                    src_char = source_code[src_idx];
-                    goto repeat;
-                }
-            }
-            if (source_code[src_idx] != '\r') { putchar(source_code[src_idx]); }
-            src_idx++;
-        }
-        pc++;
-        goto repeat;
-    }
+
     default:
     {
-        pc++;
+        ip++;
         goto repeat;
     }}
 }
@@ -72,51 +53,22 @@ int main(int argc, char *argv[])
     FILE *file = fopen(argv[1], "rb");
     if (file == NULL)
     {
-        printf("\n <Error>: Не удалось открыть файл ``%s``!", argv[1]);
+        printf("\n Не удалось открыть %s", argv[1]);
         return 1;
     }
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
     
-    fread(source_code, sizeof (char), file_size, file);
-    source_code[file_size] = '\0';
+    fread(data, sizeof (char), file_size, file);
+    data[file_size] = '\0';
     fclose(file);
 
+    // Переводим указатель на строку в число и кладем аргументом прямо в правила!
     int test_rules[] =
     {
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, '<',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, '/',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'c',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, '-',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'i',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'n',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'j',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'e',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'c',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 't',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'i',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'o',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, 'n',
-        OP_READ_CHAR,
-        OP_MATCH_CHAR, ':',
-        // Перешагиваем возможные переводы строк после двоеточия
-        OP_READ_CHAR, 
-        OP_EMIT_UNTIL_TAG, // Включаем слепую инъекцию Си-кода!
-        OP_END_OF_FILE
+        OP__MATCH_STRING, (intptr_t)"</c-injection:", 
+        OP__END_OF_FILE
     };
     execute_meta_core(test_rules);
     return 0;
