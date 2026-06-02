@@ -5,12 +5,14 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define  OP__END_OF_FILE    0
-#define  OP_ADVANCE         1  // Двигает курсор строго на +1
-#define  OP_MOVE_BY         2  // Двигает курсор на X
-#define  OP__MATCH_STRING   3  // Зоркая проверка целой строки без сдвига курсора
-#define  OP_JUMP_IF_NOT     4  // Условный переход по флагу is_match
-#define  OP_EMIT_UNTIL_TAG  5  // Инъекция Си-кода
+#define  OP__END_OF_FILE          0
+#define  OP__MATCH_STRING         1
+#define  OP__JUMP_IF_NOT_EQUAL    2  // Условный переход по флагу is_match
+#define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
+#define  OP__JUMP                 4
+#define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
+
+#define  OP_MOVE_BY  6  // Двигает курсор на X
 
 int dp = 0; // Указатель на данные, которые парсим
 char data[0xFFFFFF]; // Сами данные
@@ -37,7 +39,56 @@ void execute_meta_core(const int *rules_table)
         // 3. Так как эта команда теперь занимает 2 ячейки (команда + адрес строки),
         // мы сдвигаем ip на +2, чтобы перешагнуть аргумент. Курсор данных dp по-прежнему на месте!
         ip += 2; 
-        break;
+        goto repeat;
+    }
+
+    case OP__JUMP_IF_NOT_EQUAL:
+    {
+        if (!is_match)
+        {
+            is_match = 1;
+            ip = rules_table[ip+1];
+        }
+        else { ip += 2; }
+        goto repeat;
+    }
+
+    case OP__STEP_FORWARD:
+    {
+        dp++;
+        ip++;
+        goto repeat;
+    }
+
+    case OP__JUMP:
+    {
+        ip = rules_table[ip+1];
+        goto repeat;
+    }
+
+    case OP__INJECTION_UNTIL_TAG:
+    {
+        // 1. Ручным прыжком перешагиваем длину тега "</c-injection:" (14 символов)
+        dp += 14;
+        // 2. Внутренний цикл: слепо копируем код Си
+        while (data[dp] != '\0')
+        {
+            // Используем твою двухэтапную проверку закрывающего тега
+            if (data[dp] == '/')
+            {
+                if (data[dp + 1] == '>')
+                {
+                    dp += 2; // Перешагиваем сам закрывающий тег "/>"
+                    break;   // Выходим из режима инъекции Си-кода
+                }
+            }
+
+            // Защита от Windows-переносов строк \r\n, чтобы код не разрывало
+            if (data[dp] != '\r') { putchar(data[dp]); }
+            dp++;
+        }
+        ip++; // Шагаем к следующей мета-команде
+        goto repeat;
     }
 
     default:
@@ -72,9 +123,25 @@ int main(int argc, char *argv[])
     // Переводим указатель на строку в число и кладем аргументом прямо в правила!
     int test_rules[] =
     {
-        OP__MATCH_STRING, (intptr_t)"</c-injection:", 
-        OP__END_OF_FILE
+        // Индекс 0: Зорко проверяем, стоит ли перед нами тег
+        OP__MATCH_STRING, (intptr_t)"</c-injection:",
+
+        // Индекс 2: Если это НЕ тег (is_match == 0) — прыгаем на Индекс 6 (на шаг вперёд)
+        OP__JUMP_IF_NOT_EQUAL, 6,
+
+        // Индекс 4: Если это тег — включаем инъекцию Си-кода силами байт-кода!
+        OP__INJECTION_UNTIL_TAG,
+
+        // Индекс 5: После инъекции прыгаем на Индекс 0, чтобы продолжить искать следующие теги!
+        OP__JUMP, 0,
+
+        // Индекс 6: Сдвигаем курсор данных dp на +1 символ вперед (если это был обычный текст)
+        OP__STEP_FORWARD,
+
+        // Индекс 7: Безусловный прыжок обратно на Индекс 0 для проверки следующего символа
+        OP__JUMP, 0
     };
+
     execute_meta_core(test_rules);
     return 0;
 }
