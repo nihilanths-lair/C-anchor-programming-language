@@ -11,23 +11,27 @@
 #define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
 #define  OP__JUMP                 4
 #define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
+#define  OP__GENERATE_CODE        6
 
-#define  OP_MOVE_BY  6  // Двигает курсор на X
+#define  OP_MOVE_BY  7  // Двигает курсор на X
 
-int dp = 0; // Указатель на данные, которые парсим
-char data[0xFFFFFF]; // Сами данные
-int ip = 0; // Указатель на мета-инструкцию
-int is_match = 1; // Флаг совпадения
+int dp = 0;           // Указатель на данные, которые парсим
+char data[0xFFFFFF];  // Сами данные
+int ip = 0;           // Указатель на мета-инструкцию
+int is_match = 1;     // Флаг совпадения
 
-void execute_meta_core(const int *rules_table)
+int out_segment[1024]; // Наш чистый выходной буфер для нового байт-кода
+int rules_idx = 0;
+
+void execute_meta_core(const int *code_segment)
 {
-    repeat: switch (rules_table[ip]) {
+    repeat: switch (code_segment[ip]) {
     case OP__END_OF_FILE: break;
 
     case OP__MATCH_STRING:
     {
         // 1. Вытаскиваем адрес строки из следующей ячейки массива и приводим обратно к типу char*
-        const char *pattern = (const char *)(intptr_t)rules_table[ip+1];
+        const char *pattern = (const char *)(intptr_t)code_segment[ip+1];
         
         // 2. Сверяем текст в памяти с паттерном на всю его длину через стандартную функцию strncmp
         if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
@@ -47,7 +51,7 @@ void execute_meta_core(const int *rules_table)
         if (!is_match)
         {
             is_match = 1;
-            ip = rules_table[ip+1];
+            ip = code_segment[ip+1];
         }
         else { ip += 2; }
         goto repeat;
@@ -62,7 +66,7 @@ void execute_meta_core(const int *rules_table)
 
     case OP__JUMP:
     {
-        ip = rules_table[ip+1];
+        ip = code_segment[ip+1];
         goto repeat;
     }
 
@@ -88,6 +92,19 @@ void execute_meta_core(const int *rules_table)
             dp++;
         }
         ip++; // Шагаем к следующей мета-команде
+        goto repeat;
+    }
+
+    case OP__GENERATE_CODE:
+    {
+        // Читаем число-аргумент из сегмента кода
+        int command_to_write = code_segment[ip+1];
+        
+        // Безопасно пишем его в наш глобальный выходной сегмент!
+        out_segment[rules_idx] = command_to_write;
+        rules_idx++;
+        
+        ip += 2;
         goto repeat;
     }
 
