@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -30,6 +31,9 @@ void execute_meta_core(const int *rules_table)
         if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
         else { is_match = 0; }
         
+        // ТОЧЕЧНЫЙ ТЕСТ: выводим результат проверки прямо на экран консоли!
+        fprintf(stderr, "\n [Тест]: Проверяем паттерн \"%s\". Результат is_match = %d", pattern, is_match);
+
         // 3. Так как эта команда теперь занимает 2 ячейки (команда + адрес строки),
         // мы сдвигаем ip на +2, чтобы перешагнуть аргумент. Курсор данных dp по-прежнему на месте!
         ip += 2; 
@@ -45,6 +49,7 @@ void execute_meta_core(const int *rules_table)
 
 int main(int argc, char *argv[])
 {
+    setlocale(0, "");
     if (argc < 2)
     {
         printf("\n compile: %s source_code.meta\n", argv[0]);
