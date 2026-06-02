@@ -19,10 +19,3 @@ int main(int argc, char *argv[])
     for (int i = 0; i < file_size; i++) { if (source_code[i] != '\r') { putchar(source_code[i]); } }
     return 0;
 }
-
-/*
- @echo off
- tcc\tcc.exe compiler_stage_0.c -o compiler_stage_0.exe
- ::compiler_stage_0.exe main.meta > nul
- compiler_stage_0.exe main.meta > compiler_stage_1.c
-*/
