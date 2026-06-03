@@ -165,23 +165,18 @@ void execute_meta_core(const int *code_segment)
     case OP__REGISTER_LABEL:
     {
         int len = 0;
-        // Бежим по слову, пока не встретим пробельные символы или двоеточие
-        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != ':' && data[dp + len] != '\0') 
-        {
-            len++;
-        }
-        // Если слово закончилось на двоеточие — это НАША МЕТКА!
+        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != ':' && data[dp + len] != '\0') { len++; }
         if (data[dp + len] == ':')
         {
-            // Копируем имя метки в таблицу символов
             strncpy(label_names[label_count], &data[dp], len);
-            label_names[label_count][len] = '\0'; // Не забываем терминатор строки!
-            // Запоминаем текущую позицию генерации байт-кода для этой метки!
+            label_names[label_count][len] = '\0';
             label_addresses[label_count] = rules_idx;
             label_count++;
-            // Продвигаем dp за само слово и символ двоеточия
+            // Сдвигаем dp СРАЗУ ЗА МЕТКУ И ДВОЕТОЧИЕ прямо здесь, так как мы ее УСПЕШНО съели!
             dp += (len + 1);
+            is_match = 1; // Взводим флаг успеха
         }
+        else { is_match = 0; } // Это не метка, пускай идет проверяться по командам!
         ip++;
         goto repeat;
     }
