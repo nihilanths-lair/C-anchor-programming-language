@@ -5,15 +5,16 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define  OP__END_OF_FILE          0
-#define  OP__MATCH_STRING         1
-#define  OP__JUMP_IF_NOT_EQUAL    2  // Условный переход по флагу is_match
-#define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
-#define  OP__JUMP                 4
-#define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
-#define  OP__GENERATE_CODE        6
-#define  OP__MOVE_BY              7
-#define  OP__GENERATE_ARG         8  // Генерация числового аргумента
+#define  OP__END_OF_FILE                0
+#define  OP__MATCH_STRING               1
+#define  OP__JUMP_IF_NOT_EQUAL          2  // Условный переход по флагу is_match
+#define  OP__STEP_FORWARD               3  // Двигает курсор строго на +1
+#define  OP__JUMP                       4
+#define  OP__INJECTION_UNTIL_TAG        5  // Инъекция Си-кода
+#define  OP__GENERATE_CODE              6
+#define  OP__MOVE_BY                    7
+#define  OP__GENERATE_NUMERIC_ARGUMENT  8  // Генерация числового аргумента
+#define  OP__GENERATE_STRING_ARGUMENT   9  // Генерация строкового аргумента
 
 int dp = 0;           // Указатель на данные, которые парсим
 char data[0xFFFFFF];  // Сами данные
@@ -102,7 +103,7 @@ void execute_meta_core(const int *code_segment)
         goto repeat;
     }
 
-    case OP__GENERATE_ARG:
+    case OP__GENERATE_NUMERIC_ARGUMENT:
     {
         char *num_ptr = &data[dp];
         char *end_ptr;
@@ -167,7 +168,7 @@ int main(int argc, char *argv[])
         // Индекс 14: Генерируем в out_segment код условного перехода (число 2)
         OP__GENERATE_CODE, OP__JUMP_IF_NOT_EQUAL,
         // Индекс 16: Парсим число из текста и вшиваем аргументом вслед за командой
-        OP__GENERATE_ARG,
+        OP__GENERATE_NUMERIC_ARGUMENT,
         // Индекс 17: Перешагиваем 11 символов слова "JUMP_IF_NOT"
         OP__MOVE_BY, 11,
         // Индекс 19: Возврат на начало
