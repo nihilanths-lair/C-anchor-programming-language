@@ -1,6 +1,8 @@
+start:
 MATCH "</c-injection:"
-JUMP_IF_NOT 7
+JUMP_IF_NOT skip
 INJECTION
-JUMP 0
+JUMP start
+skip:
 STEP
-JUMP 0
+JUMP start
