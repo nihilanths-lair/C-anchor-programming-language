@@ -119,29 +119,26 @@ void execute_meta_core(const int *code_segment)
 
     case OP__GENERATE_STRING_ARGUMENT:
     {
-        // 1. Ищем открывающую кавычку в тексте bootstrap.meta
         while (data[dp] != '"' && data[dp] != '\0') { dp++; }
-        
         if (data[dp] == '"')
         {
-            dp++; // Перешагиваем открывающую кавычку
-            char *str_start = &data[dp]; // Запоминаем физический адрес начала строки
-            
-            // 2. Ищем закрывающую кавычку
+            dp++;
+            char *str_start = &data[dp];
             while (data[dp] != '"' && data[dp] != '\0') { dp++; }
-            
             if (data[dp] == '"')
             {
-                data[dp] = '\0'; // ХАК: превращаем закрывающую кавычку в терминатор строки Си!
-                
-                // 3. Вшиваем адрес этой строки в наш выходной сегмент нового байт-кода
+                // 1. Вычисляем точную физическую длину строки в кавычках
+                int length = (int)(&data[dp] - str_start);
+                // 2. Вшиваем в out_segment СНАЧАЛА адрес начала строки...
                 out_segment[rules_idx] = (intptr_t)str_start;
                 rules_idx++;
-                
-                dp++; // Перешагиваем закрывающую кавычку (которая теперь '\0')
+                // 3. ...а СРАЗУ СЛЕДОМ вшиваем её длину!
+                out_segment[rules_idx] = length;
+                rules_idx++;
+                dp++;
             }
         }
-        ip++; // Шагаем к следующей мета-инструкции
+        ip++;
         goto repeat;
     }
 
