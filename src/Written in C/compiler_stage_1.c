@@ -33,13 +33,18 @@ void execute_meta_core(const int *code_segment)
 
     case OP__MATCH_STRING:
     {
+        // 1. Вытаскиваем физический адрес начала строки из code_segment
         const char *pattern = (const char *)(intptr_t)code_segment[ip+1];
-        if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
+        // 2. Вытаскиваем точную сохраненную длину строки из следующей ячейки!
+        int pattern_length = code_segment[ip+2];
+        // 3. Сверяем текст в data строго по этой точной длине, игнорируя остаток файла!
+        if (!strncmp(&data[dp], pattern, pattern_length)) { is_match = 1; }
         else { is_match = 0; }
-        
-        fprintf(stderr, "\n [Тест]: Проверяем паттерн \"%s\". Результат is_match = %d", pattern, is_match);
-        
-        ip += 2; 
+        // Отладочный вывод (печатаем строку строго по ее длине через спецификатор %.*s)
+        fprintf(stderr, "\n [Тест]: Проверяем паттерн \"%.*s\". Результат is_match = %d", pattern_length, pattern, is_match);
+        // 4. Так как команда теперь занимает 3 ячейки (команда + адрес + длина),
+        // мы сдвигаем ip на +3, чтобы перешагнуть все аргументы!
+        ip += 3;
         goto repeat;
     }
 
