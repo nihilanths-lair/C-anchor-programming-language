@@ -25,6 +25,10 @@ int is_match = 1;     // Флаг совпадения
 int target_segment[1024]; // Наш чистый выходной буфер для нового байт-кода
 int rules_idx = 0;
 
+char label_names[32][64];  // Имена собранных текстовых меток (например, "start", "skip")
+int label_addresses[32];   // Физические адреса этих меток в байт-коде
+int label_count = 0;       // Общий счетчик зарегистрированных меток
+
 void execute_meta_core(const int *code_segment)
 {
     repeat: if (data[dp] == '\0') { return; }
