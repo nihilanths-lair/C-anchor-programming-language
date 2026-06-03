@@ -21,7 +21,7 @@ char data[0xFFFFFF];  // Сами данные
 int ip = 0;           // Указатель на мета-инструкцию
 int is_match = 1;     // Флаг совпадения
 
-int out_segment[1024]; // Наш чистый выходной буфер для нового байт-кода
+int target_segment[1024]; // Наш чистый выходной буфер для нового байт-кода
 int rules_idx = 0;
 
 void execute_meta_core(const int *code_segment)
@@ -90,7 +90,7 @@ void execute_meta_core(const int *code_segment)
     case OP__GENERATE_CODE:
     {
         int command_to_write = code_segment[ip+1];
-        out_segment[rules_idx] = command_to_write;
+        target_segment[rules_idx] = command_to_write;
         rules_idx++;
         ip += 2;
         goto repeat;
@@ -109,7 +109,7 @@ void execute_meta_core(const int *code_segment)
         char *end_ptr;
         int value = (int)strtol(num_ptr, &end_ptr, 10);
         
-        out_segment[rules_idx] = value;
+        target_segment[rules_idx] = value;
         rules_idx++;
         
         dp += (end_ptr - num_ptr);
@@ -129,11 +129,11 @@ void execute_meta_core(const int *code_segment)
             {
                 // 1. Вычисляем точную физическую длину строки в кавычках
                 int length = (int)(&data[dp] - str_start);
-                // 2. Вшиваем в out_segment СНАЧАЛА адрес начала строки...
-                out_segment[rules_idx] = (intptr_t)str_start;
+                // 2. Вшиваем в target_segment СНАЧАЛА адрес начала строки...
+                target_segment[rules_idx] = (intptr_t)str_start;
                 rules_idx++;
                 // 3. ...а СРАЗУ СЛЕДОМ вшиваем её длину!
-                out_segment[rules_idx] = length;
+                target_segment[rules_idx] = length;
                 rules_idx++;
                 dp++;
             }
@@ -235,20 +235,20 @@ int main(int argc, char *argv[])
     // Запускаем первичный загрузчик!
     execute_meta_core(boot_rules);
     // ОТЛАДОЧНЫЙ ЛОГ: смотрим, сколько ВСЕГО ячеек (команд + аргументов) сгенерировал загрузчик!
-    fprintf(stderr, "\n [Генератор]: Всего ячеек записано в out_segment: %d. Первая команда: %d", rules_idx, out_segment[0]);
+    fprintf(stderr, "\n [Генератор]: Всего ячеек записано в target_segment: %d. Первая команда: %d", rules_idx, target_segment[0]);
     // ВЕЛИКИЙ ВТОРОЙ ПРОХОД: ПЕРЕДАЕМ УПРАВЛЕНИЕ СГЕНЕРИРОВАННОМУ БАЙТ-КОДУ!
     if (rules_idx > 0)
     {
         // 1. Обязательно добавляем команду OP__END_OF_FILE в самый конец нашего нового кода,
         // чтобы мета-процессор знал, где остановиться!
-        out_segment[rules_idx] = OP__END_OF_FILE;
+        target_segment[rules_idx] = OP__END_OF_FILE;
         // 2. Полностью сбрасываем указатели "железа" в ноль, как при перезагрузке процессора
         dp = 0;
         ip = 0;
         is_match = 1;
-        fprintf(stderr, "\n [Рантайм]: Запуск программы из out_segment силами текстового DSL...");
-        // 3. Запускаем ядро ВТОРОЙ РАЗ, но скармливаем ему наш динамический out_segment!
-        execute_meta_core(out_segment);
+        fprintf(stderr, "\n [Рантайм]: Запуск программы из target_segment силами текстового DSL...");
+        // 3. Запускаем ядро ВТОРОЙ РАЗ, но скармливаем ему наш динамический target_segment!
+        execute_meta_core(target_segment);
     }
     return 0;
 }
