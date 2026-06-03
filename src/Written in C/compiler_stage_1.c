@@ -7,12 +7,13 @@
 
 #define  OP__END_OF_FILE          0
 #define  OP__MATCH_STRING         1
-#define  OP__JUMP_IF_NOT_EQUAL    2  // Условный переход по флагу is_match
-#define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
+#define  OP__JUMP_IF_NOT_EQUAL    2
+#define  OP__STEP_FORWARD         3
 #define  OP__JUMP                 4
-#define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
+#define  OP__INJECTION_UNTIL_TAG  5
 #define  OP__GENERATE_CODE        6
-#define  OP__MOVE_BY              7  // Двигает курсор на X
+#define  OP__MOVE_BY              7
+#define  OP__GENERATE_ARG         8
 
 int dp = 0;           // Указатель на данные, которые парсим
 char data[0xFFFFFF];  // Сами данные
@@ -95,7 +96,6 @@ void execute_meta_core(const int *code_segment)
     {
         // Читаем число-аргумент из сегмента кода
         int command_to_write = code_segment[ip+1];
-        
         // Безопасно пишем его в наш глобальный выходной сегмент!
         out_segment[rules_idx] = command_to_write;
         rules_idx++;
@@ -108,6 +108,23 @@ void execute_meta_core(const int *code_segment)
         // Прибавляем число-аргумент к нашему указателю данных dp
         dp += code_segment[ip+1];
         ip += 2; // Перешагиваем команду и ее аргумент
+        goto repeat;
+    }
+    case OP__GENERATE_ARG:
+    {
+        // 1. Указатель на текущую позицию текста в файле bootstrap.meta
+        char *num_ptr = &data[dp];
+        char *end_ptr;
+        // 2. Системная функция Windows/Си переводит текст в число.
+        // Она сама запишет в end_ptr адрес, где число ЗАКОНЧИЛОСЬ.
+        int value = (int)strtol(num_ptr, &end_ptr, 10);
+        // 3. Записываем полученное число в наш выходной сегмент нового байт-кода
+        out_segment[rules_idx] = value;
+        rules_idx++;
+        // 4. Вычисляем, сколько символов занимала цифра, и сдвигаем наш dp вперёд!
+        dp += (end_ptr - num_ptr);
+        // 5. Сдвигаем ip на +1, так как у этой команды нет аргументов в правилах
+        ip++;
         goto repeat;
     }
     default:
