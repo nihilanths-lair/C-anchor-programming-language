@@ -1,3 +1,6 @@
+MATCH "</c-injection:"
+JUMP_IF_NOT 6
+INJECTION
+JUMP 0
 STEP
-JUMP
-STEP
+JUMP 0
