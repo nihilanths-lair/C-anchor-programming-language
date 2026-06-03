@@ -43,7 +43,6 @@ void execute_meta_core(const int *code_segment)
         const char *pattern = (const char *)(intptr_t)code_segment[ip+1];
         if (!strncmp(&data[dp], pattern, strlen(pattern))) { is_match = 1; }
         else { is_match = 0; }
-        
         fprintf(stderr, "\n [Загрузчик]: Проверяем слово \"%s\". Результат = %d", pattern, is_match);
         ip += 2;
         goto repeat;
@@ -54,12 +53,10 @@ void execute_meta_core(const int *code_segment)
         // Логика рантайма: берет адрес и точную длину из ТРЕХ ячеек!
         const char *pattern = (const char *)(intptr_t)code_segment[ip+1];
         int pattern_length = code_segment[ip+2];
-        
         if (!strncmp(&data[dp], pattern, pattern_length)) { is_match = 1; }
         else { is_match = 0; }
-        
         fprintf(stderr, "\n [Рантайм-Тест]: Проверяем паттерн \"%.*s\". Результат = %d", pattern_length, pattern, is_match);
-        ip += 3; 
+        ip += 3;
         goto repeat;
     }
 
@@ -96,14 +93,14 @@ void execute_meta_core(const int *code_segment)
             {
                 if (data[dp + 1] == '>')
                 {
-                    dp += 2; 
-                    break;   
+                    dp += 2;
+                    break;
                 }
             }
             if (data[dp] != '\r') { putchar(data[dp]); }
             dp++;
         }
-        ip++; 
+        ip++;
         goto repeat;
     }
 
@@ -119,7 +116,7 @@ void execute_meta_core(const int *code_segment)
     case OP__MOVE_BY:
     {
         dp += code_segment[ip+1];
-        ip += 2; 
+        ip += 2;
         goto repeat;
     }
 
@@ -128,10 +125,8 @@ void execute_meta_core(const int *code_segment)
         char *num_ptr = &data[dp];
         char *end_ptr;
         int value = (int)strtol(num_ptr, &end_ptr, 10);
-        
         target_segment[rules_idx] = value;
         rules_idx++;
-        
         dp += (end_ptr - num_ptr);
         ip++;
         goto repeat;
@@ -142,22 +137,44 @@ void execute_meta_core(const int *code_segment)
         while (data[dp] != '"' && data[dp] != '\0') { dp++; }
         if (data[dp] == '"')
         {
-            dp++; 
-            char *str_start = &data[dp]; 
+            dp++;
+            char *str_start = &data[dp];
             while (data[dp] != '"' && data[dp] != '\0') { dp++; }
             if (data[dp] == '"')
             {
                 int length = (int)(&data[dp] - str_start);
-                
                 target_segment[rules_idx] = (intptr_t)str_start;
                 rules_idx++;
                 target_segment[rules_idx] = length;
                 rules_idx++;
-                
-                dp++; 
+                dp++;
             }
         }
-        ip++; 
+        ip++;
+        goto repeat;
+    }
+
+    case OP__REGISTER_LABEL:
+    {
+        int len = 0;
+        // Бежим по слову, пока не встретим пробельные символы или двоеточие
+        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != ':' && data[dp + len] != '\0') 
+        {
+            len++;
+        }
+        // Если слово закончилось на двоеточие — это НАША МЕТКА!
+        if (data[dp + len] == ':')
+        {
+            // Копируем имя метки в таблицу символов
+            strncpy(label_names[label_count], &data[dp], len);
+            label_names[label_count][len] = '\0'; // Не забываем терминатор строки!
+            // Запоминаем текущую позицию генерации байт-кода для этой метки!
+            label_addresses[label_count] = rules_idx;
+            label_count++;
+            // Продвигаем dp за само слово и символ двоеточия
+            dp += (len + 1);
+        }
+        ip++;
         goto repeat;
     }
 
