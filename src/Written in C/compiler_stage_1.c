@@ -83,15 +83,8 @@ void execute_meta_core(const int *code_segment)
 
     case OP__JUMP:
     {
-        // Вместо слепого перехода по числу, заставляем JUMP тоже искать метку в тексте!
-        char name[64];
-        int len = 0;
-        while (data[dp+len] != ' ' && data[dp + len] != '\r' && data[dp+len] != '\n' && data[dp+len] != '\0') 
-        { 
-            name[len] = data[dp+len];
-            len++; 
-        }
-        name[len] = '\0';
+        // Вытаскиваем адрес строки "start", который мы передали из boot_rules
+        const char *name = (const char *)(intptr_t)code_segment[ip+1];
         int found_addr = -1;
         for (int i = 0; i < label_count; i++)
         {
@@ -101,17 +94,12 @@ void execute_meta_core(const int *code_segment)
                 break;
             }
         }
-        if (found_addr != -1)
-        {
-            if (is_generation_pass) { target_segment[rules_idx] = found_addr; }
-        }
+        if (found_addr != -1) { ip = found_addr; } // Мгновенно прыгаем по адресу метки!
         else
         {
-            if (is_generation_pass) { fprintf(stderr, "\n [Ошибка]: Метка \"%s\" не найдена!", name); return; }
+            fprintf(stderr, "\n [Ошибка]: Метка \"%s\" не найдена!", name);
+            return;
         }
-        rules_idx++;
-        dp += len;
-        ip++;
         goto repeat;
     }
 
@@ -289,7 +277,8 @@ int main(int argc, char *argv[])
         OP__JUMP_IF_NOT_EQUAL, 13, 
         OP__MOVE_BY, 4,
         OP__GENERATE_CODE, OP__STEP_FORWARD,
-        OP__JUMP, 0,
+        // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
+        OP__JUMP, (intptr_t)"start", 
 
         // === БЛОК 2: Ищем и обрабатываем команду "JUMP_IF_NOT" ===
         OP__BOOT_MATCH, (intptr_t)"JUMP_IF_NOT",
@@ -297,7 +286,8 @@ int main(int argc, char *argv[])
         OP__MOVE_BY, 11,
         OP__GENERATE_CODE, OP__JUMP_IF_NOT_EQUAL,
         OP__GENERATE_LABEL_ARGUMENT, 
-        OP__JUMP, 0,
+        // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
+        OP__JUMP, (intptr_t)"start", 
 
         // === БЛОК 3: Ищем и обрабатываем команду "MATCH" ===
         OP__BOOT_MATCH, (intptr_t)"MATCH",
@@ -305,19 +295,21 @@ int main(int argc, char *argv[])
         OP__MOVE_BY, 5, 
         OP__GENERATE_CODE, OP__MATCH_STRING, 
         OP__GENERATE_STRING_ARGUMENT,
-        OP__JUMP, 0,
+        // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
+        OP__JUMP, (intptr_t)"start", 
 
         // === БЛОК 4: Ищем и обрабатываем команду "INJECTION" ===
-        // Индекс 36: Проверяем слово "INJECTION"
         OP__BOOT_MATCH, (intptr_t)"INJECTION",
         OP__JUMP_IF_NOT_EQUAL, 45,
         OP__MOVE_BY, 9, 
         OP__GENERATE_CODE, OP__INJECTION_UNTIL_TAG,
-        OP__JUMP, 0,
+        // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
+        OP__JUMP, (intptr_t)"start", 
 
         // === БЛОК 5: Пропуск обычного текста ===
         OP__STEP_FORWARD,
-        OP__JUMP, 0
+        // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
+        OP__JUMP, (intptr_t)"start"
     };
 
     fprintf(stderr, "\n [Загрузчик - Проход 1]: Сканируем bootstrap.meta и собираем адреса меток...\n");
