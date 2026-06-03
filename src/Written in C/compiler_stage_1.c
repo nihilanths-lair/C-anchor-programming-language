@@ -5,17 +5,18 @@
 #include <ctype.h>
 #include <windows.h>
 
-#define  OP__END_OF_FILE          0
-#define  OP__MATCH_STRING         1  // Используется в target_segment (с длиной строки)
-#define  OP__JUMP_IF_NOT_EQUAL    2  // Условный переход по флагу is_match
-#define  OP__STEP_FORWARD         3  // Двигает курсор строго на +1
-#define  OP__JUMP                 4  // Безусловный переход
-#define  OP__INJECTION_UNTIL_TAG  5  // Инъекция Си-кода
-#define  OP__GENERATE_CODE        6
-#define  OP__MOVE_BY              7
-#define  OP__GENERATE_NUMERIC_ARGUMENT 8
-#define  OP__GENERATE_STRING_ARGUMENT  9
-#define  OP__BOOT_MATCH           10 // Специальная изолированная команда для загрузчика
+#define  OP__END_OF_FILE                0
+#define  OP__MATCH_STRING               1  // Используется в target_segment (с длиной строки)
+#define  OP__JUMP_IF_NOT_EQUAL          2  // Условный переход по флагу is_match
+#define  OP__STEP_FORWARD               3  // Двигает курсор строго на +1
+#define  OP__JUMP                       4  // Безусловный переход
+#define  OP__INJECTION_UNTIL_TAG        5  // Инъекция Си-кода
+#define  OP__GENERATE_CODE              6
+#define  OP__MOVE_BY                    7
+#define  OP__GENERATE_NUMERIC_ARGUMENT  8
+#define  OP__GENERATE_STRING_ARGUMENT   9
+#define  OP__BOOT_MATCH                 10 // Специальная изолированная команда для загрузчика
+#define  OP__REGISTER_LABEL             11
 
 int dp = 0;           // Указатель на данные, которые парсим
 char data[0xFFFFFF];  // Сами данные
