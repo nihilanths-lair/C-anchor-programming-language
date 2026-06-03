@@ -304,7 +304,15 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "\n [Загрузчик - Проход 1]: Сканируем bootstrap.meta и собираем адреса меток...\n");
     execute_meta_core(boot_rules);
-    
+
+    // === ТОЧЕЧНЫЙ ТЕСТ: Выводим на экран всё, что собрал Проход 1! ===
+    fprintf(stderr, "\n === ТАБЛИЦА МЕТОК (Найдено: %d) ===", label_count);
+    for (int i = 0; i < label_count; i++)
+    {
+        fprintf(stderr, "\n Метка: \"%s\" -> Виртуальный адрес: %d", label_names[i], label_addresses[i]);
+    }
+    fprintf(stderr, "\n ==================================\n");
+
     dp = 0;
     ip = 0;
     is_match = 1;
