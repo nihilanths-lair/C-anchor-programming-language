@@ -17,6 +17,7 @@
 #define  OP__GENERATE_STRING_ARGUMENT   9
 #define  OP__BOOT_MATCH                 10 // Специальная изолированная команда для загрузчика
 #define  OP__REGISTER_LABEL             11
+#define  OP__GENERATE_LABEL_ARGUMENT    12
 
 int dp = 0;           // Указатель на данные, которые парсим
 char data[0xFFFFFF];  // Сами данные
@@ -185,6 +186,43 @@ void execute_meta_core(const int *code_segment)
         goto repeat;
     }
 
+    case OP__GENERATE_LABEL_ARGUMENT:
+    {
+        char name[64];
+        int len = 0;
+        // 1. Выкусываем имя метки-аргумента из текста bootstrap.meta
+        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != '\0')
+        {
+            name[len] = data[dp + len];
+            len++;
+        }
+        name[len] = '\0';
+        // 2. Ищем адрес этой метки в нашей таблице символов
+        int found_addr = -1;
+        for (int i = 0; i < label_count; i++)
+        {
+            if (!strcmp(label_names[i], name))
+            {
+                found_addr = label_addresses[i];
+                break;
+            }
+        }
+        // 3. Если нашли — пишем адрес в target_segment строго на ВТОРОМ проходе!
+        if (found_addr != -1)
+        {
+            if (is_generation_pass) { target_segment[rules_idx] = found_addr; }
+        }
+        else
+        {
+            fprintf(stderr, "\n [Ошибка]: Метка \"%s\" не найдена!", name);
+            return;
+        }
+        rules_idx++; // Виртуально растим размер программы
+        dp += len;   // Перешагиваем имя метки в тексте файла
+        ip++;
+        goto repeat;
+    }
+
     default:
     {
         ip++;
@@ -216,38 +254,49 @@ int main(int argc, char *argv[])
 
     int boot_rules[] =
     {
-        // Блок 1: Ищем "STEP"
+        // === БЛОК 0: Автоматический перехват и сборка ассемблерных меток ===
+        // Индекс 0: Если на текущей позиции стоит метка (например, start:) — она зарегистрируется в таблице
+        OP__REGISTER_LABEL,
+
+        // === БЛОК 1: Ищем и обрабатываем команду "STEP" ===
+        // Индекс 1: Проверяем "STEP"
         OP__BOOT_MATCH, (intptr_t)"STEP",
-        OP__JUMP_IF_NOT_EQUAL, 10,
+        OP__JUMP_IF_NOT_EQUAL, 11, // Смещения пересчитаны строго на +1
         OP__GENERATE_CODE, OP__STEP_FORWARD,
         OP__MOVE_BY, 4,
         OP__JUMP, 0,
 
-        // Блок 2: Ищем "JUMP_IF_NOT"
+        // === БЛОК 2: Ищем и обрабатываем команду "JUMP_IF_NOT" ===
+        // Индекс 11: Проверяем слово "JUMP_IF_NOT"
         OP__BOOT_MATCH, (intptr_t)"JUMP_IF_NOT",
-        OP__JUMP_IF_NOT_EQUAL, 21,
+        OP__JUMP_IF_NOT_EQUAL, 22,
         OP__GENERATE_CODE, OP__JUMP_IF_NOT_EQUAL,
-        OP__GENERATE_NUMERIC_ARGUMENT,
+        // ИСПРАВЛЕНО: вместо чтения жестких чисел заставляем ядро САМО искать адрес текстовой метки!
+        OP__GENERATE_LABEL_ARGUMENT, 
         OP__MOVE_BY, 11,
         OP__JUMP, 0,
 
-        // Блок 3: Ищем "MATCH"
+        // === БЛОК 3: Ищем и обрабатываем команду "MATCH" ===
+        // Индекс 22: Проверяем слово "MATCH"
         OP__BOOT_MATCH, (intptr_t)"MATCH",
-        OP__JUMP_IF_NOT_EQUAL, 33,
-        OP__GENERATE_CODE, OP__MATCH_STRING, // Новая программа получит код взрослой команды!
+        OP__JUMP_IF_NOT_EQUAL, 34,
+        OP__GENERATE_CODE, OP__MATCH_STRING,
         OP__GENERATE_STRING_ARGUMENT,
         OP__MOVE_BY, 5,
         OP__JUMP, 0,
 
-        // Блок 4: Ищем "INJECTION"
+        // === БЛОК 4: Ищем и обрабатываем команду "INJECTION" ===
+        // Индекс 34: Проверяем слово "INJECTION"
         OP__BOOT_MATCH, (intptr_t)"INJECTION",
-        OP__JUMP_IF_NOT_EQUAL, 44,
+        OP__JUMP_IF_NOT_EQUAL, 45,
         OP__GENERATE_CODE, OP__INJECTION_UNTIL_TAG,
         OP__MOVE_BY, 9,
         OP__JUMP, 0,
 
-        // Блок 5: Пропуск пробелов и переносов строк
+        // === БЛОК 5: Пропуск обычного текста ===
+        // Индекс 45: Шаг вперед по мусорному символу (\r, \n или пробелы)
         OP__STEP_FORWARD,
+        // Индекс 46: Безусловный возврат на начало
         OP__JUMP, 0
     };
     // =========================================================================
