@@ -253,52 +253,46 @@ int main(int argc, char *argv[])
     int boot_rules[] =
     {
         // === БЛОК 0: Автоматический перехват и сборка ассемблерных меток ===
-        // Индекс 0: Если на текущей позиции стоит метка (start:) — она зарегистрируется в таблице
         OP__REGISTER_LABEL,
-        // Индекс 1: Если это НЕ метка (is_match == 0) — прыгаем строго на Блок 1 (теперь он на Индексе 3!)
         OP__JUMP_IF_NOT_EQUAL, 3,
-        // Если это БЫЛА метка — мы её успешно съели, и указатель ip просто идет ДАЛЬШЕ вниз,
-        // чтобы сразу начать проверять команду, которая идет на этой же строчке!
+        // Если это была метка — мы её успешно съели, и указатель ip идет дальше вниз,
+        // чтобы проверить команду на этой же строчке.
 
         // === БЛОК 1: Ищем и обрабатываем команду "STEP" ===
-        // Индекс 3: Проверяем "STEP"
         OP__BOOT_MATCH, (intptr_t)"STEP",
-        OP__JUMP_IF_NOT_EQUAL, 12, // Индексы ювелирно пересчитаны со смещением -2 ячейки!
+        OP__JUMP_IF_NOT_EQUAL, 12, 
         OP__GENERATE_CODE, OP__STEP_FORWARD,
         OP__MOVE_BY, 4,
         OP__JUMP, 0,
 
         // === БЛОК 2: Ищем и обрабатываем команду "JUMP_IF_NOT" ===
-        // Индекс 12: Проверяем слово "JUMP_IF_NOT"
         OP__BOOT_MATCH, (intptr_t)"JUMP_IF_NOT",
-        OP__JUMP_IF_NOT_EQUAL, 23,
+        OP__JUMP_IF_NOT_EQUAL, 25,
+        
+        // СНАЧАЛА перешагиваем 11 букв самого слова "JUMP_IF_NOT"
+        OP__MOVE_BY, 11,
+        // И ТОЛЬКО ПОТОМ запускаем чтение текстового аргумента-метки!
         OP__GENERATE_CODE, OP__JUMP_IF_NOT_EQUAL,
         OP__GENERATE_LABEL_ARGUMENT, 
-        OP__MOVE_BY, 11,
         OP__JUMP, 0,
 
         // === БЛОК 3: Ищем и обрабатываем команду "MATCH" ===
-        // Индекс 23: Проверяем слово "MATCH"
         OP__BOOT_MATCH, (intptr_t)"MATCH",
-        // Индекс 25: Если не "MATCH" — прыгаем на Блок 4 (теперь он на Индексе 35)
-        OP__JUMP_IF_NOT_EQUAL, 35,
+        OP__JUMP_IF_NOT_EQUAL, 37,
+        OP__MOVE_BY, 5, // Сразу перешагиваем слово "MATCH"
         OP__GENERATE_CODE, OP__MATCH_STRING, 
         OP__GENERATE_STRING_ARGUMENT,
-        OP__MOVE_BY, 5,
         OP__JUMP, 0,
 
         // === БЛОК 4: Ищем и обрабатываем команду "INJECTION" ===
-        // Индекс 35: Проверяем слово "INJECTION"
         OP__BOOT_MATCH, (intptr_t)"INJECTION",
         OP__JUMP_IF_NOT_EQUAL, 46,
+        OP__MOVE_BY, 9, // Сразу перешагиваем слово "INJECTION"
         OP__GENERATE_CODE, OP__INJECTION_UNTIL_TAG,
-        OP__MOVE_BY, 9,
         OP__JUMP, 0,
 
         // === БЛОК 5: Пропуск обычного текста ===
-        // Индекс 46: Шаг вперед по мусорному символу (\r, \n или пробелы)
         OP__STEP_FORWARD,
-        // Индекс 47: Безусловный возврат на начало
         OP__JUMP, 0
     };
 
