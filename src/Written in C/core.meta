@@ -26,6 +26,8 @@ int is_match = 1;     // Флаг совпадения
 int target_segment[1024]; // Наш чистый выходной буфер для нового байт-кода
 int rules_idx = 0;
 
+int is_generation_pass = 0; // 0 - собираем метки, 1 - честно генерируем код
+
 char label_names[32][64];  // Имена собранных текстовых меток (например, "start", "skip")
 int label_addresses[32];   // Физические адреса этих меток в байт-коде
 int label_count = 0;       // Общий счетчик зарегистрированных меток
@@ -107,7 +109,10 @@ void execute_meta_core(const int *code_segment)
     case OP__GENERATE_CODE:
     {
         int command_to_write = code_segment[ip+1];
-        target_segment[rules_idx] = command_to_write;
+        // ТОЧЕЧНЫЙ ФИКС: пишем в память только на втором проходе!
+        if (is_generation_pass) { target_segment[rules_idx] = command_to_write; }
+        // Но индекс rules_idx мы ОБЯЗАНЫ наращивать на обоих проходах,
+        // чтобы правильно высчитать виртуальные адреса будущих меток!
         rules_idx++;
         ip += 2;
         goto repeat;
@@ -125,8 +130,8 @@ void execute_meta_core(const int *code_segment)
         char *num_ptr = &data[dp];
         char *end_ptr;
         int value = (int)strtol(num_ptr, &end_ptr, 10);
-        target_segment[rules_idx] = value;
-        rules_idx++;
+        if (is_generation_pass) { target_segment[rules_idx] = value; }
+        rules_idx++; // Виртуально растим размер программы
         dp += (end_ptr - num_ptr);
         ip++;
         goto repeat;
@@ -143,10 +148,12 @@ void execute_meta_core(const int *code_segment)
             if (data[dp] == '"')
             {
                 int length = (int)(&data[dp] - str_start);
-                target_segment[rules_idx] = (intptr_t)str_start;
-                rules_idx++;
-                target_segment[rules_idx] = length;
-                rules_idx++;
+                if (is_generation_pass)
+                {
+                    target_segment[rules_idx] = (intptr_t)str_start;
+                    target_segment[rules_idx + 1] = length;
+                }
+                rules_idx += 2; // Строковый аргумент занимает ровно 2 ячейки в памяти!
                 dp++;
             }
         }
