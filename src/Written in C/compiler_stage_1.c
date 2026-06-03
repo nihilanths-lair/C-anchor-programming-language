@@ -83,7 +83,35 @@ void execute_meta_core(const int *code_segment)
 
     case OP__JUMP:
     {
-        ip = code_segment[ip+1];
+        // Вместо слепого перехода по числу, заставляем JUMP тоже искать метку в тексте!
+        char name[64];
+        int len = 0;
+        while (data[dp+len] != ' ' && data[dp + len] != '\r' && data[dp+len] != '\n' && data[dp+len] != '\0') 
+        { 
+            name[len] = data[dp+len];
+            len++; 
+        }
+        name[len] = '\0';
+        int found_addr = -1;
+        for (int i = 0; i < label_count; i++)
+        {
+            if (!strcmp(label_names[i], name))
+            {
+                found_addr = label_addresses[i];
+                break;
+            }
+        }
+        if (found_addr != -1)
+        {
+            if (is_generation_pass) { target_segment[rules_idx] = found_addr; }
+        }
+        else
+        {
+            if (is_generation_pass) { fprintf(stderr, "\n [Ошибка]: Метка \"%s\" не найдена!", name); return; }
+        }
+        rules_idx++;
+        dp += len;
+        ip++;
         goto repeat;
     }
 
@@ -255,39 +283,35 @@ int main(int argc, char *argv[])
         // === БЛОК 0: Автоматический перехват и сборка ассемблерных меток ===
         OP__REGISTER_LABEL,
         OP__JUMP_IF_NOT_EQUAL, 3,
-        // Если это была метка — мы её успешно съели, и указатель ip идет дальше вниз,
-        // чтобы проверить команду на этой же строчке.
 
         // === БЛОК 1: Ищем и обрабатываем команду "STEP" ===
         OP__BOOT_MATCH, (intptr_t)"STEP",
-        OP__JUMP_IF_NOT_EQUAL, 12, 
-        OP__GENERATE_CODE, OP__STEP_FORWARD,
+        OP__JUMP_IF_NOT_EQUAL, 13, 
         OP__MOVE_BY, 4,
+        OP__GENERATE_CODE, OP__STEP_FORWARD,
         OP__JUMP, 0,
 
         // === БЛОК 2: Ищем и обрабатываем команду "JUMP_IF_NOT" ===
         OP__BOOT_MATCH, (intptr_t)"JUMP_IF_NOT",
-        OP__JUMP_IF_NOT_EQUAL, 25,
-        
-        // СНАЧАЛА перешагиваем 11 букв самого слова "JUMP_IF_NOT"
+        OP__JUMP_IF_NOT_EQUAL, 24,
         OP__MOVE_BY, 11,
-        // И ТОЛЬКО ПОТОМ запускаем чтение текстового аргумента-метки!
         OP__GENERATE_CODE, OP__JUMP_IF_NOT_EQUAL,
         OP__GENERATE_LABEL_ARGUMENT, 
         OP__JUMP, 0,
 
         // === БЛОК 3: Ищем и обрабатываем команду "MATCH" ===
         OP__BOOT_MATCH, (intptr_t)"MATCH",
-        OP__JUMP_IF_NOT_EQUAL, 37,
-        OP__MOVE_BY, 5, // Сразу перешагиваем слово "MATCH"
+        OP__JUMP_IF_NOT_EQUAL, 36,
+        OP__MOVE_BY, 5, 
         OP__GENERATE_CODE, OP__MATCH_STRING, 
         OP__GENERATE_STRING_ARGUMENT,
         OP__JUMP, 0,
 
         // === БЛОК 4: Ищем и обрабатываем команду "INJECTION" ===
+        // Индекс 36: Проверяем слово "INJECTION"
         OP__BOOT_MATCH, (intptr_t)"INJECTION",
-        OP__JUMP_IF_NOT_EQUAL, 46,
-        OP__MOVE_BY, 9, // Сразу перешагиваем слово "INJECTION"
+        OP__JUMP_IF_NOT_EQUAL, 45,
+        OP__MOVE_BY, 9, 
         OP__GENERATE_CODE, OP__INJECTION_UNTIL_TAG,
         OP__JUMP, 0,
 
