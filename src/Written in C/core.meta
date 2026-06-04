@@ -1,3 +1,4 @@
+</c-injection:
 #include <stdio.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -349,3 +350,4 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
+/>
