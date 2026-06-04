@@ -180,8 +180,17 @@ void execute_meta_core(const int *code_segment)
     case OP__REGISTER_LABEL:
     {
         int len = 0;
-        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != ':' && data[dp + len] != '\0') { len++; }
-        
+        // Защита: если мы стоим на кавычке, пробеле или переносе — это точно не объявление метки!
+        if (data[dp] == '"' || data[dp] == ' ' || data[dp] == '\r' || data[dp] == '\n')
+        {
+            is_match = 0;
+            ip++;
+            goto repeat;
+        }
+        while (data[dp + len] != ' ' && data[dp + len] != '\r' && data[dp + len] != '\n' && data[dp + len] != ':' && data[dp + len] != '\0') 
+        { 
+            len++; 
+        }
         if (data[dp + len] == ':')
         {
             if (!is_generation_pass)
@@ -192,12 +201,9 @@ void execute_meta_core(const int *code_segment)
                 label_count++;
             }
             dp += (len + 1);
-            is_match = 1; 
+            is_match = 1;
         }
-        else 
-        { 
-            is_match = 0; 
-        }
+        else { is_match = 0; }
         ip++;
         goto repeat;
     }
@@ -311,10 +317,8 @@ int main(int argc, char *argv[])
         // ИСПРАВЛЕНО: передаем имя текстовой метки вместо нуля!
         OP__JUMP, (intptr_t)"start"
     };
-
     fprintf(stderr, "\n [Загрузчик - Проход 1]: Сканируем bootstrap.meta и собираем адреса меток...\n");
     execute_meta_core(boot_rules);
-
     // === ТОЧЕЧНЫЙ ТЕСТ: Выводим на экран всё, что собрал Проход 1! ===
     fprintf(stderr, "\n === ТАБЛИЦА МЕТОК (Найдено: %d) ===", label_count);
     for (int i = 0; i < label_count; i++)
@@ -322,30 +326,26 @@ int main(int argc, char *argv[])
         fprintf(stderr, "\n Метка: \"%s\" -> Виртуальный адрес: %d", label_names[i], label_addresses[i]);
     }
     fprintf(stderr, "\n ==================================\n");
-
     dp = 0;
     ip = 0;
     is_match = 1;
     rules_idx = 0; 
     is_generation_pass = 1; 
-    
     fprintf(stderr, "\n [Загрузчик - Проход 2]: Генерируем чистый байт-код в target_segment...\n");
     execute_meta_core(boot_rules);
-    
     fprintf(stderr, "\n [Генератор]: Всего ячеек записано в target_segment: %d.", rules_idx);
-    
     if (rules_idx > 0)
     {
         target_segment[rules_idx] = OP__END_OF_FILE;
-        
         dp = 0;
         ip = 0;
         is_match = 1;
         is_generation_pass = 0; 
-        
         fprintf(stderr, "\n [Рантайм]: Запуск программы из target_segment силами текстового DSL...\n");
+        // ХАКЕРСКИЙ ФИКС: Перед запуском рантайма принудительно открываем файл на диске
+        // и перенаправляем в него стандартный вывод putchar!
+        freopen("compiler_stage_2.c", "w", stdout);
         execute_meta_core(target_segment);
     }
-    
     return 0;
 }
