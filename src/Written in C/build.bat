@@ -5,6 +5,8 @@ del compiler_stage_0.exe
 del compiler_stage_1.c
 del compiler_stage_1.exe
 
+tcc\tcc.exe compiler_stage_0.c -o compiler_stage_0.exe
+
 :: 1. Слепой Stage 0 копирует чистый Си-код ядра в исходник первой стадии
 compiler_stage_0.exe compiler_stage_0.meta > compiler_stage_1.c
 
