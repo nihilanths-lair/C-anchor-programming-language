@@ -14,4 +14,6 @@ compiler_stage_0.exe core.meta > compiler_stage_1.c
 tcc\tcc.exe compiler_stage_1.c -o compiler_stage_1.exe
 
 :: 3. Запускаем наше мета-ядро НА СЛОВАХ ИЗ ФАЙЛА input.txt!
-compiler_stage_1.exe bootstrap.meta > nul
+::compiler_stage_1.exe bootstrap.meta > nul
+
+compiler_stage_1.exe core.meta > nul
