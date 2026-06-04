@@ -330,8 +330,8 @@ int main(int argc, char *argv[])
     dp = 0;
     ip = 0;
     is_match = 1;
-    rules_idx = 0; 
-    is_generation_pass = 1; 
+    rules_idx = 0;
+    is_generation_pass = 1;
     fprintf(stderr, "\n [Загрузчик - Проход 2]: Генерируем чистый байт-код в target_segment...\n");
     execute_meta_core(boot_rules);
     fprintf(stderr, "\n [Генератор]: Всего ячеек записано в target_segment: %d.", rules_idx);
@@ -341,11 +341,11 @@ int main(int argc, char *argv[])
         dp = 0;
         ip = 0;
         is_match = 1;
-        is_generation_pass = 0; 
+        is_generation_pass = 0;
         fprintf(stderr, "\n [Рантайм]: Запуск программы из target_segment силами текстового DSL...\n");
-        // ХАКЕРСКИЙ ФИКС: Перед запуском рантайма принудительно открываем файл на диске
-        // и перенаправляем в него стандартный вывод putchar!
-        freopen("compiler_stage_2.c", "w", stdout);
+        // Перенаправляем ввод рантайма на обёрнутый файл, а вывод — в итоговый Си-файл!
+        freopen("compiler_stage_1.meta", "r", stdin);  // Читаем из compiler_stage_1.meta через stdin
+        freopen("compiler_stage_2.c", "w", stdout);   // Пишем готовый Си-код в compiler_stage_2.c
         execute_meta_core(target_segment);
     }
     return 0;
