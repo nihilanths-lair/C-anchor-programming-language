@@ -187,8 +187,8 @@ void dbg_RegisterState(uint64_t step)
     print_segmented_reg("       b", rbx);
     putchar('\n');
     printf("\n            <------------- r?p -------------> <--------- r?p --------->");
-    printf("\n                            <----- e?p ----->             <--- e?p --->");
-    printf("\n                                    <- ?p -->                   < ?p ->");
+    //printf("\n                            <----- e?p ----->             <--- e?p --->");
+    //printf("\n                                    <- ?p -->                   < ?p ->");
     print_segmented_reg("       i", rip);
     print_segmented_reg("       s", rsp);
     print_segmented_reg("       b", rbp);
