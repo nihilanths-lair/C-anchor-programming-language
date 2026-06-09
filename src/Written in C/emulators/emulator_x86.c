@@ -38,7 +38,7 @@ int main()
     uint64_t step = 0;
     int running = 1;
     
-    printf("--- Запуск 64-битного Мета-Ядра x86-64 ---\n");
+    printf("\n [<|>] Запуск 64-битного Мета-Ядра x86-64 [<|>]\n");
 
     // Главный цикл процессора (Fetch - Decode - Execute)
     while (running)
@@ -48,38 +48,36 @@ int main()
         
         // Пошаговый режим: ждем нажатия Enter в консоли для симуляции такта
         printf("(Enter - шаг) ");
-        rewind(stdin); 
+        rewind(stdin);
         getchar();
         
         // 2. FETCH: Извлекаем текущий опкод из RAM по адресу RIP
         uint8_t opcode = RAM[rip];
         
         // 3. DECODE & EXECUTE: Анализ и выполнение
-        switch (opcode)
-        {
-            case 0xB8: // Реальный опкод x86-64: MOV EAX, imm32
-                // Читаем следующие 4 байта из RAM (Little Endian)
-                rax = RAM[rip + 1] | 
-                     ((uint32_t)RAM[rip + 2] << 8) | 
-                     ((uint32_t)RAM[rip + 3] << 16) | 
-                     ((uint32_t)RAM[rip + 4] << 24);
-                
-                // В x86-64 запись в младшую 32-битную часть (EAX) автоматически зануляет верхнюю часть RAX!
-                rip += 5; // Сдвигаем RIP вперед на длину инструкции (1 байт опкода + 4 байта числа)
-                break;
-                
-            case 0x00: // Наш временный HALT
-                printf("\n Процессор остановлен по инструкции HALT (0x00).\n");
-                running = 0;
-                break;
-                
-            default:
-                printf("\n Архитектурный тупик: Неизвестный опкод 0x%02X на RIP 0x%016llX\n", opcode, rip);
-                running = 0;
-                break;
+        switch (opcode) {
+        case 0xB8: // Реальный опкод x86-64: MOV EAX, imm32
+            // Читаем следующие 4 байта из RAM (Little Endian)
+            rax = RAM[rip + 1] | 
+                    ((uint32_t)RAM[rip + 2] << 8) | 
+                    ((uint32_t)RAM[rip + 3] << 16) | 
+                    ((uint32_t)RAM[rip + 4] << 24);
+            
+            // В x86-64 запись в младшую 32-битную часть (EAX) автоматически зануляет верхнюю часть RAX!
+            rip += 5; // Сдвигаем RIP вперед на длину инструкции (1 байт опкода + 4 байта числа)
+            break;
+            
+        case 0x00: // Наш временный HALT
+            printf("\n Процессор остановлен по инструкции HALT (0x00).\n");
+            running = 0;
+            break;
+            
+        default:
+            printf("\n Архитектурный тупик: Неизвестный опкод 0x%02X на RIP 0x%016llX\n", opcode, rip);
+            running = 0;
+            break;
         }
     }
-
     return 0;
 }
 
