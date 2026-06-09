@@ -1,46 +1,101 @@
 #include <stdio.h>
 #include <string.h>
 #include <locale.h>
+#include <stdint.h>
 
-unsigned char zf = 0;
+// 1 Мегабайт плоской памяти RAM (1024 * 1024 байт)
+#define RAM_SIZE 1048576
+unsigned char RAM[RAM_SIZE];
 
-// Для теста инициализируем регистры ненулевыми значениями (в т.ч. отрицательным SP)
-unsigned short ax = 0x1234; 
-unsigned short bx = 0x5678;
-
-unsigned short ip = 0x7C00;
-unsigned short sp = 0xFFFF; // Проверка знака: отобразится как -1
-unsigned short bp = 0x0000;
+// Нативные 64-битные регистры x86-64 (Глобальный уровень)
+uint64_t rax = 0x7FFFFFFFFFFFFFFF; // Максимальное положительное число (для теста)
+uint64_t rbx = 0x7FFFFFFFFFFFFFFF; // Максимальное положительное число (для теста)
+uint64_t rip = 0x1000;   // Точка входа (Entry Point) для нашего кода
+uint64_t rsp = 0xF0000;  // Вершина стека (выделено ~1 МБ, растет вниз)
+uint64_t rbp = 0x0000;
+unsigned char zf = 0;    // Флаг нуля (Zero Flag)
 
 char * numf(long long num);
-char * bin16(unsigned short num);
-void dbg_RegisterState();
+char * bin64(uint64_t num);
+void print_segmented_reg(const char* name, uint64_t reg_val);
+void dbg_RegisterState(uint64_t step);
 
 int main()
 {
-    setlocale(LC_ALL, ""); // Корректная инициализация локали для всех систем
-    // ... //
-    dbg_RegisterState();
+    setlocale(LC_ALL, ""); // Инициализация локали для вывода тысяч
+    
+    // Временная "прошивка" тестовой программы в память RAM по адресу RIP (0x1000)
+    // 0xB8 -> MOV EAX, imm32 (Опкод x86-64). Запишем число 4660 (0x1234)
+    RAM[0x1000] = 0xB8; 
+    RAM[0x1001] = 0x34; // Little Endian порядок байт
+    RAM[0x1002] = 0x12;
+    RAM[0x1003] = 0x00;
+    RAM[0x1004] = 0x00;
+    
+    // 0x00 -> Временная команда HALT для остановки нашего цикла
+    RAM[0x1005] = 0x00; 
+
+    uint64_t step = 0;
+    int running = 1;
+    
+    printf("--- Запуск 64-битного Мета-Ядра x86-64 ---\n");
+
+    // Главный цикл процессора (Fetch - Decode - Execute)
+    while (running)
+    {
+        // 1. Показываем текущее состояние процессора ПЕРЕД выполнением инструкции
+        dbg_RegisterState(step++);
+        
+        // Пошаговый режим: ждем нажатия Enter в консоли для симуляции такта
+        printf("(Enter - шаг) ");
+        rewind(stdin); 
+        getchar();
+        
+        // 2. FETCH: Извлекаем текущий опкод из RAM по адресу RIP
+        uint8_t opcode = RAM[rip];
+        
+        // 3. DECODE & EXECUTE: Анализ и выполнение
+        switch (opcode)
+        {
+            case 0xB8: // Реальный опкод x86-64: MOV EAX, imm32
+                // Читаем следующие 4 байта из RAM (Little Endian)
+                rax = RAM[rip + 1] | 
+                     ((uint32_t)RAM[rip + 2] << 8) | 
+                     ((uint32_t)RAM[rip + 3] << 16) | 
+                     ((uint32_t)RAM[rip + 4] << 24);
+                
+                // В x86-64 запись в младшую 32-битную часть (EAX) автоматически зануляет верхнюю часть RAX!
+                rip += 5; // Сдвигаем RIP вперед на длину инструкции (1 байт опкода + 4 байта числа)
+                break;
+                
+            case 0x00: // Наш временный HALT
+                printf("\n Процессор остановлен по инструкции HALT (0x00).\n");
+                running = 0;
+                break;
+                
+            default:
+                printf("\n Архитектурный тупик: Неизвестный опкод 0x%02X на RIP 0x%016llX\n", opcode, rip);
+                running = 0;
+                break;
+        }
+    }
+
     return 0;
 }
 
 // Функция форматирования чисел с разделением тысяч апострофом
 char * numf(long long num)
 {
-    // 4 буфера, чтобы можно было вызвать функцию до 4 раз внутри одного printf
-    static char buffers[4][32];
+    static char buffers[4][64];
     static int buf_idx = 0;
     
-    // Выбираем текущий буфер
     char * str = buffers[buf_idx];
     buf_idx = (buf_idx + 1) % 4;
     
-    char temp[32];
-    // Переводим число в обычную строку (поддерживает знак)
+    char temp[64];
     sprintf(temp, "%lld", num);
     
     int len = strlen(temp);
-    // Учитываем минус, чтобы не ставить апостроф сразу после него (например, -'100)
     int is_negative = (num < 0) ? 1 : 0;
     int digits_len = len - is_negative;
     
@@ -53,7 +108,6 @@ char * numf(long long num)
     int dst = new_len - 1;
     int digit_count = 0;
     
-    // Идем с конца строки и копируем цифры, вставляя апостроф каждые 3 знака
     while (src >= is_negative)
     {
         if (digit_count == 3)
@@ -65,80 +119,81 @@ char * numf(long long num)
         digit_count++;
     }
     
-    // Если число было отрицательным, копируем минус в самое начало
-    if (is_negative)
-    {
-        str[dst] = '-';
-    }
-    
+    if (is_negative) str[dst] = '-';
     return str;
 }
 
-// Функция для 16-битных регистров (вывод в формате 0000_0000 0000_0000)
-char * bin16(unsigned short num)
+// Функция для 64-битных регистров (Вывод: 8 тетрад, разделенных подчёркиванием)
+char * bin64(uint64_t num)
 {
-    static char sbin[20]; // 16 бит + 3 разделителя + 1 нуль-терминал = 20 байт
-    sbin[19] = '\0';
+    // 64 бита + 7 разделителей тетрад + 1 пробел в центре + 1 нуль-терминал = 74 байта
+    static char sbin[74]; 
+    sbin[73] = '\0';
     
-    int pos = 18;
-    for (int i = 0; i < 16; i++)
+    int pos = 72;
+    for (int i = 0; i < 64; i++)
     {
-        // Установка разделителей на фиксированные позиции строки
-        if (pos == 14 || pos == 4) 
-        {
-            sbin[pos--] = '_';
-        }
-        else if (pos == 9) 
+        if (pos == 36) // Разделитель между старшим и младшим двойным словом (Dword)
         {
             sbin[pos--] = ' ';
         }
+        else if (pos == 63 || pos == 54 || pos == 45 || pos == 27 || pos == 18 || pos == 9) 
+        {
+            sbin[pos--] = '_'; // Разделитель тетрад внутри байта
+        }
         
-        // Извлекаем i-й бит с конца с помощью маски, без разрушения переменной num
         sbin[pos--] = ((num >> i) & 1) ? '1' : '0';
     }
     return sbin;
 }
 
-void dbg_RegisterState()
+// Вспомогательная функция для печати байт регистра раздельно
+void print_segmented_reg(const char* name, uint64_t reg_val)
 {
-    static unsigned short step = 0;
-    printf("\n -----------\n Шаг: %d", step++);
-    // Вынесено в переменную для удобной конфигурации отладчика (0 - компактный, 1 - полный)
-    int display_mode = 1;
-    switch (display_mode){
-    case 0:
-    {
-        printf("\n -----------------------------------");
-        printf("\n  REGISTER |   DEC   |  HEX  | TEXT");
-        printf("\n           |         |       |");
-        printf("\n        zf |     %03d | %02X    | %d",  zf,  zf,  zf);
-        printf("\n           |         |       |");
-        printf("\n        ax | %03d %03d | %02X %02X | %s", ax>>8, ax&0xFF, ax>>8, ax&0xFF, numf((short)ax));
-        printf("\n        bx | %03d %03d | %02X %02X | %s", bx>>8, bx&0xFF, bx>>8, bx&0xFF, numf((short)bx));
-        printf("\n           |         |       |");
-        printf("\n        ip | %03d %03d | %02X %02X | %s", ip>>8, ip&0xFF, ip>>8, ip&0xFF, numf((short)ip));
-        printf("\n        sp | %03d %03d | %02X %02X | %s", sp>>8, sp&0xFF, sp>>8, sp&0xFF, numf((short)sp));
-        printf("\n        bp | %03d %03d | %02X %02X | %s", bp>>8, bp&0xFF, bp>>8, bp&0xFF, numf((short)bp));
-        printf("\n -------------------------------------");
-        break;
-    }
-    case 1:
-    {
-        printf("\n ---------------------------------------------------------");
-        printf("\n  REGISTER |   DEC   |  HEX  |         BIN         | TEXT");
-        printf("\n           |         |       |                     |");
-        printf("\n        zf |     %03d | %02X    |                     | %d",  zf,  zf,  zf);
-        printf("\n           |         |       |                     |");
-        // (short) приведение гарантирует, что знаковые смещения отобразятся корректно
-        printf("\n        ax | %03d %03d | %02X %02X | %s | %s", ax>>8, ax&0xFF, ax>>8, ax&0xFF, bin16(ax), numf((short)ax));
-        printf("\n        bx | %03d %03d | %02X %02X | %s | %s", bx>>8, bx&0xFF, bx>>8, bx&0xFF, bin16(bx), numf((short)bx));
-        printf("\n           |         |       |                     |");
-        printf("\n        ip | %03d %03d | %02X %02X | %s | %s", ip>>8, ip&0xFF, ip>>8, ip&0xFF, bin16(ip), numf((short)ip));
-        printf("\n        sp | %03d %03d | %02X %02X | %s | %s", sp>>8, sp&0xFF, sp>>8, sp&0xFF, bin16(sp), numf((short)sp));
-        printf("\n        bp | %03d %03d | %02X %02X | %s | %s", bp>>8, bp&0xFF, bp>>8, bp&0xFF, bin16(bp), numf((short)bp));
-        printf("\n -----------------------------------------------------------");
-        break;
-    }
-    }
+    // Извлекаем каждый байт отдельно (от старшего к младшему)
+    uint8_t b7 = (reg_val >> 56) & 0xFF;
+    uint8_t b6 = (reg_val >> 48) & 0xFF;
+    uint8_t b5 = (reg_val >> 40) & 0xFF;
+    uint8_t b4 = (reg_val >> 32) & 0xFF;
+    uint8_t b3 = (reg_val >> 24) & 0xFF; // Старший байт EAX
+    uint8_t b2 = (reg_val >> 16) & 0xFF;
+    uint8_t b1 = (reg_val >> 8)  & 0xFF; // AH
+    uint8_t b0 = reg_val         & 0xFF; // AL (Младший байт)
+
+    // Выводим имя регистра, затем 8 раздельных байт в DEC, затем 8 байт в HEX
+    // Младшие 4 байта (b3, b2, b1, b0) - это подрегистр "Ex" (например, EAX)
+    // Младшие 2 байта (b1, b0) - это подрегистр "x" (например, AX)
+    printf("\n  %4s | %03d %03d %03d %03d %03d %03d %03d %03d | %02X %02X %02X %02X %02X %02X %02X %02X | %s",
+        name, 
+        b7, b6, b5, b4,  // Старшая половина (64-бит)
+        b3, b2, b1, b0,  // Младшая половина (32-бит: EAX/EBX/RIP...)
+        b7, b6, b5, b4, b3, b2, b1, b0,
+        numf((long long)reg_val)
+    );
+}
+
+void dbg_RegisterState(uint64_t step)
+{
+    printf("\n -----------\n Такт: %llu", step);
+    printf("\n -------------------------------------------------------------------------------------------------------");
+    printf("\n  REGISTER |               DEC               |           HEX           | TEXT");
+    printf("\n           |                                 |                         |");
+    printf("\n        zf |                                                           | %d", zf);
+    putchar('\n');
+    printf("\n            <------------- r?x -------------> <--------- r?x --------->");
+    printf("\n                            <----- e?x ----->             <--- e?x --->");
+    printf("\n                                    <- ?x -->                   < ?x ->");
+    printf("\n                                    < ?h ?l >                   <?h ?l>");
+    // Печатаем каждый регистр через нашу новую сегментированную функцию
+    print_segmented_reg("       a", rax);
+    print_segmented_reg("       b", rbx);
+    putchar('\n');
+    printf("\n            <------------- r?p -------------> <--------- r?p --------->");
+    printf("\n                            <----- e?p ----->             <--- e?p --->");
+    printf("\n                                    <- ?p -->                   < ?p ->");
+    print_segmented_reg("       i", rip);
+    print_segmented_reg("       s", rsp);
+    print_segmented_reg("       b", rbp);
+    printf("\n -------------------------------------------------------------------------------------------------------");
     printf("\n");
 }
