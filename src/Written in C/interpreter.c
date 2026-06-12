@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
     // 3. Считываем байты напрямую в наш массив __ 
     // fread возвращает количество прочитанных байт, мы можем использовать это для безопасности
-    size_t bytes_read = fread(firmware, 1, sizeof(firmware), file);
+    size_t bytes_read = fread(firmware, 1, sizeof (firmware), file);
     fclose(file);
 
     if (bytes_read == 0)
