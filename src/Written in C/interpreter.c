@@ -85,14 +85,20 @@ int main(int argc, char* argv[])
     }
     do_jmp_zero:
     {
-        int target = memory[dsl_ip++];
+        // Считываем 16-битный адрес перехода (2 байта: старший и младший)
+        // Сначала берем первый байт, сдвигаем его на 8 бит влево, и склеиваем со вторым
+        unsigned short target = (memory[dsl_ip++] << 8) | memory[dsl_ip++];
         if (memory[gpl_ip] == 0) { gpl_ip = target; }
         macro__jmp_do_opcode();
     }
     do_sys_call:
     {
-        if (memory[gpl_ip] == 1) memory[gpl_ip] = fgetc(stdin);
-        if (memory[gpl_ip] == 2) putchar(memory[gpl_ip+1]);
+        if (memory[gpl_ip] == 1) { memory[gpl_ip] = fgetc(stdin); }
+        if (memory[gpl_ip] == 2)
+        {
+            gpl_ip++;
+            putchar(memory[gpl_ip]);
+        }
         macro__jmp_do_opcode();
     }
 }
