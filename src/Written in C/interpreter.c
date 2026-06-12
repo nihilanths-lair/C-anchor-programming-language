@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     }
 
     do_jmp_zero: {
-        int target = memory[gpl_ip++];
+        int target = memory[dsl_ip++];
         if (memory[gpl_ip] == 0) { gpl_ip = target; }
         macro__jmp_do_opcode();
     }
