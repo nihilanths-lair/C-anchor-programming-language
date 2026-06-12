@@ -10,32 +10,43 @@
 unsigned char memory[0xFFFF];
 int main(int argc, char* argv[])
 {
-    // 1. Проверяем, передал ли нам пользователь файл с байт-кодом
-    if (argc < 2)
+    // 1. Проверяем, что передано ОБА файла: и прошивка, и программа
+    if (argc < 3)
     {
-        printf("\n Usage: interpreter.exe <bin_file>\n");
+        printf("\n Usage: interpreter.exe <architecture_bin> <program_bin>\n");
         return 1;
     }
-
-    // 2. Открываем бинарный файл
-    FILE* file = fopen(argv[1], "rb");
-    if (!file)
+    // 2. ЗАГРУЗКА АРХИТЕКТУРЫ (DSL) -> строго с адреса 0x00
+    FILE* arch_file = fopen(argv[1], "rb");
+    if (!arch_file)
     {
-        printf("Error: Could not open file %s\n", argv[1]);
+        printf("\n Error: Could not open architecture file %s\n", argv[1]);
         return 1;
     }
-
-    // 3. Считываем байты напрямую в наш массив __ 
-    // fread возвращает количество прочитанных байт, мы можем использовать это для безопасности
-    size_t bytes_read = fread(memory, 1, sizeof (memory), file);
-    fclose(file);
-
-    if (bytes_read == 0)
+    // Читаем прошивку в начало памяти (максимум 256 байт, чтобы не залезть на территорию программы)
+    size_t arch_bytes = fread(&memory[0x00], 1, 0x100, arch_file);
+    fclose(arch_file);
+    if (arch_bytes == 0)
     {
-        printf("Error: File is empty or corrupted\n");
+        printf("\n Error: Architecture file is empty or corrupted\n");
         return 1;
     }
-
+    // 3. ЗАГРУЗКА ПРОГРАММЫ (GPL) -> строго со смещением 0x100
+    FILE* prog_file = fopen(argv[2], "rb");
+    if (!prog_file)
+    {
+        printf("\n Error: Could not open program file %s\n", argv[2]);
+        return 1;
+    }
+    // Читаем программу в память, начиная с адреса memory[0x100]
+    // Оставшийся размер памяти: sizeof (memory) - 0x100
+    size_t prog_bytes = fread(&memory[0x100], 1, sizeof (memory) - 0x100, prog_file);
+    fclose(prog_file);
+    if (prog_bytes == 0)
+    {
+        printf("\n Error: Program file is empty or corrupted\n");
+        return 1;
+    }
     void* dispatch[] = {
         &&do_halt,     // 0
         &&do_inc_dp,   // 1
