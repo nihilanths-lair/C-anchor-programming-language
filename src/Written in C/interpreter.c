@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
     }
     void* dispatch[] = {
         &&do_halt,     // 0
-        &&do_inc_dp,   // 1
-        &&do_dec_dp,   // 2
+        &&do_inc_ip,   // 1
+        &&do_dec_ip,   // 2
         &&do_inc_val,  // 3
         &&do_dec_val,  // 4
         &&do_jmp_zero, // 5
@@ -62,37 +62,35 @@ int main(int argc, char* argv[])
     #define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
     macro__jmp_do_opcode();
 
-    do_halt: {
-        return 0;
-    }
-
-    do_inc_dp: {
+    do_halt: return 0;
+    do_inc_ip:
+    {
         gpl_ip++;
         macro__jmp_do_opcode();
     }
-
-    do_dec_dp: {
+    do_dec_ip:
+    {
         gpl_ip--;
         macro__jmp_do_opcode();
     }
-
-    do_inc_val: {
+    do_inc_val:
+    {
         memory[gpl_ip]++;
         macro__jmp_do_opcode();
     }
-
-    do_dec_val: {
+    do_dec_val:
+    {
         memory[gpl_ip]--;
         macro__jmp_do_opcode();
     }
-
-    do_jmp_zero: {
+    do_jmp_zero:
+    {
         int target = memory[dsl_ip++];
         if (memory[gpl_ip] == 0) { gpl_ip = target; }
         macro__jmp_do_opcode();
     }
-
-    do_sys_call: {
+    do_sys_call:
+    {
         if (memory[gpl_ip] == 1) memory[gpl_ip] = fgetc(stdin);
         if (memory[gpl_ip] == 2) putchar(memory[gpl_ip+1]);
         macro__jmp_do_opcode();
