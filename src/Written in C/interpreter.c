@@ -8,6 +8,9 @@
  *    0x100 -- 0xFFFF | Размещается любая прикладная программа
 */
 unsigned char memory[0xFFFF];
+unsigned char dsl_ip = 0;       // Читает опкоды прошивки (0x00 -- 0xFF)
+unsigned short gpl_ip = 0x100;  // Бегает по прикладной программе (0x100 -- 0xFFFF)
+
 int main(int argc, char* argv[])
 {
     // 1. Проверяем, что передано ОБА файла: и прошивка, и программа
@@ -56,11 +59,7 @@ int main(int argc, char* argv[])
         &&do_jmp_zero, // 5
         &&do_sys_call  // 6
     };
-
-    int ip = 0;
-    int dp = 0x80;
-
-    #define macro__jmp_do_opcode() goto *dispatch[memory[ip++]]
+    #define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
     macro__jmp_do_opcode();
 
     do_halt: {
@@ -68,34 +67,34 @@ int main(int argc, char* argv[])
     }
 
     do_inc_dp: {
-        dp++;
+        gpl_ip++;
         macro__jmp_do_opcode();
     }
 
     do_dec_dp: {
-        dp--;
+        gpl_ip--;
         macro__jmp_do_opcode();
     }
 
     do_inc_val: {
-        memory[dp]++;
+        memory[gpl_ip]++;
         macro__jmp_do_opcode();
     }
 
     do_dec_val: {
-        memory[dp]--;
+        memory[gpl_ip]--;
         macro__jmp_do_opcode();
     }
 
     do_jmp_zero: {
-        int target = memory[ip++];
-        if (memory[dp] == 0) { ip = target; }
+        int target = memory[gpl_ip++];
+        if (memory[gpl_ip] == 0) { gpl_ip = target; }
         macro__jmp_do_opcode();
     }
 
     do_sys_call: {
-        if (memory[dp] == 1) memory[dp] = fgetc(stdin);
-        if (memory[dp] == 2) putchar(memory[dp+1]);
+        if (memory[gpl_ip] == 1) memory[gpl_ip] = fgetc(stdin);
+        if (memory[gpl_ip] == 2) putchar(memory[gpl_ip+1]);
         macro__jmp_do_opcode();
     }
 }
