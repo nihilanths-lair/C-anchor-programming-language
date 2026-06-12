@@ -1,7 +1,13 @@
 #include <stdio.h>
-
-unsigned char firmware[0xFF];
-
+/*
+ *    [Пользовательское соглашение]
+ * - - - - - - - - - - - - - - - - - -
+ *         Адрес      | Описание
+ *
+ *      0x0 -- 0xFF   | Размещается микропрограмма (ядро) мета-процессора
+ *    0x100 -- 0xFFFF | Размещается любая прикладная программа
+*/
+unsigned char memory[0xFFFF];
 int main(int argc, char* argv[])
 {
     // 1. Проверяем, передал ли нам пользователь файл с байт-кодом
@@ -21,7 +27,7 @@ int main(int argc, char* argv[])
 
     // 3. Считываем байты напрямую в наш массив __ 
     // fread возвращает количество прочитанных байт, мы можем использовать это для безопасности
-    size_t bytes_read = fread(firmware, 1, sizeof (firmware), file);
+    size_t bytes_read = fread(memory, 1, sizeof (memory), file);
     fclose(file);
 
     if (bytes_read == 0)
@@ -43,7 +49,7 @@ int main(int argc, char* argv[])
     int ip = 0;
     int dp = 0x80;
 
-    #define macro__jmp_do_opcode() goto *dispatch[firmware[ip++]]
+    #define macro__jmp_do_opcode() goto *dispatch[memory[ip++]]
     macro__jmp_do_opcode();
 
     do_halt: {
@@ -61,24 +67,24 @@ int main(int argc, char* argv[])
     }
 
     do_inc_val: {
-        firmware[dp]++;
+        memory[dp]++;
         macro__jmp_do_opcode();
     }
 
     do_dec_val: {
-        firmware[dp]--;
+        memory[dp]--;
         macro__jmp_do_opcode();
     }
 
     do_jmp_zero: {
-        int target = firmware[ip++];
-        if (firmware[dp] == 0) { ip = target; }
+        int target = memory[ip++];
+        if (memory[dp] == 0) { ip = target; }
         macro__jmp_do_opcode();
     }
 
     do_sys_call: {
-        if (firmware[dp] == 1) firmware[dp] = fgetc(stdin);
-        if (firmware[dp] == 2) putchar(firmware[dp+1]);
+        if (memory[dp] == 1) memory[dp] = fgetc(stdin);
+        if (memory[dp] == 2) putchar(memory[dp+1]);
         macro__jmp_do_opcode();
     }
 }
