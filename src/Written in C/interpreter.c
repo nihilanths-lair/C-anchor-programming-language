@@ -50,18 +50,18 @@ int main(int argc, char* argv[])
         printf("\n Error: Program file is empty or corrupted\n");
         return 1;
     }
-    void* dispatch[] = {
-        &&do_halt,     // 0
-        &&do_inc_ip,   // 1
-        &&do_dec_ip,   // 2
-        &&do_inc_val,  // 3
-        &&do_dec_val,  // 4
-        &&do_jmp_zero, // 5
-        &&do_sys_call  // 6
+    void* dispatch[] =
+    {
+        &&do_halt,      // 0
+        &&do_inc_ip,    // 1
+        &&do_dec_ip,    // 2
+        &&do_inc_val,   // 3
+        &&do_dec_val,   // 4
+        &&do_jmp_equal, // 5
+        &&do_sys_call   // 6
     };
     #define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
     macro__jmp_do_opcode();
-
     do_halt: return 0;
     do_inc_ip:
     {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
         memory[gpl_ip]--;
         macro__jmp_do_opcode();
     }
-    do_jmp_zero:
+    do_jmp_equal:
     {
         // Считываем 16-битный адрес перехода (2 байта: старший и младший)
         // Сначала берем первый байт, сдвигаем его на 8 бит влево, и склеиваем со вторым
