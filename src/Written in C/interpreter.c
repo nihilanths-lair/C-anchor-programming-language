@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    void* dispatch_table[] = {
+    void* dispatch[] = {
         &&do_halt,     // 0
         &&do_inc_dp,   // 1
         &&do_dec_dp,   // 2
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     int ip = 0;
     int dp = 0x80;
 
-    #define macro__jmp_do_opcode() goto *dispatch_table[__[ip++]]
+    #define macro__jmp_do_opcode() goto *dispatch[__[ip++]]
     macro__jmp_do_opcode();
 
     do_halt: {
