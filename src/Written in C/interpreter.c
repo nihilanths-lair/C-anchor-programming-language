@@ -7,7 +7,7 @@
  *      0x0 -- 0xFF   | Размещается микропрограмма (ядро) мета-процессора
  *    0x100 -- 0xFFFF | Размещается любая прикладная программа
 */
-unsigned char memory[0xFFFF];
+unsigned char memory[0x10000];
 unsigned char dsl_ip = 0;       // Читает опкоды прошивки (0x00 -- 0xFF)
 unsigned short gpl_ip = 0x100;  // Бегает по прикладной программе (0x100 -- 0xFFFF)
 
