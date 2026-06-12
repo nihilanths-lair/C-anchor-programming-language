@@ -40,15 +40,14 @@ int main(int argc, char* argv[])
         &&do_sys_call  // 6
     };
 
-    int ip = 0;        // Физический IP скорлупы
-    int dp = 0x80;     // Data Pointer
+    int ip = 0;
+    int dp = 0x80;
 
     #define macro__jmp_do_opcode() goto *dispatch_table[__[ip++]]
     macro__jmp_do_opcode();
 
-    // --- ЗОНА ВЫПОЛНЕНИЯ КОМАНД ---
     do_halt: {
-        return 0; // Полный выход из программы
+        return 0;
     }
 
     do_inc_dp: {
