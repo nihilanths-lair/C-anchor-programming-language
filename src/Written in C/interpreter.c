@@ -1,9 +1,35 @@
 #include <stdio.h>
 
-int main() 
+unsigned char __[0xFF];
+
+int main(int argc, char* argv[])
 {
-    // 1. Таблица диспетчеризации (Адреса меток в Си-коде)
-    // Мы заменяем enum на массив физических адресов кода
+    // 1. Проверяем, передал ли нам пользователь файл с байт-кодом
+    if (argc < 2)
+    {
+        printf("\n Usage: interpreter.exe <bin_file>\n");
+        return 1;
+    }
+
+    // 2. Открываем бинарный файл
+    FILE* file = fopen(argv[1], "rb");
+    if (!file)
+    {
+        printf("Error: Could not open file %s\n", argv[1]);
+        return 1;
+    }
+
+    // 3. Считываем байты напрямую в наш массив __ 
+    // fread возвращает количество прочитанных байт, мы можем использовать это для безопасности
+    size_t bytes_read = fread(__, 1, sizeof(__), file);
+    fclose(file);
+
+    if (bytes_read == 0)
+    {
+        printf("Error: File is empty or corrupted\n");
+        return 1;
+    }
+
     void* dispatch_table[] = {
         &&do_halt,     // 0
         &&do_inc_dp,   // 1
@@ -14,21 +40,10 @@ int main()
         &&do_sys_call  // 6
     };
 
-    // 2. Наш массив памяти теперь хранит не просто опкоды, 
-    // а индексы для таблицы диспетчеризации!
-    unsigned char __[0xFF] = {
-        1, 3, 3, 0 // Пример: INC_DP, INC_VAL, INC_VAL, HALT
-    };
-
     int ip = 0;        // Физический IP скорлупы
     int dp = 0x80;     // Data Pointer
 
-    // Макрос для ультра-быстрого перехода к следующей инструкции.
-    // Вызывается в конце КАЖДОЙ команды вместо "break".
-    // Он берет индекс из массива, находит физический адрес в таблице и мгновенно прыгает туда.
     #define macro__jmp_do_opcode() goto *dispatch_table[__[ip++]]
-
-    // Запускаем маховик (первый прыжок)
     macro__jmp_do_opcode();
 
     // --- ЗОНА ВЫПОЛНЕНИЯ КОМАНД ---
@@ -38,7 +53,7 @@ int main()
 
     do_inc_dp: {
         dp++;
-        macro__jmp_do_opcode(); // Мгновенный переход к следующей команде
+        macro__jmp_do_opcode();
     }
 
     do_dec_dp: {
