@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-unsigned char __[0xFF];
+unsigned char firmware[0xFF];
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
     // 3. Считываем байты напрямую в наш массив __ 
     // fread возвращает количество прочитанных байт, мы можем использовать это для безопасности
-    size_t bytes_read = fread(__, 1, sizeof(__), file);
+    size_t bytes_read = fread(firmware, 1, sizeof(firmware), file);
     fclose(file);
 
     if (bytes_read == 0)
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     int ip = 0;
     int dp = 0x80;
 
-    #define macro__jmp_do_opcode() goto *dispatch[__[ip++]]
+    #define macro__jmp_do_opcode() goto *dispatch[firmware[ip++]]
     macro__jmp_do_opcode();
 
     do_halt: {
@@ -61,24 +61,24 @@ int main(int argc, char* argv[])
     }
 
     do_inc_val: {
-        __[dp]++;
+        firmware[dp]++;
         macro__jmp_do_opcode();
     }
 
     do_dec_val: {
-        __[dp]--;
+        firmware[dp]--;
         macro__jmp_do_opcode();
     }
 
     do_jmp_zero: {
-        int target = __[ip++];
-        if (__[dp] == 0) { ip = target; }
+        int target = firmware[ip++];
+        if (firmware[dp] == 0) { ip = target; }
         macro__jmp_do_opcode();
     }
 
     do_sys_call: {
-        if (__[dp] == 1) __[dp] = fgetc(stdin);
-        if (__[dp] == 2) putchar(__[dp+1]);
+        if (firmware[dp] == 1) firmware[dp] = fgetc(stdin);
+        if (firmware[dp] == 2) putchar(firmware[dp+1]);
         macro__jmp_do_opcode();
     }
 }
