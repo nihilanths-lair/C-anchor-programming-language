@@ -47,12 +47,12 @@ int main(int argc, char* argv[])
     }
     char line[256];
     // --- ЕДИНСТВЕННЫЙ ПРОХОД ПО ФАЙЛУ ---
-    while (fgets(line, sizeof (line), src))
+    while (fgets( line, sizeof (line), src))
     {
-        // Жестко зачищаем и \n, и (фикс для Windows)
-        line[strcspn(line, "\n")] = 0;
+        // Жестко зачищаем и \n, и \r (фикс для Windows)
+        line[strcspn( line, "\r\n")] = 0;
         // Пропускаем пустые строки и комментарии
-        if (strlen(line) == 0 || line[0] == '#') continue;
+        if (strlen( line) == 0 || line[ 0] == '#') { continue; }
         // Тримминг пробелов в начале строки (если вы захотите делать отступы)
         char* cmd = line;
         while (*cmd == ' ' || *cmd == '\t') cmd++;
