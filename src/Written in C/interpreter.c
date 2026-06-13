@@ -57,8 +57,9 @@ int main(int argc, char* argv[])
         &&do_dec_ip,    // 2
         &&do_inc_val,   // 3
         &&do_dec_val,   // 4
-        &&do_jmp_equal, // 5
-        &&do_sys_call   // 6
+        &&do_je,        // 5
+        &&do_sys_call,  // 6
+        &&do_jmp        // 7
     };
     #define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
     macro__jmp_do_opcode();
@@ -83,7 +84,7 @@ int main(int argc, char* argv[])
         memory[gpl_ip]--;
         macro__jmp_do_opcode();
     }
-    do_jmp_equal:
+    do_je:
     {
         // Считываем 16-битный адрес перехода (2 байта: старший и младший)
         // Сначала берем первый байт, сдвигаем его на 8 бит влево, и склеиваем со вторым
@@ -98,7 +99,15 @@ int main(int argc, char* argv[])
         {
             gpl_ip++;
             putchar(memory[gpl_ip]);
+            fflush(stdout); // выталкиваем из буфера символ на экран
         }
+        macro__jmp_do_opcode();
+    }
+    do_jmp:
+    {
+        // Безусловный 16-битный переход для dsl_ip
+        unsigned short target = (memory[dsl_ip++] << 8) | memory[dsl_ip++];
+        dsl_ip = target; // Нам не важны флаги, мы просто прыгаем!
         macro__jmp_do_opcode();
     }
 }
