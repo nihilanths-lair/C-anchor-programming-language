@@ -49,16 +49,19 @@ int main(int argc, char* argv[])
     }
     char line[256];
     // --- ЕДИНСТВЕННЫЙ ПРОХОД ПО ФАЙЛУ ---
-    while (fgets( line, sizeof (line), src))
+    while (fgets(line, sizeof (line), src))
     {
         // Жестко зачищаем и \n, и \r (фикс для Windows)
-        line[strcspn( line, "\r\n")] = 0;
-        // Пропускаем пустые строки и комментарии
-        if (strlen( line) == 0 || line[ 0] == '#') { continue; }
+        line[strcspn(line, "\r\n")] = 0;
+        // Ищем комментарий в любой части строки
+        char* comment = strchr(line, '#');
+        if (comment != NULL) { *comment = 0; } // Если нашли '#', просто ставим туда ноль — это отрежет весь хвост строки
+        // Теперь проверяем на пустоту (после отрезания комментария строка могла стать пустой)
+        if (strlen(line) == 0) { continue; }
         // Тримминг пробелов в начале строки (если вы захотите делать отступы)
         char* cmd = line;
-        while (*cmd == ' ' || *cmd == '\t') cmd++;
-        if (*cmd == 0 || *cmd == '#') continue;
+        while (*cmd == ' ' || *cmd == '\t') { cmd++; }
+        if (*cmd == 0) { continue; }
         // 1. Проверяем, является ли строка МЕТКОЙ (оканчивается на ':')
         if (cmd[strlen(cmd)-1] == ':')
         {
