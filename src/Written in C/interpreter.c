@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
         // Считываем 16-битный адрес перехода (2 байта: старший и младший)
         // Сначала берем первый байт, сдвигаем его на 8 бит влево, и склеиваем со вторым
         unsigned short target = (memory[dsl_ip++] << 8) | memory[dsl_ip++];
-        if (memory[gpl_ip] == 0) { gpl_ip = target; }
+        if (memory[gpl_ip] == 0) { dsl_ip = target; }
         macro__jmp_do_opcode();
     }
     do_sys_call:
