@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <locale.h>
 
 // Максимальный размер имени метки
 #define LABEL_NAME_LEN 32
@@ -31,6 +32,7 @@ int find_label(const char* name)
 
 int main(int argc, char* argv[])
 {
+    setlocale(LC_ALL, "");
     if (argc < 3)
     {
         printf("\n Usage: compiler.exe <source.txt> <output.bin>\n");
