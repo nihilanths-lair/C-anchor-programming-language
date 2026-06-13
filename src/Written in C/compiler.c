@@ -62,6 +62,13 @@ int main(int argc, char* argv[])
         char* cmd = line;
         while (*cmd == ' ' || *cmd == '\t') { cmd++; }
         if (*cmd == 0) { continue; }
+        // Тримминг пробелов в конце строки (чтобы убрать пробелы перед бывшим комментарием)
+        size_t len = strlen(cmd);
+        while (len > 0 && (cmd[len-1] == ' ' || cmd[len-1] == '\t'))
+        {
+            cmd[len-1] = 0;
+            len--;
+        }
         // 1. Проверяем, является ли строка МЕТКОЙ (оканчивается на ':')
         if (cmd[strlen(cmd)-1] == ':')
         {
