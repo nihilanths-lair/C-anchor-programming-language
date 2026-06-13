@@ -91,17 +91,17 @@ int main(int argc, char* argv[])
             output_buffer[current_address++] = atoi(cmd+5);
             continue;
         }
-        // 3. Обработка взрослой команды JE (Jump if Equal) с меткой
+        // 3. Обработка JE (Jump if Equal) с меткой
         if (strncmp(cmd, "JE ", 3) == 0)
         {
-            char* target_label = cmd+3;
-            output_buffer[current_address++] = 5; // Опкод JE из interpreter.c
+            char* target_label = cmd + 3;
+            output_buffer[current_address++] = 5;
             int addr = find_label(target_label);
             if (addr != -1)
             {
                 // Метка уже известна (прыжок назад в цикле)
-                output_buffer[current_address++] = (addr>>8)&0xFF;
-                output_buffer[current_address++] = addr&0xFF;
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
             }
             else
             {
@@ -115,7 +115,51 @@ int main(int argc, char* argv[])
             }
             continue;
         }
-        // 4. Обработка остальных беспардонных взрослых команд
+        // 4. Обработка JNE (Прыжок, если НЕ ноль)
+        if (strncmp(cmd, "JNE ", 4) == 0)
+        {
+            char* target_label = cmd + 4;
+            output_buffer[current_address++] = 5; // Тот же опкод 5
+            int addr = find_label(target_label);
+            if (addr != -1)
+            {
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
+            }
+            else
+            {
+                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
+                jmp_requests[jmp_request_count].jmp_offset = current_address;
+                jmp_request_count++;
+                // Оставляем временные заглушки под 16-битный адрес
+                output_buffer[current_address++] = 0;
+                output_buffer[current_address++] = 0;
+            }
+            continue;
+        }
+        // 5. Обработка JMP (Безусловный переход)
+        if (strncmp(cmd, "JMP ", 4) == 0)
+        {
+            char* target_label = cmd + 4;
+            output_buffer[current_address++] = 7; // Опкод 7
+            int addr = find_label(target_label);
+            if (addr != -1)
+            {
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
+            }
+            else
+            {
+                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
+                jmp_requests[jmp_request_count].jmp_offset = current_address;
+                jmp_request_count++;
+                // Оставляем временные заглушки под 16-битный адрес
+                output_buffer[current_address++] = 0;
+                output_buffer[current_address++] = 0;
+            }
+            continue;
+        }
+        // 6. Обработка остальных беспардонных команд
         if (strcmp(cmd, "HLT") == 0) output_buffer[current_address++] = 0;
         else if (strcmp(cmd, "INC GPL_IP") == 0) output_buffer[current_address++] = 1;
         else if (strcmp(cmd, "DEC GPL_IP") == 0) output_buffer[current_address++] = 2;
