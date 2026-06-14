@@ -111,31 +111,14 @@ int run_interpreter(const char* arch_path, const char* prog_path)
 
     do_mov_rax_imm:
     {
-        // Прямая склейка 64-битного числа из 8 байт памяти без циклов и сдвигов dsl_ip++
-        rax = ((uint64_t)memory[dsl_ip] << 56) |
-              ((uint64_t)memory[dsl_ip + 1] << 48) |
-              ((uint64_t)memory[dsl_ip + 2] << 40) |
-              ((uint64_t)memory[dsl_ip + 3] << 32) |
-              ((uint64_t)memory[dsl_ip + 4] << 24) |
-              ((uint64_t)memory[dsl_ip + 5] << 16) |
-              ((uint64_t)memory[dsl_ip + 6] << 8)  |
-              (uint64_t)memory[dsl_ip + 7];
-        
-        dsl_ip += 8; // Сдвигаем указатель команд сразу за пределы числа
+        rax = *(uint64_t*)(memory + dsl_ip);
+        dsl_ip += 8;
         macro__jmp_do_opcode();
     }
 
     do_mov_rbx_imm:
     {
-        rbx = ((uint64_t)memory[dsl_ip] << 56) |
-              ((uint64_t)memory[dsl_ip + 1] << 48) |
-              ((uint64_t)memory[dsl_ip + 2] << 40) |
-              ((uint64_t)memory[dsl_ip + 3] << 32) |
-              ((uint64_t)memory[dsl_ip + 4] << 24) |
-              ((uint64_t)memory[dsl_ip + 5] << 16) |
-              ((uint64_t)memory[dsl_ip + 6] << 8)  |
-              (uint64_t)memory[dsl_ip + 7];
-              
+        rbx = *(uint64_t*)(memory + dsl_ip);
         dsl_ip += 8;
         macro__jmp_do_opcode();
     }
@@ -294,28 +277,22 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             output_buffer[current_address++] = 0;
         }
+
         else if (strncmp(cmd, "mov rax,", 8) == 0)
         {
             output_buffer[current_address++] = 1;
             uint64_t val = atoull(cmd + 8);
-            for (int i = 7; i >= 0; i--)
-            {
-                output_buffer[current_address + i] = val & 0xFF;
-                val >>= 8;
-            }
+            *(uint64_t*)(output_buffer + current_address) = val;
             current_address += 8;
         }
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
             output_buffer[current_address++] = 2;
             uint64_t val = atoull(cmd + 8);
-            for (int i = 7; i >= 0; i--)
-            {
-                output_buffer[current_address + i] = val & 0xFF;
-                val >>= 8;
-            }
+            *(uint64_t*)(output_buffer + current_address) = val;
             current_address += 8;
         }
+
         else if (strcmp(cmd, "add rax, rbx") == 0)
         {
             output_buffer[current_address++] = 3;
