@@ -367,9 +367,9 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             output_buffer[current_address++] = 9;
         }
-        else if (strncmp(cmd, "DATA ", 5) == 0)
+        else if (strncmp(cmd, "db ", 3) == 0)
         {
-            output_buffer[current_address++] = (unsigned char)atoi(cmd + 5);
+            output_buffer[current_address++] = (unsigned char)atoi(cmd + 3);
         }
         else
         {
