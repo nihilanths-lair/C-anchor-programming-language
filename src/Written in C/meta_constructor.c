@@ -1,113 +1,140 @@
 #include <stdio.h>
-/*
- *    [Пользовательское соглашение]
- * - - - - - - - - - - - - - - - - - -
- *         Адрес      | Описание
- *
- *      0x0 -- 0xFF   | Размещается микропрограмма (ядро) мета-процессора
- *    0x100 -- 0xFFFF | Размещается любая прикладная программа
-*/
-unsigned char memory[0x10000];
-unsigned char dsl_ip = 0;       // Читает опкоды прошивки (0x00 -- 0xFF)
-unsigned short gpl_ip = 0x100;  // Бегает по прикладной программе (0x100 -- 0xFFFF)
+#include <stdlib.h>
+#include <locale.h>
+#include <stdint.h>
+
+#define MEMORY_SIZE 65536
+#define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
 
 int main(int argc, char* argv[])
 {
-    // 1. Проверяем, что передано ОБА файла: и прошивка, и программа
+    setlocale(LC_ALL, "");
+
     if (argc < 3)
     {
-        printf("\n Usage: interpreter.exe <architecture_bin> <program_bin>\n");
+        printf("\n Использование: meta_constructor.exe <architecture_bin> <program_bin>\n");
         return 1;
     }
-    // 2. ЗАГРУЗКА АРХИТЕКТУРЫ (DSL) -> строго с адреса 0x00
-    FILE* arch_file = fopen(argv[1], "rb");
-    if (!arch_file)
+
+    unsigned char* memory = (unsigned char*)calloc(MEMORY_SIZE, sizeof(unsigned char));
+    if (memory == NULL)
     {
-        printf("\n Error: Could not open architecture file %s\n", argv[1]);
+        printf("\n Ошибка: Не удалось выделить память под ОЗУ.\n");
         return 1;
     }
-    // Читаем прошивку в начало памяти (максимум 256 байт, чтобы не залезть на территорию программы)
-    size_t arch_bytes = fread(&memory[0x00], 1, 0x100, arch_file);
-    fclose(arch_file);
-    if (arch_bytes == 0)
+
+    // Загрузка бинарников
+    FILE* arch = fopen(argv[1], "rb");
+    if (arch == NULL)
     {
-        printf("\n Error: Architecture file is empty or corrupted\n");
+        printf("\n Ошибка: Не удалось открыть файл архитектуры %s\n", argv[1]);
+        free(memory);
         return 1;
     }
-    // 3. ЗАГРУЗКА ПРОГРАММЫ (GPL) -> строго со смещением 0x100
-    FILE* prog_file = fopen(argv[2], "rb");
-    if (!prog_file)
+    fread(memory, sizeof(unsigned char), 0x100, arch);
+    fclose(arch);
+
+    FILE* prog = fopen(argv[2], "rb");
+    if (prog == NULL)
     {
-        printf("\n Error: Could not open program file %s\n", argv[2]);
+        printf("\n Ошибка: Не удалось открыть файл программы %s\n", argv[2]);
+        free(memory);
         return 1;
     }
-    // Читаем программу в память, начиная с адреса memory[0x100]
-    // Оставшийся размер памяти: sizeof (memory) - 0x100
-    size_t prog_bytes = fread(&memory[0x100], 1, sizeof (memory) - 0x100, prog_file);
-    fclose(prog_file);
-    if (prog_bytes == 0)
-    {
-        printf("\n Error: Program file is empty or corrupted\n");
-        return 1;
-    }
+    fread(memory + 0x100, sizeof(unsigned char), MEMORY_SIZE - 0x100, prog);
+    fclose(prog);
+
+    // --- НАСТОЯЩИЕ 64-БИТНЫЕ РЕГИСТРЫ x86-64 ---
+    uint64_t dsl_ip = 0; // Указатель команд прошивки (микрокод процессора)
+    uint64_t gpl_ip = 0x100; // Указатель данных прикладной программы
+
+    uint64_t rax = 0; // Регистр А (Аккумулятор)
+    uint64_t rbx = 0; // Регистр Б (Базовый)
+    uint64_t rcx = 0; // Регистр С (Счетчик)
+    uint64_t rdx = 0; // Регистр Д (Данные)
+    uint8_t  flag_zero = 0; // Флаг нуля для условных переходов (ZF)
+
     void* dispatch[] =
     {
-        &&do_halt,      // 0
-        &&do_inc_ip,    // 1
-        &&do_dec_ip,    // 2
-        &&do_inc_val,   // 3
-        &&do_dec_val,   // 4
-        &&do_je,        // 5
-        &&do_sys_call,  // 6
-        &&do_jmp        // 7
+        &&do_hlt,         // 0 — Остановить процессор
+        &&do_mov_rax_imm, // 1 — EASM: mov rax, imm64 (Прошивка считывает 8 байт)
+        &&do_mov_rbx_imm, // 2 — EASM: mov rbx, imm64
+        &&do_add_rax_rbx, // 3 — EASM: add rax, rbx
+        &&do_cmp_rax_rbx, // 4 — EASM: cmp rax, rbx (выставляет флаг нуля)
+        &&do_je,          // 5 — EASM: je <label> (прыжок если flag_zero == 1)
+        &&do_jmp,         // 6 — EASM: jmp <label> (безусловный прыжок)
+        &&do_sys_print    // 7 — EASM: системный вывод значения RAX на экран
     };
-    #define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
+
     macro__jmp_do_opcode();
-    do_halt: return 0;
-    do_inc_ip:
+
+    // --- ИСПОЛНЕНИЕ ИНСТРУКЦИЙ EASM ---
+
+    do_hlt:
     {
-        gpl_ip++;
-        macro__jmp_do_opcode();
+        printf("\n [EASM Core]: Процессор остановлен. RAX = %llu, RBX = %llu\n", rax, rbx);
+        free(memory);
+        return 0;
     }
-    do_dec_ip:
+
+    do_mov_rax_imm:
     {
-        gpl_ip--;
-        macro__jmp_do_opcode();
-    }
-    do_inc_val:
-    {
-        memory[gpl_ip]++;
-        macro__jmp_do_opcode();
-    }
-    do_dec_val:
-    {
-        memory[gpl_ip]--;
-        macro__jmp_do_opcode();
-    }
-    do_je:
-    {
-        // Считываем 16-битный адрес перехода (2 байта: старший и младший)
-        // Сначала берем первый байт, сдвигаем его на 8 бит влево, и склеиваем со вторым
-        unsigned short target = (memory[dsl_ip++] << 8) | memory[dsl_ip++];
-        if (memory[gpl_ip] == 0) { dsl_ip = target; }
-        macro__jmp_do_opcode();
-    }
-    do_sys_call:
-    {
-        if (memory[gpl_ip] == 1) { memory[gpl_ip] = fgetc(stdin); }
-        if (memory[gpl_ip] == 2)
+        // Читаем 64-битное число (8 байт) из прошивки напрямую в регистр RAX
+        rax = 0;
+        for (int i = 0; i < 8; i++)
         {
-            gpl_ip++;
-            putchar(memory[gpl_ip]);
-            fflush(stdout); // выталкиваем из буфера символ на экран
+            rax = (rax << 8) | memory[dsl_ip++];
         }
         macro__jmp_do_opcode();
     }
+
+    do_mov_rbx_imm:
+    {
+        rbx = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            rbx = (rbx << 8) | memory[dsl_ip++];
+        }
+        macro__jmp_do_opcode();
+    }
+
+    do_add_rax_rbx:
+    {
+        rax += rbx;
+        macro__jmp_do_opcode();
+    }
+
+    do_cmp_rax_rbx:
+    {
+        // Имитируем реальный x86 CMP: если значения равны — взводим флаг нуля
+        flag_zero = (rax == rbx) ? 1 : 0;
+        macro__jmp_do_opcode();
+    }
+
+    do_je:
+    {
+        uint64_t target = (memory[dsl_ip] << 8) | memory[dsl_ip + 1];
+        dsl_ip += 2;
+        if (flag_zero == 1)
+        {
+            dsl_ip = target;
+        }
+        macro__jmp_do_opcode();
+    }
+
     do_jmp:
     {
-        // Безусловный 16-битный переход для dsl_ip
-        unsigned short target = (memory[dsl_ip++] << 8) | memory[dsl_ip++];
-        dsl_ip = target; // Нам не важны флаги, мы просто прыгаем!
+        uint64_t target = (memory[dsl_ip] << 8) | memory[dsl_ip + 1];
+        dsl_ip += 2;
+        dsl_ip = target;
+        macro__jmp_do_opcode();
+    }
+
+    do_sys_print:
+    {
+        // Наш удобный мета-отладчик: печатает текущий символ из RAX
+        putchar((int)rax);
+        fflush(stdout);
         macro__jmp_do_opcode();
     }
 }
