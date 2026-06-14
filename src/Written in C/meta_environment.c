@@ -1,74 +1,106 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <locale.h>
 #include <stdint.h>
 
 #define MEMORY_SIZE 65536
-#define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
+#define MAX_LABELS 512
+#define LABEL_NAME_LEN 64
+#define BUFFER_SIZE 65536
 
+// Опережающие объявления, чтобы main оставался чистым и структурированным
+int run_interpreter(const char* arch_path, const char* prog_path);
+int run_compiler(const char* src_path, const char* out_path);
+
+// ============================================================================
+// [ГЛАВНАЯ ТОЧКА ВХОДА И ДИСПЕТЧЕРИЗАЦИЯ ПЛАТФОРМЫ]
+// ============================================================================
 int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    if (argc < 3)
+    if (argc < 4)
     {
-        printf("\n Использование: meta_environment.exe <architecture_bin> <program_bin>\n");
+        printf("\n Использование:\n");
+        printf("   Компиляция: meta_environment.exe -c <исходник.meta> <выход.bin>\n");
+        printf("   Запуск VM:  meta_environment.exe -r <архитектура.bin> <программа.bin>\n\n");
         return 1;
     }
 
-    unsigned char* memory = (unsigned char*)calloc(MEMORY_SIZE, sizeof(unsigned char));
+    if (strcmp(argv[1], "-c") == 0)
+    {
+        return run_compiler(argv[2], argv[3]);
+    }
+    else if (strcmp(argv[1], "-r") == 0)
+    {
+        return run_interpreter(argv[2], argv[3]);
+    }
+    else
+    {
+        printf("\n Ошибка: Неизвестный флаг '%s'. Используйте -c или -r.\n", argv[1]);
+        return 1;
+    }
+}
+
+
+// ============================================================================
+// ЗОНА №1: СКОРОСТНОЙ ИНТЕРПРЕТАТОР (ВЕЧНЫЙ СИ-КРЕМНИЙ)
+// ============================================================================
+#define macro__jmp_do_opcode() goto *dispatch[memory[dsl_ip++]]
+
+int run_interpreter(const char* arch_path, const char* prog_path)
+{
+    unsigned char* memory = (unsigned char*)calloc(MEMORY_SIZE, sizeof (unsigned char));
     if (memory == NULL)
     {
         printf("\n Ошибка: Не удалось выделить память под ОЗУ.\n");
         return 1;
     }
 
-    // Загрузка бинарников
-    FILE* arch = fopen(argv[1], "rb");
+    FILE* arch = fopen(arch_path, "rb");
     if (arch == NULL)
     {
-        printf("\n Ошибка: Не удалось открыть файл архитектуры %s\n", argv[1]);
+        printf("\n Ошибка: Не удалось открыть файл архитектуры %s\n", arch_path);
         free(memory);
         return 1;
     }
-    fread(memory, sizeof(unsigned char), 0x100, arch);
+    fread(memory, sizeof (unsigned char), 0x100, arch);
     fclose(arch);
 
-    FILE* prog = fopen(argv[2], "rb");
+    FILE* prog = fopen(prog_path, "rb");
     if (prog == NULL)
     {
-        printf("\n Ошибка: Не удалось открыть файл программы %s\n", argv[2]);
+        printf("\n Ошибка: Не удалось открыть файл программы %s\n", prog_path);
         free(memory);
         return 1;
     }
-    fread(memory + 0x100, sizeof(unsigned char), MEMORY_SIZE - 0x100, prog);
+    fread(memory + 0x100, sizeof (unsigned char), MEMORY_SIZE - 0x100, prog);
     fclose(prog);
 
-    // --- НАСТОЯЩИЕ 64-ВИТНЫЕ РЕГИСТРЫ x86-64 ---
-    uint64_t dsl_ip = 0; // Указатель команд прошивки (микрокод процессора)
-    uint64_t gpl_ip = 0x100; // Указатель данных прикладной программы
+    // НАСТОЯЩИЕ 64-БИТНЫЕ РЕГИСТРЫ x86-64
+    uint64_t dsl_ip = 0; 
+    uint64_t gpl_ip = 0x100; 
 
-    uint64_t rax = 0; // Регистр А (Аккумулятор)
-    uint64_t rbx = 0; // Регистр Б (Базовый)
-    uint64_t rcx = 0; // Регистр С (Счетчик)
-    uint64_t rdx = 0; // Регистр Д (Данные)
-    uint8_t  flag_zero = 0; // Флаг нуля для условных переходов (ZF)
+    uint64_t rax = 0; 
+    uint64_t rbx = 0; 
+    uint64_t rcx = 0; 
+    uint64_t rdx = 0; 
+    uint8_t  flag_zero = 0; 
 
     void* dispatch[] =
     {
-        &&do_hlt,         // 0 — Остановить процессор
-        &&do_mov_rax_imm, // 1 — EASM: mov rax, imm64 (Прошивка считывает 8 байт)
-        &&do_mov_rbx_imm, // 2 — EASM: mov rbx, imm64
-        &&do_add_rax_rbx, // 3 — EASM: add rax, rbx
-        &&do_cmp_rax_rbx, // 4 — EASM: cmp rax, rbx (выставляет флаг нуля)
-        &&do_je,          // 5 — EASM: je <label> (прыжок если flag_zero == 1)
-        &&do_jmp,         // 6 — EASM: jmp <label> (безусловный прыжок)
-        &&do_sys_print    // 7 — EASM: системный вывод значения RAX на экран
+        &&do_hlt,         // 0
+        &&do_mov_rax_imm, // 1
+        &&do_mov_rbx_imm, // 2
+        &&do_add_rax_rbx, // 3
+        &&do_cmp_rax_rbx, // 4
+        &&do_je,          // 5
+        &&do_jmp,         // 6
+        &&do_sys_print    // 7
     };
 
     macro__jmp_do_opcode();
-
-    // --- ИСПОЛНЕНИЕ ИНСТРУКЦИЙ EASM ---
 
     do_hlt:
     {
@@ -134,4 +166,225 @@ int main(int argc, char* argv[])
         fflush(stdout);
         macro__jmp_do_opcode();
     }
+}
+
+
+// ============================================================================
+// ЗОНА №2: ВРЕМЕННЫЙ СИ-КОМПИЛЯТОР (БУДЕТ ПОЛНОСТЬЮ ВЫРЕЗАН В БУДУЩЕМ)
+// ============================================================================
+typedef struct
+{
+    char name[LABEL_NAME_LEN];
+    int address;
+} Label;
+
+typedef struct
+{
+    char label_name[LABEL_NAME_LEN];
+    int jmp_offset;
+} JmpRequest;
+
+Label labels[MAX_LABELS];
+int label_count = 0;
+
+JmpRequest jmp_requests[MAX_LABELS];
+int jmp_request_count = 0;
+
+int find_label_address(const char* name)
+{
+    for (int i = 0; i < label_count; i++)
+    {
+        if (strcmp(labels[i].name, name) == 0)
+        {
+            return labels[i].address;
+        }
+    }
+    return -1;
+}
+
+int run_compiler(const char* src_path, const char* out_path)
+{
+    FILE* src = fopen(src_path, "r");
+    if (src == NULL)
+    {
+        printf("\n Ошибка: Не удалось открыть исходный файл %s\n", src_path);
+        return 1;
+    }
+
+    unsigned char* output_buffer = (unsigned char*)calloc(BUFFER_SIZE, sizeof (unsigned char));
+    int current_address = 0;
+
+    label_count = 0;
+    jmp_request_count = 0;
+
+    char line[512];
+
+    // Фаза 1: Парсинг исходного кода EASM
+    while (fgets(line, sizeof (line), src))
+    {
+        line[strcspn(line, "\r\n")] = 0;
+
+        char* comment = strchr(line, '#');
+        if (comment != NULL)
+        {
+            *comment = 0;
+        }
+
+        if (strlen(line) == 0)
+        {
+            continue;
+        }
+
+        char* cmd = line;
+        while (*cmd == ' ' || *cmd == '\t')
+        {
+            cmd++;
+        }
+
+        size_t len = strlen(cmd);
+        while (len > 0 && (cmd[len - 1] == ' ' || cmd[len - 1] == '\t'))
+        {
+            cmd[len - 1] = 0;
+            len--;
+        }
+
+        if (*cmd == 0)
+        {
+            continue;
+        }
+
+        // Проверка метки
+        if (cmd[strlen(cmd) - 1] == ':')
+        {
+            cmd[strlen(cmd) - 1] = 0;
+            if (label_count < MAX_LABELS)
+            {
+                strncpy(labels[label_count].name, cmd, LABEL_NAME_LEN);
+                labels[label_count].address = current_address;
+                label_count++;
+            }
+            continue;
+        }
+
+        // Трансляция инструкций в новые EASM x86 опкоды
+        if (strcmp(cmd, "hlt") == 0)
+        {
+            output_buffer[current_address++] = 0;
+        }
+        else if (strncmp(cmd, "mov rax,", 8) == 0)
+        {
+            output_buffer[current_address++] = 1;
+            uint64_t val = strtoull(cmd + 8, NULL, 0);
+            for (int i = 7; i >= 0; i--)
+            {
+                output_buffer[current_address + i] = val & 0xFF;
+                val >>= 8;
+            }
+            current_address += 8;
+        }
+        else if (strncmp(cmd, "mov rbx,", 8) == 0)
+        {
+            output_buffer[current_address++] = 2;
+            uint64_t val = strtoull(cmd + 8, NULL, 0);
+            for (int i = 7; i >= 0; i--)
+            {
+                output_buffer[current_address + i] = val & 0xFF;
+                val >>= 8;
+            }
+            current_address += 8;
+        }
+        else if (strcmp(cmd, "add rax, rbx") == 0)
+        {
+            output_buffer[current_address++] = 3;
+        }
+        else if (strcmp(cmd, "cmp rax, rbx") == 0)
+        {
+            output_buffer[current_address++] = 4;
+        }
+        else if (strncmp(cmd, "je ", 3) == 0)
+        {
+            output_buffer[current_address++] = 5;
+            char* target_label = cmd + 3;
+            int addr = find_label_address(target_label);
+            if (addr != -1)
+            {
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
+            }
+            else
+            {
+                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
+                jmp_requests[jmp_request_count].jmp_offset = current_address;
+                jmp_request_count++;
+                output_buffer[current_address++] = 0;
+                output_buffer[current_address++] = 0;
+            }
+        }
+        else if (strncmp(cmd, "jmp ", 4) == 0)
+        {
+            output_buffer[current_address++] = 6;
+            char* target_label = cmd + 4;
+            int addr = find_label_address(target_label);
+            if (addr != -1)
+            {
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
+            }
+            else
+            {
+                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
+                jmp_requests[jmp_request_count].jmp_offset = current_address;
+                jmp_request_count++;
+                output_buffer[current_address++] = 0;
+                output_buffer[current_address++] = 0;
+            }
+        }
+        else if (strcmp(cmd, "sys_print") == 0)
+        {
+            output_buffer[current_address++] = 7;
+        }
+        else if (strncmp(cmd, "DATA ", 5) == 0)
+        {
+            output_buffer[current_address++] = (unsigned char)atoi(cmd + 5);
+        }
+        else
+        {
+            printf("\n Ошибка синтаксиса EASM: Неизвестная инструкция '%s'\n", cmd);
+            fclose(src);
+            free(output_buffer);
+            return 1;
+        }
+    }
+    fclose(src);
+
+    // Фаза 2: Кроссплатформенный Бэкпатчинг меток вперед
+    for (int i = 0; i < jmp_request_count; i++)
+    {
+        int addr = find_label_address(jmp_requests[i].label_name);
+        if (addr != -1)
+        {
+            int offset = jmp_requests[i].jmp_offset;
+            output_buffer[offset] = (addr >> 8) & 0xFF;
+            output_buffer[offset + 1] = addr & 0xFF;
+        }
+        else
+        {
+            printf("\n Ошибка линковки EASM: Метка '%s' не найдена!\n", jmp_requests[i].label_name);
+            free(output_buffer);
+            return 1;
+        }
+    }
+    // Сохранение готового бинарника
+    FILE* out = fopen(out_path, "wb");
+    if (out == NULL)
+    {
+        printf("\n Ошибка: Не удалось создать файл %s\n", out_path);
+        free(output_buffer);
+        return 1;
+    }
+    fwrite(output_buffer, sizeof (unsigned char), current_address, out);
+    fclose(out);
+    printf("\n Компиляция EASM успешна: %d байт записано в %s\n", current_address, out_path);
+    free(output_buffer);
+    return 0;
 }
