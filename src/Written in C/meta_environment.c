@@ -306,7 +306,13 @@ int run_compiler(const char* src_path, const char* out_path)
         else if (strncmp(cmd, "mov rax,", 8) == 0)
         {
             output_buffer[current_address++] = 1;
-            uint64_t val = atoull(cmd + 8);
+            char* num_ptr = cmd + 8;
+            // Пропускаем все пробелы и табы после запятой
+            while (*num_ptr == ' ' || *num_ptr == '\t')
+            {
+                num_ptr++;
+            }
+            uint64_t val = atoull(num_ptr);
             for (int i = 0; i < 8; i++)
             {
                 output_buffer[current_address++] = val & 0xFF;
@@ -316,7 +322,12 @@ int run_compiler(const char* src_path, const char* out_path)
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
             output_buffer[current_address++] = 2;
-            uint64_t val = atoull(cmd + 8);
+            char* num_ptr = cmd + 8;
+            while (*num_ptr == ' ' || *num_ptr == '\t')
+            {
+                num_ptr++;
+            }
+            uint64_t val = atoull(num_ptr);
             for (int i = 0; i < 8; i++)
             {
                 output_buffer[current_address++] = val & 0xFF;
