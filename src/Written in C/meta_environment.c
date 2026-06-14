@@ -126,14 +126,28 @@ int run_interpreter(const char* prog_path)
 
     do_mov_rax_imm: // 1
     {
-        rax = *(uint64_t*)(memory + rip);
+        rax = (uint64_t)memory[rip]         |
+              ((uint64_t)memory[rip + 1] << 8)  |
+              ((uint64_t)memory[rip + 2] << 16) |
+              ((uint64_t)memory[rip + 3] << 24) |
+              ((uint64_t)memory[rip + 4] << 32) |
+              ((uint64_t)memory[rip + 5] << 40) |
+              ((uint64_t)memory[rip + 6] << 48) |
+              ((uint64_t)memory[rip + 7] << 56);
         rip += 8;
         macro__jmp_do_opcode();
     }
 
     do_mov_rbx_imm: // 2
     {
-        rbx = *(uint64_t*)(memory + rip);
+        rbx = (uint64_t)memory[rip]         |
+              ((uint64_t)memory[rip + 1] << 8)  |
+              ((uint64_t)memory[rip + 2] << 16) |
+              ((uint64_t)memory[rip + 3] << 24) |
+              ((uint64_t)memory[rip + 4] << 32) |
+              ((uint64_t)memory[rip + 5] << 40) |
+              ((uint64_t)memory[rip + 6] << 48) |
+              ((uint64_t)memory[rip + 7] << 56);
         rip += 8;
         macro__jmp_do_opcode();
     }
@@ -293,15 +307,21 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             output_buffer[current_address++] = 1;
             uint64_t val = atoull(cmd + 8);
-            *(uint64_t*)(output_buffer + current_address) = val;
-            current_address += 8;
+            for (int i = 0; i < 8; i++)
+            {
+                output_buffer[current_address++] = val & 0xFF;
+                val >>= 8;
+            }
         }
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
             output_buffer[current_address++] = 2;
             uint64_t val = atoull(cmd + 8);
-            *(uint64_t*)(output_buffer + current_address) = val;
-            current_address += 8;
+            for (int i = 0; i < 8; i++)
+            {
+                output_buffer[current_address++] = val & 0xFF;
+                val >>= 8;
+            }
         }
         else if (strcmp(cmd, "add rax, rbx") == 0)
         {
