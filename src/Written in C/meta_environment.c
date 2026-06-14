@@ -190,6 +190,18 @@ int label_count = 0;
 JmpRequest jmp_requests[MAX_LABELS];
 int jmp_request_count = 0;
 
+// Пользовательский кроссплатформенный аналог strtoull для TCC
+uint64_t easm_atoull(const char* str)
+{
+    uint64_t res = 0;
+    while (*str >= '0' && *str <= '9')
+    {
+        res = res * 10 + (*str - '0');
+        str++;
+    }
+    return res;
+}
+
 int find_label_address(const char* name)
 {
     for (int i = 0; i < label_count; i++)
@@ -274,7 +286,7 @@ int run_compiler(const char* src_path, const char* out_path)
         else if (strncmp(cmd, "mov rax,", 8) == 0)
         {
             output_buffer[current_address++] = 1;
-            uint64_t val = strtoull(cmd + 8, NULL, 0);
+            uint64_t val = easm_atoull(cmd + 8, NULL, 0);
             for (int i = 7; i >= 0; i--)
             {
                 output_buffer[current_address + i] = val & 0xFF;
@@ -285,7 +297,7 @@ int run_compiler(const char* src_path, const char* out_path)
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
             output_buffer[current_address++] = 2;
-            uint64_t val = strtoull(cmd + 8, NULL, 0);
+            uint64_t val = easm_atoull(cmd + 8, NULL, 0);
             for (int i = 7; i >= 0; i--)
             {
                 output_buffer[current_address + i] = val & 0xFF;
