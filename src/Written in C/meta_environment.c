@@ -266,38 +266,8 @@ int run_interpreter(const char* prog_path)
 }
 
 // ============================================================================
-// ЗОНА №2: ВРЕМЕННЫЙ СИ-КОМПИЛЯТОР (БУДЕТ ПОЛНОСТЬЮ ВЫРЕЗАН В БУДУЩЕМ)
+// ЗОНА №2: ВРЕМЕННЫЙ СИ-КОМПИЛЯТОР (ТРАНСЛЯТОР В НАТИВНЫЙ x86-64 ДЛЯ WINDOWS)
 // ============================================================================
-typedef struct
-{
-    char name[LABEL_NAME_LEN];
-    int address;
-} Label;
-
-typedef struct
-{
-    char label_name[LABEL_NAME_LEN];
-    int jmp_offset;
-} JmpRequest;
-
-Label labels[MAX_LABELS];
-int label_count = 0;
-
-JmpRequest jmp_requests[MAX_LABELS];
-int jmp_request_count = 0;
-
-int find_label_address(const char* name)
-{
-    for (int i = 0; i < label_count; i++)
-    {
-        if (strcmp(labels[i].name, name) == 0)
-        {
-            return labels[i].address;
-        }
-    }
-    return -1;
-}
-
 int run_compiler(const char* src_path, const char* out_path)
 {
     FILE* src = fopen(src_path, "r");
@@ -307,11 +277,26 @@ int run_compiler(const char* src_path, const char* out_path)
         return 1;
     }
 
-    unsigned char* output_buffer = (unsigned char*)calloc(BUFFER_SIZE, sizeof(unsigned char));
-    int current_address = 0;
+    // Создаем промежуточный .asm файл для линкера FASM
+    char asm_path[256];
+    strncpy(asm_path, out_path, 250);
+    char* ext = strrchr(asm_path, '.');
+    if (ext != NULL) { *ext = 0; }
+    strcat(asm_path, ".asm");
 
-    label_count = 0;
-    jmp_request_count = 0;
+    FILE* out = fopen(asm_path, "w");
+    if (out == NULL)
+    {
+        printf("\n Ошибка: Не удалось создать файл %s\n", asm_path);
+        fclose(src);
+        return 1;
+    }
+
+    // Записываем каноничный заголовок 64-битного PE-файла для Windows Windows
+    fprintf(out, "format PE64 console\n");
+    fprintf(out, "entry start\n\n");
+    fprintf(out, "include 'win64ax.inc'\n\n"); // Стандартные макросы FASM для WinAPI
+    fprintf(out, "section '.code' code readable executable\n\n");
 
     char line[BUFFER_SIZE];
 
@@ -320,21 +305,12 @@ int run_compiler(const char* src_path, const char* out_path)
         line[strcspn(line, "\r\n")] = 0;
 
         char* comment = strchr(line, '#');
-        if (comment != NULL)
-        {
-            *comment = 0;
-        }
+        if (comment != NULL) { *comment = 0; }
 
-        if (strlen(line) == 0)
-        {
-            continue;
-        }
+        if (strlen(line) == 0) { continue; }
 
         char* cmd = line;
-        while (*cmd == ' ' || *cmd == '\t')
-        {
-            cmd++;
-        }
+        while (*cmd == ' ' || *cmd == '\t') { cmd++; }
 
         size_t len = strlen(cmd);
         while (len > 0 && (cmd[len - 1] == ' ' || cmd[len - 1] == '\t'))
@@ -343,190 +319,105 @@ int run_compiler(const char* src_path, const char* out_path)
             len--;
         }
 
-        if (*cmd == 0)
-        {
-            continue;
-        }
+        if (*cmd == 0) { continue; }
 
+        // Если это метка — просто копируем её как есть (синтаксис совпадает!)
         if (cmd[strlen(cmd) - 1] == ':')
         {
-            cmd[strlen(cmd) - 1] = 0;
-            if (label_count < MAX_LABELS)
-            {
-                strncpy(labels[label_count].name, cmd, LABEL_NAME_LEN);
-                labels[label_count].address = 0x100 + current_address;
-                label_count++;
-            }
+            fprintf(out, "%s\n", cmd);
             continue;
         }
 
+        // --- ПРЯМАЯ ХИРУРГИЧЕСКАЯ ТРАНСЛЯЦИЯ В ИНСТРУКЦИИ INTEL ---
         if (strcmp(cmd, "hlt") == 0)
         {
-            output_buffer[current_address++] = 0;
+            // Настоящий hlt в Windows вызовет падение ОС, поэтому мы транслируем 
+            // его в каноничное штатное завершение процесса через WinAPI ExitProcess
+            fprintf(out, "    invoke ExitProcess, 0\n");
         }
         else if (strncmp(cmd, "mov rax,", 8) == 0)
         {
-            output_buffer[current_address++] = 1;
-            char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
-            uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+            fprintf(out, "    mov rax, %s\n", cmd + 8);
         }
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
-            output_buffer[current_address++] = 2;
-            char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
-            uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+            fprintf(out, "    mov rbx, %s\n", cmd + 8);
         }
         else if (strncmp(cmd, "mov rcx,", 8) == 0)
         {
-            output_buffer[current_address++] = 3;
-            char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
-            uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+            fprintf(out, "    mov rcx, %s\n", cmd + 8);
         }
         else if (strncmp(cmd, "mov rdx,", 8) == 0)
         {
-            output_buffer[current_address++] = 4;
-            char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
-            uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+            fprintf(out, "    mov rdx, %s\n", cmd + 8);
         }
         else if (strcmp(cmd, "add rax, rbx") == 0)
         {
-            output_buffer[current_address++] = 5;
+            fprintf(out, "    add rax, rbx\n");
         }
         else if (strcmp(cmd, "sub rax, rbx") == 0)
         {
-            output_buffer[current_address++] = 6;
+            fprintf(out, "    sub rax, rbx\n");
         }
         else if (strcmp(cmd, "cmp rax, rbx") == 0)
         {
-            output_buffer[current_address++] = 7;
+            fprintf(out, "    cmp rax, rbx\n");
         }
         else if (strncmp(cmd, "jmp ", 4) == 0)
         {
-            output_buffer[current_address++] = 8;
-            char* target_label = cmd + 4;
-            int addr = find_label_address(target_label);
-            if (addr != -1)
-            {
-                output_buffer[current_address++] = (addr >> 8) & 0xFF;
-                output_buffer[current_address++] = addr & 0xFF;
-            }
-            else
-            {
-                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
-                jmp_requests[jmp_request_count].jmp_offset = current_address;
-                jmp_request_count++;
-                output_buffer[current_address++] = 0;
-                output_buffer[current_address++] = 0;
-            }
+            fprintf(out, "    jmp %s\n", cmd + 4);
         }
         else if (strncmp(cmd, "je ", 3) == 0)
         {
-            output_buffer[current_address++] = 9;
-            char* target_label = cmd + 3;
-            int addr = find_label_address(target_label);
-            if (addr != -1)
-            {
-                output_buffer[current_address++] = (addr >> 8) & 0xFF;
-                output_buffer[current_address++] = addr & 0xFF;
-            }
-            else
-            {
-                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
-                jmp_requests[jmp_request_count].jmp_offset = current_address;
-                jmp_request_count++;
-                output_buffer[current_address++] = 0;
-                output_buffer[current_address++] = 0;
-            }
+            fprintf(out, "    je %s\n", cmd + 3);
         }
         else if (strncmp(cmd, "jne ", 4) == 0)
         {
-            output_buffer[current_address++] = 10;
-            char* target_label = cmd + 4;
-            int addr = find_label_address(target_label);
-            if (addr != -1)
-            {
-                output_buffer[current_address++] = (addr >> 8) & 0xFF;
-                output_buffer[current_address++] = addr & 0xFF;
-            }
-            else
-            {
-                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
-                jmp_requests[jmp_request_count].jmp_offset = current_address;
-                jmp_request_count++;
-                output_buffer[current_address++] = 0;
-                output_buffer[current_address++] = 0;
-            }
+            fprintf(out, "    jne %s\n", cmd + 4);
         }
         else if (strcmp(cmd, "sys_print") == 0)
         {
-            output_buffer[current_address++] = 11;
+            // Заменяем наш виртуальный принт на реальный нативный вызов CRT putchar
+            // Перед вызовом функций в Win64 нужно выровнять стек, но FASM-макрос invoke делает это сам
+            fprintf(out, "    ccall [putchar], rax\n");
         }
         else if (strcmp(cmd, "mov rax, [rcx]") == 0)
         {
-            output_buffer[current_address++] = 12;
+            fprintf(out, "    mov rax, [rcx]\n");
         }
         else if (strcmp(cmd, "mov [rcx], rax") == 0)
         {
-            output_buffer[current_address++] = 13;
+            fprintf(out, "    mov [rcx], rax\n");
         }
         else if (strcmp(cmd, "mov rbx, [rcx]") == 0)
         {
-            output_buffer[current_address++] = 14;
+            fprintf(out, "    mov rbx, [rcx]\n");
         }
         else if (strcmp(cmd, "mov [rcx], rbx") == 0)
         {
-            output_buffer[current_address++] = 15;
+            fprintf(out, "    mov [rcx], rbx\n");
         }
         else if (strncmp(cmd, "db ", 3) == 0)
         {
-            output_buffer[current_address++] = (unsigned char)atoi(cmd + 3);
+            fprintf(out, "    db %s\n", cmd + 3);
         }
         else
         {
             printf("\n Ошибка синтаксиса EASM: Неизвестная инструкция '%s'\n", cmd);
             fclose(src);
-            free(output_buffer);
+            fclose(out);
             return 1;
         }
     }
     fclose(src);
 
-    for (int i = 0; i < jmp_request_count; i++)
-    {
-        int addr = find_label_address(jmp_requests[i].label_name);
-        if (addr != -1)
-        {
-            int offset = jmp_requests[i].jmp_offset;
-            output_buffer[offset] = (addr >> 8) & 0xFF;
-            output_buffer[offset + 1] = addr & 0xFF;
-        }
-        else
-        {
-            printf("\n Ошибка линковки EASM: Метка '%s' не найдена!\n", jmp_requests[i].label_name);
-            free(output_buffer);
-            return 1;
-        }
-    }
+    // Дописываем секцию импорта системных функций Windows (WinAPI)
+    fprintf(out, "\nsection '.idata' import data readable writeable\n");
+    fprintf(out, "    library kernel32, 'KERNEL32.DLL', crtdll, 'CRTDLL.DLL'\n\n");
+    fprintf(out, "    import kernel32, ExitProcess, 'ExitProcess'\n");
+    fprintf(out, "    import crtdll, putchar, 'putchar'\n");
 
-    FILE* out = fopen(out_path, "wb");
-    if (out == NULL)
-    {
-        printf("\n Ошибка: Не удалось создать файл %s\n", out_path);
-        free(output_buffer);
-        return 1;
-    }
-    fwrite(output_buffer, sizeof(unsigned char), current_address, out);
     fclose(out);
-
-    printf("\n Компиляция EASM успешна: %d байт записано в %s\n", current_address, out_path);
-    free(output_buffer);
+    printf("\n Трансляция в нативный EASM успешна: сохранен %s\n", asm_path);
     return 0;
 }
