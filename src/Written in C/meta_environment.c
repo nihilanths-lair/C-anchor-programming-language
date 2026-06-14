@@ -111,21 +111,32 @@ int run_interpreter(const char* arch_path, const char* prog_path)
 
     do_mov_rax_imm:
     {
-        rax = 0;
-        for (int i = 0; i < 8; i++)
-        {
-            rax = (rax << 8) | memory[dsl_ip++];
-        }
+        // Прямая склейка 64-битного числа из 8 байт памяти без циклов и сдвигов dsl_ip++
+        rax = ((uint64_t)memory[dsl_ip] << 56) |
+              ((uint64_t)memory[dsl_ip + 1] << 48) |
+              ((uint64_t)memory[dsl_ip + 2] << 40) |
+              ((uint64_t)memory[dsl_ip + 3] << 32) |
+              ((uint64_t)memory[dsl_ip + 4] << 24) |
+              ((uint64_t)memory[dsl_ip + 5] << 16) |
+              ((uint64_t)memory[dsl_ip + 6] << 8)  |
+              (uint64_t)memory[dsl_ip + 7];
+        
+        dsl_ip += 8; // Сдвигаем указатель команд сразу за пределы числа
         macro__jmp_do_opcode();
     }
 
     do_mov_rbx_imm:
     {
-        rbx = 0;
-        for (int i = 0; i < 8; i++)
-        {
-            rbx = (rbx << 8) | memory[dsl_ip++];
-        }
+        rbx = ((uint64_t)memory[dsl_ip] << 56) |
+              ((uint64_t)memory[dsl_ip + 1] << 48) |
+              ((uint64_t)memory[dsl_ip + 2] << 40) |
+              ((uint64_t)memory[dsl_ip + 3] << 32) |
+              ((uint64_t)memory[dsl_ip + 4] << 24) |
+              ((uint64_t)memory[dsl_ip + 5] << 16) |
+              ((uint64_t)memory[dsl_ip + 6] << 8)  |
+              (uint64_t)memory[dsl_ip + 7];
+              
+        dsl_ip += 8;
         macro__jmp_do_opcode();
     }
 
