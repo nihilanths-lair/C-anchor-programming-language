@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 }
 
 // ============================================================================
-// ЗОНА №1: УНИВЕРСАЛЬНЫЙ МЕТА-КРИСТАЛЛ (БЫСТРЫЕ РЕГИСТРЫ И СЛЕПЫЕ ОПКОДЫ)
+// ЗОНА №1: РАСШИРЕННЫЙ МЕТА-КРИСТАЛЛ (ПОЛНАЯ x86-ЧЕТВЕРКА РЕГИСТРОВ)
 // ============================================================================
 #define macro__jmp_do_opcode() goto *dispatch[memory[rip++]]
 
@@ -72,9 +72,9 @@ int run_interpreter(const char* prog_path)
         return 1;
     }
 
-    // Вшитый BIOS: jmp 0x0100 (Опкод 6, за ним адрес 0x0100 в формате Big-Endian)
+    // Вшитый BIOS: jmp 0x0100 (Опкод 8, за ним адрес 0x0100 в формате Big-Endian)
     unsigned char embedded_bios[] = {
-        6, 0x01, 0x00   
+        8, 0x01, 0x00   
     };
     memcpy(memory, embedded_bios, sizeof(embedded_bios));
 
@@ -91,33 +91,40 @@ int run_interpreter(const char* prog_path)
     // Аппаратный сброс процессора (RESET CPU)
     uint64_t rip = 0; 
 
-    // Сверхбыстрые нативные переменные-регистры x86-64
+    // Сверхбыстрые нативные локальные переменные-регистры x86-64
     uint64_t rax = 0; 
     uint64_t rbx = 0; 
     uint64_t rcx = 0; 
     uint64_t rdx = 0; 
     uint8_t  flag_zero = 0; 
 
-    // Абсолютно слепая адресная матрица опкодов (готовая к пермутации)
+    // Слепая адресная матрица полного базиса команд
     void* dispatch[] =
     {
-        &&opcode_0, // 0: hlt
-        &&opcode_1, // 1: mov rax, imm64
-        &&opcode_2, // 2: mov rbx, imm64
-        &&opcode_3, // 3: add rax, rbx
-        &&opcode_4, // 4: cmp rax, rbx
-        &&opcode_5, // 5: je <label>
-        &&opcode_6, // 6: jmp <label>
-        &&opcode_7, // 7: sys_print
-        &&opcode_8, // 8: mov rax, [rcx]
-        &&opcode_9  // 9: mov [rcx], rax
+        &&opcode_0,  // 0:  hlt
+        &&opcode_1,  // 1:  mov rax, imm64
+        &&opcode_2,  // 2:  mov rbx, imm64
+        &&opcode_3,  // 3:  mov rcx, imm64
+        &&opcode_4,  // 4:  mov rdx, imm64
+        &&opcode_5,  // 5:  add rax, rbx
+        &&opcode_6,  // 6:  sub rax, rbx
+        &&opcode_7,  // 7:  cmp rax, rbx
+        &&opcode_8,  // 8:  jmp <label>
+        &&opcode_9,  // 9:  je <label>
+        &&opcode_10, // 10: jne <label>
+        &&opcode_11, // 11: sys_print
+        &&opcode_12, // 12: mov rax, [rcx]
+        &&opcode_13, // 13: mov [rcx], rax
+        &&opcode_14, // 14: mov rbx, [rcx]
+        &&opcode_15  // 15: mov [rcx], rbx
     };
 
     macro__jmp_do_opcode();
 
     opcode_0: // hlt
     {
-        printf("\n [EASM Core]: Процессор остановлен. RAX = %llu, RBX = %llu, RIP = 0x%llX\n", rax, rbx, rip);
+        printf("\n [EASM Core]: Процессор остановлен.\n");
+        printf(" RAX = %llu, RBX = %llu, RCX = %llu, RDX = %llu, RIP = 0x%llX\n", rax, rbx, rcx, rdx, rip);
         free(memory);
         return 0;
     }
@@ -150,19 +157,61 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    opcode_3: // add rax, rbx
+    opcode_3: // mov rcx, imm64
+    {
+        rcx = (uint64_t)memory[rip]         |
+              ((uint64_t)memory[rip + 1] << 8)  |
+              ((uint64_t)memory[rip + 2] << 16) |
+              ((uint64_t)memory[rip + 3] << 24) |
+              ((uint64_t)memory[rip + 4] << 32) |
+              ((uint64_t)memory[rip + 5] << 40) |
+              ((uint64_t)memory[rip + 6] << 48) |
+              ((uint64_t)memory[rip + 7] << 56);
+        rip += 8;
+        macro__jmp_do_opcode();
+    }
+
+    opcode_4: // mov rdx, imm64
+    {
+        rdx = (uint64_t)memory[rip]         |
+              ((uint64_t)memory[rip + 1] << 8)  |
+              ((uint64_t)memory[rip + 2] << 16) |
+              ((uint64_t)memory[rip + 3] << 24) |
+              ((uint64_t)memory[rip + 4] << 32) |
+              ((uint64_t)memory[rip + 5] << 40) |
+              ((uint64_t)memory[rip + 6] << 48) |
+              ((uint64_t)memory[rip + 7] << 56);
+        rip += 8;
+        macro__jmp_do_opcode();
+    }
+
+    opcode_5: // add rax, rbx
     {
         rax += rbx;
         macro__jmp_do_opcode();
     }
 
-    opcode_4: // cmp rax, rbx
+    opcode_6: // sub rax, rbx
+    {
+        rax -= rbx;
+        macro__jmp_do_opcode();
+    }
+
+    opcode_7: // cmp rax, rbx
     {
         flag_zero = (rax == rbx) ? 1 : 0;
         macro__jmp_do_opcode();
     }
 
-    opcode_5: // je <label>
+    opcode_8: // jmp <label>
+    {
+        uint64_t target = (memory[rip] << 8) | memory[rip + 1];
+        rip += 2;
+        rip = target;
+        macro__jmp_do_opcode();
+    }
+
+    opcode_9: // je <label>
     {
         uint64_t target = (memory[rip] << 8) | memory[rip + 1];
         rip += 2;
@@ -173,30 +222,45 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    opcode_6: // jmp <label>
+    opcode_10: // jne <label>
     {
         uint64_t target = (memory[rip] << 8) | memory[rip + 1];
         rip += 2;
-        rip = target;
+        if (flag_zero == 0)
+        {
+            rip = target;
+        }
         macro__jmp_do_opcode();
     }
 
-    opcode_7: // sys_print
+    opcode_11: // sys_print
     {
         putchar((int)rax);
         fflush(stdout);
         macro__jmp_do_opcode();
     }
 
-    opcode_8: // mov rax, [rcx]
+    opcode_12: // mov rax, [rcx]
     {
         rax = *(uint64_t*)(memory + rcx);
         macro__jmp_do_opcode();
     }
 
-    opcode_9: // mov [rcx], rax
+    opcode_13: // mov [rcx], rax
     {
         *(uint64_t*)(memory + rcx) = rax;
+        macro__jmp_do_opcode();
+    }
+
+    opcode_14: // mov rbx, [rcx]
+    {
+        rbx = *(uint64_t*)(memory + rcx);
+        macro__jmp_do_opcode();
+    }
+
+    opcode_15: // mov [rcx], rbx
+    {
+        *(uint64_t*)(memory + rcx) = rbx;
         macro__jmp_do_opcode();
     }
 }
@@ -249,7 +313,7 @@ int run_compiler(const char* src_path, const char* out_path)
     label_count = 0;
     jmp_request_count = 0;
 
-    char line[1024];
+    char line[BUFFER_SIZE];
 
     while (fgets(line, sizeof(line), src))
     {
@@ -304,43 +368,68 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             output_buffer[current_address++] = 1;
             char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t')
-            {
-                num_ptr++;
-            }
+            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
             uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++)
-            {
-                output_buffer[current_address++] = val & 0xFF;
-                val >>= 8;
-            }
+            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
         }
         else if (strncmp(cmd, "mov rbx,", 8) == 0)
         {
             output_buffer[current_address++] = 2;
             char* num_ptr = cmd + 8;
-            while (*num_ptr == ' ' || *num_ptr == '\t')
-            {
-                num_ptr++;
-            }
+            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
             uint64_t val = atoull(num_ptr);
-            for (int i = 0; i < 8; i++)
-            {
-                output_buffer[current_address++] = val & 0xFF;
-                val >>= 8;
-            }
+            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+        }
+        else if (strncmp(cmd, "mov rcx,", 8) == 0)
+        {
+            output_buffer[current_address++] = 3;
+            char* num_ptr = cmd + 8;
+            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
+            uint64_t val = atoull(num_ptr);
+            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
+        }
+        else if (strncmp(cmd, "mov rdx,", 8) == 0)
+        {
+            output_buffer[current_address++] = 4;
+            char* num_ptr = cmd + 8;
+            while (*num_ptr == ' ' || *num_ptr == '\t') { num_ptr++; }
+            uint64_t val = atoull(num_ptr);
+            for (int i = 0; i < 8; i++) { output_buffer[current_address++] = val & 0xFF; val >>= 8; }
         }
         else if (strcmp(cmd, "add rax, rbx") == 0)
         {
-            output_buffer[current_address++] = 3;
+            output_buffer[current_address++] = 5;
+        }
+        else if (strcmp(cmd, "sub rax, rbx") == 0)
+        {
+            output_buffer[current_address++] = 6;
         }
         else if (strcmp(cmd, "cmp rax, rbx") == 0)
         {
-            output_buffer[current_address++] = 4;
+            output_buffer[current_address++] = 7;
+        }
+        else if (strncmp(cmd, "jmp ", 4) == 0)
+        {
+            output_buffer[current_address++] = 8;
+            char* target_label = cmd + 4;
+            int addr = find_label_address(target_label);
+            if (addr != -1)
+            {
+                output_buffer[current_address++] = (addr >> 8) & 0xFF;
+                output_buffer[current_address++] = addr & 0xFF;
+            }
+            else
+            {
+                strncpy(jmp_requests[jmp_request_count].label_name, target_label, LABEL_NAME_LEN);
+                jmp_requests[jmp_request_count].jmp_offset = current_address;
+                jmp_request_count++;
+                output_buffer[current_address++] = 0;
+                output_buffer[current_address++] = 0;
+            }
         }
         else if (strncmp(cmd, "je ", 3) == 0)
         {
-            output_buffer[current_address++] = 5;
+            output_buffer[current_address++] = 9;
             char* target_label = cmd + 3;
             int addr = find_label_address(target_label);
             if (addr != -1)
@@ -357,9 +446,9 @@ int run_compiler(const char* src_path, const char* out_path)
                 output_buffer[current_address++] = 0;
             }
         }
-        else if (strncmp(cmd, "jmp ", 4) == 0)
+        else if (strncmp(cmd, "jne ", 4) == 0)
         {
-            output_buffer[current_address++] = 6;
+            output_buffer[current_address++] = 10;
             char* target_label = cmd + 4;
             int addr = find_label_address(target_label);
             if (addr != -1)
@@ -378,15 +467,23 @@ int run_compiler(const char* src_path, const char* out_path)
         }
         else if (strcmp(cmd, "sys_print") == 0)
         {
-            output_buffer[current_address++] = 7;
+            output_buffer[current_address++] = 11;
         }
         else if (strcmp(cmd, "mov rax, [rcx]") == 0)
         {
-            output_buffer[current_address++] = 8;
+            output_buffer[current_address++] = 12;
         }
         else if (strcmp(cmd, "mov [rcx], rax") == 0)
         {
-            output_buffer[current_address++] = 9;
+            output_buffer[current_address++] = 13;
+        }
+        else if (strcmp(cmd, "mov rbx, [rcx]") == 0)
+        {
+            output_buffer[current_address++] = 14;
+        }
+        else if (strcmp(cmd, "mov [rcx], rbx") == 0)
+        {
+            output_buffer[current_address++] = 15;
         }
         else if (strncmp(cmd, "db ", 3) == 0)
         {
