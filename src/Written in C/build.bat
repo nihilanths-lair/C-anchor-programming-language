@@ -1,18 +1,8 @@
-@echo off
+:: 1. Собираем обновленную среду
+tcc\tcc.exe stage0\meta_environment.c -o stage0\meta_environment.exe
 
-:: Стираем старые следы, чтобы убедиться в чистоте сборки
-del compiler_stage_0.exe
-del compiler_stage_1.c
-del compiler_stage_1.exe
+:: 2. ПЕРЕКОМПИЛИРУЕМ прошивку заново!
+stage0\meta_environment.exe -c stage0\firmware.meta stage0\firmware.bin
 
-tcc\tcc.exe compiler_stage_0.c -o compiler_stage_0.exe
-
-:: 1. Слепой Stage 0 копирует чистый Си-код ядра в исходник первой стадии
-compiler_stage_0.exe compiler_stage_0.meta > compiler_stage_1.c
-
-:: 2. Собираем бинарник первой стадии
-tcc\tcc.exe compiler_stage_1.c -o compiler_stage_1.exe
-
-:: 3. Мета-ядро первой стадии запускает текстовый скрипт bootstrap.meta
-::     и натравливает его на обёрнутый в теги compiler_stage_1.meta!
-compiler_stage_1.exe compiler_stage_1.meta > nul
+:: 3. Запускаем
+stage0\meta_environment.exe -r stage0\firmware.bin stage0\program.bin
