@@ -359,6 +359,10 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             fprintf(out, "    sub rax, rbx\n");
         }
+        else if (strcmp(cmd, "dec rax") == 0)
+        {
+            fprintf(out, "    dec rax\n");
+        }
         else if (strcmp(cmd, "cmp rax, rbx") == 0)
         {
             fprintf(out, "    cmp rax, rbx\n");
