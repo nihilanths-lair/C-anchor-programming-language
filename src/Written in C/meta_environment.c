@@ -413,9 +413,9 @@ int run_compiler(const char* src_path, const char* out_path)
 
     // Дописываем секцию импорта системных функций Windows (WinAPI)
     fprintf(out, "\nsection '.idata' import data readable writeable\n");
-    fprintf(out, "    library kernel32, 'KERNEL32.DLL', crtdll, 'CRTDLL.DLL'\n\n");
+    fprintf(out, "    library kernel32, 'KERNEL32.DLL', msvcrt, 'MSVCRT.DLL'\n\n"); // ИСПРАВЛЕНО НА MSVCRT
     fprintf(out, "    import kernel32, ExitProcess, 'ExitProcess'\n");
-    fprintf(out, "    import crtdll, putchar, 'putchar'\n");
+    fprintf(out, "    import msvcrt, putchar, 'putchar'\n"); // ИСПРАВЛЕНО НА MSVCRT
 
     fclose(out);
     printf("\n Трансляция в нативный EASM успешна: сохранен %s\n", asm_path);
