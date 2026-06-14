@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
     if (argc < 3)
     {
-        printf("\n Использование: meta_constructor.exe <architecture_bin> <program_bin>\n");
+        printf("\n Использование: meta_environment.exe <architecture_bin> <program_bin>\n");
         return 1;
     }
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     fread(memory + 0x100, sizeof(unsigned char), MEMORY_SIZE - 0x100, prog);
     fclose(prog);
 
-    // --- НАСТОЯЩИЕ 64-БИТНЫЕ РЕГИСТРЫ x86-64 ---
+    // --- НАСТОЯЩИЕ 64-ВИТНЫЕ РЕГИСТРЫ x86-64 ---
     uint64_t dsl_ip = 0; // Указатель команд прошивки (микрокод процессора)
     uint64_t gpl_ip = 0x100; // Указатель данных прикладной программы
 
@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
 
     do_mov_rax_imm:
     {
-        // Читаем 64-битное число (8 байт) из прошивки напрямую в регистр RAX
         rax = 0;
         for (int i = 0; i < 8; i++)
         {
@@ -106,7 +105,6 @@ int main(int argc, char* argv[])
 
     do_cmp_rax_rbx:
     {
-        // Имитируем реальный x86 CMP: если значения равны — взводим флаг нуля
         flag_zero = (rax == rbx) ? 1 : 0;
         macro__jmp_do_opcode();
     }
@@ -132,7 +130,6 @@ int main(int argc, char* argv[])
 
     do_sys_print:
     {
-        // Наш удобный мета-отладчик: печатает текущий символ из RAX
         putchar((int)rax);
         fflush(stdout);
         macro__jmp_do_opcode();
