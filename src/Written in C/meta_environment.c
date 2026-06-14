@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 }
 
 // ============================================================================
-// ЗОНА №1: ЧИСТОКРОВНЫЙ x86 ИНТЕРПРЕТАТОР (ОДИН УКАЗАТЕЛЬ RIP)
+// ЗОНА №1: УНИВЕРСАЛЬНЫЙ МЕТА-КРИСТАЛЛ (БЫСТРЫЕ РЕГИСТРЫ И СЛЕПЫЕ ОПКОДЫ)
 // ============================================================================
 #define macro__jmp_do_opcode() goto *dispatch[memory[rip++]]
 
@@ -72,15 +72,12 @@ int run_interpreter(const char* prog_path)
         return 1;
     }
 
-    // --- НАСТОЯЩИЙ ВШИТЫЙ BIOS (ПЗУ МАТЕРИНСКОЙ ПЛАТЫ) ---
-    // Настоящий BIOS инициализирует систему и передает управление ОС/Программе.
-    // Опкод 6 — это jmp, за ним идут 2 байта адреса старта программы (0x01, 0x00).
+    // Вшитый BIOS: jmp 0x0100 (Опкод 6, за ним адрес 0x0100 в формате Big-Endian)
     unsigned char embedded_bios[] = {
-        6, 0x01, 0x00   // 0x00: jmp 0x0100 -> Аппаратный прыжок BIOS на прикладную программу!
+        6, 0x01, 0x00   
     };
     memcpy(memory, embedded_bios, sizeof(embedded_bios));
 
-    // Загружаем прикладную программу (нашу ОС/Игру) с адреса 0x100
     FILE* prog = fopen(prog_path, "rb");
     if (prog == NULL)
     {
@@ -92,39 +89,40 @@ int run_interpreter(const char* prog_path)
     fclose(prog);
 
     // Аппаратный сброс процессора (RESET CPU)
-    uint64_t rip = 0; // Процессор x86 жестко начинает выполнять код с адреса 0 (из BIOS)
+    uint64_t rip = 0; 
 
+    // Сверхбыстрые нативные переменные-регистры x86-64
     uint64_t rax = 0; 
     uint64_t rbx = 0; 
     uint64_t rcx = 0; 
     uint64_t rdx = 0; 
     uint8_t  flag_zero = 0; 
 
+    // Абсолютно слепая адресная матрица опкодов (готовая к пермутации)
     void* dispatch[] =
     {
-        &&do_hlt,         // 0
-        &&do_mov_rax_imm, // 1
-        &&do_mov_rbx_imm, // 2
-        &&do_add_rax_rbx, // 3
-        &&do_cmp_rax_rbx, // 4
-        &&do_je,          // 5
-        &&do_jmp,         // 6
-        &&do_sys_print,   // 7
-        &&do_mov_rax_ptr_rcx, // 8
-        &&do_mov_ptr_rcx_rax  // 9
+        &&opcode_0, // 0: hlt
+        &&opcode_1, // 1: mov rax, imm64
+        &&opcode_2, // 2: mov rbx, imm64
+        &&opcode_3, // 3: add rax, rbx
+        &&opcode_4, // 4: cmp rax, rbx
+        &&opcode_5, // 5: je <label>
+        &&opcode_6, // 6: jmp <label>
+        &&opcode_7, // 7: sys_print
+        &&opcode_8, // 8: mov rax, [rcx]
+        &&opcode_9  // 9: mov [rcx], rax
     };
 
-    // Запуск тактового генератора процессора
     macro__jmp_do_opcode();
 
-    do_hlt: // 0
+    opcode_0: // hlt
     {
         printf("\n [EASM Core]: Процессор остановлен. RAX = %llu, RBX = %llu, RIP = 0x%llX\n", rax, rbx, rip);
         free(memory);
         return 0;
     }
 
-    do_mov_rax_imm: // 1
+    opcode_1: // mov rax, imm64
     {
         rax = (uint64_t)memory[rip]         |
               ((uint64_t)memory[rip + 1] << 8)  |
@@ -138,7 +136,7 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    do_mov_rbx_imm: // 2
+    opcode_2: // mov rbx, imm64
     {
         rbx = (uint64_t)memory[rip]         |
               ((uint64_t)memory[rip + 1] << 8)  |
@@ -152,19 +150,19 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    do_add_rax_rbx: // 3
+    opcode_3: // add rax, rbx
     {
         rax += rbx;
         macro__jmp_do_opcode();
     }
 
-    do_cmp_rax_rbx: // 4
+    opcode_4: // cmp rax, rbx
     {
         flag_zero = (rax == rbx) ? 1 : 0;
         macro__jmp_do_opcode();
     }
 
-    do_je: // 5
+    opcode_5: // je <label>
     {
         uint64_t target = (memory[rip] << 8) | memory[rip + 1];
         rip += 2;
@@ -175,7 +173,7 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    do_jmp: // 6
+    opcode_6: // jmp <label>
     {
         uint64_t target = (memory[rip] << 8) | memory[rip + 1];
         rip += 2;
@@ -183,20 +181,20 @@ int run_interpreter(const char* prog_path)
         macro__jmp_do_opcode();
     }
 
-    do_sys_print: // 7
+    opcode_7: // sys_print
     {
         putchar((int)rax);
         fflush(stdout);
         macro__jmp_do_opcode();
     }
 
-    do_mov_rax_ptr_rcx: // 8
+    opcode_8: // mov rax, [rcx]
     {
         rax = *(uint64_t*)(memory + rcx);
         macro__jmp_do_opcode();
     }
 
-    do_mov_ptr_rcx_rax: // 9
+    opcode_9: // mov [rcx], rax
     {
         *(uint64_t*)(memory + rcx) = rax;
         macro__jmp_do_opcode();
@@ -251,7 +249,7 @@ int run_compiler(const char* src_path, const char* out_path)
     label_count = 0;
     jmp_request_count = 0;
 
-    char line[512];
+    char line[1024];
 
     while (fgets(line, sizeof(line), src))
     {
@@ -292,7 +290,6 @@ int run_compiler(const char* src_path, const char* out_path)
             if (label_count < MAX_LABELS)
             {
                 strncpy(labels[label_count].name, cmd, LABEL_NAME_LEN);
-                // Настоящий x86-расчет: адрес метки равен смещению 0x100 + позиция в коде
                 labels[label_count].address = 0x100 + current_address;
                 label_count++;
             }
@@ -307,7 +304,6 @@ int run_compiler(const char* src_path, const char* out_path)
         {
             output_buffer[current_address++] = 1;
             char* num_ptr = cmd + 8;
-            // Пропускаем все пробелы и табы после запятой
             while (*num_ptr == ' ' || *num_ptr == '\t')
             {
                 num_ptr++;
@@ -406,7 +402,6 @@ int run_compiler(const char* src_path, const char* out_path)
     }
     fclose(src);
 
-    // Бэкпатчинг абсолютных 16-битных адресов меток x86
     for (int i = 0; i < jmp_request_count; i++)
     {
         int addr = find_label_address(jmp_requests[i].label_name);
