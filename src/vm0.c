@@ -2,28 +2,15 @@
 #include <locale.h>
 #include <stdint.h>
 
-// Макрос отсчёта идентификатора (у меня будет с единицы, а не с нуля)
-#define ID_OFFSET 1
-
-// Макросы опкодов
-
-#define HLT 1
-#define hlt 1-ID_OFFSET
-
-#define JMP 2-ID_OFFSET
-#define jmp 2-ID_OFFSET
-
-#define RVP 3-ID_OFFSET
-#define rvp 3-ID_OFFSET
-
-#define WVP 3-ID_OFFSET
-#define wvp 3-ID_OFFSET
-
-#define JE 4
-#define je 4-ID_OFFSET
-
-#define JNE 5
-#define jne 4-ID_OFFSET
+enum
+{
+    HLT = 0, hlt = 0,
+    JMP = 1, jmp = 1,
+    RVP = 2, rvp = 2,
+    WVP = 3, wvp = 3,
+    JE = 4, je = 4,
+    JNE = 5, jne = 5
+};
 
 int64_t memory[0x100000] // 1 Mb. плоской памяти / тип int64_t, но можно и intptr_t (кастуем к машинному слову), либо int8_t.
  =
@@ -31,19 +18,19 @@ int64_t memory[0x100000] // 1 Mb. плоской памяти / тип int64_t, 
     // Шитый (голый) код (используем такой способ, пока на нём не напишем первый примитивный компилятор (лексер/парсер),
     // _ который сможет автоматически искать метки (текстовые символики) и производить их замену, подставляя адреса смещений.
     // _ На этом этапе у нас уже появится первый текстовый ассемблер?).
-    //JE, 0, 0, 5, // if (0 == 0) goto <addr>
-    JE, 1, 2, 5, // if (1 == 2) goto <addr>
-    //JNE, 0, 0, 5, // if (0 != 0) goto <addr>
-    //JNE, 1, 2, 5, // if (1 != 2) goto <addr>
+    JE, 0, 0, 4, // if (0 == 0) goto <addr>
+    //JE, 1, 2, 4, // if (1 == 2) goto <addr>
+    //JNE, 0, 0, 4, // if (0 != 0) goto <addr>
+    //JNE, 1, 2, 4, // if (1 != 2) goto <addr>
     HLT
 };
 int32_t ip = 0; // Указатель на инструкцию (не выходит за пределы диапазона).
 
 // 64-х битные регистры общего назначения (4 шт.) / не слишком ли избыточно для этапа самораскрутки?
-int64_t a = 0; // для арифметики (позже) / но пока избыточно?
-int64_t b = 0; // избыточно?
-int64_t c = 0; // для циклов (сейчас) или избыточно? / можно через условные переходы
-int64_t d = 0; // избыточно?
+//int64_t a = 0;
+//int64_t b = 0;
+//int64_t c = 0;
+//int64_t d = 0;
 
 int main()
 {
@@ -70,36 +57,35 @@ int main()
     __2: // аналог jmp, безусловный (64-х битный) переход | jmp <addr>
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 2, аргумент: %d", ip, memory[ip]);
-        ++ip; // сдвигаем указатель на шаг вперёд за аргументом
-        ip = memory[ip]; // устанавливаем указатель на новую инструкцию
-        goto * opcode_dispatching[memory[ip]]; // переходим по данному адресу
+        ip = memory[ip+1];
+        goto * opcode_dispatching[memory[ip]];
     }
     __3: // rvp dst, [src] / аналог mov dst, [src] ?
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 3, аргумент: %d", ip, memory[ip]);
-        memory[ip+1] = memory[memory[ip+2]]; // Сдвигаем указатель на 2 шага вперёд за аргументом являющийся адресом, по которому необходимо взять значение.
-        ip += 2;
+        memory[ip+1] = memory[memory[ip+2]];
+        ip += 3;
         goto * opcode_dispatching[memory[ip]];
     }
     __4: // wvp [dst], src / аналог mov [dst], src ?
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 4, аргумент: %d", ip, memory[ip]);
-        memory[memory[ip+1]] = memory[ip+2]; // Сдвигаем указатель на 2 шага вперёд, за аргументом являющийся значением.
-        ip += 2;
+        memory[memory[ip+1]] = memory[ip+2];
+        ip += 3;
         goto * opcode_dispatching[memory[ip]];
     }
     __5: // je src src, <addr>
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 5, аргумент: %d", ip, memory[ip]);
-        if (memory[ip+1] == memory[ip+2]) { ip = memory[ip+3]; } // можно ли если одна инструкция вообще фигурные скобки убрать?
-        else { ip += 4; } // можно ли если одна инструкция вообще фигурные скобки убрать?
+        if (memory[ip+1] == memory[ip+2]) ip = memory[ip+3];
+        else ip += 4;
         goto * opcode_dispatching[memory[ip]];
     }
     __6: // jne src src, <addr>
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 6, аргумент: %d", ip, memory[ip]);
-        if (memory[ip+1] != memory[ip+2]) { ip = memory[ip+3]; } // можно ли если одна инструкция вообще фигурные скобки убрать?
-        else { ip += 4; } // можно ли если одна инструкция вообще фигурные скобки убрать?
+        if (memory[ip+1] != memory[ip+2]) ip = memory[ip+3];
+        else ip += 4;
         goto * opcode_dispatching[memory[ip]];
     }
     putchar('\n');
