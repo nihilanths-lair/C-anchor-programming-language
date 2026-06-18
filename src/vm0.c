@@ -35,7 +35,8 @@ int32_t ip = 0; // Указатель на инструкцию (не выход
 int main()
 {
     setlocale(0, "");
-    void * opcode_dispatching[] = // имеет ли смысл использовать ключевое слово static?
+    void * opcode_dispatching[256]
+     =
     {
         // Слепые опкоды (syntax: intel)
         [0] = &&__1, // аналог hlt, точка остановы
@@ -46,44 +47,44 @@ int main()
         [5] = &&__6, // jne src src, <addr>
         [6 ... 255] = &&__1
     };
-    //printf("\n << Отладка/трассировка >> | Адрес: %d - Опкод: %d", ip, memory[ip]);
+    //printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
     goto * opcode_dispatching[memory[ip]];
     __1: // аналог hlt, точка остановы
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 1, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         printf("\n Машина остановлена.\n");
         return 0;
     }
     __2: // аналог jmp, безусловный (64-х битный) переход | jmp <addr>
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 2, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         ip = memory[ip+1];
         goto * opcode_dispatching[memory[ip]];
     }
     __3: // rvp dst, [src] / аналог mov dst, [src] ?
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 3, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         memory[ip+1] = memory[memory[ip+2]];
         ip += 3;
         goto * opcode_dispatching[memory[ip]];
     }
     __4: // wvp [dst], src / аналог mov [dst], src ?
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 4, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         memory[memory[ip+1]] = memory[ip+2];
         ip += 3;
         goto * opcode_dispatching[memory[ip]];
     }
     __5: // je src src, <addr>
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 5, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         if (memory[ip+1] == memory[ip+2]) ip = memory[ip+3];
         else ip += 4;
         goto * opcode_dispatching[memory[ip]];
     }
     __6: // jne src src, <addr>
     {
-        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 6, аргумент: %d", ip, memory[ip]);
+        printf("\n << Отладка/трассировка >> | адрес: %d, опкод: %d", ip, memory[ip]);
         if (memory[ip+1] != memory[ip+2]) ip = memory[ip+3];
         else ip += 4;
         goto * opcode_dispatching[memory[ip]];
