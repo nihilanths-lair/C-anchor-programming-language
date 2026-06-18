@@ -2,7 +2,7 @@
 #include <locale.h>
 #include <stdint.h>
 
-// Макрос отсчёта идентификатора
+// Макрос отсчёта идентификатора (у меня будет с единицы, а не с нуля)
 #define ID_OFFSET 1
 
 // Макросы опкодов
@@ -12,6 +12,9 @@
 
 #define JMP 2-ID_OFFSET
 #define jmp 2-ID_OFFSET
+
+//#define ? 3-ID_OFFSET
+//#define ? 3-ID_OFFSET
 
 int64_t memory[0x100000] // 1 Mb. плоской памяти / тип int64_t, но можно и intptr_t (кастуем к машинному слову), либо int8_t
  =
