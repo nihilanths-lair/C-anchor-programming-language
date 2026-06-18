@@ -50,7 +50,7 @@ int main()
         [1] = &&__2, // аналог jmp, безусловный (64-х битный) переход | jmp <addr>
         [2] = &&__3, // rvp dst, [src] / аналог mov dst, [src] ?
         [3] = &&__4, // wvp [dst], src / аналог mov [dst], src ?
-        [4] = &&__5, // je src src, <addr-1> <addr-2>
+        [4] = &&__5, // je src src, <addr>
         [5 ... 255] = &&__1
     };
     //printf("\n << Отладка/трассировка >> | Адрес: %d - Опкод: %d", ip, memory[ip]);
@@ -82,7 +82,7 @@ int main()
         ip += 2;
         goto * opcode_dispatching[memory[ip]];
     }
-    __5: // je src src, <addr-1>
+    __5: // je src src, <addr>
     {
         printf("\n << Отладка/трассировка >> | адрес: %d, опкод: 5, аргумент: %d", ip, memory[ip]);
         if (memory[ip+1] == memory[ip+2]) { ip = memory[ip+3]; } // можно ли если одна инструкция вообще фигурные скобки убрать?
