@@ -1,13 +1,13 @@
-int64_t rax = 0;
+// Аппаратный флаг нуля (Zero Flag) для условных переходов
+bool zf = 0;
+
+int64_t rax = 1;
 int64_t rcx = 0; // Первый аргумент для системных вызовов
 
 int64_t rsi = 0; // Курсор источника (чтение текста)
 
 int64_t rip = 0;
 int64_t rsp = 0;
-
-// Аппаратный флаг нуля (Zero Flag) для условных переходов
-bool zf = 0;
 
 void output_registers()
 {
@@ -29,12 +29,9 @@ void output_registers()
 
 int64_t memory[] =
 {
-    1, 100, //  0: mov rcx, 100
-    5, 4,   //  2: add rcx, 4   ; rcx станет 104, а zf сбросится в 0
-    3, 104, //  4: cmp rcx, 104 ; zf станет 1
-    4, 10,  //  6: je 10        ; Если zf равен 1, прыгаем на адрес 10, минуя jmp
-    2, 0,   //  8: jmp 0        ; Ловушка вечного цикла
-    0       // 10: hlt
+    1, 104, // 0: mov rcx, 104 ; 'h'
+    6,      // 2: syscall      ; выведет букву 'h' на экран, так как RAX мы вручную взведем в 1
+    0       // 3: hlt
 };
 
 void executor()
@@ -47,7 +44,8 @@ void executor()
         [3] = &&__3,        // cmp rcx, i64
         [4] = &&__4,        // je i64
         [5] = &&__5,        // add rcx, i64
-        [6 ... 255] = &&__0 // hlt
+        [6] = &&__6,        // syscall
+        [7 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -95,6 +93,14 @@ void executor()
         else zf = 0;
         output_registers();
         rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __6: // syscall
+    {
+        if (rax == 1) putchar((char) rcx);
+        else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
+        rip += 1;
         output_registers();
         goto * dispatching[memory[rip]];
     }
