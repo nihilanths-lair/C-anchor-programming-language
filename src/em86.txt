@@ -32,8 +32,8 @@ void executor()
 {
     void * dispatching[256] =
     {
-        [0] = &&__0, // hlt
-        [1] = &&__1, // mov rcx, i8
+        [0] = &&__0,        // hlt
+        [1] = &&__1,        // mov rcx, i8
         [2 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
@@ -41,12 +41,16 @@ void executor()
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         printf("\n Машина остановлена.");
+        //output_registers(); зачем? оно же не меняет состояние регистров..
         return;
     }
     __1: // mov rcx, i8
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
-        rip += 8;
+        output_registers();
+        rcx = memory[rip+1];
+        output_registers();
+        rip += 2;
         goto * dispatching[memory[rip]];
     }
 }
