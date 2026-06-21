@@ -1,0 +1,22 @@
+int64_t rax = 0;
+int64_t rcx = 0; // Первый аргумент для системных вызовов
+
+int64_t rsi = 0; // Курсор источника (чтение текста)
+
+int64_t rip = 0;
+int64_t rsp = 0;
+
+void output_registers()
+{
+    printf("\n----------");
+    printf("\n Регистры");
+    putchar('\n');
+    printf("\n RAX: %lld", rax);
+    printf("\n RCX: %lld", rcx);
+    putchar('\n');
+    printf("\n RSI: %lld", rsi);
+    putchar('\n');
+    printf("\n RIP: %lld", rip);
+    printf("\n RSP: %lld", rsp);
+    printf("\n----------");
+}
