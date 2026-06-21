@@ -6,6 +6,14 @@ int64_t rsi = 0; // Курсор источника (чтение текста)
 int64_t rip = 0;
 int64_t rsp = 0;
 
+// Наша плоская память эмулятора
+int64_t memory[256] =
+{
+    10,  // Опкод 10: Команда MOV_RCX_IMM
+    104, // Аргумент: константа (код буквы 'h')
+    0    // Опкод 0: Команда HLT (Стоп)
+};
+
 void output_registers()
 {
     printf("\n----------");
@@ -19,4 +27,18 @@ void output_registers()
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
     printf("\n----------");
+}
+
+void executor()
+{
+    void * dispatching[0x100] =
+    {
+        &&__1 // mov rcx, i8
+    };
+    goto * dispatching[memory[rip]];
+    __1:
+    {
+        rip += 8;
+        goto * dispatching[memory[rip]];
+    }
 }
