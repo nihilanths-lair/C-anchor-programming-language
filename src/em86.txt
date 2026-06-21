@@ -30,7 +30,7 @@ void output_registers()
 int64_t memory[256] =
 {
     1, 104, // 0: mov rcx, 104
-    2, 0,   // 2: jmp 0
+    3, 104, // 2: cmp rcx, 104
     0       // 4: hlt
 };
 
@@ -68,7 +68,12 @@ void executor()
     }
     __3: // cmp rcx, i64
     {
-        rip += 3; // временно заглушка
+        int64_t i64 = memory[rip+1];
+        if (rcx == i64) zf = 1;
+        else zf = 0;
+        output_registers();
+        rip += 2;
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __4: // je i64
