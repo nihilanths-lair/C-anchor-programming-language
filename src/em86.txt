@@ -30,8 +30,15 @@ void output_registers()
 int64_t memory[] =
 {
     1, 104, // 0: mov rcx, 104 ; 'h'
-    6,      // 2: syscall      ; выведет букву 'h' на экран, так как RAX мы вручную взведем в 1
-    0       // 3: hlt
+    6,      // 2: syscall      ; Распечатать 'h'
+    1, 101, // 3: mov rcx, 10  ; 'e'
+    6,      // 5: syscall      ; Распечатать 'e'
+    1, 108, // 6: mov rcx, 10  ; 'l'
+    6,      // 8: syscall      ; Распечатать 'l'
+    6,      // 9: syscall      ; Распечатать 'l'
+    1, 111, // 10: mov rcx, 10 ; 'o'
+    6,      // 12: syscall     ; Распечатать 'o'
+    0       // 13: hlt
 };
 
 void executor()
@@ -57,9 +64,9 @@ void executor()
     __1: // mov rcx, i64
     {
         rcx = memory[rip+1];
-        output_registers();
+        //output_registers();
         rip += 2;
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
     __2: // jmp i64
@@ -101,7 +108,7 @@ void executor()
         if (rax == 1) putchar((char) rcx);
         else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
         rip += 1;
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
 }
