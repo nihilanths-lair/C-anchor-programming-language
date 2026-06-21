@@ -6,10 +6,16 @@ int64_t rsi = 0; // Курсор источника (чтение текста)
 int64_t rip = 0;
 int64_t rsp = 0;
 
+// Аппаратный флаг нуля (Zero Flag) для условных переходов
+bool zf = 0;
+
 void output_registers()
 {
     printf("\n----------");
     printf("\n Регистры");
+    putchar('\n');
+    printf("\n         Z");
+    printf("\n RFLAGS: %lld", zf);
     putchar('\n');
     printf("\n RAX: %lld", rax);
     printf("\n RCX: %lld", rcx);
@@ -35,8 +41,9 @@ void executor()
         [0] = &&__0,        // hlt
         [1] = &&__1,        // mov rcx, i64
         [2] = &&__2,        // jmp i64
-        [3] = &&__3,        // je i64
-        [4 ... 255] = &&__0 // hlt
+        [3] = &&__3,        // cmp r64, i64
+        [4] = &&__4,        // je i64
+        [5 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -47,7 +54,6 @@ void executor()
     }
     __1: // mov rcx, i64
     {
-        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rcx = memory[rip+1];
         output_registers();
         rip += 2;
@@ -56,14 +62,18 @@ void executor()
     }
     __2: // jmp i64
     {
-        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rip = memory[rip+1];
         output_registers();
         goto * dispatching[memory[rip]];
     }
-    __3: // je i64
+    __3: // cmp r64, i64
     {
-        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
-        // ... //
+        rip += 3; // временно заглушка
+        goto * dispatching[memory[rip]];
+    }
+    __4: // je i64
+    {
+        rip += 2; // временно заглушка
+        goto * dispatching[memory[rip]];
     }
 }
