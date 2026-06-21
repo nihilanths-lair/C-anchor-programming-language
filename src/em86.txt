@@ -6,13 +6,6 @@ int64_t rsi = 0; // Курсор источника (чтение текста)
 int64_t rip = 0;
 int64_t rsp = 0;
 
-// Плоская память эмулятора
-int64_t memory[256] =
-{
-    1, 104, // mov rcx, 104 ; код буквы 'h'
-    0       // hlt ; останова
-};
-
 void output_registers()
 {
     printf("\n----------");
@@ -28,20 +21,27 @@ void output_registers()
     printf("\n----------");
 }
 
+int64_t memory[256] =
+{
+    1, 104, // 0: mov rcx, 104
+    2, 0,   // 2: jmp 0
+    0       // 4: hlt
+};
+
 void executor()
 {
     void * dispatching[256] =
     {
         [0] = &&__0,        // hlt
         [1] = &&__1,        // mov rcx, i8
-        [2 ... 255] = &&__0 // hlt
+        [2] = &&__2,        // jmp i8
+        [3 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         printf("\n Машина остановлена.");
-        //output_registers(); зачем? оно же не меняет состояние регистров..
         return;
     }
     __1: // mov rcx, i8
@@ -51,6 +51,15 @@ void executor()
         rcx = memory[rip+1];
         output_registers();
         rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __2: // jmp i8
+    {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
+        output_registers();
+        rip = memory[rip+1];
+        output_registers();
         goto * dispatching[memory[rip]];
     }
 }
