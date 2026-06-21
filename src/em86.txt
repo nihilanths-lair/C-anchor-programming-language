@@ -29,11 +29,12 @@ void output_registers()
 
 int64_t memory[] =
 {
-    1, 104, // 0: mov rcx, 104
-    3, 104, // 2: cmp rcx, 104 ; zf становится 1
-    4, 8,   // 4: je 8         ; если zf = 1, прыгаем на адрес 8, минуя вечный JMP!
-    2, 0,   // 6: jmp 0        ; сюда мы НЕ должны попасть, если сравнение совпало
-    0       // 8: hlt
+    1, 100, //  0: mov rcx, 100
+    5, 4,   //  2: add rcx, 4   ; rcx станет 104, а zf сбросится в 0
+    3, 104, //  4: cmp rcx, 104 ; zf станет 1
+    4, 10,  //  6: je 10        ; Если zf равен 1, прыгаем на адрес 10, минуя jmp
+    2, 0,   //  8: jmp 0        ; Ловушка вечного цикла
+    0       // 10: hlt
 };
 
 void executor()
@@ -45,7 +46,8 @@ void executor()
         [2] = &&__2,        // jmp i64
         [3] = &&__3,        // cmp rcx, i64
         [4] = &&__4,        // je i64
-        [5 ... 255] = &&__0 // hlt
+        [5] = &&__5,        // add rcx, i64
+        [6 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -82,6 +84,17 @@ void executor()
     {
         if (zf == 1) rip = memory[rip+1];
         else rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __5: // add rcx, i64
+    {
+        rcx += memory[rip+1];
+        output_registers();
+        if (rcx == 0) zf = 1;
+        else zf = 0;
+        output_registers();
+        rip += 2;
         output_registers();
         goto * dispatching[memory[rip]];
     }
