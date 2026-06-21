@@ -33,9 +33,10 @@ void executor()
     void * dispatching[256] =
     {
         [0] = &&__0,        // hlt
-        [1] = &&__1,        // mov rcx, i8
-        [2] = &&__2,        // jmp i8
-        [3 ... 255] = &&__0 // hlt
+        [1] = &&__1,        // mov rcx, i64
+        [2] = &&__2,        // jmp i64
+        [3] = &&__3,        // je i64
+        [4 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -44,22 +45,25 @@ void executor()
         printf("\n Машина остановлена.");
         return;
     }
-    __1: // mov rcx, i8
+    __1: // mov rcx, i64
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
-        output_registers();
         rcx = memory[rip+1];
         output_registers();
         rip += 2;
         output_registers();
         goto * dispatching[memory[rip]];
     }
-    __2: // jmp i8
+    __2: // jmp i64
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
-        output_registers();
         rip = memory[rip+1];
         output_registers();
         goto * dispatching[memory[rip]];
+    }
+    __3: // je i64
+    {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
+        // ... //
     }
 }
