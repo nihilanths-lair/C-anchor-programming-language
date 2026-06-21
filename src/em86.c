@@ -8,6 +8,7 @@ int main()
 {
     setlocale(0, "");
     output_registers();
+    executor();
     putchar('\n');
     return 0;
 }
