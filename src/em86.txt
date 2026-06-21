@@ -27,11 +27,13 @@ void output_registers()
     printf("\n----------");
 }
 
-int64_t memory[256] =
+int64_t memory[] =
 {
     1, 104, // 0: mov rcx, 104
-    3, 104, // 2: cmp rcx, 104
-    0       // 4: hlt
+    3, 104, // 2: cmp rcx, 104 ; zf становится 1
+    4, 8,   // 4: je 8         ; если zf = 1, прыгаем на адрес 8, минуя вечный JMP!
+    2, 0,   // 6: jmp 0        ; сюда мы НЕ должны попасть, если сравнение совпало
+    0       // 8: hlt
 };
 
 void executor()
@@ -78,7 +80,9 @@ void executor()
     }
     __4: // je i64
     {
-        rip += 2; // временно заглушка
+        if (zf == 1) rip = memory[rip+1];
+        else rip += 2;
+        output_registers();
         goto * dispatching[memory[rip]];
     }
 }
