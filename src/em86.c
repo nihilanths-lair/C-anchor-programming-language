@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "em86.txt"
 
