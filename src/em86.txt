@@ -54,7 +54,8 @@ void executor()
         [5] = &&__5,        // add rcx, i64
         [6] = &&__6,        // syscall
         [7] = &&__7,        // mov rax, i64
-        [8 ... 255] = &&__0 // hlt
+        [8] = &&__8,        // mov rcx, [rsi]
+        [9 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -120,5 +121,9 @@ void executor()
         rip += 2;
         //output_registers();
         goto * dispatching[memory[rip]];
+    }
+    __8: // mov rcx, [rsi]
+    {
+
     }
 }
