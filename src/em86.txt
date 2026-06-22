@@ -149,7 +149,7 @@ void executor()
     }
     __11: // jmp rel64 ; Относительный прыжок относительно текущего RIP
     {
-        rip += (rip+1 + memory[rip+1]); // или как аналог: rip += 1; rip += memory[rip+1];
+        rip += (2 + memory[rip+1]); // или как аналог: rip += 2; rip += memory[rip+1];
         //output_registers();
         goto * dispatching[memory[rip]];
     }
