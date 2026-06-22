@@ -55,7 +55,8 @@ void executor()
         [8] = &&__8,         // mov rcx, [rsi]
         [9] = &&__9,         // mov rsi, rcx
         [10] = &&__10,       // mov [rsi], rcx
-        [11 ... 255] = &&__0 // hlt
+        [11] = &&__11,       // jmp rel64       ; Относительный прыжок относительно текущего RIP
+        [12 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -143,6 +144,12 @@ void executor()
         memory[rsi] = rcx;
         //output_registers();
         rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __11: // jmp rel64 ; Относительный прыжок относительно текущего RIP
+    {
+        rip += (rip+1 + memory[rip+1]); // или как аналог: rip += 1; rip += memory[rip+1];
         //output_registers();
         goto * dispatching[memory[rip]];
     }
