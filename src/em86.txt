@@ -29,14 +29,16 @@ void output_registers()
 
 int64_t memory[] =
 {
-    7, 1,  // mov rax, 1
-    1, 9,  // mov rcx, 9
-    9,     // mov rsi, rcx
-    8,     // mov rcx, [rsi]
-    6,     // syscall
-    0,     // hlt
-    0,     // пустая ячейка для выравнивания
-    119    // Данные по адресу 9: число 119 ('w')
+    7, 1,   // mov rax, 1
+    1, 104, // mov rcx, 104
+    1, 13,  // mov rcx, 13
+    9,      // mov rsi, rcx
+    1, 104, // mov rcx, 104
+    10,     // mov [rsi], rcx
+    8,      // mov rcx, [rsi]
+    6,      // syscall
+    0,      // hlt
+    0       // Данные по адресу 13: изначально тут 0, но процессор запишет сюда 104 ('h')
 };
 
 void executor()
@@ -53,7 +55,8 @@ void executor()
         [7] = &&__7,         // mov rax, i64
         [8] = &&__8,         // mov rcx, [rsi]
         [9] = &&__9,         // mov rsi, rcx
-        [10 ... 255] = &&__0 // hlt
+        [10] = &&__10,       // mov [rsi], rcx
+        [11 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -131,6 +134,14 @@ void executor()
     __9: // mov rsi, rcx
     {
         rsi = rcx;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __10: // mov [rsi], rcx
+    {
+        memory[rsi] = rcx;
         //output_registers();
         rip += 1;
         //output_registers();
