@@ -4,7 +4,7 @@ bool zf = 0;
 int64_t rax = 0;
 int64_t rcx = 0; // Первый аргумент для системных вызовов
 
-int64_t rsi = 0; // Курсор источника (чтение текста)
+int64_t rsi = 8; // Вручную настраиваем курсор на ячейку с данными для этого микрошага
 
 int64_t rip = 0;
 int64_t rsp = 0;
@@ -29,17 +29,14 @@ void output_registers()
 
 int64_t memory[] =
 {
-    7, 1,   //  0: mov rax, 1   ; номер функции вывода символа
-    1, 104, //  2: mov rcx, 104 ; помещение символа 'h' в регистр rcx
-    6,      //  4: syscall      ; отобразить символ (будет взят из регистра rcx)
-    1, 101, //  5: mov rcx, 101 ; помещение символа 'e' в регистр rcx
-    6,      //  7: syscall      ; отобразить символ (будет взят из регистра rcx)
-    1, 108, //  8: mov rcx, 108 ; помещение символа 'l' в регистр rcx
-    6,      // 10: syscall      ; отобразить символ (будет взят из регистра rcx)
-    6,      // 11: syscall      ; отобразить символ (будет взят из регистра rcx)
-    1, 111, // 12: mov rcx, 111 ; помещение символа 'o' в регистр rcx
-    6,      // 14: syscall      ; отобразить символ (будет взят из регистра rcx)
-    0       // 15: hlt
+    7, 1,   // mov rax, 1
+    1, 8,   // mov rcx, 8
+    5, 0,   // add rcx, 0 (временный хак: так как у нас нет mov rsi, и мы умеем писать только в rcx, мы перенесем значение в rsi в Си-коде перед тестом)
+    8,      // mov rcx, [rsi] (считает число 119 из ячейки 8 в регистр rcx)
+    6,      // syscall (выведет 'w' на экран)
+    0,      // hlt
+    0,      // пустая ячейка для выравнивания
+    119     // Данные по адресу 8: число 119 (буква 'w')
 };
 
 void executor()
@@ -75,7 +72,7 @@ void executor()
     __2: // jmp i64
     {
         rip = memory[rip+1];
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
     __3: // cmp rcx, i64
@@ -83,27 +80,27 @@ void executor()
         int64_t i64 = memory[rip+1];
         if (rcx == i64) zf = 1;
         else zf = 0;
-        output_registers();
+        //output_registers();
         rip += 2;
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
     __4: // je i64
     {
         if (zf == 1) rip = memory[rip+1];
         else rip += 2;
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
     __5: // add rcx, i64
     {
         rcx += memory[rip+1];
-        output_registers();
+        //output_registers();
         if (rcx == 0) zf = 1;
         else zf = 0;
-        output_registers();
+        //output_registers();
         rip += 2;
-        output_registers();
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
     __6: // syscall
@@ -124,6 +121,10 @@ void executor()
     }
     __8: // mov rcx, [rsi]
     {
-
+        rcx = memory[rsi];
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
     }
 }
