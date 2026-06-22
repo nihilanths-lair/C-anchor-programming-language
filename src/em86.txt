@@ -4,7 +4,7 @@ bool zf = 0;
 int64_t rax = 0;
 int64_t rcx = 0; // Первый аргумент для системных вызовов
 
-int64_t rsi = 8; // Вручную настраиваем курсор на ячейку с данными для этого микрошага
+int64_t rsi = 0; // Вручную настраиваем курсор на ячейку с данными для этого микрошага
 
 int64_t rip = 0;
 int64_t rsp = 0;
@@ -29,30 +29,31 @@ void output_registers()
 
 int64_t memory[] =
 {
-    7, 1,   // mov rax, 1
-    1, 8,   // mov rcx, 8
-    5, 0,   // add rcx, 0 (временный хак: так как у нас нет mov rsi, и мы умеем писать только в rcx, мы перенесем значение в rsi в Си-коде перед тестом)
-    8,      // mov rcx, [rsi] (считает число 119 из ячейки 8 в регистр rcx)
-    6,      // syscall (выведет 'w' на экран)
-    0,      // hlt
-    0,      // пустая ячейка для выравнивания
-    119     // Данные по адресу 8: число 119 (буква 'w')
+    7, 1,  // mov rax, 1
+    1, 9,  // mov rcx, 9
+    9,     // mov rsi, rcx
+    8,     // mov rcx, [rsi]
+    6,     // syscall
+    0,     // hlt
+    0,     // пустая ячейка для выравнивания
+    119    // Данные по адресу 9: число 119 ('w')
 };
 
 void executor()
 {
     void * dispatching[256] =
     {
-        [0] = &&__0,        // hlt
-        [1] = &&__1,        // mov rcx, i64
-        [2] = &&__2,        // jmp i64
-        [3] = &&__3,        // cmp rcx, i64
-        [4] = &&__4,        // je i64
-        [5] = &&__5,        // add rcx, i64
-        [6] = &&__6,        // syscall
-        [7] = &&__7,        // mov rax, i64
-        [8] = &&__8,        // mov rcx, [rsi]
-        [9 ... 255] = &&__0 // hlt
+        [0] = &&__0,         // hlt
+        [1] = &&__1,         // mov rcx, i64
+        [2] = &&__2,         // jmp i64
+        [3] = &&__3,         // cmp rcx, i64
+        [4] = &&__4,         // je i64
+        [5] = &&__5,         // add rcx, i64
+        [6] = &&__6,         // syscall
+        [7] = &&__7,         // mov rax, i64
+        [8] = &&__8,         // mov rcx, [rsi]
+        [9] = &&__9,         // mov rsi, rcx
+        [10 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -122,6 +123,14 @@ void executor()
     __8: // mov rcx, [rsi]
     {
         rcx = memory[rsi];
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __9: // mov rsi, rcx
+    {
+        rsi = rcx;
         //output_registers();
         rip += 1;
         //output_registers();
