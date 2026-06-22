@@ -1,7 +1,7 @@
 // Аппаратный флаг нуля (Zero Flag) для условных переходов
 bool zf = 0;
 
-int64_t rax = 1; // Вручную взводим функцию вывода для теста syscall
+int64_t rax = 0;
 int64_t rcx = 0; // Первый аргумент для системных вызовов
 
 int64_t rsi = 0; // Курсор источника (чтение текста)
@@ -29,16 +29,17 @@ void output_registers()
 
 int64_t memory[] =
 {
-    1, 104, // 0: mov rcx, 104 ; 'h'
-    6,      // 2: syscall      ; Распечатать 'h'
-    1, 101, // 3: mov rcx, 10  ; 'e'
-    6,      // 5: syscall      ; Распечатать 'e'
-    1, 108, // 6: mov rcx, 10  ; 'l'
-    6,      // 8: syscall      ; Распечатать 'l'
-    6,      // 9: syscall      ; Распечатать 'l'
-    1, 111, // 10: mov rcx, 10 ; 'o'
-    6,      // 12: syscall     ; Распечатать 'o'
-    0       // 13: hlt
+    7, 1,   //  0: mov rax, 1   ; номер функции вывода символа
+    1, 104, //  2: mov rcx, 104 ; помещение символа 'h' в регистр rcx
+    6,      //  4: syscall      ; отобразить символ (будет взят из регистра rcx)
+    1, 101, //  5: mov rcx, 101 ; помещение символа 'e' в регистр rcx
+    6,      //  7: syscall      ; отобразить символ (будет взят из регистра rcx)
+    1, 108, //  8: mov rcx, 108 ; помещение символа 'l' в регистр rcx
+    6,      // 10: syscall      ; отобразить символ (будет взят из регистра rcx)
+    6,      // 11: syscall      ; отобразить символ (будет взят из регистра rcx)
+    1, 111, // 12: mov rcx, 111 ; помещение символа 'o' в регистр rcx
+    6,      // 14: syscall      ; отобразить символ (будет взят из регистра rcx)
+    0       // 15: hlt
 };
 
 void executor()
@@ -52,7 +53,8 @@ void executor()
         [4] = &&__4,        // je i64
         [5] = &&__5,        // add rcx, i64
         [6] = &&__6,        // syscall
-        [7 ... 255] = &&__0 // hlt
+        [7] = &&__7,        // mov rax, i64
+        [8 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // hlt
@@ -108,6 +110,14 @@ void executor()
         if (rax == 1) putchar((char) rcx);
         else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
         rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __7: // mov rax, i64
+    {
+        rax = memory[rip+1];
+        //output_registers();
+        rip += 2;
         //output_registers();
         goto * dispatching[memory[rip]];
     }
