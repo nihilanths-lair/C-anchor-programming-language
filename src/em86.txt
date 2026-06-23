@@ -25,6 +25,9 @@ void output_registers()
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
     printf("\n----------");
+    // Ждем нажатия Enter перед тем, как процессор сделает следующий шаг
+    printf("\n | Нажми [Enter] для следующего шага...");
+    getchar(); 
 }
 
 int64_t memory[256];
@@ -169,15 +172,19 @@ void executor()
     }
     __12: // 12 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         if (zf == 1)
         {
             rip += 2;             // Условие верно: перешагиваем команду ...
+            output_registers();
             rip += memory[rip-1]; // ... и летим на смещение назад или вперед!
+            output_registers();
             printf("\n [JE REL64] Условие выполнено. Относительный прыжок совершен.");
         }
         else
         {
             rip += 2;             // Условие ложно: просто перешагиваем команду линейно.
+            output_registers();
             printf("\n [JE REL64] Условие НЕ выполнено. Шагаем дальше.");
         }
         goto * dispatching[memory[rip]];
