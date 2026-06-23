@@ -1,10 +1,11 @@
-mov_rax,i64 1
-mov_rcx,i64 104
-mov_rcx,i64 13
-mov_rsi,rcx
-mov_rcx,i64 104
-mov_[rsi],rcx
-mov_rcx,[rsi]
+mov rax, 1
+mov rcx, 104
+mov rcx, 14       ; Передаем адрес ячейки данных (теперь это 14 из-за пробелов-строк)
+mov rsi, rcx
+mov rcx, 104
+mov [rsi], rcx
+mov rcx, [rsi]
 syscall
 hlt
-0
+
+0                 ; Сюда процессор запишет данные динамически
