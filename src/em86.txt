@@ -44,29 +44,29 @@ void executor()
 {
     void * dispatching[256] =
     {
-        [0] = &&__0,         // hlt
-        [1] = &&__1,         // mov rcx, i64
-        [2] = &&__2,         // jmp i64
-        [3] = &&__3,         // cmp rcx, i64
-        [4] = &&__4,         // je i64
-        [5] = &&__5,         // add rcx, i64
-        [6] = &&__6,         // syscall
-        [7] = &&__7,         // mov rax, i64
-        [8] = &&__8,         // mov rcx, [rsi]
-        [9] = &&__9,         // mov rsi, rcx
-        [10] = &&__10,       // mov [rsi], rcx
-        [11] = &&__11,       // jmp rel64       ; относительный переход текущего rip
-        [12] = &&__12,       // je rel64        ; относительный переход текущего rip
+        [0] = &&__0,   // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
+        [1] = &&__1,   // 1 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
+        [2] = &&__2,   // 2 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
+        [3] = &&__3,   // 3 — cmp rcx, i64 [ 0x48, 0x81, 0xF9, ... ] — 64-битное сравнение RCX с константой.
+        [4] = &&__4,   // 4 — je i64 [ 0x0F, 0x84, ... ] — Абсолютный прыжок по условию (через таблицу).
+        [5] = &&__5,   // 5 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
+        [6] = &&__6,   // 6 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
+        [7] = &&__7,   // 7 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 + опкод 0xB8 + 8 байт числа.
+        [8] = &&__8,   // 8 — mov rcx, [rsi] [ 0x48, 0x8B, 0x0E ] — Чтение памяти по указателю RSI в регистр RCX.
+        [9] = &&__9,   // 9 — mov rsi, rcx [ 0x48, 0x89, 0xCE ] — Копирование значения из RCX в RSI.
+        [10] = &&__10, // 10 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
+        [11] = &&__11, // 11 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
+        [12] = &&__12, // 12 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
         [13 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
-    __0: // hlt
+    __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
     {
         printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         printf("\n Машина остановлена.");
         return;
     }
-    __1: // mov rcx, i64
+    __1: // 1 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
     {
         rcx = memory[rip+1];
         //output_registers();
@@ -74,13 +74,13 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __2: // jmp i64
+    __2: // 2 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
     {
         rip = memory[rip+1];
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __3: // cmp rcx, i64
+    __3: // 3 — cmp rcx, i64 [ 0x48, 0x81, 0xF9, ... ] — 64-битное сравнение RCX с константой.
     {
         int64_t i64 = memory[rip+1];
         if (rcx == i64) zf = 1;
@@ -90,7 +90,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __4: // je i64
+    __4: // 4 — je i64 [ 0x0F, 0x84, ... ] — Абсолютный прыжок по условию (через таблицу).
     {
         if (zf == 1)
         {
@@ -105,7 +105,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __5: // add rcx, i64
+    __5: // 5 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
     {
         rcx += memory[rip+1];
         //output_registers();
@@ -116,7 +116,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __6: // syscall
+    __6: // 6 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
     {
         if (rax == 1) putchar((char) rcx);
         else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
@@ -124,7 +124,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __7: // mov rax, i64
+    __7: // 7 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 + опкод 0xB8 + 8 байт числа.
     {
         rax = memory[rip+1];
         //output_registers();
@@ -132,7 +132,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __8: // mov rcx, [rsi]
+    __8: // 8 — mov rcx, [rsi] [ 0x48, 0x8B, 0x0E ] — Чтение памяти по указателю RSI в регистр RCX.
     {
         rcx = memory[rsi];
         //output_registers();
@@ -140,7 +140,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __9: // mov rsi, rcx
+    __9: // 9 — mov rsi, rcx [ 0x48, 0x89, 0xCE ] — Копирование значения из RCX в RSI.
     {
         rsi = rcx;
         //output_registers();
@@ -148,7 +148,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __10: // mov [rsi], rcx
+    __10: // 10 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
     {
         memory[rsi] = rcx;
         //output_registers();
@@ -156,7 +156,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __11: // jmp rel64 ; относительный переход текущего rip
+    __11: // 11 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
     {
         // rip += (2 + memory[rip+1]); / аналог нижних двух инструкций?
         rip += 2;
@@ -165,7 +165,7 @@ void executor()
         //output_registers();
         goto * dispatching[memory[rip]];
     }
-    __12: // je rel64 ; относительный переход текущего rip
+    __12: // 12 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
     {
         if (zf == 1)
         {
