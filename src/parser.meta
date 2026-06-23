@@ -1,1 +1,10 @@
-8 3 32 4 12 7 1 6 0 0 0 0 0 32
+mov_rax,i64 1
+mov_rcx,i64 104
+mov_rcx,i64 13
+mov_rsi,rcx
+mov_rcx,i64 104
+mov_[rsi],rcx
+mov_rcx,[rsi]
+syscall
+hlt
+0
