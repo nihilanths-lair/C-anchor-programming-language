@@ -105,6 +105,8 @@ int main()
             memory[rip++] = 12; 
             memory[rip++] = atoll(cleaned + 7);
         }
+        else if (strcmp(cleaned, "inc rcx") == 0) { memory[rip++] = 13; }
+        else if (strcmp(cleaned, "inc rsi") == 0) { memory[rip++] = 14; }
         else { memory[rip++] = atoll(cleaned); } // Если строка — это просто одинокое число (например, ячейка данных в конце)
     }
     fclose(file);
