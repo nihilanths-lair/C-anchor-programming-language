@@ -57,7 +57,9 @@ void executor()
         [10] = &&__10, // 10 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
         [11] = &&__11, // 11 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
         [12] = &&__12, // 12 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
-        [13 ... 255] = &&__0 // hlt
+        [13] = &&__13, // 13 — inc rcx [ 0x48, 0xFF, 0xC1 ] — Увеличить RCX на 1.
+        [14] = &&__14, // 14 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
+        [15 ... 255] = &&__0 // hlt
     };
     goto * dispatching[memory[rip]];
     __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
@@ -178,6 +180,22 @@ void executor()
             rip += 2;             // Условие ложно: просто перешагиваем команду линейно.
             printf("\n [JE REL64] Условие НЕ выполнено. Шагаем дальше.");
         }
+        goto * dispatching[memory[rip]];
+    }
+    __13: // 13 — inc rcx [ 0x48, 0xFF, 0xC1 ] — Увеличить RCX на 1.
+    {
+        rcx++;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __14: // 14 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
+    {
+        rsi++;
+        //output_registers();
+        rip += 1;
+        //output_registers();
         goto * dispatching[memory[rip]];
     }
 }
