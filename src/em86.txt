@@ -11,9 +11,7 @@ int64_t rsp = 0;
 
 void output_registers()
 {
-    printf("\n----------");
-    printf("\n Регистры");
-    putchar('\n');
+    printf("\n-----------");
     printf("\n         Z");
     printf("\n RFLAGS: %lld", zf);
     putchar('\n');
@@ -24,9 +22,9 @@ void output_registers()
     putchar('\n');
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
-    printf("\n----------");
+    printf("\n-----------");
     // Ждем нажатия Enter перед тем, как процессор сделает следующий шаг
-    printf("\n | Нажми [Enter] для следующего шага...");
+    printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar(); 
 }
 
