@@ -1,23 +1,19 @@
 mov rax, 1
-mov rcx, my_string ; Автоподстановка абсолютного адреса строки!
+mov rcx, my_string 
 mov rsi, rcx
 
 start_loop:
 mov rcx, [rsi]
 cmp rcx, 0
-je_rel exit_loop   ; Автоматический расчет смещения вперед!
+je_rel exit_loop   
 
 syscall
 inc rsi
-jmp_rel start_loop ; Автоматический расчет смещения назад!
+jmp_rel start_loop 
 
 exit_loop:
 hlt
 
-my_string:         ; Метка указывает прямо на первую букву данных
-104                ; 'h'
-101                ; 'e'
-108                ; 'l'
-108                ; 'l'
-111                ; 'o'
-0                  ; Конец строки
+; --- СЕКЦИЯ ДАННЫХ В КЛАССИЧЕСКОМ СИНТАКСИСЕ ---
+my_string:
+db "hello", 0       ; Препроцессор сам развернет строку в ячейки памяти и допишет ноль!
