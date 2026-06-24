@@ -53,12 +53,14 @@ int main()
     int64_t virtual_rip = 0;
 
     // --- ПРОХОД 1: Сбор адресов меток ---
-    while (fgets(line, sizeof(line), file) != NULL) {
+    while (fgets(line, sizeof(line), file) != NULL)
+    {
         char *cleaned = trim_and_clean(line);
         if (strlen(cleaned) == 0) continue;
 
         // Если строка заканчивается на двоеточие — это объявление метки!
-        if (cleaned[strlen(cleaned) - 1] == ':') {
+        if (cleaned[strlen(cleaned) - 1] == ':')
+        {
             cleaned[strlen(cleaned) - 1] = '\0'; // Отрезаем ':'
             strcpy(label_table[label_count].name, cleaned);
             label_table[label_count].address = virtual_rip;
@@ -70,63 +72,71 @@ int main()
         if (strcmp(cleaned, "hlt") == 0 || strcmp(cleaned, "syscall") == 0 ||
             strcmp(cleaned, "mov rsi, rcx") == 0 || strcmp(cleaned, "mov [rsi], rcx") == 0 ||
             strcmp(cleaned, "inc rcx") == 0 || strcmp(cleaned, "inc rsi") == 0 ||
-            strcmp(cleaned, "mov rcx, [rsi]") == 0) {
-            virtual_rip += 1;
-        } else {
-            virtual_rip += 2; // Команды с аргументами занимают 2 ячейки
-        }
+            strcmp(cleaned, "mov rcx, [rsi]") == 0)
+        { virtual_rip += 1; }
+        else { virtual_rip += 2; } // Команды с аргументами занимают 2 ячейки
     }
 
     // --- ПРОХОД 2: Генерация кода и автоподстановка смещений ---
     fseek(file, 0, SEEK_SET);
     rip = 0;
 
-    while (fgets(line, sizeof(line), file) != NULL) {
+    while (fgets(line, sizeof(line), file) != NULL)
+    {
         char *cleaned = trim_and_clean(line);
         if (strlen(cleaned) == 0 || cleaned[strlen(cleaned) - 1] == ':') continue;
 
         if (strcmp(cleaned, "hlt") == 0) { memory[rip++] = 0; }
-        else if (strncmp(cleaned, "mov rcx, ", 9) == 0) {
+        else if (strncmp(cleaned, "mov rcx, ", 9) == 0)
+        {
             if (strcmp(cleaned + 9, "[rsi]") == 0) { memory[rip++] = 8; } 
-            else {
+            else
+            {
                 memory[rip++] = 1;
                 // Проверяем, аргумент — это число или имя метки
                 if (isalpha((unsigned char)cleaned[9])) memory[rip++] = find_label(cleaned + 9);
                 else memory[rip++] = atoll(cleaned + 9);
             }
         }
-        else if (strncmp(cleaned, "jmp ", 4) == 0) {
+        else if (strncmp(cleaned, "jmp ", 4) == 0)
+        {
             memory[rip++] = 2;
             if (isalpha((unsigned char)cleaned[4])) memory[rip++] = find_label(cleaned + 4);
             else memory[rip++] = atoll(cleaned + 4);
         }
-        else if (strncmp(cleaned, "cmp rcx, ", 9) == 0) {
+        else if (strncmp(cleaned, "cmp rcx, ", 9) == 0)
+        {
             memory[rip++] = 3;
             memory[rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "je ", 3) == 0) {
+        else if (strncmp(cleaned, "je ", 3) == 0)
+        {
             memory[rip++] = 4;
             if (isalpha((unsigned char)cleaned[3])) memory[rip++] = find_label(cleaned + 3);
             else memory[rip++] = atoll(cleaned + 3);
         }
-        else if (strncmp(cleaned, "add rcx, ", 9) == 0) {
+        else if (strncmp(cleaned, "add rcx, ", 9) == 0)
+        {
             memory[rip++] = 5;
             memory[rip++] = atoll(cleaned + 9);
         }
         else if (strcmp(cleaned, "syscall") == 0) { memory[rip++] = 6; }
-        else if (strncmp(cleaned, "mov rax, ", 9) == 0) {
+        else if (strncmp(cleaned, "mov rax, ", 9) == 0)
+        {
             memory[rip++] = 7;
             memory[rip++] = atoll(cleaned + 9);
         }
         else if (strcmp(cleaned, "mov rsi, rcx") == 0) { memory[rip++] = 9; }
         else if (strcmp(cleaned, "mov [rsi], rcx") == 0) { memory[rip++] = 10; }
-        else if (strncmp(cleaned, "jmp_rel ", 8) == 0) {
+        else if (strncmp(cleaned, "jmp_rel ", 8) == 0)
+        {
             memory[rip++] = 11;
             // АВТО-РАСЧЕТ ОТНОСИТЕЛЬНОГО СМЕЩЕНИЯ ДЛЯ JMP
             int64_t target = find_label(cleaned + 8);
             memory[rip++] = target - (rip + 1); 
         }
-        else if (strncmp(cleaned, "je_rel ", 7) == 0) {
+        else if (strncmp(cleaned, "je_rel ", 7) == 0)
+        {
             memory[rip++] = 12;
             // АВТО-РАСЧЕТ ОТНОСИТЕЛЬНОГО СМЕЩЕНИЯ ДЛЯ JE
             int64_t target = find_label(cleaned + 7);
