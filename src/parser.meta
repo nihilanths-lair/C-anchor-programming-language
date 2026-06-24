@@ -1,19 +1,19 @@
-mov rax, 1
-mov rcx, my_string 
-mov rsi, rcx
+mov rax, 1           ; 0:
+mov rcx, my_string   ; 2:
+mov rsi, rcx         ; 4:
 
 start_loop:
-mov rcx, [rsi]
-cmp rcx, 0
-je_rel exit_loop   
+ mov rcx, [rsi]      ; 6:
+ cmp rcx, 0          ; 8:
+ je_rel exit_loop    ; 10:
 
-syscall
-inc rsi
-jmp_rel start_loop 
+ syscall             ; 11:
+ inc rsi             ; 12:
+ jmp_rel start_loop  ; 14:
 
 exit_loop:
-hlt
+ hlt                 ; 16:
 
-; --- СЕКЦИЯ ДАННЫХ В КЛАССИЧЕСКОМ СИНТАКСИСЕ ---
+
 my_string:
-db "hello", 0       ; Препроцессор сам развернет строку в ячейки памяти и допишет ноль!
+ db "hello", 0       ; 17:
