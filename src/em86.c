@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #include "em86.txt"
 
@@ -95,7 +96,95 @@ int64_t parse_data_directive(const char *cleaned, int64_t *out_array, int store)
     }
     return count;
 }
+int main()
+{
+    setlocale(0, "");
 
+    FILE *source = fopen("main.meta", "r");
+    if (source == NULL)
+    {
+        printf("\n [Ошибка] Не удалось открыть main.meta!\n");
+        return 1;
+    }
+
+    FILE *c_file = fopen("injection.c", "w");
+    
+    // Пишем базовые шапки для будущего Си-файла
+    fprintf(c_file, "#include <stdio.h>");
+    fprintf(c_file, "\n#include <locale.h>");
+    fprintf(c_file, "\n#include <windows.h>\n");
+    fprintf(c_file, "\n__declspec(dllexport)");
+    fprintf(c_file, "\nvoid run_injection()");
+    fprintf(c_file, "\n{\n");
+
+    char line[256];
+    int in_c_injection = 0;
+    rip = 0;
+
+    // --- НАШ ГЛУПЫЙ И КОРЯВЫЙ ПЕРЕВОДЧИК СТРОК ---
+    while (fgets(line, sizeof (line), source) != NULL)
+    {
+        char *cleaned = trim_and_clean(line);
+        if (strlen(cleaned) == 0) continue;
+
+        // Ловим маркер старта Си-инъекции
+        if (strcmp(cleaned, "c_injection start") == 0)
+        {
+            in_c_injection = 1;
+            continue;
+        }
+
+        // Ловим маркер конца Си-инъекции
+        if (strcmp(cleaned, "c_injection end") == 0)
+        {
+            in_c_injection = 0;
+            continue;
+        }
+
+        // Если мы внутри инъекции — просто перебрасываем строку в файл Си как текст!
+        if (in_c_injection)
+        {
+            fprintf(c_file, "    %s\n", line); // Сохраняем оригинальные отступы
+            continue;
+        }
+
+        // Вне инъекции — парсим наш примитивный Pawn-байткод (пока сделаем простую заглушку)
+        if (strcmp(cleaned, "call_c") == 0)
+        {
+            memory[rip++] = 7;  // mov rax, i64
+            memory[rip++] = 99; // 99 — наш маркер вызова Си-кода
+            memory[rip++] = 6;  // syscall
+        }
+        else if (strcmp(cleaned, "hlt") == 0) memory[rip++] = 0;
+    }
+
+    // Закрываем тело Си-функции в файле
+    fprintf(c_file, "}");
+    fclose(c_file);
+    fclose(source);
+
+    // --- КВАНТОВЫЙ ШАГ: Авто-компиляция Си-кода на лету через GCC или TCC ---
+    printf("\n [Компилятор] Собираем injection.c в DLL...");
+    // Вызываем системный компилятор (у тебя в системе должен быть доступен gcc или tcc в PATH)
+    system("gcc -shared -o injection.dll injection.c");
+
+    // Загружаем получившуюся DLL в память нашего эмулятора
+    HMODULE hDll = LoadLibraryA("injection.dll");
+    if (hDll != NULL)
+    {
+        injected_function = (InjectedFunction) GetProcAddress(hDll, "run_injection");
+        if (injected_function == NULL) printf("\n [Ошибка] Не удалось найти функцию run_injection в DLL!\n");
+    }
+    else printf("\n [Ошибка] Не удалось загрузить injection.dll! Убедись, что GCC установлен и добавлен в PATH.\n");
+
+    // Запуск железного исполнителя
+    rip = 0;
+    executor();
+
+    if (hDll) FreeLibrary(hDll);
+    return 0;
+}
+/*
 int main()
 {
     setlocale(0, "");
@@ -213,3 +302,4 @@ int main()
     executor();
     return 0;
 }
+*/
