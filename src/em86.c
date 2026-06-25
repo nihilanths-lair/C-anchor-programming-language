@@ -108,14 +108,6 @@ int main()
     }
 
     FILE *c_file = fopen("injection.c", "w");
-    
-    // Пишем базовые шапки для будущего Си-файла
-    fprintf(c_file, "#include <stdio.h>");
-    fprintf(c_file, "\n#include <locale.h>");
-    fprintf(c_file, "\n#include <windows.h>\n");
-    fprintf(c_file, "\n__declspec(dllexport)");
-    fprintf(c_file, "\nvoid run_injection()");
-    fprintf(c_file, "\n{\n");
 
     char line[256];
     int in_c_injection = 0;
@@ -124,27 +116,27 @@ int main()
     // --- НАШ ГЛУПЫЙ И КОРЯВЫЙ ПЕРЕВОДЧИК СТРОК ---
     while (fgets(line, sizeof (line), source) != NULL)
     {
-        char *cleaned = trim_and_clean(line);
+        // 1. ЕСЛИ МЫ ВНУТРИ ИНЪЕКЦИИ — КОПИРУЕМ СТРОКУ СРАЗУ, ДО ОЧИСТКИ ОТ КОММЕНТАРИЕВ СИ!
+        if (in_c_injection)
+        {
+            // Проверяем на маркер конца, не очищая строку полностью
+            if (strstr(line, "c_injection end") != NULL)
+            {
+                in_c_injection = 0;
+                continue;
+            }
+            fprintf(c_file, "%s", line); // Сохраняем оригинальные отступы и точки с запятой
+            continue;
+        }
+
+        // 2. ВНЕ ИНЪЕКЦИИ — ЧИСТИТЬ СТРОКУ ПОД АССЕМБЛЕР МОЖНО
+        char * cleaned = trim_and_clean(line);
         if (strlen(cleaned) == 0) continue;
 
         // Ловим маркер старта Си-инъекции
         if (strcmp(cleaned, "c_injection start") == 0)
         {
             in_c_injection = 1;
-            continue;
-        }
-
-        // Ловим маркер конца Си-инъекции
-        if (strcmp(cleaned, "c_injection end") == 0)
-        {
-            in_c_injection = 0;
-            continue;
-        }
-
-        // Если мы внутри инъекции — просто перебрасываем строку в файл Си как текст!
-        if (in_c_injection)
-        {
-            fprintf(c_file, "    %s\n", line); // Сохраняем оригинальные отступы
             continue;
         }
 
@@ -158,8 +150,7 @@ int main()
         else if (strcmp(cleaned, "hlt") == 0) memory[rip++] = 0;
     }
 
-    // Закрываем тело Си-функции в файле
-    fprintf(c_file, "}");
+    // Закрываем файл
     fclose(c_file);
     fclose(source);
 
