@@ -1,0 +1,11 @@
+#include <stdio.h>
+#include <locale.h>
+#include <windows.h>
+
+__declspec(dllexport)
+void run_injection()
+{
+    setlocale(0, "")
+    printf("\n Привет, Глеб! Этот текст выведен ПРЯМО из живого Си-кода внутри инъекции!\n")
+    printf("\n Мы можем использовать тут любые циклы, массивы и WinAPI.\n")
+}
