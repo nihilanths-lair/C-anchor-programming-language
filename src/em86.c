@@ -99,7 +99,7 @@ int64_t parse_data_directive(const char *cleaned, int64_t *out_array, int store)
 int main()
 {
     setlocale(0, "");
-
+/*
     FILE *source = fopen("main.meta", "r");
     if (source == NULL)
     {
@@ -170,9 +170,11 @@ int main()
 
     // Запуск железного исполнителя
     rip = 0;
+*/
     Driver();
-
+/*
     if (hDll) FreeLibrary(hDll);
+*/
     return 0;
 }
 /*
