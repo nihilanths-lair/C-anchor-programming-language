@@ -112,8 +112,11 @@ int main()
     fflush(stdout); // <--- Сбрасываем буфер
     for (int i = 0; i < program_lines; i++)
     {
-        // Очищаем строку от мусора и пробелов с помощью твоей trim_and_clean
-        char *cleaned = trim_and_clean(test_program[i]);
+        // Создаем локальный изменяемый буфер
+        char local_buf[256];
+        strncpy(local_buf, test_program[i], sizeof (local_buf) - 1);
+        local_buf[sizeof (local_buf) - 1] = '\0';
+        char * cleaned = trim_and_clean(local_buf);
         if (strlen(cleaned) == 0) continue;
         printf(" -> Обработка: \"%s\"\n", cleaned);
         fflush(stdout); // <--- Сбрасываем внутри цикла
