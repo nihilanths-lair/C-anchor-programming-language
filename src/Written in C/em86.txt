@@ -1,0 +1,236 @@
+// Аппаратный флаг нуля (Zero Flag) для условных переходов
+bool zf = 0;
+
+int64_t rax = 0;
+int64_t rbx = 0;
+int64_t rcx = 0; // Первый аргумент для системных вызовов
+int64_t rdx = 0;
+
+int64_t rsi = 0;
+
+static int64_t rip = 0;
+int64_t rsp = 0;
+
+static void output_registers()
+{
+    printf("\n-----------");
+    printf("\n         Z");
+    printf("\n RFLAGS: %lld", zf);
+    putchar('\n');
+    printf("\n RAX: %lld", rax);
+    printf("\n RBX: %lld", rbx);
+    printf("\n RCX: %lld", rcx);
+    printf("\n RDX: %lld", rdx);
+    putchar('\n');
+    printf("\n RSI: %lld", rsi);
+    putchar('\n');
+    printf("\n RIP: %lld", rip);
+    printf("\n RSP: %lld", rsp);
+    printf("\n-----------");
+    printf("\n [^] Нажми [Enter] для следующего шага...");
+    getchar(); 
+}
+
+static int64_t memory[256] =
+{
+    1, 10,  // rip = 0: mov rax, 10  (Опкод 1, затем число 10)
+    2, 20,  // rip = 2: mov rbx, 20  (Опкод 2, затем число 20)
+    3, 30,  // rip = 4: mov rcx, 30  (Опкод 3, затем число 30)
+    4, 40,  // rip = 6: mov rdx, 40  (Опкод 4, затем число 40)
+    0       // rip = 8: hlt          (Аппаратный стоп)
+};
+
+// Указатель на внешнюю Си-функцию, которую мы загрузим из инъекции
+typedef void (*InjectedFunction)();
+InjectedFunction injected_function = NULL;
+
+void Driver()
+{
+    void * dispatching[256] =
+    {
+        [0] = &&__0,   // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
+
+        [1] = &&__1,   // 1 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+        [2] = &&__2,   // 2 — mov rbx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+        [3] = &&__3,   // 3 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
+        [4] = &&__4,   // 4 — mov rdx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+
+        [5] = &&__5,   // 5 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
+        [6] = &&__6,   // 6 — cmp rcx, i64 [ 0x48, 0x81, 0xF9, ... ] — 64-битное сравнение RCX с константой.
+        [7] = &&__7,   // 7 — je i64 [ 0x0F, 0x84, ... ] — Абсолютный прыжок по условию (через таблицу).
+        [8] = &&__8,   // 8 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
+        [9] = &&__9,   // 9 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
+        [10] = &&__10, // 10 — mov rcx, [rsi] [ 0x48, 0x8B, 0x0E ] — Чтение памяти по указателю RSI в регистр RCX.
+        [11] = &&__11, // 11 — mov rsi, rcx [ 0x48, 0x89, 0xCE ] — Копирование значения из RCX в RSI.
+        [12] = &&__12, // 12 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
+        [13] = &&__13, // 13 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
+        [14] = &&__14, // 14 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
+        [15] = &&__15, // 15 — inc rcx [ 0x48, 0xFF, 0xC1 ] — Увеличить RCX на 1.
+        [16] = &&__16, // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
+        [17 ... 255] = &&__0 // hlt
+    };
+    goto * dispatching[memory[rip]];
+    __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
+    {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
+        printf("\n Машина остановлена.");
+        return;
+    }
+    __1: // 1 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+    {
+        rax = memory[rip+1];
+        rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __2: // 2 — mov rbx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+    {
+        rbx = memory[rip+1];
+        rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __3: // 3 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
+    {
+        rcx = memory[rip+1];
+        rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __4: // 4 — mov rdx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
+    {
+        rdx = memory[rip+1];
+        rip += 2;
+        output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __5: // 5 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
+    {
+        rip = memory[rip+1];
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __6: // 6 — cmp rcx, i64 [ 0x48, 0x81, 0xF9, ... ] — 64-битное сравнение RCX с константой.
+    {
+        int64_t i64 = memory[rip+1];
+        if (rcx == i64) zf = 1;
+        else zf = 0;
+        //output_registers();
+        rip += 2;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __7: // 7 — je i64 [ 0x0F, 0x84, ... ] — Абсолютный прыжок по условию (через таблицу).
+    {
+        if (zf == 1)
+        {
+            rip = memory[rip+1];
+            printf("\n [JE] Условие выполнено. Абсолютный прыжок совершен.");
+        }
+        else
+        {
+            rip += 2;
+            printf("\n [JE] Условие НЕ выполнено. Шагаем дальше.");
+        }
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __8: // 8 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
+    {
+        rcx += memory[rip+1];
+        //output_registers();
+        if (rcx == 0) zf = 1;
+        else zf = 0;
+        //output_registers();
+        rip += 2;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __9: // 9 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
+    {
+        // SYSCALL: Теперь выполняет вызов нашей C-инъекции, если RAX = 99!
+        if (rax == 99 && injected_function != NULL)
+        {
+            printf("\n [Эмулятор] Передача управления в Си-инъекцию.");
+            injected_function(); // Вызываем живой Си-код!
+            printf("\n [Эмулятор] Возврат из Си-инъекции.\n");
+        }
+        else if (rax == 1)
+        {
+            putchar((char) rcx);
+            fflush(stdout);
+        }
+        else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __10: // 10 — mov rcx, [rsi] [ 0x48, 0x8B, 0x0E ] — Чтение памяти по указателю RSI в регистр RCX.
+    {
+        rcx = memory[rsi];
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __11: // 11 — mov rsi, rcx [ 0x48, 0x89, 0xCE ] — Копирование значения из RCX в RSI.
+    {
+        rsi = rcx;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __12: // 12 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
+    {
+        memory[rsi] = rcx;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __13: // 13 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
+    {
+        // rip += (2 + memory[rip+1]); / аналог нижних двух инструкций?
+        rip += 2;
+        //output_registers();
+        rip += memory[rip-1];
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __14: // 14 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
+    {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
+        if (zf == 1)
+        {
+            rip += 2;             // Условие верно: перешагиваем команду ...
+            output_registers();
+            rip += memory[rip-1]; // ... и летим на смещение назад или вперед!
+            output_registers();
+            printf("\n [JE REL64] Условие выполнено. Относительный прыжок совершен.");
+        }
+        else
+        {
+            rip += 2;             // Условие ложно: просто перешагиваем команду линейно.
+            output_registers();
+            printf("\n [JE REL64] Условие НЕ выполнено. Шагаем дальше.");
+        }
+        goto * dispatching[memory[rip]];
+    }
+    __15: // 15 — inc rcx [ 0x48, 0xFF, 0xC1 ] — Увеличить RCX на 1.
+    {
+        rcx++;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+    __16: // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
+    {
+        rsi++;
+        //output_registers();
+        rip += 1;
+        //output_registers();
+        goto * dispatching[memory[rip]];
+    }
+}
