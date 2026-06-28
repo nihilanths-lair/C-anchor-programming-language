@@ -6,12 +6,12 @@ int64_t rbx = 0;
 int64_t rcx = 0; // Первый аргумент для системных вызовов
 int64_t rdx = 0;
 
-int64_t rsi = 13; // Направляем курсор парсера на наши тестовые данные
+int64_t rsi = 0;
 
-int64_t rip = 0;
+static int64_t rip = 0;
 int64_t rsp = 0;
 
-void output_registers()
+static void output_registers()
 {
     printf("\n-----------");
     printf("\n         Z");
@@ -31,18 +31,14 @@ void output_registers()
     getchar(); 
 }
 
-int64_t memory[256];
-/*
-    8       // 0: mov rcx, [rsi] -> Читаем символ, на который указывает RSI
-    3 32    // 1, 2: cmp rcx, 32 -> Сравниваем считанный символ с кодом пробела (32)
-    4 12    // 3, 4: je 12       -> Если это пробел (ZF=1), прыгаем на адрес 12 (на HLT)
-    7 1     // 5, 6: mov rax, 1  -> Если не пробел: настраиваем SYSCALL на вывод
-    6       // 7: syscall        -> Печатаем этот символ на экране
-    0       // 8: hlt            -> Точка останова для обычного символа
-    0 0 0   // 9, 10, 11:        -> Пустые ячейки выравнивания
-    0       // 12: hlt           -> Точка останова, если встретили пробел
-    32      // 13:               -> Тестовые данные: пусть по адресу 13 у нас лежит пробел (32)
-*/
+static int64_t memory[256] =
+{
+    1, 10,  // rip = 0: mov rax, 10  (Опкод 1, затем число 10)
+    2, 20,  // rip = 2: mov rbx, 20  (Опкод 2, затем число 20)
+    3, 30,  // rip = 4: mov rcx, 30  (Опкод 3, затем число 30)
+    4, 40,  // rip = 6: mov rdx, 40  (Опкод 4, затем число 40)
+    0       // rip = 8: hlt          (Аппаратный стоп)
+};
 
 // Указатель на внешнюю Си-функцию, которую мы загрузим из инъекции
 typedef void (*InjectedFunction)();
@@ -83,33 +79,29 @@ void Driver()
     __1: // 1 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
         rax = memory[rip+1];
-        //output_registers();
         rip += 2;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __2: // 2 — mov rbx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
         rbx = memory[rip+1];
-        //output_registers();
         rip += 2;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __3: // 3 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
     {
         rcx = memory[rip+1];
-        //output_registers();
         rip += 2;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __4: // 4 — mov rdx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
         rdx = memory[rip+1];
-        //output_registers();
         rip += 2;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __5: // 5 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
