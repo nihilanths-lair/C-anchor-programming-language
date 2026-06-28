@@ -41,7 +41,8 @@ static void output_registers()
     printf("\n RSP: %lld", rsp);
     printf("\n-----------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
-    getchar(); 
+    getchar();
+    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
 }
 static void output_memory_diff()
 {
@@ -94,7 +95,7 @@ void Driver()
         [16] = &&__16, // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
         [17 ... 255] = &&__0 // hlt
     };
-    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
+    //for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
     goto * dispatching[memory[rip]];
     __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
     {
@@ -207,7 +208,6 @@ void Driver()
     __12: // 12 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
     {
         memory[rsi] = rcx;
-        output_memory_diff(); // <--- Магия: выведет только то, что изменилось!
         rip += 1;
         output_registers();
         goto * dispatching[memory[rip]];
