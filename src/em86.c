@@ -99,80 +99,8 @@ int64_t parse_data_directive(const char *cleaned, int64_t *out_array, int store)
 int main()
 {
     setlocale(0, "");
-/*
-    FILE *source = fopen("main.meta", "r");
-    if (source == NULL)
-    {
-        printf("\n [Ошибка] Не удалось открыть main.meta!\n");
-        return 1;
-    }
-
-    FILE *c_file = fopen("injection.c", "w");
-
-    char line[256];
-    int in_c_injection = 0;
-    rip = 0;
-
-    // --- НАШ ГЛУПЫЙ И КОРЯВЫЙ ПЕРЕВОДЧИК СТРОК ---
-    while (fgets(line, sizeof (line), source) != NULL)
-    {
-        // 1. ЕСЛИ МЫ ВНУТРИ ИНЪЕКЦИИ — КОПИРУЕМ СТРОКУ СРАЗУ, ДО ОЧИСТКИ ОТ КОММЕНТАРИЕВ СИ!
-        if (in_c_injection)
-        {
-            // Проверяем на маркер конца, не очищая строку полностью
-            if (strstr(line, "c_injection end") != NULL)
-            {
-                in_c_injection = 0;
-                continue;
-            }
-            fprintf(c_file, "%s", line); // Сохраняем оригинальные отступы и точки с запятой
-            continue;
-        }
-
-        // 2. ВНЕ ИНЪЕКЦИИ — ЧИСТИТЬ СТРОКУ ПОД АССЕМБЛЕР МОЖНО
-        char * cleaned = trim_and_clean(line);
-        if (strlen(cleaned) == 0) continue;
-
-        // Ловим маркер старта Си-инъекции
-        if (strcmp(cleaned, "c_injection start") == 0)
-        {
-            in_c_injection = 1;
-            continue;
-        }
-
-        // Вне инъекции — парсим наш примитивный Pawn-байткод (пока сделаем простую заглушку)
-        if (strcmp(cleaned, "call_c") == 0)
-        {
-            memory[rip++] = 7;  // mov rax, i64
-            memory[rip++] = 99; // 99 — наш маркер вызова Си-кода
-            memory[rip++] = 6;  // syscall
-        }
-        else if (strcmp(cleaned, "hlt") == 0) memory[rip++] = 0;
-    }
-
-    // Закрываем файл
-    fclose(c_file);
-    fclose(source);
-
-    // --- КВАНТОВЫЙ ШАГ: Авто-компиляция Си-кода на лету через GCC или TCC ---
-    printf("\n [Компилятор] Собираем injection.c в DLL...");
-    // Вызываем системный компилятор (у тебя в системе должен быть доступен gcc или tcc в PATH)
-    system("gcc -shared -o injection.dll injection.c");
-
-    // Загружаем получившуюся DLL в память нашего эмулятора
-    HMODULE hDll = LoadLibraryA("injection.dll");
-    if (hDll != NULL)
-    {
-        injected_function = (InjectedFunction) GetProcAddress(hDll, "run_injection");
-        if (injected_function == NULL) printf("\n [Ошибка] Не удалось найти функцию run_injection в DLL!\n");
-    }
-    else printf("\n [Ошибка] Не удалось загрузить injection.dll! Убедись, что GCC установлен и добавлен в PATH.\n");
-
-    // Запуск железного исполнителя
-    rip = 0;
-*/
-    // Первая текстовая программа для проверки конвейера
-    char * test_program[] =
+    // Наша жестко заданная тестовая программа
+    char *test_program[] =
     {
         "mov rax, 777",
         "mov rbx, 888",
@@ -180,151 +108,32 @@ int main()
     };
     int program_lines = 3;
     int virtual_rip = 0;
-    printf("\n [Генератор] Запущена трансляция текста программы в байт-код.");
-    for (int i = 0; i < program_lines; i++) 
+    printf("\n[Генератор] Запущена трансляция текста программы в байт-код.\n");
+    for (int i = 0; i < program_lines; i++)
     {
+        // Очищаем строку от мусора и пробелов с помощью твоей trim_and_clean
         char *cleaned = trim_and_clean(test_program[i]);
         if (strlen(cleaned) == 0) continue;
-        if (strcmp(cleaned, "hlt") == 0) 
+        printf("  -> Обработка строки: \"%s\"\n", cleaned);
+        if (strcmp(cleaned, "hlt") == 0)
         {
             memory[virtual_rip++] = 0; // Опкод hlt
         }
-        else if (strncmp(cleaned, "mov rax, ", 9) == 0) 
-        {
-            memory[virtual_rip++] = 1; // Опкод mov rax
-            memory[virtual_rip++] = atoll(cleaned + 9); // Число
-        }
-        else if (strncmp(cleaned, "mov rbx, ", 9) == 0) 
-        {
-            memory[virtual_rip++] = 2; // Опкод mov rbx
-            memory[virtual_rip++] = atoll(cleaned + 9); // Число
-        }
-    }
-    printf("\n [Генератор] Сборка завершена. Загружаем байт-код на исполнение.\n");
-    // Сбрасываем указатель инструкций на ноль и запускаем отладчик
-    rip = 0;
-    Driver();
-/*
-    if (hDll) FreeLibrary(hDll);
-*/
-    return 0;
-}
-/*
-int main()
-{
-    setlocale(0, "");
-
-    // Открываем наш файл с мета-кодом
-    FILE *file = fopen("parser.meta", "r");
-    if (file == NULL)
-    {
-        printf("\n [Ошибка] Не удалось открыть файл parser.meta! Создай его рядом с em86.exe\n");
-        return 1;
-    }
-
-    char line[256];
-    int64_t virtual_rip = 0;
-
-    // --- ПРОХОД 1: Сбор адресов меток ---
-    while (fgets(line, sizeof(line), file) != NULL)
-    {
-        char *cleaned = trim_and_clean(line);
-        if (strlen(cleaned) == 0) continue;
-
-        // Если строка заканчивается на двоеточие — это объявление метки!
-        if (cleaned[strlen(cleaned) - 1] == ':')
-        {
-            cleaned[strlen(cleaned) - 1] = '\0'; // Отрезаем ':'
-            strcpy(label_table[label_count].name, cleaned);
-            label_table[label_count].address = virtual_rip;
-            label_count++;
-            continue; // Метка не занимает места в ОЗУ
-        }
-
-        // Считаем виртуальный размер команд для точного определения адресов
-        if (strcmp(cleaned, "hlt") == 0 || strcmp(cleaned, "syscall") == 0 ||
-            strcmp(cleaned, "mov rsi, rcx") == 0 || strcmp(cleaned, "mov [rsi], rcx") == 0 ||
-            strcmp(cleaned, "inc rcx") == 0 || strcmp(cleaned, "inc rsi") == 0 ||
-            strcmp(cleaned, "mov rcx, [rsi]") == 0)
-        { virtual_rip += 1; }
-        else { virtual_rip += 2; } // Команды с аргументами занимают 2 ячейки
-    }
-
-    // --- ПРОХОД 2: Генерация кода и автоподстановка смещений ---
-    fseek(file, 0, SEEK_SET);
-    rip = 0;
-
-    while (fgets(line, sizeof(line), file) != NULL)
-    {
-        char *cleaned = trim_and_clean(line);
-        if (strlen(cleaned) == 0 || cleaned[strlen(cleaned) - 1] == ':') continue;
-
-        if (strcmp(cleaned, "hlt") == 0) { memory[rip++] = 0; }
-        else if (strncmp(cleaned, "mov rcx, ", 9) == 0)
-        {
-            if (strcmp(cleaned + 9, "[rsi]") == 0) { memory[rip++] = 8; } 
-            else
-            {
-                memory[rip++] = 1;
-                // Проверяем, аргумент — это число или имя метки
-                if (isalpha((unsigned char)cleaned[9])) memory[rip++] = find_label(cleaned + 9);
-                else memory[rip++] = atoll(cleaned + 9);
-            }
-        }
-        else if (strncmp(cleaned, "jmp ", 4) == 0)
-        {
-            memory[rip++] = 2;
-            if (isalpha((unsigned char)cleaned[4])) memory[rip++] = find_label(cleaned + 4);
-            else memory[rip++] = atoll(cleaned + 4);
-        }
-        else if (strncmp(cleaned, "cmp rcx, ", 9) == 0)
-        {
-            memory[rip++] = 3;
-            memory[rip++] = atoll(cleaned + 9);
-        }
-        else if (strncmp(cleaned, "je ", 3) == 0)
-        {
-            memory[rip++] = 4;
-            if (isalpha((unsigned char)cleaned[3])) memory[rip++] = find_label(cleaned + 3);
-            else memory[rip++] = atoll(cleaned + 3);
-        }
-        else if (strncmp(cleaned, "add rcx, ", 9) == 0)
-        {
-            memory[rip++] = 5;
-            memory[rip++] = atoll(cleaned + 9);
-        }
-        else if (strcmp(cleaned, "syscall") == 0) { memory[rip++] = 6; }
         else if (strncmp(cleaned, "mov rax, ", 9) == 0)
         {
-            memory[rip++] = 7;
-            memory[rip++] = atoll(cleaned + 9);
+            memory[virtual_rip++] = 1; // Опкод mov rax
+            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
         }
-        else if (strcmp(cleaned, "mov rsi, rcx") == 0) { memory[rip++] = 9; }
-        else if (strcmp(cleaned, "mov [rsi], rcx") == 0) { memory[rip++] = 10; }
-        else if (strncmp(cleaned, "jmp_rel ", 8) == 0)
+        else if (strncmp(cleaned, "mov rbx, ", 9) == 0)
         {
-            memory[rip++] = 11;
-            // АВТО-РАСЧЕТ ОТНОСИТЕЛЬНОГО СМЕЩЕНИЯ ДЛЯ JMP
-            int64_t target = find_label(cleaned + 8);
-            memory[rip++] = target - (rip + 1); 
+            memory[virtual_rip++] = 2; // Опкод mov rbx
+            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
         }
-        else if (strncmp(cleaned, "je_rel ", 7) == 0)
-        {
-            memory[rip++] = 12;
-            // АВТО-РАСЧЕТ ОТНОСИТЕЛЬНОГО СМЕЩЕНИЯ ДЛЯ JE
-            int64_t target = find_label(cleaned + 7);
-            memory[rip++] = target - (rip + 1);
-        }
-        else if (strcmp(cleaned, "inc rcx") == 0) { memory[rip++] = 13; }
-        else if (strcmp(cleaned, "inc rsi") == 0) { memory[rip++] = 14; }
-        else { memory[rip++] = atoll(cleaned); } // Чистые данные
     }
-    fclose(file);
-
-    // Интерактивный запуск
+    printf("[Генератор] Трансляция успешно завершена! Массив memory[] заполнен.\n");
+    printf("[Система] Передаем управление железному исполнителю Driver()...\n\n");
+    // Сбрасываем физический rip эмулятора на ноль и запускаем пошаговый отладчик
     rip = 0;
-    output_registers();
-    executor();
+    Driver();
     return 0;
 }
-*/
