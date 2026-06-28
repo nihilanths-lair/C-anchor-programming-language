@@ -171,6 +171,38 @@ int main()
     // Запуск железного исполнителя
     rip = 0;
 */
+    // Первая текстовая программа для проверки конвейера
+    char * test_program[] =
+    {
+        "mov rax, 777",
+        "mov rbx, 888",
+        "hlt"
+    };
+    int program_lines = 3;
+    int virtual_rip = 0;
+    printf("\n [Генератор] Запущена трансляция текста программы в байт-код.");
+    for (int i = 0; i < program_lines; i++) 
+    {
+        char *cleaned = trim_and_clean(test_program[i]);
+        if (strlen(cleaned) == 0) continue;
+        if (strcmp(cleaned, "hlt") == 0) 
+        {
+            memory[virtual_rip++] = 0; // Опкод hlt
+        }
+        else if (strncmp(cleaned, "mov rax, ", 9) == 0) 
+        {
+            memory[virtual_rip++] = 1; // Опкод mov rax
+            memory[virtual_rip++] = atoll(cleaned + 9); // Число
+        }
+        else if (strncmp(cleaned, "mov rbx, ", 9) == 0) 
+        {
+            memory[virtual_rip++] = 2; // Опкод mov rbx
+            memory[virtual_rip++] = atoll(cleaned + 9); // Число
+        }
+    }
+    printf("\n [Генератор] Сборка завершена. Загружаем байт-код на исполнение.\n");
+    // Сбрасываем указатель инструкций на ноль и запускаем отладчик
+    rip = 0;
     Driver();
 /*
     if (hDll) FreeLibrary(hDll);
