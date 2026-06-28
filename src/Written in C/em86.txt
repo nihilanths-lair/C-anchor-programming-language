@@ -31,7 +31,8 @@ static void output_registers()
     getchar(); 
 }
 
-static int64_t memory[256] =
+static int64_t memory[256]; // =
+/*
 {
     1, 10,  // rip = 0: mov rax, 10  (Опкод 1, затем число 10)
     2, 20,  // rip = 2: mov rbx, 20  (Опкод 2, затем число 20)
@@ -39,6 +40,7 @@ static int64_t memory[256] =
     4, 40,  // rip = 6: mov rdx, 40  (Опкод 4, затем число 40)
     0       // rip = 8: hlt          (Аппаратный стоп)
 };
+*/
 
 // Указатель на внешнюю Си-функцию, которую мы загрузим из инъекции
 typedef void (*InjectedFunction)();
@@ -138,12 +140,10 @@ void Driver()
     __8: // 8 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
     {
         rcx += memory[rip+1];
-        //output_registers();
         if (rcx == 0) zf = 1;
         else zf = 0;
-        //output_registers();
         rip += 2;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __9: // 9 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
