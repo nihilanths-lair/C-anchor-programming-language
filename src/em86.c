@@ -170,7 +170,7 @@ int main()
 
     // Запуск железного исполнителя
     rip = 0;
-    executor();
+    Driver();
 
     if (hDll) FreeLibrary(hDll);
     return 0;
