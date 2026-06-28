@@ -147,6 +147,11 @@ int main()
             memory[virtual_rip++] = 4; // Опкод mov rdx
             memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
         }
+        else if (strncmp(cleaned, "add rcx, ", 9) == 0)
+        {
+            memory[virtual_rip++] = 8; // Наш опкод 8 — add rcx, i64
+            memory[virtual_rip++] = atoll(cleaned + 9); // Забираем число (константу)
+        }
     }
     printf("\n\n [Генератор] Трансляция завершена.");
     //fflush(stdout);
