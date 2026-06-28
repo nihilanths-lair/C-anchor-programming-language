@@ -100,16 +100,19 @@ int main()
 {
     setlocale(0, "");
     // Наша жестко заданная тестовая программа
-    char *test_program[] =
+    char * test_program[] =
     {
-        "mov rax, 777",
-        "mov rbx, 888",
+        "mov rax, 500",
+        "mov rbx, 200",
+        "mov rcx, 100",
+        "mov rdx, 50",
+        "add rcx, 25",  // Сложим 100 + 25 в регистре RCX
         "hlt"
     };
-    int program_lines = 3;
+    int program_lines = 6;
     int virtual_rip = 0;
-    printf("\n [Генератор] Запущена трансляция... ");
-    fflush(stdout); // <--- Сбрасываем буфер
+    printf("\n [Генератор] Запущена трансляция.\n");
+    //fflush(stdout);
     for (int i = 0; i < program_lines; i++)
     {
         // Создаем локальный изменяемый буфер
@@ -118,8 +121,8 @@ int main()
         local_buf[sizeof (local_buf) - 1] = '\0';
         char * cleaned = trim_and_clean(local_buf);
         if (strlen(cleaned) == 0) continue;
-        printf(" -> Обработка: \"%s\"\n", cleaned);
-        fflush(stdout); // <--- Сбрасываем внутри цикла
+        printf("\n -> Обработка: \"%s\"", cleaned);
+        //fflush(stdout);
         if (strcmp(cleaned, "hlt") == 0)
         {
             memory[virtual_rip++] = 0; // Опкод hlt
@@ -134,9 +137,19 @@ int main()
             memory[virtual_rip++] = 2; // Опкод mov rbx
             memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
         }
+        else if (strncmp(cleaned, "mov rcx, ", 9) == 0)
+        {
+            memory[virtual_rip++] = 3; // Опкод mov rcx
+            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+        }
+        else if (strncmp(cleaned, "mov rdx, ", 9) == 0)
+        {
+            memory[virtual_rip++] = 4; // Опкод mov rdx
+            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+        }
     }
-    printf("\n [Генератор] Трансляция успешно завершена!");
-    fflush(stdout); // <--- Финальный сброс
+    printf("\n\n [Генератор] Трансляция завершена.");
+    //fflush(stdout);
     Driver();
     return 0;
 }
