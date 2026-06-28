@@ -11,16 +11,7 @@ int64_t rsi = 0;
 static int64_t rip = 0;
 int64_t rsp = 0;
 
-static int64_t memory[256]; // =
-/*
-{
-    1, 10,  // rip = 0: mov rax, 10  (Опкод 1, затем число 10)
-    2, 20,  // rip = 2: mov rbx, 20  (Опкод 2, затем число 20)
-    3, 30,  // rip = 4: mov rcx, 30  (Опкод 3, затем число 30)
-    4, 40,  // rip = 6: mov rdx, 40  (Опкод 4, затем число 40)
-    0       // rip = 8: hlt          (Аппаратный стоп)
-};
-*/
+static int64_t memory[256];
 
 // Глобальный массив для хранения предыдущего состояния памяти
 static int64_t previous_memory[256] = {0};
@@ -35,10 +26,13 @@ static void output_registers()
     printf("\n RCX: %lld", rcx);
     printf("\n RDX: %lld", rdx);
     putchar('\n');
-    printf("\n RSI: %lld", rsi);
-    // Если память в этой ячейке совпадает, или мы еще на старте (rsi == 0 и память не менялась)
-    if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
-    // Иначе показываем стрелочку ИСКЛЮЧИТЕЛЬНО при реальном изменении данных!
+        printf("\n RSI: %lld", rsi);
+    
+    // ХАК: Если RSI равен 0, то мы на старте и это просто опкоды. Выводим голый регистр.
+    if (rsi == 0) {} // Ничего не дописываем, просто кристальная чистота
+    // Если RSI указывает на реальный адрес данных, и они не менялись
+    else if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
+    // Если произошла реальная перезапись данных по адресу RSI
     else printf(" | [%lld] = %lld -> [%lld] = %lld", rsi, previous_memory[rsi], rsi, memory[rsi]);
     putchar('\n');
     printf("\n RIP: %lld", rip);
