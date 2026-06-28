@@ -35,7 +35,11 @@ static void output_registers()
     printf("\n RCX: %lld", rcx);
     printf("\n RDX: %lld", rdx);
     putchar('\n');
-    printf("\n RSI: %lld | [%lld] = %lld -> [%lld] = %lld", rsi, rsi, previous_memory[rsi], rsi, memory[rsi]);
+    printf("\n RSI: %lld", rsi);
+    // Если память в этой ячейке совпадает, или мы еще на старте (rsi == 0 и память не менялась)
+    if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
+    // Иначе показываем стрелочку ИСКЛЮЧИТЕЛЬНО при реальном изменении данных!
+    else printf(" | [%lld] = %lld -> [%lld] = %lld", rsi, previous_memory[rsi], rsi, memory[rsi]);
     putchar('\n');
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
@@ -95,7 +99,7 @@ void Driver()
         [16] = &&__16, // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
         [17 ... 255] = &&__0 // hlt
     };
-    //for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
+    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
     goto * dispatching[memory[rip]];
     __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
     {
