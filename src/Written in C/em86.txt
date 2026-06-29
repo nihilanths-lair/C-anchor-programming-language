@@ -33,7 +33,7 @@ static void output_registers()
     // Если RSI указывает на реальный адрес данных, и они не менялись
     else if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
     // Если произошла реальная перезапись данных по адресу RSI
-    else printf(" | [%lld] = %lld -> [%lld] = %lld", rsi, previous_memory[rsi], rsi, memory[rsi]);
+    else printf(" | [%lld] = %lld -> %lld", rsi, previous_memory[rsi], memory[rsi]);
     putchar('\n');
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
