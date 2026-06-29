@@ -7,6 +7,7 @@ int64_t rcx = 0; // Первый аргумент для системных вы
 int64_t rdx = 0;
 
 int64_t rsi = 0;
+int64_t rdi = 0;
 
 static int64_t rip = 0;
 int64_t rsp = 0;
@@ -14,7 +15,7 @@ int64_t rsp = 0;
 static int64_t memory[256];
 
 // Глобальный массив для хранения предыдущего состояния памяти
-static int64_t previous_memory[256] = {0};
+static int64_t prev_memory[256] = {0};
 static void output_registers()
 {
     printf("\n-----------");
@@ -27,20 +28,20 @@ static void output_registers()
     printf("\n RDX: %lld", rdx);
     putchar('\n');
     printf("\n RSI: %lld", rsi);
-    
     // ХАК: Если RSI равен 0, то мы на старте и это просто опкоды. Выводим голый регистр.
-    if (rsi == 0) {} // Ничего не дописываем, просто кристальная чистота
+    //if (rsi == 0) {} // Ничего не дописываем, просто кристальная чистота
     // Если RSI указывает на реальный адрес данных, и они не менялись
-    else if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
+    if (prev_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
     // Если произошла реальная перезапись данных по адресу RSI
-    else printf(" | [%lld] = %lld -> %lld", rsi, previous_memory[rsi], memory[rsi]);
+    else printf(" | [%lld] = %lld ~> %lld", rsi, prev_memory[rsi], memory[rsi]);
+    printf("\n RDI: %lld", rdi);
     putchar('\n');
     printf("\n RIP: %lld", rip);
     printf("\n RSP: %lld", rsp);
     printf("\n-----------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
-    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
+    for (int i = 0; i < 256; i++) prev_memory[i] = memory[i];
 }
 static void output_memory_diff()
 {
@@ -48,7 +49,7 @@ static void output_memory_diff()
     // Проверяем, изменилось ли что-то в ОЗУ
     for (int i = 0; i < 256; i++)
     {
-        if (memory[i] != previous_memory[i])
+        if (memory[i] != prev_memory[i])
         {
             if (!changed)
             {
@@ -56,17 +57,17 @@ static void output_memory_diff()
                 changed = true;
             }
             // Выводим индекс ячейки, старое значение и новое значение
-            printf("\n memory[%d]: %lld -> %lld", i, previous_memory[i], memory[i]);
+            printf("\n memory[%d]: %lld -> %lld", i, prev_memory[i], memory[i]);
             // Обновляем слепок памяти для следующего шага
-            previous_memory[i] = memory[i];
+            prev_memory[i] = memory[i];
         }
     }
     if (changed) printf("\n--------------------------\n");
 }
 
 // Указатель на внешнюю Си-функцию, которую мы загрузим из инъекции
-typedef void (*InjectedFunction)();
-InjectedFunction injected_function = NULL;
+typedef void (*C_Injected)();
+C_Injected c_injected = NULL;
 
 void Driver()
 {
@@ -93,7 +94,7 @@ void Driver()
         [16] = &&__16, // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
         [17 ... 255] = &&__0 // hlt
     };
-    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
+    for (int i = 0; i < 256; i++) prev_memory[i] = memory[i];
     goto * dispatching[memory[rip]];
     __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
     {
@@ -172,10 +173,10 @@ void Driver()
     __9: // 9 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
     {
         // SYSCALL: Теперь выполняет вызов нашей C-инъекции, если RAX = 99!
-        if (rax == 99 && injected_function != NULL)
+        if (rax == 99 && c_injected != NULL)
         {
             printf("\n [Эмулятор] Передача управления в Си-инъекцию.");
-            injected_function(); // Вызываем живой Си-код!
+            c_injected(); // Вызываем живой Си-код!
             printf("\n [Эмулятор] Возврат из Си-инъекции.\n");
         }
         else if (rax == 1)
