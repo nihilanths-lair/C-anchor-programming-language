@@ -26,7 +26,7 @@ static void output_registers()
     printf("\n RCX: %lld", rcx);
     printf("\n RDX: %lld", rdx);
     putchar('\n');
-        printf("\n RSI: %lld", rsi);
+    printf("\n RSI: %lld", rsi);
     
     // ХАК: Если RSI равен 0, то мы на старте и это просто опкоды. Выводим голый регистр.
     if (rsi == 0) {} // Ничего не дописываем, просто кристальная чистота
