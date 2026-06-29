@@ -6,7 +6,7 @@ int64_t rbx = 0;
 static int64_t previous_rcx = 0, rcx = 0; // Первый аргумент для системных вызовов
 int64_t rdx = 0;
 
-int64_t rsi = 0;
+static int64_t previous_rsi = 0, rsi = 0;
 int64_t rdi = 0;
 // предыдущее (старое) значение, текущее значение, следующее (новое) значение
 static int64_t previous_rip = 0, /*current_*/rip = 0/*, next_rip = 0*/;
@@ -26,22 +26,20 @@ static void output_registers()
     putchar('\n');
     printf("\n RAX: %lld", rax);
     printf("\n RBX: %lld", rbx);
-    if (previous_rcx == rcx) printf("\n RCX: %lld", rcx);
-    else printf("\n RCX: %lld ~> %lld", previous_rcx, rcx);
+    if (previous_rcx == rcx) printf("\n RCX: %lld (без изменений)", rcx);
+    else printf("\n RCX: %lld ~> %lld (данные изменились)", previous_rcx, rcx);
     previous_rcx = rcx;
     printf("\n RDX: %lld", rdx);
     putchar('\n');
-    printf("\n RSI: %lld", rsi);
-    // ХАК: Если RSI равен 0, то мы на старте и это просто опкоды. Выводим голый регистр.
-    //if (rsi == 0) {} // Ничего не дописываем, просто кристальная чистота
-    // Если RSI указывает на реальный адрес данных, и они не менялись
-    if (prev_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld", rsi, memory[rsi]);
-    // Если произошла реальная перезапись данных по адресу RSI
-    else printf(" | [%lld] = %lld ~> %lld", rsi, prev_memory[rsi], memory[rsi]);
+    if (previous_rsi == rsi) printf("\n RSI: %lld (без изменений)", rsi);
+    else printf("\n RSI: %lld ~> %lld (данные изменились)", previous_rsi, rsi);
+    previous_rsi = rsi;
+    if (prev_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld (без изменений)", rsi, memory[rsi]);
+    else printf(" | [%lld] = %lld ~> %lld (данные изменились)", rsi, prev_memory[rsi], memory[rsi]);
     printf("\n RDI: %lld", rdi);
     putchar('\n');
     printf("\n RIP: %lld ~> %lld", previous_rip, rip);
-    previous_rip = rip; // обновляем/перезаписываем текущим значением на след. проход
+    previous_rip = rip;
     putchar('\n');
     printf("\n RSP: %lld", rsp);
     printf("\n RBP: %lld", rbp);
