@@ -8,9 +8,11 @@ int64_t rdx = 0;
 
 int64_t rsi = 0;
 int64_t rdi = 0;
+// предыдущее (старое) значение, текущее значение
+static int64_t prev_rip = 0, rip = 0;
 
-static int64_t rip = 0;
 int64_t rsp = 0;
+int64_t rbp = 0;
 
 static int64_t memory[256];
 
@@ -36,8 +38,11 @@ static void output_registers()
     else printf(" | [%lld] = %lld ~> %lld", rsi, prev_memory[rsi], memory[rsi]);
     printf("\n RDI: %lld", rdi);
     putchar('\n');
-    printf("\n RIP: %lld", rip);
+    printf("\n RIP: %lld ~> %lld", prev_rip, rip);
+    prev_rip = rip; // обновляем/перезаписываем текущим значением на след. проход
+    putchar('\n');
     printf("\n RSP: %lld", rsp);
+    printf("\n RBP: %lld", rbp);
     printf("\n-----------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
