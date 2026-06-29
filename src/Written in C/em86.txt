@@ -3,13 +3,13 @@ bool zf = 0;
 
 int64_t rax = 0;
 int64_t rbx = 0;
-int64_t rcx = 0; // Первый аргумент для системных вызовов
+static int64_t previous_rcx = 0, rcx = 0; // Первый аргумент для системных вызовов
 int64_t rdx = 0;
 
 int64_t rsi = 0;
 int64_t rdi = 0;
-// предыдущее (старое) значение, текущее значение
-static int64_t prev_rip = 0, rip = 0;
+// предыдущее (старое) значение, текущее значение, следующее (новое) значение
+static int64_t previous_rip = 0, /*current_*/rip = 0/*, next_rip = 0*/;
 
 int64_t rsp = 0;
 int64_t rbp = 0;
@@ -26,7 +26,9 @@ static void output_registers()
     putchar('\n');
     printf("\n RAX: %lld", rax);
     printf("\n RBX: %lld", rbx);
-    printf("\n RCX: %lld", rcx);
+    if (previous_rcx == rcx) printf("\n RCX: %lld", rcx);
+    else printf("\n RCX: %lld ~> %lld", previous_rcx, rcx);
+    previous_rcx = rcx;
     printf("\n RDX: %lld", rdx);
     putchar('\n');
     printf("\n RSI: %lld", rsi);
@@ -38,8 +40,8 @@ static void output_registers()
     else printf(" | [%lld] = %lld ~> %lld", rsi, prev_memory[rsi], memory[rsi]);
     printf("\n RDI: %lld", rdi);
     putchar('\n');
-    printf("\n RIP: %lld ~> %lld", prev_rip, rip);
-    prev_rip = rip; // обновляем/перезаписываем текущим значением на след. проход
+    printf("\n RIP: %lld ~> %lld", previous_rip, rip);
+    previous_rip = rip; // обновляем/перезаписываем текущим значением на след. проход
     putchar('\n');
     printf("\n RSP: %lld", rsp);
     printf("\n RBP: %lld", rbp);
