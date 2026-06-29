@@ -38,7 +38,8 @@ static void output_registers()
     else printf(" | [%lld] = %lld ~> %lld (состояние памяти изменено)", rsi, prev_memory[rsi], memory[rsi]);
     printf("\n RDI: %lld", rdi);
     putchar('\n');
-    printf("\n RIP: %lld ~> %lld", previous_rip, rip);
+    if (previous_rip == rip) printf("\n RIP: %lld (состояние регистра без изменений)", rip);
+    else printf("\n RIP: %lld ~> %lld (состояние регистра изменено)", previous_rip, rip);
     previous_rip = rip;
     putchar('\n');
     printf("\n RSP: %lld", rsp);
