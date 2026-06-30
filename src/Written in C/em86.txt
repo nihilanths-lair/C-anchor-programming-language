@@ -158,9 +158,11 @@ void Driver()
         output_registers();
         goto * dispatching[memory[rip]];
     }
-    __5: // 5 — mov rsi, i64 (Прямая загрузка адреса/числа в RSI).
+    __5: // 5 — mov rsi, i64 [ 0x48, 0x##, ... ] ; ???
     {
-        rip += 1; // временная заглушка
+        rsi = memory[rip+1]; // rsi << i64
+        rip += 2;
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __6: // 6 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
