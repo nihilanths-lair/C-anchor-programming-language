@@ -1,23 +1,21 @@
 // Аппаратный флаг нуля (Zero Flag) для условных переходов
 static bool zf = 0;
-
+//
 static int64_t previous_rax = 0, rax = 0;
 static int64_t previous_rbx = 0, rbx = 0;
 static int64_t previous_rcx = 0, rcx = 0; // Первый аргумент для системных вызовов
 static int64_t previous_rdx = 0, rdx = 0;
-
+//
 static int64_t previous_rsi = 0, rsi = 0;
 static int64_t previous_rdi = 0, rdi = 0;
 // предыдущее (старое) значение, текущее значение, следующее (новое) значение
 static int64_t previous_rip = 0, /*current_*/rip = 0/*, next_rip = 0*/;
-
+//
 static int64_t previous_rsp = 0, rsp = 0;
 static int64_t previous_rbp = 0, rbp = 0;
-
-static int64_t memory[256];
-
-// Глобальный массив для хранения предыдущего состояния памяти
-static int64_t previous_memory[256] = {0};
+//
+static int64_t previous_memory[256] = {0}, memory[256] = {0};
+//
 static void output_registers()
 {
     printf("\n------------------------------------------");
@@ -39,18 +37,22 @@ static void output_registers()
     if (previous_rdx == rdx) printf("\n RDX: %lld", rdx);
     else printf("\n RDX: %lld ~> %lld", previous_rdx, rdx);
     previous_rdx = rdx;
-    // RSI
+    // REGISTER RSI
     if (previous_rsi == rsi) printf("\n\n RSI: %lld", rsi);
     else printf("\n\n RSI: %lld ~> %lld", previous_rsi, rsi);
     previous_rsi = rsi;
+    // REGISTER RSI -> CELL MEMORY
     if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld]: %lld", rsi, memory[rsi]);
     else printf(" | [%lld]: %lld ~> %lld", rsi, previous_memory[rsi], memory[rsi]);
-    // RDI
+    previous_memory[rsi] = memory[rsi];
+    // REGISTER RDI
     if (previous_rdi == rdi) printf("\n RDI: %lld", rdi);
     else printf("\n RDI: %lld ~> %lld", previous_rdi, rdi);
     previous_rdi = rdi;
+    // REGISTER RDI -> CELL MEMORY
     if (previous_memory[rdi] == memory[rdi]) printf(" | [%lld]: %lld", rdi, memory[rdi]);
     else printf(" | [%lld]: %lld ~> %lld", rdi, previous_memory[rdi], memory[rdi]);
+    previous_memory[rdi] = memory[rdi];
     // RIP
     if (previous_rip == rip) printf("\n\n RIP: %lld", rip);
     else printf("\n\n RIP: %lld ~> %lld", previous_rip, rip);
@@ -66,7 +68,7 @@ static void output_registers()
     printf("\n------------------------------------------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
-    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
+    //for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
 }
 static void output_memory_diff()
 {
