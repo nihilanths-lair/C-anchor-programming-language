@@ -116,7 +116,7 @@ int main()
         */
     };
     int program_lines = 4;
-    int virtual_rip = 0;
+    int v_rip = 0;
     printf("\n [Генератор] Запущена трансляция.\n");
     //fflush(stdout);
     for (int i = 0; i < program_lines; i++)
@@ -129,51 +129,51 @@ int main()
         if (strlen(cleaned) == 0) continue;
         printf("\n -> Обработка: \"%s\"", cleaned);
         //fflush(stdout);
-        if (!strcmp(cleaned, "hlt")) memory[virtual_rip++] = 0;
+        if (!strcmp(cleaned, "hlt")) memory[v_rip++] = 0;
         else if (!strncmp(cleaned, "mov rax, ", 9))
         {
-            memory[virtual_rip++] = 1;
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 1;
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "mov rbx, ", 9))
         {
-            memory[virtual_rip++] = 2;
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 2;
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "mov rcx, ", 9))
         {
-            memory[virtual_rip++] = 3;
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 3;
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "mov rdx, ", 9))
         {
-            memory[virtual_rip++] = 4;
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 4;
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "mov rsi, ", 9))
         {
-            memory[virtual_rip++] = 5;
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 5;
+            memory[v_rip++] = atoll(cleaned + 9);
         }
-        /*
         else if (!strncmp(cleaned, "cmp rcx, ", 9))
         {
-            memory[virtual_rip++] = 6; // Опкод 6 — cmp rcx, i64
-            memory[virtual_rip++] = atoll(cleaned + 9); // Число для сравнения
+            memory[v_rip++] = 7; // cmp rcx, i64
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "je ", 3))
         {
-            memory[virtual_rip++] = 7; // Опкод 7 — je i64 (абсолютный)
-            memory[virtual_rip++] = atoll(cleaned + 3); // Адрес rip для прыжка
+            memory[v_rip++] = 8; // je i64 (абсолютный)
+            memory[v_rip++] = atoll(cleaned + 3);
         }
+        /*
         else if (!strncmp(cleaned, "add rcx, ", 9))
         {
-            memory[virtual_rip++] = 8; // Наш опкод 8 — add rcx, i64
-            memory[virtual_rip++] = atoll(cleaned + 9);
+            memory[v_rip++] = 8; // Наш опкод 8 — add rcx, i64
+            memory[v_rip++] = atoll(cleaned + 9);
         }
         */
-        else if (!strcmp(cleaned, "mov rsi, rcx")) memory[virtual_rip++] = 12;
-        else if (!strcmp(cleaned, "mov [rsi], rcx")) memory[virtual_rip++] = 13;
+        else if (!strcmp(cleaned, "mov rsi, rcx")) memory[v_rip++] = 12;
+        else if (!strcmp(cleaned, "mov [rsi], rcx")) memory[v_rip++] = 13;
     }
     printf("\n\n [Генератор] Трансляция завершена.");
     //fflush(stdout);
