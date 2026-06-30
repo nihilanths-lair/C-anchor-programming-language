@@ -149,12 +149,12 @@ int main()
         }
         else if (!strncmp(cleaned, "cmp rcx, ", 9))
         {
-            memory[v_rip++] = 7; // cmp rcx, i64
+            memory[v_rip++] = 6; // cmp rcx, i64
             memory[v_rip++] = atoll(cleaned + 9);
         }
         else if (!strncmp(cleaned, "je ", 3))
         {
-            memory[v_rip++] = 8; // je i64 (абсолютный)
+            memory[v_rip++] = 7; // je i64 (абсолютный)
             memory[v_rip++] = atoll(cleaned + 3);
         }
         /*
