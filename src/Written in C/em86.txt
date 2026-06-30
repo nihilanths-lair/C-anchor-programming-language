@@ -18,7 +18,7 @@ static int64_t previous_memory[256] = {0}, memory[256] = {0};
 //
 static void output_registers()
 {
-    printf("\n------------------------------------------");
+    printf("------------------------------------------");
     printf("\n         Z");
     printf("\n RFLAGS: %lld", zf);
     // RAX
@@ -69,27 +69,6 @@ static void output_registers()
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
     //for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
-}
-static void output_memory_diff()
-{
-    bool changed = false;
-    // Проверяем, изменилось ли что-то в ОЗУ
-    for (int i = 0; i < 256; i++)
-    {
-        if (memory[i] != previous_memory[i])
-        {
-            if (!changed)
-            {
-                printf("\n--- [ИЗМЕНЕНИЕ ПАМЯТИ] ---");
-                changed = true;
-            }
-            // Выводим индекс ячейки, старое значение и новое значение
-            printf("\n memory[%d]: %lld -> %lld", i, previous_memory[i], memory[i]);
-            // Обновляем слепок памяти для следующего шага
-            previous_memory[i] = memory[i];
-        }
-    }
-    if (changed) printf("\n--------------------------\n");
 }
 
 // Указатель на внешнюю Си-функцию, которую мы загрузим из инъекции
@@ -180,12 +159,12 @@ void Driver()
         if (zf == 1)
         {
             rip = memory[rip+1];
-            printf("\n [JE] Условие выполнено. Абсолютный прыжок совершен.");
+            printf("\n [JE] Условие выполнено. Абсолютный прыжок совершен.\n");
         }
         else
         {
             rip += 2;
-            printf("\n [JE] Условие НЕ выполнено. Шагаем дальше.");
+            printf("\n [JE] Условие НЕ выполнено. Шагаем дальше.\n");
         }
         output_registers();
         goto * dispatching[memory[rip]];
@@ -291,3 +270,25 @@ void Driver()
         goto * dispatching[memory[rip]];
     }
 }
+/*
+static void output_memory_diff()
+{
+    bool changed = false;
+    for (int i = 0; i < 256; i++) // Проверяем, изменилось ли что-то в ОЗУ
+    {
+        if (memory[i] != previous_memory[i])
+        {
+            if (!changed)
+            {
+                printf("\n--- [ИЗМЕНЕНИЕ ПАМЯТИ] ---");
+                changed = true;
+            }
+            // Выводим индекс ячейки, старое значение и новое значение
+            printf("\n memory[%d]: %lld -> %lld", i, previous_memory[i], memory[i]);
+            // Обновляем слепок памяти для следующего шага
+            previous_memory[i] = memory[i];
+        }
+    }
+    if (changed) printf("\n--------------------------\n");
+}
+*/
