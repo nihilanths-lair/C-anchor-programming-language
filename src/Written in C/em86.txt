@@ -11,8 +11,8 @@ static int64_t previous_rdi = 0, rdi = 0;
 // предыдущее (старое) значение, текущее значение, следующее (новое) значение
 static int64_t previous_rip = 0, /*current_*/rip = 0/*, next_rip = 0*/;
 
-static int64_t rsp = 0;
-static int64_t rbp = 0;
+static int64_t previous_rsp = 0, rsp = 0;
+static int64_t previous_rbp = 0, rbp = 0;
 
 static int64_t memory[256];
 
@@ -23,10 +23,9 @@ static void output_registers()
     printf("\n------------------------------------------");
     printf("\n         Z");
     printf("\n RFLAGS: %lld", zf);
-    putchar('\n');
     // RAX
-    if (previous_rax == rax) printf("\n RAX: %lld", rax);
-    else printf("\n RAX: %lld ~> %lld", previous_rax, rax);
+    if (previous_rax == rax) printf("\n\n RAX: %lld", rax);
+    else printf("\n\n RAX: %lld ~> %lld", previous_rax, rax);
     previous_rax = rax;
     // RBX
     if (previous_rbx == rbx) printf("\n RBX: %lld", rbx);
@@ -56,9 +55,14 @@ static void output_registers()
     if (previous_rip == rip) printf("\n\n RIP: %lld", rip);
     else printf("\n\n RIP: %lld ~> %lld", previous_rip, rip);
     previous_rip = rip;
-    putchar('\n');
-    printf("\n RSP: %lld", rsp);
-    printf("\n RBP: %lld", rbp);
+    // RSP
+    if (previous_rsp == rsp) printf("\n\n RSP: %lld", rsp);
+    else printf("\n\n RSP: %lld ~> %lld", previous_rsp, rsp);
+    previous_rsp = rsp;
+    // RBP
+    if (previous_rbp == rbp) printf("\n RBP: %lld", rbp);
+    else printf("\n RBP: %lld ~> %lld", previous_rbp, rbp);
+    previous_rbp = rbp;
     printf("\n------------------------------------------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
