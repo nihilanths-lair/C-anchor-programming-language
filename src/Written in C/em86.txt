@@ -1,45 +1,60 @@
 // Аппаратный флаг нуля (Zero Flag) для условных переходов
-bool zf = 0;
+static bool zf = 0;
 
-int64_t rax = 0;
-int64_t rbx = 0;
+static int64_t previous_rax = 0, rax = 0;
+static int64_t previous_rbx = 0, rbx = 0;
 static int64_t previous_rcx = 0, rcx = 0; // Первый аргумент для системных вызовов
-int64_t rdx = 0;
+static int64_t previous_rdx = 0, rdx = 0;
 
 static int64_t previous_rsi = 0, rsi = 0;
-int64_t rdi = 0;
+static int64_t previous_rdi = 0, rdi = 0;
 // предыдущее (старое) значение, текущее значение, следующее (новое) значение
 static int64_t previous_rip = 0, /*current_*/rip = 0/*, next_rip = 0*/;
 
-int64_t rsp = 0;
-int64_t rbp = 0;
+static int64_t rsp = 0;
+static int64_t rbp = 0;
 
 static int64_t memory[256];
 
 // Глобальный массив для хранения предыдущего состояния памяти
-static int64_t prev_memory[256] = {0};
+static int64_t previous_memory[256] = {0};
 static void output_registers()
 {
     printf("\n------------------------------------------");
     printf("\n         Z");
     printf("\n RFLAGS: %lld", zf);
     putchar('\n');
-    printf("\n RAX: %lld", rax);
-    printf("\n RBX: %lld", rbx);
-    if (previous_rcx == rcx) printf("\n RCX: %lld (состояние регистра без изменений)", rcx);
-    else printf("\n RCX: %lld ~> %lld (состояние регистра изменилось)", previous_rcx, rcx);
+    // RAX
+    if (previous_rax == rax) printf("\n RAX: %lld", rax);
+    else printf("\n RAX: %lld ~> %lld", previous_rax, rax);
+    previous_rax = rax;
+    // RBX
+    if (previous_rbx == rbx) printf("\n RBX: %lld", rbx);
+    else printf("\n RBX: %lld ~> %lld", previous_rbx, rbx);
+    previous_rbx = rbx;
+    // RCX
+    if (previous_rcx == rcx) printf("\n RCX: %lld", rcx);
+    else printf("\n RCX: %lld ~> %lld", previous_rcx, rcx);
     previous_rcx = rcx;
-    printf("\n RDX: %lld", rdx);
-    putchar('\n');
-    if (previous_rsi == rsi) printf("\n RSI: %lld (состояние регистра без изменений)", rsi);
-    else printf("\n RSI: %lld ~> %lld (состояние регистра изменено)", previous_rsi, rsi);
+    // RDX
+    if (previous_rdx == rdx) printf("\n RDX: %lld", rdx);
+    else printf("\n RDX: %lld ~> %lld", previous_rdx, rdx);
+    previous_rdx = rdx;
+    // RSI
+    if (previous_rsi == rsi) printf("\n\n RSI: %lld", rsi);
+    else printf("\n\n RSI: %lld ~> %lld", previous_rsi, rsi);
     previous_rsi = rsi;
-    if (prev_memory[rsi] == memory[rsi]) printf(" | [%lld] = %lld (состояние памяти без изменений)", rsi, memory[rsi]);
-    else printf(" | [%lld] = %lld ~> %lld (состояние памяти изменено)", rsi, prev_memory[rsi], memory[rsi]);
-    printf("\n RDI: %lld", rdi);
-    putchar('\n');
-    if (previous_rip == rip) printf("\n RIP: %lld (состояние регистра без изменений)", rip);
-    else printf("\n RIP: %lld ~> %lld (состояние регистра изменено)", previous_rip, rip);
+    if (previous_memory[rsi] == memory[rsi]) printf(" | [%lld]: %lld", rsi, memory[rsi]);
+    else printf(" | [%lld]: %lld ~> %lld", rsi, previous_memory[rsi], memory[rsi]);
+    // RDI
+    if (previous_rdi == rdi) printf("\n RDI: %lld", rdi);
+    else printf("\n RDI: %lld ~> %lld", previous_rdi, rdi);
+    previous_rdi = rdi;
+    if (previous_memory[rdi] == memory[rdi]) printf(" | [%lld]: %lld", rdi, memory[rdi]);
+    else printf(" | [%lld]: %lld ~> %lld", rdi, previous_memory[rdi], memory[rdi]);
+    // RIP
+    if (previous_rip == rip) printf("\n\n RIP: %lld", rip);
+    else printf("\n\n RIP: %lld ~> %lld", previous_rip, rip);
     previous_rip = rip;
     putchar('\n');
     printf("\n RSP: %lld", rsp);
@@ -47,7 +62,7 @@ static void output_registers()
     printf("\n------------------------------------------");
     printf("\n [^] Нажми [Enter] для следующего шага...");
     getchar();
-    for (int i = 0; i < 256; i++) prev_memory[i] = memory[i];
+    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
 }
 static void output_memory_diff()
 {
@@ -55,7 +70,7 @@ static void output_memory_diff()
     // Проверяем, изменилось ли что-то в ОЗУ
     for (int i = 0; i < 256; i++)
     {
-        if (memory[i] != prev_memory[i])
+        if (memory[i] != previous_memory[i])
         {
             if (!changed)
             {
@@ -63,9 +78,9 @@ static void output_memory_diff()
                 changed = true;
             }
             // Выводим индекс ячейки, старое значение и новое значение
-            printf("\n memory[%d]: %lld -> %lld", i, prev_memory[i], memory[i]);
+            printf("\n memory[%d]: %lld -> %lld", i, previous_memory[i], memory[i]);
             // Обновляем слепок памяти для следующего шага
-            prev_memory[i] = memory[i];
+            previous_memory[i] = memory[i];
         }
     }
     if (changed) printf("\n--------------------------\n");
@@ -100,7 +115,7 @@ void Driver()
         [16] = &&__16, // 16 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
         [17 ... 255] = &&__0 // hlt
     };
-    for (int i = 0; i < 256; i++) prev_memory[i] = memory[i];
+    for (int i = 0; i < 256; i++) previous_memory[i] = memory[i];
     goto * dispatching[memory[rip]];
     __0: // 0 — hlt [ 0xF4 ] — Аппаратный стоп процессора.
     {
