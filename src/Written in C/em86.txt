@@ -112,6 +112,7 @@ void Driver()
     }
     __1: // 1 — mov rax, i64 [ 0x48, 0xB8, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rax = memory[rip+1];
         rip += 2;
         output_registers();
@@ -119,6 +120,7 @@ void Driver()
     }
     __2: // 2 — mov rbx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rbx = memory[rip+1];
         rip += 2;
         output_registers();
@@ -126,6 +128,7 @@ void Driver()
     }
     __3: // 3 — mov rcx, i64 [ 0x48, 0xB9, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB9 + 8 байт числа.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rcx = memory[rip+1];
         rip += 2;
         output_registers();
@@ -133,6 +136,7 @@ void Driver()
     }
     __4: // 4 — mov rdx, i64 [ 0x48, 0x##, ... ] — Префикс 0x48 (REX.W для 64 бит) + опкод 0xB8 + 8 байт числа.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rdx = memory[rip+1];
         rip += 2;
         output_registers();
@@ -140,6 +144,7 @@ void Driver()
     }
     __5: // 5 — mov rsi, i64 [ 0x48, 0x##, ... ] ; ???
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rsi = memory[rip+1]; // rsi << i64
         rip += 2;
         output_registers();
@@ -147,6 +152,7 @@ void Driver()
     }
     __6: // 6 — cmp rcx, i64 [ 0x48, 0x81, 0xF9, ... ] — 64-битное сравнение RCX с константой.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         int64_t i64 = memory[rip+1];
         if (rcx == i64) zf = 1;
         else zf = 0;
@@ -156,27 +162,31 @@ void Driver()
     }
     __7: // 7 — je i64 [ 0x0F, 0x84, ... ] — Абсолютный прыжок по условию (через таблицу).
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         if (zf == 1)
         {
             rip = memory[rip+1];
+            output_registers();
             printf("\n [JE] Условие выполнено. Абсолютный прыжок совершен.\n");
         }
         else
         {
             rip += 2;
+            output_registers();
             printf("\n [JE] Условие НЕ выполнено. Шагаем дальше.\n");
         }
-        output_registers();
         goto * dispatching[memory[rip]];
     }
     __8: // 8 — jmp i64 [ 0xFF, 0x25, ... ] — Абсолютный индиректный прыжок.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rip = memory[rip+1];
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __9: // 9 — add rcx, i64 [ 0x48, 0x81, 0xC1, ... ] — 64-битное сложение константы с RCX.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rcx += memory[rip+1];
         if (rcx == 0) zf = 1;
         else zf = 0;
@@ -186,6 +196,7 @@ void Driver()
     }
     __10: // 10 — syscall [ 0x0F, 0x05 ] — Знаменитые два байта нативного вызова ядра ОС.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         // SYSCALL: Теперь выполняет вызов нашей C-инъекции, если RAX = 99!
         if (rax == 99 && c_injected != NULL)
         {
@@ -193,26 +204,23 @@ void Driver()
             c_injected(); // Вызываем живой Си-код!
             printf("\n [Эмулятор] Возврат из Си-инъекции.\n");
         }
-        else if (rax == 1)
-        {
-            putchar((char) rcx);
-            fflush(stdout);
-        }
+        else if (rax == 1) putchar((char) rcx);
         else printf("\n [SYSCALL] Неизвестный номер функции %lld в RAX!", rax);
         rip += 1;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __11: // 11 — mov rcx, [rsi] [ 0x48, 0x8B, 0x0E ] — Чтение памяти по указателю RSI в регистр RCX.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rcx = memory[rsi];
-        //output_registers();
         rip += 1;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __12: // 12 — mov rsi, rcx [ 0x48, 0x89, 0xCE ] — Копирование значения из RCX в RSI.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rsi = rcx;
         rip += 1;
         output_registers();
@@ -220,6 +228,7 @@ void Driver()
     }
     __13: // 13 — mov [rsi], rcx [ 0x48, 0x89, 0x0E ] — Запись значения из RCX в память по адресу RSI.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         memory[rsi] = rcx;
         rip += 1;
         output_registers();
@@ -227,11 +236,11 @@ void Driver()
     }
     __14: // 14 — jmp rel64 [ 0xE9, ... ] — Нативный 32-битный/64-битный относительный прыжок.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         // rip += (2 + memory[rip+1]); / аналог нижних двух инструкций?
         rip += 2;
-        //output_registers();
         rip += memory[rip-1];
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __15: // 15 — je rel64 [ 0x0F, 0x84, ... ] — Нативный относительный прыжок по условию ZF=1.
@@ -240,7 +249,6 @@ void Driver()
         if (zf == 1)
         {
             rip += 2;             // Условие верно: перешагиваем команду ...
-            output_registers();
             rip += memory[rip-1]; // ... и летим на смещение назад или вперед!
             output_registers();
             printf("\n [JE REL64] Условие выполнено. Относительный прыжок совершен.");
@@ -255,18 +263,18 @@ void Driver()
     }
     __16: // 16 — inc rcx [ 0x48, 0xFF, 0xC1 ] — Увеличить RCX на 1.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rcx++;
-        //output_registers();
         rip += 1;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
     __17: // 17 — inc rsi [ 0x48, 0xFF, 0xC6 ] — Увеличить RSI на 1.
     {
+        printf("\n << Отладка/трассировка >> | адрес: %lld, опкод: %d", rip, memory[rip]);
         rsi++;
-        //output_registers();
         rip += 1;
-        //output_registers();
+        output_registers();
         goto * dispatching[memory[rip]];
     }
 }
