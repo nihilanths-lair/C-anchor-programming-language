@@ -99,17 +99,23 @@ int64_t parse_data_directive(const char *cleaned, int64_t *out_array, int store)
 int main()
 {
     setlocale(0, "");
-    // Наша жестко заданная тестовая программа
+    // Жёстко заданная тестовая программа
     char * test_program[] =
     {
-        "mov rax, 500",
-        "mov rbx, 200",
-        "mov rcx, 100",
-        "mov rdx, 50",
-        "add rcx, 25",  // Сложим 100 + 25 в регистре RCX
+        "mov rsi, 15",
+        "mov rcx, 4000",
+        "mov [rsi], rcx",
         "hlt"
+        /*
+        // Следующая микропрограмма для теста
+        "mov rcx, 50",    // Положим в RCX число 50
+        "cmp rcx, 50",    // Опкод 6: Сравниваем RCX с числом 50 (флаг ZF должен стать 1!)
+        "je 8",           // Опкод 7: Если ZF=1, абсолютно прыгаем на rip=8 (прямо на hlt)
+        "mov rax, 999",   // Этот шаг должен БЫТЬ ПРОПУЩЕН, если прыжок сработает!
+        "hlt"             // Точка прыжка (rip=8)
+        */
     };
-    int program_lines = 6;
+    int program_lines = 4;
     int virtual_rip = 0;
     printf("\n [Генератор] Запущена трансляция.\n");
     //fflush(stdout);
@@ -123,35 +129,51 @@ int main()
         if (strlen(cleaned) == 0) continue;
         printf("\n -> Обработка: \"%s\"", cleaned);
         //fflush(stdout);
-        if (strcmp(cleaned, "hlt") == 0)
+        if (!strcmp(cleaned, "hlt")) memory[virtual_rip++] = 0;
+        else if (!strncmp(cleaned, "mov rax, ", 9))
         {
-            memory[virtual_rip++] = 0; // Опкод hlt
+            memory[virtual_rip++] = 1;
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "mov rax, ", 9) == 0)
+        else if (!strncmp(cleaned, "mov rbx, ", 9))
         {
-            memory[virtual_rip++] = 1; // Опкод mov rax
-            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+            memory[virtual_rip++] = 2;
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "mov rbx, ", 9) == 0)
+        else if (!strncmp(cleaned, "mov rcx, ", 9))
         {
-            memory[virtual_rip++] = 2; // Опкод mov rbx
-            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+            memory[virtual_rip++] = 3;
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "mov rcx, ", 9) == 0)
+        else if (!strncmp(cleaned, "mov rdx, ", 9))
         {
-            memory[virtual_rip++] = 3; // Опкод mov rcx
-            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+            memory[virtual_rip++] = 4;
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "mov rdx, ", 9) == 0)
+        else if (!strncmp(cleaned, "mov rsi, ", 9))
         {
-            memory[virtual_rip++] = 4; // Опкод mov rdx
-            memory[virtual_rip++] = atoll(cleaned + 9); // Превращаем хвост строки в число
+            memory[virtual_rip++] = 5;
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
-        else if (strncmp(cleaned, "add rcx, ", 9) == 0)
+        /*
+        else if (!strncmp(cleaned, "cmp rcx, ", 9))
+        {
+            memory[virtual_rip++] = 6; // Опкод 6 — cmp rcx, i64
+            memory[virtual_rip++] = atoll(cleaned + 9); // Число для сравнения
+        }
+        else if (!strncmp(cleaned, "je ", 3))
+        {
+            memory[virtual_rip++] = 7; // Опкод 7 — je i64 (абсолютный)
+            memory[virtual_rip++] = atoll(cleaned + 3); // Адрес rip для прыжка
+        }
+        else if (!strncmp(cleaned, "add rcx, ", 9))
         {
             memory[virtual_rip++] = 8; // Наш опкод 8 — add rcx, i64
-            memory[virtual_rip++] = atoll(cleaned + 9); // Забираем число (константу)
+            memory[virtual_rip++] = atoll(cleaned + 9);
         }
+        */
+        else if (!strcmp(cleaned, "mov rsi, rcx")) memory[virtual_rip++] = 12;
+        else if (!strcmp(cleaned, "mov [rsi], rcx")) memory[virtual_rip++] = 13;
     }
     printf("\n\n [Генератор] Трансляция завершена.");
     //fflush(stdout);
