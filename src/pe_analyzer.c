@@ -132,6 +132,45 @@ int main()
     );
     if (chars & 0x0002) printf("(Исполняемый EXE-файл)");
     else printf("(Флаг EXE отсутствует)");
+    // ====================================================================
+    // 3. ДЕКОДИРОВАНИЕ OPTIONAL HEADER
+    // ====================================================================
+    if (file_size < pe_offset + 24 + opt_hdr_size)
+    {
+        printf("\n====================================================================");
+        printf("\n [-] Файл содержит неполный Optional Header. Обнови билдер!\n");
+        free(buffer);
+        return 0;
+    }
+    // Вычисляем, где физически в массиве стартует Optional Header (это смещение PE-заголовка + 24 байта)
+    int opt_base = pe_offset + 24;
+    printf("\n[+] OPTIONAL HEADER (НЕОБЯЗАТЕЛЬНЫЙ ЗАГОЛОВОК):\n");
+    // Читаем Magic тип заголовка (смещение opt_base + 0, размер 2 байта)
+    uint16_t opt_magic = read16(buffer, opt_base + 0);
+    printf("  [0x%02X] Тип формата (Magic): 0x%04X ", opt_base + 0, opt_magic);
+    if (opt_magic == 0x020B) printf("(PE32+ / Нативный 64-бит)\n");
+    else printf("(Другой формат)\n");
+    // Точка входа (AddressOfEntryPoint, смещение opt_base + 16, размер 4 байта)
+    uint32_t entry_point = read32(buffer, opt_base + 16);
+    printf("  [0x%02X] Точка входа (RVA)  : 0x%08X (Инструкции стартуют здесь)\n", opt_base + 16, entry_point);
+    // Базовый адрес загрузки (ImageBase, смещение opt_base + 24, размер 8 байт для 64-бит)
+    uint32_t image_base_low  = read32(buffer, opt_base + 24);
+    uint32_t image_base_high = read32(buffer, opt_base + 28);
+    printf("  [0x%02X] Базовый адрес загрузки: 0x%08X%08X\n", opt_base + 24, image_base_high, image_base_low);
+    // Выравнивание в ОЗУ (SectionAlignment, смещение opt_base + 32, размер 4 байта)
+    uint32_t sect_align = read32(buffer, opt_base + 32);
+    printf("  [0x%02X] Выравнивание в ОЗУ : %u байт (0x%X)\n", opt_base + 32, sect_align, sect_align);
+    // Выравнивание на диске (FileAlignment, смещение opt_base + 36, размер 4 байта)
+    uint32_t file_align = read32(buffer, opt_base + 36);
+    printf("  [0x%02X] Выравнивание файла : %u байт (0x%X)\n", opt_base + 36, file_align, file_align);
+    // Размер заголовков (SizeOfHeaders, смещение opt_base + 56, размер 4 байта)
+    uint32_t size_hdrs = read32(buffer, opt_base + 56);
+    printf("  [0x%02X] Общий размер заг.  : %u байт (0x%X)\n", opt_base + 56, size_hdrs, size_hdrs);
+    // Подсистема (Subsystem, смещение opt_base + 68, размер 2 байта)
+    uint16_t subsystem = read16(buffer, opt_base + 68);
+    printf("  [0x%02X] Подсистема Windows : %u ", opt_base + 68, subsystem);
+    if (subsystem == 3) printf("(Консольное приложение CUI)\n");
+    else printf("(Другая подсистема)\n");
     printf("\n====================================================================");
     free(buffer);
     return 0;
