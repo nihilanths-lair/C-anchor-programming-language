@@ -143,34 +143,73 @@ int main()
         return 0;
     }
     // Вычисляем, где физически в массиве стартует Optional Header (это смещение PE-заголовка + 24 байта)
-    int opt_base = pe_offset + 24;
-    printf("\n[+] OPTIONAL HEADER (НЕОБЯЗАТЕЛЬНЫЙ ЗАГОЛОВОК):\n");
+    int opt_base = pe_offset+24;
+    printf("\n--------------------------------------------------");
+    printf("\n << OPTIONAL HEADER (НЕОБЯЗАТЕЛЬНЫЙ ЗАГОЛОВОК) >>");
+    printf("\n--------------------------------------------------");
     // Читаем Magic тип заголовка (смещение opt_base + 0, размер 2 байта)
-    uint16_t opt_magic = read16(buffer, opt_base + 0);
-    printf("  [0x%02X] Тип формата (Magic): 0x%04X ", opt_base + 0, opt_magic);
-    if (opt_magic == 0x020B) printf("(PE32+ / Нативный 64-бит)\n");
-    else printf("(Другой формат)\n");
+    uint16_t opt_magic = read16(buffer, opt_base);
+    printf("\n  [%02X|%03d]:                   %02X %02X | %03d %03d         ; Тип формата (Magic): 0x%04X ",
+     opt_base, opt_base,
+     buffer[opt_base], buffer[opt_base+1],
+     buffer[opt_base], buffer[opt_base+1],
+     opt_magic
+    );
+    if (opt_magic == 0x020B) printf("(PE32+ / Нативный 64-бит)");
+    else printf("(Другой формат)");
     // Точка входа (AddressOfEntryPoint, смещение opt_base + 16, размер 4 байта)
-    uint32_t entry_point = read32(buffer, opt_base + 16);
-    printf("  [0x%02X] Точка входа (RVA)  : 0x%08X (Инструкции стартуют здесь)\n", opt_base + 16, entry_point);
+    uint32_t entry_point = read32(buffer, opt_base+16);
+    printf("\n  [%02X|%03d]:             %02X %02X %02X %02X | %03d %03d %03d %03d ; Точка входа (RVA)  : 0x%08X (Инструкции стартуют здесь)\n",
+     opt_base+16, opt_base+16,
+     buffer[opt_base+16], buffer[opt_base+17], buffer[opt_base+18], buffer[opt_base+19],
+     buffer[opt_base+16], buffer[opt_base+17], buffer[opt_base+18], buffer[opt_base+19],
+     entry_point
+    );
     // Базовый адрес загрузки (ImageBase, смещение opt_base + 24, размер 8 байт для 64-бит)
-    uint32_t image_base_low  = read32(buffer, opt_base + 24);
-    uint32_t image_base_high = read32(buffer, opt_base + 28);
-    printf("  [0x%02X] Базовый адрес загрузки: 0x%08X%08X\n", opt_base + 24, image_base_high, image_base_low);
+    uint32_t image_base_low  = read32(buffer, opt_base+24);
+    uint32_t image_base_high = read32(buffer, opt_base+28);
+    printf("  [%02X|%03d]: %02X %02X %02X %02X %02X %02X %02X %02X | %03d %03d %03d %03d %03d %03d %03d %03d ; Базовый адрес загрузки: 0x%08X%08X\n",
+     opt_base+24, opt_base+24,
+     buffer[opt_base+24], buffer[opt_base+25], buffer[opt_base+26], buffer[opt_base+27],
+      buffer[opt_base+28], buffer[opt_base+29], buffer[opt_base+30], buffer[opt_base+31],
+     buffer[opt_base+24], buffer[opt_base+25], buffer[opt_base+26], buffer[opt_base+27],
+      buffer[opt_base+28], buffer[opt_base+29], buffer[opt_base+30], buffer[opt_base+31],
+     image_base_high, image_base_low
+    );
     // Выравнивание в ОЗУ (SectionAlignment, смещение opt_base + 32, размер 4 байта)
-    uint32_t sect_align = read32(buffer, opt_base + 32);
-    printf("  [0x%02X] Выравнивание в ОЗУ : %u байт (0x%X)\n", opt_base + 32, sect_align, sect_align);
+    uint32_t sect_align = read32(buffer, opt_base+32);
+    printf("  [%02X|%03d]:             %02X %02X %02X %02X | %03d %03d %03d %03d ; Выравнивание в ОЗУ (%u байт): 0x%X\n",
+     opt_base+32, opt_base+32,
+     buffer[opt_base+32], buffer[opt_base+33], buffer[opt_base+34], buffer[opt_base+35],
+     buffer[opt_base+32], buffer[opt_base+33], buffer[opt_base+34], buffer[opt_base+35],
+     sect_align, sect_align
+    );
     // Выравнивание на диске (FileAlignment, смещение opt_base + 36, размер 4 байта)
-    uint32_t file_align = read32(buffer, opt_base + 36);
-    printf("  [0x%02X] Выравнивание файла : %u байт (0x%X)\n", opt_base + 36, file_align, file_align);
+    uint32_t file_align = read32(buffer, opt_base+36);
+    printf("  [%02X|%03d]:             %02X %02X %02X %02X | %03d %03d %03d %03d ; Выравнивание файла (%u байт): 0x%X)\n",
+     opt_base+36, opt_base+36,
+     buffer[opt_base+36], buffer[opt_base+37], buffer[opt_base+38], buffer[opt_base+39],
+     buffer[opt_base+36], buffer[opt_base+37], buffer[opt_base+38], buffer[opt_base+39],
+     file_align, file_align
+    );
     // Размер заголовков (SizeOfHeaders, смещение opt_base + 56, размер 4 байта)
-    uint32_t size_hdrs = read32(buffer, opt_base + 56);
-    printf("  [0x%02X] Общий размер заг.  : %u байт (0x%X)\n", opt_base + 56, size_hdrs, size_hdrs);
+    uint32_t size_hdrs = read32(buffer, opt_base+56);
+    printf("  [%02X|%03d]:             %02X %02X %02X %02X | %03d %03d %03d %03d ; Общий размер заголовка (%u байт): 0x%X\n",
+     opt_base+56, opt_base+56,
+     buffer[opt_base+56], buffer[opt_base+57], buffer[opt_base+58], buffer[opt_base+59],
+     buffer[opt_base+56], buffer[opt_base+57], buffer[opt_base+58], buffer[opt_base+59],
+     size_hdrs, size_hdrs
+    );
     // Подсистема (Subsystem, смещение opt_base + 68, размер 2 байта)
-    uint16_t subsystem = read16(buffer, opt_base + 68);
-    printf("  [0x%02X] Подсистема Windows : %u ", opt_base + 68, subsystem);
-    if (subsystem == 3) printf("(Консольное приложение CUI)\n");
-    else printf("(Другая подсистема)\n");
+    uint16_t subsystem = read16(buffer, opt_base+68);
+    printf("  [%02X|%03d]:                   %02X %02X | %03d %03d         ; Подсистема Windows: %u ",
+     opt_base+68, opt_base+68,
+     buffer[opt_base+68], buffer[opt_base+69],
+     buffer[opt_base+68], buffer[opt_base+69],
+     subsystem
+    );
+    if (subsystem == 3) printf("(Консольное приложение CUI)");
+    else printf("(Другая подсистема)");
     printf("\n====================================================================");
     free(buffer);
     return 0;
