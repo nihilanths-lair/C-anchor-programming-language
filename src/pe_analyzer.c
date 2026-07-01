@@ -210,6 +210,33 @@ int main()
     );
     if (subsystem == 3) printf("(Консольное приложение CUI)");
     else printf("(Другая подсистема)");
+    // ====================================================================
+    // 4. ДЕКОДИРОВАНИЕ ТАБЛИЦЫ СЕКЦИЙ
+    // ====================================================================
+    // Таблица секций начинается сразу после Optional Header
+    int sec_table_base = opt_base + opt_hdr_size;
+    printf("\n--------------------------------------------------");
+    printf("\n << ТАБЛИЦА СЕКЦИЙ (КОЛИЧЕСТВО: %u) >>", sections);
+    printf("\n--------------------------------------------------");
+    for (int i = 0; i < sections; i++)
+    {
+        int current_sec = sec_table_base + (i*40);
+        printf("\n  Секция №%d:\n", i+1);
+        printf("    Имя секции          : %.8s\n", &buffer[current_sec]);
+        uint32_t v_size = read32(buffer, current_sec+8);
+        printf("    Размер в ОЗУ (VSize): %u байт (0x%X)\n", v_size, v_size);
+        uint32_t v_addr = read32(buffer, current_sec+12);
+        printf("    Адрес в ОЗУ (RVA)   : 0x%08X\n", v_addr);
+        uint32_t r_size = read32(buffer, current_sec+16);
+        printf("    Размер на диске     : %u байт (0x%X)\n", r_size, r_size);
+        uint32_t r_ptr = read32(buffer, current_sec+20);
+        printf("    Смещение в файле    : 0x%08X\n", r_ptr);
+        uint32_t flags = read32(buffer, current_sec+36);
+        printf("    Флаги/Характеристики: 0x%08X ", flags);
+        if (flags & 0x20000000) printf("[EXECUTE] ");
+        if (flags & 0x40000000) printf("[READ] ");
+        if (flags & 0x00000020) printf("[CODE] ");
+    }
     printf("\n====================================================================");
     free(buffer);
     return 0;
