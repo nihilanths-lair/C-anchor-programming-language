@@ -6,13 +6,23 @@
 // БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
 //  Размер: Всегда строго 64 байта.
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
-uint8_t e_magic[2];  // 000~001      | 00~01      #  Магическое число
+uint8_t e_magic[] = "MZ";  // 000~001      | 00~01      #  Магическое число
 //  (size: 56)       // 002~059      | 02~3B      #  Зарезервировано: Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
 uint8_t e_lfanew[4]; // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
-uint32_t _e_lfanew;
+uint32_t _e_lfanew = 64;
+
+
+uint8_t pe_signature[] = "PE\0\0";
+
+// БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)
+//  Размер: Всегда строго 24 байта (4 байта сигнатура + 20 байт заголовок).
+//  Природа: Задает базовые свойства файла.
+
 uint8_t program[2048];
 
 //uint64_t offset = 0;
+
+// Порядок байт: little-endian
 
 void pe_builder()
 {
@@ -20,8 +30,8 @@ void pe_builder()
     fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
     fwrite("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 1, 56, descriptor); // 002~058: 000 | 02~3A: 00
     //fputc(64, descriptor);          // e_lfanew | 060~063: 064 | 3C~3F: 40 | @
-    //fwrite("@\0\0\0", 1, 4, descriptor); // big или little-endian?
-    fwrite("\0\0\0@", 1, 4, descriptor); // big или little-endian?
+    fwrite("\x40\0\0\0", 1, 4, descriptor); //fwrite("@\0\0\0", 1, 4, descriptor);
+    fwrite("PE\0\0", 1, 4, descriptor);
     fclose(descriptor);
 }
 
@@ -33,8 +43,8 @@ void pe_analyzer()
     if (fread(e_magic, 1, 2, descriptor) != 2) { printf("\n  e_magic != size: 2");/**/ return; } // e_magic | 000: 077 090 | 00: 4D 5A | MZ
     if (strcmp(e_magic, "MZ")) { /**/printf("\n  e_magic != MZ");/**/ return; }
     printf("\n ---------------------------------------------------------");
-    printf("\n  000: %03d | 00: %02X | %c | uint16_t e_magic = 'M',", e_magic[0], e_magic[0], e_magic[0]);
-    printf("\n  001: %03d | 01: %02X | %c |                    'Z'.", e_magic[1], e_magic[1], e_magic[1]);
+    printf("\n  000: %03d | 00: %02X | %c | uint16_t e_magic = \"%s\"", e_magic[0], e_magic[0], e_magic[0], e_magic);
+    printf("\n  001: %03d | 01: %02X | %c |", e_magic[1], e_magic[1], e_magic[1]);
     printf("\n ---------------------------------------------------------");
     if (fread(program, 1, 56, descriptor) != 56) { /**/printf("\n  merged_fields != size: 56");/**/ return; }  // 002: ???     | 02: ??
     printf("\n  002: %03d | 02: %02X | · | uint16_t e_cblp = '\\0',", program[0], program[0]);
@@ -112,11 +122,19 @@ void pe_analyzer()
     printf("\n  058: %03d | 3A: %02X | · |                       '\\0', №10", program[56], program[56]);
     printf("\n  059: %03d | 3B: %02X | · |                       '\\0'.", program[57], program[57]);
     printf("\n ---------------------------------------------------------");
-    if (fread(e_lfanew, 1, 4, descriptor) != 1) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
-    printf("\n  060: %03d | 3C: %02X | · | uint32_t e_lfanew = '@', №1", e_lfanew[0], e_lfanew[0]);
-    printf("\n  061: %03d | 3D: %02X | · |                     '\\0',", e_lfanew[1], e_lfanew[1]);
-    printf("\n  062: %03d | 3E: %02X | · |                     '\\0',", e_lfanew[2], e_lfanew[2]);
-    printf("\n  063: %03d | 3F: %02X | · |                     '\\0'.", e_lfanew[3], e_lfanew[3]);
+    if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
+    //if (fread(e_lfanew, 4, 1, descriptor) != 1)
+    printf("\n  060: %03d | 3C: %02X | %c | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew);
+    printf("\n  061: %03d | 3D: %02X | · |", e_lfanew[1], e_lfanew[1]);
+    printf("\n  062: %03d | 3E: %02X | · |", e_lfanew[2], e_lfanew[2]);
+    printf("\n  063: %03d | 3F: %02X | · |", e_lfanew[3], e_lfanew[3]);
+    printf("\n ---------------------------------------------------------");
+    if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
+    //if (fread(pe_signature, 4, 1, descriptor) != 1)
+    printf("\n  064: %03d | 40: %02X | %c | uint32_t pe_signature = \"%s\"", pe_signature[0], pe_signature[0], pe_signature[0], pe_signature[0]);
+    printf("\n  065: %03d | 41: %02X | %c |", pe_signature[1], pe_signature[1], pe_signature[1]);
+    printf("\n  066: %03d | 42: %02X | · |", pe_signature[2], pe_signature[2]);
+    printf("\n  067: %03d | 43: %02X | · |", pe_signature[3], pe_signature[3]);
     printf("\n ---------------------------------------------------------");
     fclose(descriptor);
 }
