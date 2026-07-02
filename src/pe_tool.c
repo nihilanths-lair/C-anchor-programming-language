@@ -124,10 +124,10 @@ void pe_analyzer()
     printf("\n ---------------------------------------------------------");
     if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
     //if (fread(e_lfanew, 4, 1, descriptor) != 1)
-    printf("\n  060: %03d | 3C: %02X | %c | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew);
-    printf("\n  061: %03d | 3D: %02X | · |", e_lfanew[1], e_lfanew[1]);
-    printf("\n  062: %03d | 3E: %02X | · |", e_lfanew[2], e_lfanew[2]);
-    printf("\n  063: %03d | 3F: %02X | · |", e_lfanew[3], e_lfanew[3]);
+    printf("\n  060: %03d | 3C: %02X |  '%c' | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew);
+    printf("\n  061: %03d | 3D: %02X | '\\0' |", e_lfanew[1], e_lfanew[1]);
+    printf("\n  062: %03d | 3E: %02X | '\\0' |", e_lfanew[2], e_lfanew[2]);
+    printf("\n  063: %03d | 3F: %02X | '\\0' |", e_lfanew[3], e_lfanew[3]);
     printf("\n ---------------------------------------------------------");
     if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
     //if (fread(pe_signature, 4, 1, descriptor) != 1)
@@ -135,6 +135,8 @@ void pe_analyzer()
     printf("\n  065: %03d | 41: %02X | %c |", pe_signature[1], pe_signature[1], pe_signature[1]);
     printf("\n  066: %03d | 42: %02X | · |", pe_signature[2], pe_signature[2]);
     printf("\n  067: %03d | 43: %02X | · |", pe_signature[3], pe_signature[3]);
+    printf("\n ---------------------------------------------------------");
+    printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n ---------------------------------------------------------");
     fclose(descriptor);
 }
