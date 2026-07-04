@@ -44,12 +44,13 @@ uint64_t offset = 0;
 void pe_builder()
 {
     FILE * descriptor = fopen("test_subject.exe", "wb");
+    if (!descriptor) return;
     fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
-    fwrite("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 1, 56, descriptor); // 002~058: 000 | 02~3A: 00
-    //fputc(64, descriptor);          // e_lfanew | 060~063: 064 | 3C~3F: 40 | @
-    fwrite("\x40\0\0\0", 1, 4, descriptor); //fwrite("@\0\0\0", 1, 4, descriptor);
-    fwrite("PE\0\0", 1, 4, descriptor);
-    fwrite("\x64\x86", 1, 2, descriptor);
+    uint8_t dos_reserved[58] = {0}; // Гарантируем ровно 58 байт нулей в зарезервированной зоне DOS
+    fwrite(dos_reserved, 1, 58, descriptor);
+    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // Записываем e_lfanew (0x00000040 = 64 в десятичной)
+    fwrite("PE\0\0", 1, 4, descriptor);           // Записываем сигнатуру PE
+    fwrite("\x64\x86", 1, 2, descriptor);         // Записываем архитектуру Machine (0x8664)
     fclose(descriptor);
 }
 
@@ -142,8 +143,7 @@ void pe_analyzer()
     printf("\n -------------------------------------------------------------");
     typedef union { uint32_t value; /* little-endian? */ uint8_t bytes[4]; } union__uint32_t;
     union__uint32_t e_lfanew;
-    // Читаем e_lfanew сразу как ОДНО 4-байтовое число
-    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1)
+    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ E_LFANEW
     {
         printf("\n Ошибка чтения e_lfanew");
         return;
@@ -160,7 +160,7 @@ void pe_analyzer()
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
     union__uint32_t pe_signature;
-    if (fread(&pe_signature.value, 4, 1, descriptor) != 1)
+    if (fread(&pe_signature.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ PE_SIGNATURE
     { 
         printf("\n Ошибка чтения pe_signature");
         return; 
