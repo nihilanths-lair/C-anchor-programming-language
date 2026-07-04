@@ -64,7 +64,7 @@ void pe_analyzer()
     printf("\n  000: %03d | 00: %02X | %c | uint16_t e_magic = \"%s\"", e_magic[0], e_magic[0], e_magic[0], e_magic);
     printf("\n  001: %03d | 01: %02X | %c |", e_magic[1], e_magic[1], e_magic[1]);
     printf("\n -------------------------------------------------------------");
-    if (fread(program, 1, 56, descriptor) != 56) { /**/printf("\n  merged_fields != size: 56");/**/ return; }  // 002: ???     | 02: ??
+    if (fread(program, 1, 58, descriptor) != 58) { /**/printf("\n  merged_fields != size: 58");/**/ return; }
     printf("\n  002: %03d | 02: %02X | · | uint16_t e_cblp = '\\0',", program[0], program[0]);
     printf("\n  003: %03d | 03: %02X | · |                 = '\\0'",  program[1], program[1]);
     printf("\n -------------------------------------------------------------");
@@ -133,33 +133,28 @@ void pe_analyzer()
     printf("\n  051: %03d | 33: %02X | · |                       '\\0',",    program[49], program[49]);
     printf("\n  052: %03d | 34: %02X | · |                       '\\0', №7", program[50], program[50]);
     printf("\n  053: %03d | 35: %02X | · |                       '\\0',",    program[51], program[51]);
-    printf("\n  054: %03d | 36: %02X | · |                       '\\0', №8", program[52], program[52]); // 54 - 2 = 52
-    printf("\n  055: %03d | 37: %02X | · |                       '\\0',",    program[53], program[53]); // 55 - 2 = 53
-    printf("\n  056: %03d | 38: %02X | · |                       '\\0', №9", program[54], program[54]); // 56 - 2 = 54
-    printf("\n  057: %03d | 39: %02X | · |                       '\\0',",    program[55], program[55]); // 57 - 2 = 55
-    // Внимание! Для адресов 058 и 059 мы НЕ МОЖЕМ читать массив program дальше.
-    // По спецификации PE, эти последние 2 байта DOS-заголовка перед e_lfanew 
-    // остаются неиспользованными, поэтому мы просто выводим их как жесткие нули:
-
-    // А как же тот факт, что мы используем анализ, а не сборку и здесь крайне необходимо отображать данные в явном виде (прописанные в самом файле)?
-    printf("\n  058: 000 | 3A: 00 | · |                       '\\0', №10");
-    printf("\n  059: 000 | 3B: 00 | · |                       '\\0'.");
+    printf("\n  054: %03d | 36: %02X | · |                       '\\0', №8", program[52], program[52]);
+    printf("\n  055: %03d | 37: %02X | · |                       '\\0',",    program[53], program[53]);
+    printf("\n  056: %03d | 38: %02X | · |                       '\\0', №9", program[54], program[54]);
+    printf("\n  057: %03d | 39: %02X | · |                       '\\0',",    program[55], program[55]);
+    printf("\n  058: %03d | 3A: %02X | · |                       '\\0', №10", program[56], program[56]); // 58 - 2 = 56
+    printf("\n  059: %03d | 3B: %02X | · |                       '\\0'.",     program[57], program[57]); // 59 - 2 = 57
     printf("\n -------------------------------------------------------------");
-    if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | ??: ?? ?? ?? ??
-    //if (fread(e_lfanew, 4, 1, descriptor) != 1)
-    printf("\n  060: %03d | 3C: %02X |  '%c' | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew);
-    printf("\n  061: %03d | 3D: %02X | '\\0' |", e_lfanew[1], e_lfanew[1]);
-    printf("\n  062: %03d | 3E: %02X | '\\0' |", e_lfanew[2], e_lfanew[2]);
-    printf("\n  063: %03d | 3F: %02X | '\\0' |", e_lfanew[3], e_lfanew[3]);
+    if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | 3C: ?? ?? ?? ??
+    //if (fread(e_lfanew, 4, 1, descriptor) != 1) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | 3C: ?? ?? ?? ??
+    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew); // Костыль _e_lfanew заменить, склеив байты и получив число?
+    printf("\n  061: %03d | 3D: %02X | '%c' |", e_lfanew[1], e_lfanew[1], e_lfanew[1]);
+    printf("\n  062: %03d | 3E: %02X | '%c' |", e_lfanew[2], e_lfanew[2], e_lfanew[2]);
+    printf("\n  063: %03d | 3F: %02X | '%c' |", e_lfanew[3], e_lfanew[3], e_lfanew[3]);
     printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
     if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
     //if (fread(pe_signature, 4, 1, descriptor) != 1)
-    printf("\n  064: %03d | 40: %02X |  '%c' | uint32_t pe_signature = \"%s\\0\\0\"", pe_signature[0], pe_signature[0], pe_signature[0], pe_signature);
-    printf("\n  065: %03d | 41: %02X |  '%c' |", pe_signature[1], pe_signature[1], pe_signature[1]);
-    printf("\n  066: %03d | 42: %02X | '\\0' |", pe_signature[2], pe_signature[2]);
-    printf("\n  067: %03d | 43: %02X | '\\0' |", pe_signature[3], pe_signature[3]);
+    printf("\n  064: %03d | 40: %02X | '%c' | uint32_t pe_signature = \"%s\\0\\0\"", pe_signature[0], pe_signature[0], pe_signature[0], pe_signature);
+    printf("\n  065: %03d | 41: %02X | '%c' |", pe_signature[1], pe_signature[1], pe_signature[1]);
+    printf("\n  066: %03d | 42: %02X | '%c' |", pe_signature[2], pe_signature[2], pe_signature[2]);
+    printf("\n  067: %03d | 43: %02X | '%c' |", pe_signature[3], pe_signature[3], pe_signature[3]);
     printf("\n -------------------------------------------------------------");
     if (fread(Machine, 1, 2, descriptor) != 2) { /**/printf("\n  Machine != 2");/**/ return; } // Machine | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
     //if (fread(Machine, 2, 1, descriptor) != 1)
