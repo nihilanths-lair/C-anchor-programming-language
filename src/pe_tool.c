@@ -140,21 +140,39 @@ void pe_analyzer()
     printf("\n  058: %03d | 3A: %02X | · |                       '\\0', №10", program[56], program[56]); // 58 - 2 = 56
     printf("\n  059: %03d | 3B: %02X | · |                       '\\0'.",     program[57], program[57]); // 59 - 2 = 57
     printf("\n -------------------------------------------------------------");
-    if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | 3C: ?? ?? ?? ??
-    //if (fread(e_lfanew, 4, 1, descriptor) != 1) { /**/printf("\n  e_lfanew != 4");/**/ return; } // e_lfanew | 060: ??? ??? ??? ??? | 3C: ?? ?? ?? ??
-    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %ld", e_lfanew[0], e_lfanew[0], e_lfanew[0], _e_lfanew); // Костыль _e_lfanew заменить, склеив байты и получив число?
-    printf("\n  061: %03d | 3D: %02X | '%c' |", e_lfanew[1], e_lfanew[1], e_lfanew[1]);
-    printf("\n  062: %03d | 3E: %02X | '%c' |", e_lfanew[2], e_lfanew[2], e_lfanew[2]);
-    printf("\n  063: %03d | 3F: %02X | '%c' |", e_lfanew[3], e_lfanew[3], e_lfanew[3]);
+    typedef union { uint32_t value; /* little-endian? */ uint8_t bytes[4]; } union__uint32_t;
+    union__uint32_t e_lfanew;
+    // Читаем e_lfanew сразу как ОДНО 4-байтовое число
+    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1)
+    {
+        printf("\n Ошибка чтения e_lfanew");
+        return;
+    }
+    //if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; }
+    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", // Без костылей!
+                                                e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0],
+                                                 e_lfanew.value, e_lfanew.value
+    );
+    printf("\n  061: %03d | 3D: %02X | '%c' |", e_lfanew.bytes[1], e_lfanew.bytes[1], e_lfanew.bytes[1]);
+    printf("\n  062: %03d | 3E: %02X | '%c' |", e_lfanew.bytes[2], e_lfanew.bytes[2], e_lfanew.bytes[2]);
+    printf("\n  063: %03d | 3F: %02X | '%c' |", e_lfanew.bytes[3], e_lfanew.bytes[3], e_lfanew.bytes[3]);
     printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
-    if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
-    //if (fread(pe_signature, 4, 1, descriptor) != 1)
-    printf("\n  064: %03d | 40: %02X | '%c' | uint32_t pe_signature = \"%s\\0\\0\"", pe_signature[0], pe_signature[0], pe_signature[0], pe_signature);
-    printf("\n  065: %03d | 41: %02X | '%c' |", pe_signature[1], pe_signature[1], pe_signature[1]);
-    printf("\n  066: %03d | 42: %02X | '%c' |", pe_signature[2], pe_signature[2], pe_signature[2]);
-    printf("\n  067: %03d | 43: %02X | '%c' |", pe_signature[3], pe_signature[3], pe_signature[3]);
+    union__uint32_t pe_signature;
+    if (fread(&pe_signature.value, 4, 1, descriptor) != 1)
+    { 
+        printf("\n Ошибка чтения pe_signature");
+        return; 
+    }
+    //if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
+    printf("\n  064: %03d | 40: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)",
+                                                pe_signature.bytes[0], pe_signature.bytes[0], pe_signature.bytes[0],
+                                                 pe_signature.value, pe_signature.value
+    );
+    printf("\n  065: %03d | 41: %02X | '%c' |", pe_signature.bytes[1], pe_signature.bytes[1], pe_signature.bytes[1]);
+    printf("\n  066: %03d | 42: %02X | '%c' |", pe_signature.bytes[2], pe_signature.bytes[2], pe_signature.bytes[2]);
+    printf("\n  067: %03d | 43: %02X | '%c' |", pe_signature.bytes[3], pe_signature.bytes[3], pe_signature.bytes[3]);
     printf("\n -------------------------------------------------------------");
     if (fread(Machine, 1, 2, descriptor) != 2) { /**/printf("\n  Machine != 2");/**/ return; } // Machine | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
     //if (fread(Machine, 2, 1, descriptor) != 1)
