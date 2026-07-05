@@ -66,92 +66,99 @@ void pe_builder()
     fclose(descriptor);
 }
 
+typedef union { uint16_t value; uint8_t bytes[4]; } union__uint16_t;
+
 void pe_analyzer()
 {
     FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
-    if (fread(e_magic, 1, 2, descriptor) != 2) { printf("\n  e_magic != size: 2");/**/ return; } // e_magic | 000: 077 090 | 00: 4D 5A | MZ
-    if (strcmp(e_magic, "MZ")) { /**/printf("\n  e_magic != MZ");/**/ return; }
+    union__uint16_t e_magic;
+    if (fread(&e_magic, 2, 1, descriptor) != 1)
+    {
+        printf("\n  e_magic != size: 2");
+        return;
+    }
+    //if (strcmp(e_magic, "MZ")) { /**/printf("\n  e_magic != MZ");/**/ return; }
     printf("\n -------------------------------------------------------------");
-    printf("\n  000: %03d | 00: %02X | %c | uint16_t e_magic = \"%s\"", e_magic[0], e_magic[0], e_magic[0], e_magic);
-    printf("\n  001: %03d | 01: %02X | %c |", e_magic[1], e_magic[1], e_magic[1]);
+    printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
+    printf("\n  001: %03d | 01: %02X | '%c' |", e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
     printf("\n -------------------------------------------------------------");
     if (fread(program, 1, 58, descriptor) != 58) { /**/printf("\n  merged_fields != size: 58");/**/ return; }
-    printf("\n  002: %03d | 02: %02X | · | uint16_t e_cblp = '\\0',", program[0], program[0]);
-    printf("\n  003: %03d | 03: %02X | · |                 = '\\0'",  program[1], program[1]);
+    printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',", program[0], program[0], to_ascii(program[0]));
+    printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",  program[1], program[1], to_ascii(program[1]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  004: %03d | 04: %02X | · | uint16_t e_cp = '\\0',", program[2], program[2]);
-    printf("\n  005: %03d | 05: %02X | · |               = '\\0'",  program[3], program[3]);
+    printf("\n  004: %03d | 04: %02X | '%c' | uint16_t e_cp = '\\0',", program[2], program[2], to_ascii(program[2]));
+    printf("\n  005: %03d | 05: %02X | '%c' |               = '\\0'",  program[3], program[3], to_ascii(program[3]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  006: %03d | 06: %02X | · | uint16_t e_crlc = '\\0',", program[4], program[4]);
-    printf("\n  007: %03d | 07: %02X | · |                 = '\\0'",  program[5], program[5]);
+    printf("\n  006: %03d | 06: %02X | '%c' | uint16_t e_crlc = '\\0',", program[4], program[4], to_ascii(program[4]));
+    printf("\n  007: %03d | 07: %02X | '%c' |                 = '\\0'",  program[5], program[5], to_ascii(program[5]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  008: %03d | 08: %02X | · | uint16_t e_cparhdr = '\\0',", program[6], program[6]);
-    printf("\n  009: %03d | 09: %02X | · |                    = '\\0'",  program[7], program[7]);
+    printf("\n  008: %03d | 08: %02X | '%c' | uint16_t e_cparhdr = '\\0',", program[6], program[6], to_ascii(program[6]));
+    printf("\n  009: %03d | 09: %02X | '%c' |                    = '\\0'",  program[7], program[7], to_ascii(program[7]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  010: %03d | 0A: %02X | · | uint16_t e_minalloc = '\\0',", program[8], program[8]);
-    printf("\n  011: %03d | 0B: %02X | · |                     = '\\0'",  program[9], program[9]);
+    printf("\n  010: %03d | 0A: %02X | '%c' | uint16_t e_minalloc = '\\0',", program[8], program[8], to_ascii(program[8]));
+    printf("\n  011: %03d | 0B: %02X | '%c' |                     = '\\0'",  program[9], program[9], to_ascii(program[9]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  012: %03d | 0C: %02X | · | uint16_t e_maxalloc = '\\0',", program[10], program[10]);
-    printf("\n  013: %03d | 0D: %02X | · |                     = '\\0'",  program[11], program[11]);
+    printf("\n  012: %03d | 0C: %02X | '%c' | uint16_t e_maxalloc = '\\0',", program[10], program[10], to_ascii(program[10]));
+    printf("\n  013: %03d | 0D: %02X | '%c' |                     = '\\0'",  program[11], program[11], to_ascii(program[11]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  014: %03d | 0E: %02X | · | uint16_t e_ss = '\\0',", program[12], program[12]);
-    printf("\n  015: %03d | 0F: %02X | · |               = '\\0'",  program[13], program[13]);
+    printf("\n  014: %03d | 0E: %02X | '%c' | uint16_t e_ss = '\\0',", program[12], program[12], to_ascii(program[12]));
+    printf("\n  015: %03d | 0F: %02X | '%c' |               = '\\0'",  program[13], program[13], to_ascii(program[13]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  016: %03d | 10: %02X | · | uint16_t e_sp = '\\0',", program[14], program[14]);
-    printf("\n  017: %03d | 11: %02X | · |               = '\\0'",  program[15], program[15]);
+    printf("\n  016: %03d | 10: %02X | '%c' | uint16_t e_sp = '\\0',", program[14], program[14], to_ascii(program[14]));
+    printf("\n  017: %03d | 11: %02X | '%c' |               = '\\0'",  program[15], program[15], to_ascii(program[15]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  018: %03d | 12: %02X | · | uint16_t e_csum = '\\0',", program[16], program[16]);
-    printf("\n  019: %03d | 13: %02X | · |                 = '\\0'",  program[17], program[17]);
+    printf("\n  018: %03d | 12: %02X | '%c' | uint16_t e_csum = '\\0',", program[16], program[16], to_ascii(program[16]));
+    printf("\n  019: %03d | 13: %02X | '%c' |                 = '\\0'",  program[17], program[17], to_ascii(program[17]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  020: %03d | 14: %02X | · | uint16_t e_ip = '\\0',", program[18], program[18]);
-    printf("\n  021: %03d | 15: %02X | · |               = '\\0'",  program[19], program[19]);
+    printf("\n  020: %03d | 14: %02X | '%c' | uint16_t e_ip = '\\0',", program[18], program[18], to_ascii(program[18]));
+    printf("\n  021: %03d | 15: %02X | '%c' |               = '\\0'",  program[19], program[19], to_ascii(program[19]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  022: %03d | 16: %02X | · | uint16_t e_cs = '\\0',", program[20], program[20]);
-    printf("\n  023: %03d | 17: %02X | · |               = '\\0'",  program[21], program[21]);
+    printf("\n  022: %03d | 16: %02X | '%c' | uint16_t e_cs = '\\0',", program[20], program[20], to_ascii(program[20]));
+    printf("\n  023: %03d | 17: %02X | '%c' |               = '\\0'",  program[21], program[21], to_ascii(program[21]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  024: %03d | 18: %02X | · | uint16_t e_lfarlc = '\\0',", program[22], program[22]);
-    printf("\n  025: %03d | 19: %02X | · |                   = '\\0'",  program[23], program[23]);
+    printf("\n  024: %03d | 18: %02X | '%c' | uint16_t e_lfarlc = '\\0',", program[22], program[22], to_ascii(program[22]));
+    printf("\n  025: %03d | 19: %02X | '%c' |                   = '\\0'",  program[23], program[23], to_ascii(program[23]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  026: %03d | 1A: %02X | · | uint16_t e_ovno = '\\0',", program[24], program[24]);
-    printf("\n  027: %03d | 1B: %02X | · |                 = '\\0'",  program[25], program[25]);
+    printf("\n  026: %03d | 1A: %02X | '%c' | uint16_t e_ovno = '\\0',", program[24], program[24], to_ascii(program[24]));
+    printf("\n  027: %03d | 1B: %02X | '%c' |                 = '\\0'",  program[25], program[25], to_ascii(program[25]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  028: %03d | 1C: %02X | · | uint16_t e_res[4] = '\\0', №1", program[26], program[26]);
-    printf("\n  029: %03d | 1D: %02X | · |                     '\\0',",    program[27], program[27]);
-    printf("\n  030: %03d | 1E: %02X | · |                     '\\0', №2", program[28], program[28]);
-    printf("\n  031: %03d | 1F: %02X | · |                     '\\0',",    program[29], program[29]);
-    printf("\n  032: %03d | 20: %02X | · |                     '\\0', №3", program[30], program[30]);
-    printf("\n  033: %03d | 21: %02X | · |                     '\\0',",    program[31], program[31]);
-    printf("\n  034: %03d | 22: %02X | · |                     '\\0', №4", program[32], program[32]);
-    printf("\n  035: %03d | 23: %02X | · |                     '\\0'.",    program[33], program[33]);
+    printf("\n  028: %03d | 1C: %02X | '%c' | uint16_t e_res[4] = '\\0', №1", program[26], program[26], to_ascii(program[26]));
+    printf("\n  029: %03d | 1D: %02X | '%c' |                     '\\0',",    program[27], program[27], to_ascii(program[27]));
+    printf("\n  030: %03d | 1E: %02X | '%c' |                     '\\0', №2", program[28], program[28], to_ascii(program[28]));
+    printf("\n  031: %03d | 1F: %02X | '%c' |                     '\\0',",    program[29], program[29], to_ascii(program[29]));
+    printf("\n  032: %03d | 20: %02X | '%c' |                     '\\0', №3", program[30], program[30], to_ascii(program[30]));
+    printf("\n  033: %03d | 21: %02X | '%c' |                     '\\0',",    program[31], program[31], to_ascii(program[31]));
+    printf("\n  034: %03d | 22: %02X | '%c' |                     '\\0', №4", program[32], program[32], to_ascii(program[32]));
+    printf("\n  035: %03d | 23: %02X | '%c' |                     '\\0'.",    program[33], program[33], to_ascii(program[33]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  036: %03d | 24: %02X | · | uint16_t e_oemid = '\\0', №1",  program[34], program[34]);
-    printf("\n  037: %03d | 25: %02X | · |                    '\\0'.",     program[35], program[35]);
+    printf("\n  036: %03d | 24: %02X | '%c' | uint16_t e_oemid = '\\0', №1",  program[34], program[34], to_ascii(program[34]));
+    printf("\n  037: %03d | 25: %02X | '%c' |                    '\\0'.",     program[35], program[35], to_ascii(program[35]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  038: %03d | 26: %02X | · | uint16_t e_oeminfo = '\\0', №1", program[36], program[36]);
-    printf("\n  039: %03d | 27: %02X | · |                      '\\0'.",    program[37], program[37]);
+    printf("\n  038: %03d | 26: %02X | '%c' | uint16_t e_oeminfo = '\\0', №1", program[36], program[36], to_ascii(program[36]));
+    printf("\n  039: %03d | 27: %02X | '%c' |                      '\\0'.",    program[37], program[37], to_ascii(program[37]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  040: %03d | 28: %02X | · | uint16_t e_res2[10] = '\\0', №1", program[38], program[38]);
-    printf("\n  041: %03d | 29: %02X | · |                       '\\0',",    program[39], program[39]);
-    printf("\n  042: %03d | 2A: %02X | · |                       '\\0', №2", program[40], program[40]);
-    printf("\n  043: %03d | 2B: %02X | · |                       '\\0',",    program[41], program[41]);
-    printf("\n  044: %03d | 2C: %02X | · |                       '\\0', №3", program[42], program[42]);
-    printf("\n  045: %03d | 2D: %02X | · |                       '\\0',",    program[43], program[43]);
-    printf("\n  046: %03d | 2E: %02X | · |                       '\\0', №4", program[44], program[44]);
-    printf("\n  047: %03d | 2F: %02X | · |                       '\\0',",    program[45], program[45]);
-    printf("\n  048: %03d | 30: %02X | · |                       '\\0', №5", program[46], program[46]);
-    printf("\n  049: %03d | 31: %02X | · |                       '\\0',",    program[47], program[47]);
-    printf("\n  050: %03d | 32: %02X | · |                       '\\0', №6", program[48], program[48]);
-    printf("\n  051: %03d | 33: %02X | · |                       '\\0',",    program[49], program[49]);
-    printf("\n  052: %03d | 34: %02X | · |                       '\\0', №7", program[50], program[50]);
-    printf("\n  053: %03d | 35: %02X | · |                       '\\0',",    program[51], program[51]);
-    printf("\n  054: %03d | 36: %02X | · |                       '\\0', №8", program[52], program[52]);
-    printf("\n  055: %03d | 37: %02X | · |                       '\\0',",    program[53], program[53]);
-    printf("\n  056: %03d | 38: %02X | · |                       '\\0', №9", program[54], program[54]);
-    printf("\n  057: %03d | 39: %02X | · |                       '\\0',",    program[55], program[55]);
-    printf("\n  058: %03d | 3A: %02X | · |                       '\\0', №10", program[56], program[56]); // 58 - 2 = 56
-    printf("\n  059: %03d | 3B: %02X | · |                       '\\0'.",     program[57], program[57]); // 59 - 2 = 57
+    printf("\n  040: %03d | 28: %02X | '%c' | uint16_t e_res2[10] = '\\0', №1", program[38], program[38], to_ascii(program[38]));
+    printf("\n  041: %03d | 29: %02X | '%c' |                       '\\0',",    program[39], program[39], to_ascii(program[39]));
+    printf("\n  042: %03d | 2A: %02X | '%c' |                       '\\0', №2", program[40], program[40], to_ascii(program[40]));
+    printf("\n  043: %03d | 2B: %02X | '%c' |                       '\\0',",    program[41], program[41], to_ascii(program[41]));
+    printf("\n  044: %03d | 2C: %02X | '%c' |                       '\\0', №3", program[42], program[42], to_ascii(program[42]));
+    printf("\n  045: %03d | 2D: %02X | '%c' |                       '\\0',",    program[43], program[43], to_ascii(program[43]));
+    printf("\n  046: %03d | 2E: %02X | '%c' |                       '\\0', №4", program[44], program[44], to_ascii(program[44]));
+    printf("\n  047: %03d | 2F: %02X | '%c' |                       '\\0',",    program[45], program[45], to_ascii(program[45]));
+    printf("\n  048: %03d | 30: %02X | '%c' |                       '\\0', №5", program[46], program[46], to_ascii(program[46]));
+    printf("\n  049: %03d | 31: %02X | '%c' |                       '\\0',",    program[47], program[47], to_ascii(program[47]));
+    printf("\n  050: %03d | 32: %02X | '%c' |                       '\\0', №6", program[48], program[48], to_ascii(program[48]));
+    printf("\n  051: %03d | 33: %02X | '%c' |                       '\\0',",    program[49], program[49], to_ascii(program[49]));
+    printf("\n  052: %03d | 34: %02X | '%c' |                       '\\0', №7", program[50], program[50], to_ascii(program[50]));
+    printf("\n  053: %03d | 35: %02X | '%c' |                       '\\0',",    program[51], program[51], to_ascii(program[51]));
+    printf("\n  054: %03d | 36: %02X | '%c' |                       '\\0', №8", program[52], program[52], to_ascii(program[52]));
+    printf("\n  055: %03d | 37: %02X | '%c' |                       '\\0',",    program[53], program[53], to_ascii(program[53]));
+    printf("\n  056: %03d | 38: %02X | '%c' |                       '\\0', №9", program[54], program[54], to_ascii(program[54]));
+    printf("\n  057: %03d | 39: %02X | '%c' |                       '\\0',",    program[55], program[55], to_ascii(program[55]));
+    printf("\n  058: %03d | 3A: %02X | '%c' |                       '\\0', №10", program[56], program[56], to_ascii(program[56]));
+    printf("\n  059: %03d | 3B: %02X | '%c' |                       '\\0'.",     program[57], program[57], to_ascii(program[57]));
     printf("\n -------------------------------------------------------------");
     typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
     union__uint32_t e_lfanew;
@@ -190,7 +197,6 @@ void pe_analyzer()
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
     printf("\n -------------------------------------------------------------");
-    typedef union { uint16_t value; uint8_t bytes[4]; } union__uint16_t;
     union__uint16_t Machine;
     if (fread(&Machine.value, 2, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ MACHINE
     {
