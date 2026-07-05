@@ -39,6 +39,18 @@ uint8_t program[2048];
 
 uint64_t offset = 0;
 
+// Функция превращает байт в печатный символ, а непечатные заменяет точкой
+char to_ascii(uint8_t b)
+{
+    switch (b){
+    case '\0': return '·';
+    case '\t': return '·';
+    case '\n': return '·';
+    case '\r': return '·';
+    }
+    //return (b >= 32 && b <= 126) ? (char) b : '·';
+}
+
 // Порядок байт: little-endian
 
 void pe_builder()
@@ -153,15 +165,16 @@ void pe_analyzer()
     printf("\n  062: %03d | 3E: %02X | '%c' |", e_lfanew.bytes[2], e_lfanew.bytes[2], e_lfanew.bytes[2]);
     printf("\n  063: %03d | 3F: %02X | '%c' |", e_lfanew.bytes[3], e_lfanew.bytes[3], e_lfanew.bytes[3]);
     printf("\n -------------------------------------------------------------");
+    // С этого момента байты могут смещаться (иметь разную длину) ?
     if (e_lfanew.value > 64)
     {
         for (int i = 64, byte = 0; i < e_lfanew.value; i++)
         {
             byte = getc(descriptor);
-            printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, byte);
+            printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, to_ascii(byte));
         }
     }
-    offset = e_lfanew.value; // С этого момента байты могут смещаться (иметь разную длину) ?
+    offset = e_lfanew.value;
     printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
@@ -171,10 +184,11 @@ void pe_analyzer()
         printf("\n Ошибка чтения pe_signature");
         return;
     }
-    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)", offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], pe_signature.bytes[0], pe_signature.value, pe_signature.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], pe_signature.bytes[1]);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], pe_signature.bytes[2]);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], pe_signature.bytes[3]);
+    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)",
+                                                             offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], to_ascii(pe_signature.bytes[0]), pe_signature.value, pe_signature.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], to_ascii(pe_signature.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
     printf("\n -------------------------------------------------------------");
     typedef union { uint16_t value; uint8_t bytes[4]; } union__uint16_t;
     union__uint16_t Machine;
@@ -183,8 +197,9 @@ void pe_analyzer()
         printf("\n Ошибка чтения Machine");
         return;
     }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%02X)", offset, Machine.bytes[0], offset, Machine.bytes[0], Machine.bytes[0], Machine.value, Machine.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, Machine.bytes[1], offset, Machine.bytes[1], Machine.bytes[1], Machine.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%02X)",
+                                                             offset, Machine.bytes[0], offset, Machine.bytes[0], to_ascii(Machine.bytes[0]), Machine.value, Machine.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, Machine.bytes[1], offset, Machine.bytes[1], to_ascii(Machine.bytes[1]));
     printf("\n -------------------------------------------------------------");
     fclose(descriptor);
 }
