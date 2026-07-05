@@ -56,7 +56,7 @@ void pe_builder()
 
 void pe_analyzer()
 {
-    FILE * descriptor = fopen("test_subject.exe", "rb");
+    FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
     if (fread(e_magic, 1, 2, descriptor) != 2) { printf("\n  e_magic != size: 2");/**/ return; } // e_magic | 000: 077 090 | 00: 4D 5A | MZ
@@ -141,43 +141,50 @@ void pe_analyzer()
     printf("\n  058: %03d | 3A: %02X | · |                       '\\0', №10", program[56], program[56]); // 58 - 2 = 56
     printf("\n  059: %03d | 3B: %02X | · |                       '\\0'.",     program[57], program[57]); // 59 - 2 = 57
     printf("\n -------------------------------------------------------------");
-    typedef union { uint32_t value; /* little-endian? */ uint8_t bytes[4]; } union__uint32_t;
+    typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
     union__uint32_t e_lfanew;
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ E_LFANEW
     {
         printf("\n Ошибка чтения e_lfanew");
         return;
     }
-    //if (fread(e_lfanew, 1, 4, descriptor) != 4) { /**/printf("\n  e_lfanew != 4");/**/ return; }
-    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", // Без костылей!
-                                                e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0],
-                                                 e_lfanew.value, e_lfanew.value
-    );
+    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.value, e_lfanew.value);
     printf("\n  061: %03d | 3D: %02X | '%c' |", e_lfanew.bytes[1], e_lfanew.bytes[1], e_lfanew.bytes[1]);
     printf("\n  062: %03d | 3E: %02X | '%c' |", e_lfanew.bytes[2], e_lfanew.bytes[2], e_lfanew.bytes[2]);
     printf("\n  063: %03d | 3F: %02X | '%c' |", e_lfanew.bytes[3], e_lfanew.bytes[3], e_lfanew.bytes[3]);
+    printf("\n -------------------------------------------------------------");
+    if (e_lfanew.value > 64)
+    {
+        for (int i = 64, byte = 0; i < e_lfanew.value; i++)
+        {
+            byte = getc(descriptor);
+            printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, byte);
+        }
+    }
+    offset = e_lfanew.value; // С этого момента байты могут смещаться (иметь разную длину) ?
     printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
     union__uint32_t pe_signature;
     if (fread(&pe_signature.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ PE_SIGNATURE
-    { 
+    {
         printf("\n Ошибка чтения pe_signature");
-        return; 
+        return;
     }
-    //if (fread(pe_signature, 1, 4, descriptor) != 4) { /**/printf("\n  pe_signature != 4");/**/ return; } // pe_signature | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
-    printf("\n  064: %03d | 40: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)",
-                                                pe_signature.bytes[0], pe_signature.bytes[0], pe_signature.bytes[0],
-                                                 pe_signature.value, pe_signature.value
-    );
-    printf("\n  065: %03d | 41: %02X | '%c' |", pe_signature.bytes[1], pe_signature.bytes[1], pe_signature.bytes[1]);
-    printf("\n  066: %03d | 42: %02X | '%c' |", pe_signature.bytes[2], pe_signature.bytes[2], pe_signature.bytes[2]);
-    printf("\n  067: %03d | 43: %02X | '%c' |", pe_signature.bytes[3], pe_signature.bytes[3], pe_signature.bytes[3]);
+    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)", offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], pe_signature.bytes[0], pe_signature.value, pe_signature.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], pe_signature.bytes[1]);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], pe_signature.bytes[2]);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], pe_signature.bytes[3]);
     printf("\n -------------------------------------------------------------");
-    if (fread(Machine, 1, 2, descriptor) != 2) { /**/printf("\n  Machine != 2");/**/ return; } // Machine | 060: ??? ??? 000 000 | 40: ?? ?? 00 00
-    //if (fread(Machine, 2, 1, descriptor) != 1)
-    printf("\n  068: %03d | 44: %02X |  '%c' | uint16_t Machine = \\x%X%X", Machine[0], Machine[0], Machine[0], Machine[1], Machine[0]);
-    printf("\n  069: %03d | 45: %02X |  '%c' |",  Machine[1], Machine[1], Machine[1]);
+    typedef union { uint16_t value; uint8_t bytes[4]; } union__uint16_t;
+    union__uint16_t Machine;
+    if (fread(&Machine.value, 2, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ MACHINE
+    {
+        printf("\n Ошибка чтения Machine");
+        return;
+    }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%02X)", offset, Machine.bytes[0], offset, Machine.bytes[0], Machine.bytes[0], Machine.value, Machine.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, Machine.bytes[1], offset, Machine.bytes[1], Machine.bytes[1], Machine.value);
     printf("\n -------------------------------------------------------------");
     fclose(descriptor);
 }
