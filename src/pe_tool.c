@@ -86,8 +86,8 @@ void pe_analyzer()
     printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
     printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
     printf("\n -------------------------------------------------------------");
-    if (fread(program, 1, 58, descriptor) != 58) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
     uint8_t dos_reserved[58];
+    if (fread(dos_reserved, 1, 58, descriptor) != 58) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
     printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',",         dos_reserved[0], dos_reserved[0], to_ascii(dos_reserved[0]));
     printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",          dos_reserved[1], dos_reserved[1], to_ascii(dos_reserved[1]));
     printf("\n -------------------------------------------------------------");
