@@ -77,65 +77,66 @@ void pe_builder()
     fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections      -|-  Количество секций
     fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t TimeDateStamp         -|-  Время создания файла
     fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t PointerToSymbolTable  -|-  Символьная таблица (для дебага, у нас 0)
-#endif
+    //fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t NumberOfSymbols;      -|-  Количество символов
+    #endif
     fclose(descriptor);
 }
 
 void pe_analyzer()
 {
 #if defined OS_WINDOWS
-    FILE * descriptor = fopen("test_subject.exe", "rb");
-    //FILE * descriptor = fopen("pe_tool.exe", "rb");
+    //FILE * descriptor = fopen("test_subject.exe", "rb");
+    FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
     if (fread(&e_magic, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_magic");*/ return; }
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
     printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     // Размер массива должен быть строго 38 байт (40 - 2 байта MZ)
     uint8_t dos_reserved[38];
     // Читаем ровно 38 байт, чтобы каретка файла остановилась строго на позиции 40
     if (fread(dos_reserved, 1, 38, descriptor) != 38) { /*printf("\n  Ошибка чтения по смещению 002~039 | 02~27");*/ return; }
     printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',",         dos_reserved[0], dos_reserved[0], to_ascii(dos_reserved[0]));
     printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",          dos_reserved[1], dos_reserved[1], to_ascii(dos_reserved[1]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  004: %03d | 04: %02X | '%c' | uint16_t e_cp = '\\0',",           dos_reserved[2], dos_reserved[2], to_ascii(dos_reserved[2]));
     printf("\n  005: %03d | 05: %02X | '%c' |               = '\\0'",            dos_reserved[3], dos_reserved[3], to_ascii(dos_reserved[3]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  006: %03d | 06: %02X | '%c' | uint16_t e_crlc = '\\0',",         dos_reserved[4], dos_reserved[4], to_ascii(dos_reserved[4]));
     printf("\n  007: %03d | 07: %02X | '%c' |                 = '\\0'",          dos_reserved[5], dos_reserved[5], to_ascii(dos_reserved[5]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  008: %03d | 08: %02X | '%c' | uint16_t e_cparhdr = '\\0',",      dos_reserved[6], dos_reserved[6], to_ascii(dos_reserved[6]));
     printf("\n  009: %03d | 09: %02X | '%c' |                    = '\\0'",       dos_reserved[7], dos_reserved[7], to_ascii(dos_reserved[7]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  010: %03d | 0A: %02X | '%c' | uint16_t e_minalloc = '\\0',",     dos_reserved[8], dos_reserved[8], to_ascii(dos_reserved[8]));
     printf("\n  011: %03d | 0B: %02X | '%c' |                     = '\\0'",      dos_reserved[9], dos_reserved[9], to_ascii(dos_reserved[9]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  012: %03d | 0C: %02X | '%c' | uint16_t e_maxalloc = '\\0',",     dos_reserved[10], dos_reserved[10], to_ascii(dos_reserved[10]));
     printf("\n  013: %03d | 0D: %02X | '%c' |                     = '\\0'",      dos_reserved[11], dos_reserved[11], to_ascii(dos_reserved[11]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  014: %03d | 0E: %02X | '%c' | uint16_t e_ss = '\\0',",           dos_reserved[12], dos_reserved[12], to_ascii(dos_reserved[12]));
     printf("\n  015: %03d | 0F: %02X | '%c' |               = '\\0'",            dos_reserved[13], dos_reserved[13], to_ascii(dos_reserved[13]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  016: %03d | 10: %02X | '%c' | uint16_t e_sp = '\\0',",           dos_reserved[14], dos_reserved[14], to_ascii(dos_reserved[14]));
     printf("\n  017: %03d | 11: %02X | '%c' |               = '\\0'",            dos_reserved[15], dos_reserved[15], to_ascii(dos_reserved[15]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  018: %03d | 12: %02X | '%c' | uint16_t e_csum = '\\0',",         dos_reserved[16], dos_reserved[16], to_ascii(dos_reserved[16]));
     printf("\n  019: %03d | 13: %02X | '%c' |                 = '\\0'",          dos_reserved[17], dos_reserved[17], to_ascii(dos_reserved[17]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  020: %03d | 14: %02X | '%c' | uint16_t e_ip = '\\0',",           dos_reserved[18], dos_reserved[18], to_ascii(dos_reserved[18]));
     printf("\n  021: %03d | 15: %02X | '%c' |               = '\\0'",            dos_reserved[19], dos_reserved[19], to_ascii(dos_reserved[19]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  022: %03d | 16: %02X | '%c' | uint16_t e_cs = '\\0',",           dos_reserved[20], dos_reserved[20], to_ascii(dos_reserved[20]));
     printf("\n  023: %03d | 17: %02X | '%c' |               = '\\0'",            dos_reserved[21], dos_reserved[21], to_ascii(dos_reserved[21]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  024: %03d | 18: %02X | '%c' | uint16_t e_lfarlc = '\\0',",       dos_reserved[22], dos_reserved[22], to_ascii(dos_reserved[22]));
     printf("\n  025: %03d | 19: %02X | '%c' |                   = '\\0'",        dos_reserved[23], dos_reserved[23], to_ascii(dos_reserved[23]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  026: %03d | 1A: %02X | '%c' | uint16_t e_ovno = '\\0',",         dos_reserved[24], dos_reserved[24], to_ascii(dos_reserved[24]));
     printf("\n  027: %03d | 1B: %02X | '%c' |                 = '\\0'",          dos_reserved[25], dos_reserved[25], to_ascii(dos_reserved[25]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  028: %03d | 1C: %02X | '%c' | uint16_t e_res[4] = '\\0', №1",    dos_reserved[26], dos_reserved[26], to_ascii(dos_reserved[26]));
     printf("\n  029: %03d | 1D: %02X | '%c' |                     '\\0',",       dos_reserved[27], dos_reserved[27], to_ascii(dos_reserved[27]));
     printf("\n  030: %03d | 1E: %02X | '%c' |                     '\\0', №2",    dos_reserved[28], dos_reserved[28], to_ascii(dos_reserved[28]));
@@ -144,13 +145,13 @@ void pe_analyzer()
     printf("\n  033: %03d | 21: %02X | '%c' |                     '\\0',",       dos_reserved[31], dos_reserved[31], to_ascii(dos_reserved[31]));
     printf("\n  034: %03d | 22: %02X | '%c' |                     '\\0', №4",    dos_reserved[32], dos_reserved[32], to_ascii(dos_reserved[32]));
     printf("\n  035: %03d | 23: %02X | '%c' |                     '\\0'.",       dos_reserved[33], dos_reserved[33], to_ascii(dos_reserved[33]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  036: %03d | 24: %02X | '%c' | uint16_t e_oemid = '\\0', №1",     dos_reserved[34], dos_reserved[34], to_ascii(dos_reserved[34]));
     printf("\n  037: %03d | 25: %02X | '%c' |                    '\\0'.",        dos_reserved[35], dos_reserved[35], to_ascii(dos_reserved[35]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     printf("\n  038: %03d | 26: %02X | '%c' | uint16_t e_oeminfo = '\\0', №1",   dos_reserved[36], dos_reserved[36], to_ascii(dos_reserved[36]));
     printf("\n  039: %03d | 27: %02X | '%c' |                      '\\0'.",      dos_reserved[37], dos_reserved[37], to_ascii(dos_reserved[37]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     // ЖЕСТКИЙ СБРОС КАРЕТКИ НА СМЕЩЕНИЕ 40 (0x28)
     // Это полностью исправит сдвиг в 10 байт, накопленный выше по коду
     //fseek(descriptor, 40, SEEK_SET);
@@ -182,14 +183,14 @@ void pe_analyzer()
      to_ascii(e_res2[9].bytes[0]), to_ascii(e_res2[9].bytes[1]),
      e_res2[9].value
     );
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     //printf("\n %zu", sizeof (union__uint16_t)); // 2
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
     printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], to_ascii(e_lfanew.bytes[0]), e_lfanew.value, e_lfanew.value);
     printf("\n  061: %03d | 3D: %02X | '%c' |",                                 e_lfanew.bytes[1], e_lfanew.bytes[1], to_ascii(e_lfanew.bytes[1]));
     printf("\n  062: %03d | 3E: %02X | '%c' |",                                 e_lfanew.bytes[2], e_lfanew.bytes[2], to_ascii(e_lfanew.bytes[2]));
     printf("\n  063: %03d | 3F: %02X | '%c' |",                                 e_lfanew.bytes[3], e_lfanew.bytes[3], to_ascii(e_lfanew.bytes[3]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     // С этого момента структура блоков (её полей) может иметь разное смещение
     if (e_lfanew.value > 64)
     {
@@ -198,39 +199,45 @@ void pe_analyzer()
             byte = getc(descriptor);
             printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, to_ascii(byte));
         }
+        printf("\n -------------------------------------------------------------------------------");
     }
     offset = e_lfanew.value;
-    //printf("\n -----------------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     if (fread(&pe_signature.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения pe_signature");*/ return; }
     printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)", offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], to_ascii(pe_signature.bytes[0]), pe_signature.value, pe_signature.value);
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], to_ascii(pe_signature.bytes[1]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     if (fread(&Machine.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения Machine");*/ return; }
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%04X)", offset, Machine.bytes[0], offset, Machine.bytes[0], to_ascii(Machine.bytes[0]), Machine.value, Machine.value);
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                offset, Machine.bytes[1], offset, Machine.bytes[1], to_ascii(Machine.bytes[1]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения NumberOfSections");*/ return; }
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t NumberOfSections = %u (0x%04X)", offset, NumberOfSections.bytes[0], offset, NumberOfSections.bytes[0], to_ascii(NumberOfSections.bytes[0]), NumberOfSections.value, NumberOfSections.value);
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, NumberOfSections.bytes[1], offset, NumberOfSections.bytes[1], to_ascii(NumberOfSections.bytes[1]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения TimeDateStamp");*/ return; }
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t TimeDateStamp = %u (0x%08X)", offset, TimeDateStamp.bytes[0], offset, TimeDateStamp.bytes[0], to_ascii(TimeDateStamp.bytes[0]), TimeDateStamp.value, TimeDateStamp.value);
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[1], offset, TimeDateStamp.bytes[1], to_ascii(TimeDateStamp.bytes[1]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
-    printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
     if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения PointerToSymbolTable");*/ return; }
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t PointerToSymbolTable = %u (0x%08X)", offset, PointerToSymbolTable.bytes[0], offset, PointerToSymbolTable.bytes[0], to_ascii(PointerToSymbolTable.bytes[0]), PointerToSymbolTable.value, PointerToSymbolTable.value);
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[1], offset, PointerToSymbolTable.bytes[1], to_ascii(PointerToSymbolTable.bytes[1]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[2], offset, PointerToSymbolTable.bytes[2], to_ascii(PointerToSymbolTable.bytes[2]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[3], offset, PointerToSymbolTable.bytes[3], to_ascii(PointerToSymbolTable.bytes[3]));
-    printf("\n -----------------------------------------------------------------------");
-    
-    //printf("\n -----------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------");
+    if (fread(&NumberOfSymbols.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения NumberOfSymbols");*/ return; }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t NumberOfSymbols = %u (0x%08X)", offset, NumberOfSymbols.bytes[0], offset, NumberOfSymbols.bytes[0], to_ascii(NumberOfSymbols.bytes[0]), NumberOfSymbols.value, NumberOfSymbols.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, NumberOfSymbols.bytes[1], offset, NumberOfSymbols.bytes[1], to_ascii(NumberOfSymbols.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, NumberOfSymbols.bytes[2], offset, NumberOfSymbols.bytes[2], to_ascii(NumberOfSymbols.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, NumberOfSymbols.bytes[3], offset, NumberOfSymbols.bytes[3], to_ascii(NumberOfSymbols.bytes[3]));
+    printf("\n -------------------------------------------------------------------------------");
+
+    //printf("\n -------------------------------------------------------------------------------");
 #endif
     fclose(descriptor);
 }
