@@ -91,8 +91,12 @@ void pe_analyzer()
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
     if (fread(&e_magic, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_magic");*/ return; }
     printf("\n -------------------------------------------------------------------------------");
-    printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
-    printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
+    printf("\n  000: %03d %03d | 00: %02X %02X | \"%c%c\" | uint16_t e_magic = %u (0x%04X)",
+        e_magic.bytes[0], e_magic.bytes[1],
+        e_magic.bytes[0], e_magic.bytes[1],
+        to_ascii(e_magic.bytes[0]), to_ascii(e_magic.bytes[1]),
+        e_magic.value, e_magic.value
+    );
     printf("\n -------------------------------------------------------------------------------");
     // Размер массива должен быть строго 38 байт (40 - 2 байта MZ)
     uint8_t dos_reserved[38];
