@@ -152,7 +152,7 @@ void pe_analyzer()
     // Явно указываем адрес поля value самого первого элемента. 
     // fread запишет 20 байт подряд во все последующие .value элементы массива
     if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n Ошибка чтения e_res2[10]");*/ return; }
-    printf("\n  040, 041: %03d %03d | 28, 29: %02X %02X | '%c', '%c' | uint16_t e_res2[10] = {%u,",
+    printf("\n  040, 041: %03d %03d | 28, 29: %02X %02X | \"%c%c\" | uint16_t e_res2[10] = {%u,",
      e_res2[0].bytes[0], e_res2[0].bytes[1],
      e_res2[0].bytes[0], e_res2[0].bytes[1],
      to_ascii(e_res2[0].bytes[0]), to_ascii(e_res2[0].bytes[1]),
@@ -162,7 +162,7 @@ void pe_analyzer()
     for (unsigned char i = 1; i <= 8; i++)
     {
         //offset += 2;
-        printf("\n  %03d, %03d: %03d %03d | %02X, %02X: %02X %02X | '%c', '%c' | \t\t\t%u,",
+        printf("\n  %03d, %03d: %03d %03d | %02X, %02X: %02X %02X | \"%c%c\" | \t\t\t    %u,",
          offset, offset+1, e_res2[i].bytes[0], e_res2[i].bytes[1],
          offset, offset+1, e_res2[i].bytes[0], e_res2[i].bytes[1],
          to_ascii(e_res2[i].bytes[0]), to_ascii(e_res2[i].bytes[1]),
@@ -170,7 +170,7 @@ void pe_analyzer()
         );
         offset += 2;
     }
-    printf("\n  058, 059: %03d %03d | 3A, 3B: %02X %02X | '%c', '%c' | \t\t\t%u};",
+    printf("\n  058, 059: %03d %03d | 3A, 3B: %02X %02X | \"%c%c\" | \t\t\t    %u};",
      e_res2[9].bytes[0], e_res2[9].bytes[1],
      e_res2[9].bytes[0], e_res2[9].bytes[1],
      to_ascii(e_res2[9].bytes[0]), to_ascii(e_res2[9].bytes[1]),
@@ -179,12 +179,12 @@ void pe_analyzer()
     printf("\n -------------------------------------------------------------");
     //printf("\n %zu", sizeof (union__uint16_t)); // 2
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
-    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.value, e_lfanew.value);
-    printf("\n  061: %03d | 3D: %02X | '%c' |",                                 e_lfanew.bytes[1], e_lfanew.bytes[1], e_lfanew.bytes[1]);
-    printf("\n  062: %03d | 3E: %02X | '%c' |",                                 e_lfanew.bytes[2], e_lfanew.bytes[2], e_lfanew.bytes[2]);
-    printf("\n  063: %03d | 3F: %02X | '%c' |",                                 e_lfanew.bytes[3], e_lfanew.bytes[3], e_lfanew.bytes[3]);
+    printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], to_ascii(e_lfanew.bytes[0]), e_lfanew.value, e_lfanew.value);
+    printf("\n  061: %03d | 3D: %02X | '%c' |",                                 e_lfanew.bytes[1], e_lfanew.bytes[1], to_ascii(e_lfanew.bytes[1]));
+    printf("\n  062: %03d | 3E: %02X | '%c' |",                                 e_lfanew.bytes[2], e_lfanew.bytes[2], to_ascii(e_lfanew.bytes[2]));
+    printf("\n  063: %03d | 3F: %02X | '%c' |",                                 e_lfanew.bytes[3], e_lfanew.bytes[3], to_ascii(e_lfanew.bytes[3]));
     printf("\n -------------------------------------------------------------");
-    // С этого момента байты могут смещаться (иметь разную длину) ?
+    // С этого момента структура блоков (её полей) может иметь разное смещение
     if (e_lfanew.value > 64)
     {
         for (int i = 64, byte = 0; i < e_lfanew.value; i++)
