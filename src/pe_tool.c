@@ -57,13 +57,15 @@ char to_ascii(uint8_t b)
     case '\n': return '·';
     case '\r': return '·';
     }
+    return b;
     //return (b >= 32 && b <= 126) ? (char) b : '·';
 }
 
-// Порядок байт: little-endian
+#define OS_WINDOWS
 
 void pe_builder()
 {
+#if defined OS_WINDOWS
     FILE * descriptor = fopen("test_subject.exe", "wb");
     if (!descriptor) return;
     fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
@@ -73,11 +75,13 @@ void pe_builder()
     fwrite("PE\0\0", 1, 4, descriptor);           // uint32_t pe_signature     | PE-сигнатура
     fwrite("\x64\x86", 1, 2, descriptor);         // uint16_t Machine          | Архитектура процессора
     fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections | Количество секций
+#endif
     fclose(descriptor);
 }
 
 void pe_analyzer()
 {
+#if defined OS_WINDOWS
     FILE * descriptor = fopen("test_subject.exe", "rb");
     //FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
@@ -213,10 +217,11 @@ void pe_analyzer()
     printf("\n -----------------------------------------------------------------------");
     if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения TimeDateStamp");*/ return; }
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t TimeDateStamp = %u (0x%08X)", offset, TimeDateStamp.bytes[0], offset, TimeDateStamp.bytes[0], to_ascii(TimeDateStamp.bytes[0]), TimeDateStamp.value, TimeDateStamp.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[1], offset, TimeDateStamp.bytes[1], to_ascii(TimeDateStamp.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[1], offset, TimeDateStamp.bytes[1], to_ascii(TimeDateStamp.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
     printf("\n -----------------------------------------------------------------------");
+#endif
     fclose(descriptor);
 }
 
