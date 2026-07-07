@@ -68,32 +68,25 @@ void pe_builder()
     fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
     uint8_t dos_reserved[58] = {0}; // Гарантируем ровно 58 байт нулей в зарезервированной зоне DOS
     fwrite(dos_reserved, 1, 58, descriptor);
-    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // Записываем e_lfanew (0x00000040 = 64 в десятичной)
-    fwrite("PE\0\0", 1, 4, descriptor);           // Записываем сигнатуру PE
-    fwrite("\x64\x86", 1, 2, descriptor);         // Записываем архитектуру Machine (0x8664)
+    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // uint32_t e_lfanew         | Адрес PE-сигнатуры (0x00000040 = 64 в десятичной)
+    fwrite("PE\0\0", 1, 4, descriptor);           // uint32_t pe_signature     | PE-сигнатура
+    fwrite("\x64\x86", 1, 2, descriptor);         // uint16_t Machine          | Архитектура процессора
+    fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections | Количество секций
     fclose(descriptor);
 }
 
 void pe_analyzer()
 {
-    FILE * descriptor = fopen("test_subject.exe", "rb");
-    //FILE * descriptor = fopen("pe_tool.exe", "rb");
+    //FILE * descriptor = fopen("test_subject.exe", "rb");
+    FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
-    if (fread(&e_magic, 2, 1, descriptor) != 1)
-    {
-        printf("\n Ошибка чтения e_magic");
-        return;
-    }
+    if (fread(&e_magic, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_magic");*/ return; }
     printf("\n -------------------------------------------------------------");
     printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
     printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
     printf("\n -------------------------------------------------------------");
-    if (fread(program, 1, 58, descriptor) != 58)
-    {
-        printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");
-        return;
-    }
+    if (fread(program, 1, 58, descriptor) != 58) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
     uint8_t dos_reserved[58];
     printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',",         dos_reserved[0], dos_reserved[0], to_ascii(dos_reserved[0]));
     printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",          dos_reserved[1], dos_reserved[1], to_ascii(dos_reserved[1]));
@@ -170,11 +163,7 @@ void pe_analyzer()
     printf("\n  058: %03d | 3A: %02X | '%c' |                       '\\0', №10", dos_reserved[56], dos_reserved[56], to_ascii(dos_reserved[56]));
     printf("\n  059: %03d | 3B: %02X | '%c' |                       '\\0'.",     dos_reserved[57], dos_reserved[57], to_ascii(dos_reserved[57]));
     printf("\n -------------------------------------------------------------");
-    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ E_LFANEW
-    {
-        printf("\n Ошибка чтения e_lfanew");
-        return;
-    }
+    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
     printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.value, e_lfanew.value);
     printf("\n  061: %03d | 3D: %02X | '%c' |",                                 e_lfanew.bytes[1], e_lfanew.bytes[1], e_lfanew.bytes[1]);
     printf("\n  062: %03d | 3E: %02X | '%c' |",                                 e_lfanew.bytes[2], e_lfanew.bytes[2], e_lfanew.bytes[2]);
@@ -193,25 +182,25 @@ void pe_analyzer()
     printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
-    if (fread(&pe_signature.value, 4, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ PE_SIGNATURE
-    {
-        printf("\n Ошибка чтения pe_signature");
-        return;
-    }
-    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)",
-                                                             offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], to_ascii(pe_signature.bytes[0]), pe_signature.value, pe_signature.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], to_ascii(pe_signature.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
+    if (fread(&pe_signature.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения pe_signature");*/ return; }
+    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u (0x%08X)", offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], to_ascii(pe_signature.bytes[0]), pe_signature.value, pe_signature.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], to_ascii(pe_signature.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                           offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
     printf("\n -------------------------------------------------------------");
-    if (fread(&Machine.value, 2, 1, descriptor) != 1) // БЛОК ЧТЕНИЯ MACHINE
-    {
-        printf("\n Ошибка чтения Machine");
-        return;
-    }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%02X)",
-                                                             offset, Machine.bytes[0], offset, Machine.bytes[0], to_ascii(Machine.bytes[0]), Machine.value, Machine.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |", offset, Machine.bytes[1], offset, Machine.bytes[1], to_ascii(Machine.bytes[1]));
+    if (fread(&Machine.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения Machine");*/ return; }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u (0x%04X)", offset, Machine.bytes[0], offset, Machine.bytes[0], to_ascii(Machine.bytes[0]), Machine.value, Machine.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                offset, Machine.bytes[1], offset, Machine.bytes[1], to_ascii(Machine.bytes[1]));
+    printf("\n -------------------------------------------------------------");
+    if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения NumberOfSections");*/ return; }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t NumberOfSections = %u (0x%04X)", offset, NumberOfSections.bytes[0], offset, NumberOfSections.bytes[0], to_ascii(NumberOfSections.bytes[0]), NumberOfSections.value, NumberOfSections.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, NumberOfSections.bytes[1], offset, NumberOfSections.bytes[1], to_ascii(NumberOfSections.bytes[1]));
+    printf("\n -------------------------------------------------------------");
+    if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения TimeDateStamp");*/ return; }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t TimeDateStamp = %u (0x%08X)", offset, TimeDateStamp.bytes[0], offset, TimeDateStamp.bytes[0], to_ascii(TimeDateStamp.bytes[0]), TimeDateStamp.value, TimeDateStamp.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[1], offset, TimeDateStamp.bytes[1], to_ascii(TimeDateStamp.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                         offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
     printf("\n -------------------------------------------------------------");
     fclose(descriptor);
 }
