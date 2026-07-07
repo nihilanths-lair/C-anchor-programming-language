@@ -71,10 +71,12 @@ void pe_builder()
     fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
     uint8_t dos_reserved[58] = {0}; // Гарантируем ровно 58 байт нулей в зарезервированной зоне DOS
     fwrite(dos_reserved, 1, 58, descriptor);
-    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // uint32_t e_lfanew         | Адрес PE-сигнатуры (0x00000040 = 64 в десятичной)
-    fwrite("PE\0\0", 1, 4, descriptor);           // uint32_t pe_signature     | PE-сигнатура
-    fwrite("\x64\x86", 1, 2, descriptor);         // uint16_t Machine          | Архитектура процессора
-    fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections | Количество секций
+    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // uint32_t e_lfanew              -|-  Адрес PE-сигнатуры (0x00000040 = 64 в десятичной)
+    fwrite("PE\0\0", 1, 4, descriptor);           // uint32_t pe_signature          -|-  PE-сигнатура
+    fwrite("\x64\x86", 1, 2, descriptor);         // uint16_t Machine               -|-  Архитектура процессора
+    fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections      -|-  Количество секций
+    fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t TimeDateStamp         -|-  Время создания файла
+    fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t PointerToSymbolTable  -|-  Символьная таблица (для дебага, у нас 0)
 #endif
     fclose(descriptor);
 }
@@ -221,6 +223,14 @@ void pe_analyzer()
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
     offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                      offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
     printf("\n -----------------------------------------------------------------------");
+    if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения PointerToSymbolTable");*/ return; }
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t PointerToSymbolTable = %u (0x%08X)", offset, PointerToSymbolTable.bytes[0], offset, PointerToSymbolTable.bytes[0], to_ascii(PointerToSymbolTable.bytes[0]), PointerToSymbolTable.value, PointerToSymbolTable.value);
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[1], offset, PointerToSymbolTable.bytes[1], to_ascii(PointerToSymbolTable.bytes[1]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[2], offset, PointerToSymbolTable.bytes[2], to_ascii(PointerToSymbolTable.bytes[2]));
+    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                             offset, PointerToSymbolTable.bytes[3], offset, PointerToSymbolTable.bytes[3], to_ascii(PointerToSymbolTable.bytes[3]));
+    printf("\n -----------------------------------------------------------------------");
+    
+    //printf("\n -----------------------------------------------------------------------");
 #endif
     fclose(descriptor);
 }
