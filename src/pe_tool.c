@@ -87,8 +87,10 @@ void pe_analyzer()
     printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
     printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
     printf("\n -------------------------------------------------------------");
-    uint8_t dos_reserved[58-10];
-    if (fread(dos_reserved, 1, 58-10, descriptor) != 58-10) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
+    // Размер массива должен быть строго 38 байт (40 - 2 байта MZ)
+    uint8_t dos_reserved[38];
+    // Читаем ровно 38 байт, чтобы каретка файла остановилась строго на позиции 40
+    if (fread(dos_reserved, 1, 38, descriptor) != 38) { /*printf("\n  Ошибка чтения по смещению 002~039 | 02~27");*/ return; }
     printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',",         dos_reserved[0], dos_reserved[0], to_ascii(dos_reserved[0]));
     printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",          dos_reserved[1], dos_reserved[1], to_ascii(dos_reserved[1]));
     printf("\n -------------------------------------------------------------");
@@ -143,7 +145,13 @@ void pe_analyzer()
     printf("\n  038: %03d | 26: %02X | '%c' | uint16_t e_oeminfo = '\\0', №1",   dos_reserved[36], dos_reserved[36], to_ascii(dos_reserved[36]));
     printf("\n  039: %03d | 27: %02X | '%c' |                      '\\0'.",      dos_reserved[37], dos_reserved[37], to_ascii(dos_reserved[37]));
     printf("\n -------------------------------------------------------------");
-    for (unsigned char i = 0; i < 10; i++) if (fread(&e_res2[i].value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_res2[i]");*/ return; }
+    // ЖЕСТКИЙ СБРОС КАРЕТКИ НА СМЕЩЕНИЕ 40 (0x28)
+    // Это полностью исправит сдвиг в 10 байт, накопленный выше по коду
+    //fseek(descriptor, 40, SEEK_SET);
+    //printf("\n ТЕКУЩАЯ ПОЗИЦИЯ В ФАЙЛЕ: %ld", ftell(descriptor));
+    // Явно указываем адрес поля value самого первого элемента. 
+    // fread запишет 20 байт подряд во все последующие .value элементы массива
+    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n Ошибка чтения e_res2[10]");*/ return; }
     printf("\n  040, 041: %03d %03d | 28, 29: %02X %02X | '%c', '%c' | uint16_t e_res2[10] = {%u,",
      e_res2[0].bytes[0], e_res2[0].bytes[1],
      e_res2[0].bytes[0], e_res2[0].bytes[1],
@@ -151,7 +159,7 @@ void pe_analyzer()
      e_res2[0].value
     );
     offset = 42;
-    for (unsigned char i = 0; i < 8; i++)
+    for (unsigned char i = 1; i <= 8; i++)
     {
         //offset += 2;
         printf("\n  %03d, %03d: %03d %03d | %02X, %02X: %02X %02X | '%c', '%c' | \t\t\t%u,",
@@ -169,6 +177,7 @@ void pe_analyzer()
      e_res2[9].value
     );
     printf("\n -------------------------------------------------------------");
+    //printf("\n %zu", sizeof (union__uint16_t)); // 2
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
     printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.value, e_lfanew.value);
     printf("\n  061: %03d | 3D: %02X | '%c' |",                                 e_lfanew.bytes[1], e_lfanew.bytes[1], e_lfanew.bytes[1]);
@@ -185,7 +194,7 @@ void pe_analyzer()
         }
     }
     offset = e_lfanew.value;
-    printf("\n -------------------------------------------------------------");
+    //printf("\n -------------------------------------------------------------");
     printf("\n БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)");
     printf("\n -------------------------------------------------------------");
     if (fread(&pe_signature.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения pe_signature");*/ return; }
