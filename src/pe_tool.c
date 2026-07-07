@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef union { uint16_t value; uint8_t bytes[4]; } union__uint16_t;
+typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 
 // БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
@@ -11,6 +11,7 @@ typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
 union__uint16_t e_magic;  // 000~001      | 00~01      #  Магическое число
 // uint8_t dos_reserved[58]; // 002~059      | 02~3B      #  Зарезервировано: Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
+union__uint16_t e_res2[10];
 union__uint32_t e_lfanew; // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
 
 // БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) / 2. COFF Заголовок файла (Характеристики процессора)
@@ -77,8 +78,8 @@ void pe_builder()
 
 void pe_analyzer()
 {
-    //FILE * descriptor = fopen("test_subject.exe", "rb");
-    FILE * descriptor = fopen("pe_tool.exe", "rb");
+    FILE * descriptor = fopen("test_subject.exe", "rb");
+    //FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)");
     if (fread(&e_magic, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_magic");*/ return; }
@@ -86,8 +87,8 @@ void pe_analyzer()
     printf("\n  000: %03d | 00: %02X | '%c' | uint16_t e_magic = %u", e_magic.bytes[0], e_magic.bytes[0], to_ascii(e_magic.bytes[0]), e_magic.value);
     printf("\n  001: %03d | 01: %02X | '%c' |",                       e_magic.bytes[1], e_magic.bytes[1], to_ascii(e_magic.bytes[1]));
     printf("\n -------------------------------------------------------------");
-    uint8_t dos_reserved[58];
-    if (fread(dos_reserved, 1, 58, descriptor) != 58) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
+    uint8_t dos_reserved[58-10];
+    if (fread(dos_reserved, 1, 58-10, descriptor) != 58-10) { /*printf("\n  Ошибка чтения по смещению 002~059 | 02~3B");*/ return; }
     printf("\n  002: %03d | 02: %02X | '%c' | uint16_t e_cblp = '\\0',",         dos_reserved[0], dos_reserved[0], to_ascii(dos_reserved[0]));
     printf("\n  003: %03d | 03: %02X | '%c' |                 = '\\0'",          dos_reserved[1], dos_reserved[1], to_ascii(dos_reserved[1]));
     printf("\n -------------------------------------------------------------");
@@ -142,9 +143,31 @@ void pe_analyzer()
     printf("\n  038: %03d | 26: %02X | '%c' | uint16_t e_oeminfo = '\\0', №1",   dos_reserved[36], dos_reserved[36], to_ascii(dos_reserved[36]));
     printf("\n  039: %03d | 27: %02X | '%c' |                      '\\0'.",      dos_reserved[37], dos_reserved[37], to_ascii(dos_reserved[37]));
     printf("\n -------------------------------------------------------------");
-    printf("\n  040: %03d | 28: %02X | '%c' | uint16_t e_res2[10] = {%u,",                      dos_reserved[38],   dos_reserved[38], to_ascii(dos_reserved[38]), dos_reserved[38]);
-    for (int i = 41; i < 59; i++) printf("\n  %03d: %03d | %02X: %02X | '%c' | \t\t\t   %u,", i, dos_reserved[i], i, dos_reserved[i], to_ascii(dos_reserved[i]),   dos_reserved[i]);
-    printf("\n  059: %03d | 3B: %02X | '%c' | \t\t\t   %u};",                                   dos_reserved[59],   dos_reserved[59], to_ascii(dos_reserved[59]), dos_reserved[59]);
+    for (unsigned char i = 0; i < 10; i++) if (fread(&e_res2[i].value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_res2[i]");*/ return; }
+    printf("\n  040, 041: %03d %03d | 28, 29: %02X %02X | '%c', '%c' | uint16_t e_res2[10] = {%u,",
+     e_res2[0].bytes[0], e_res2[0].bytes[1],
+     e_res2[0].bytes[0], e_res2[0].bytes[1],
+     to_ascii(e_res2[0].bytes[0]), to_ascii(e_res2[0].bytes[1]),
+     e_res2[0].value
+    );
+    offset = 42;
+    for (unsigned char i = 0; i < 8; i++)
+    {
+        //offset += 2;
+        printf("\n  %03d, %03d: %03d %03d | %02X, %02X: %02X %02X | '%c', '%c' | \t\t\t%u,",
+         offset, offset+1, e_res2[i].bytes[0], e_res2[i].bytes[1],
+         offset, offset+1, e_res2[i].bytes[0], e_res2[i].bytes[1],
+         to_ascii(e_res2[i].bytes[0]), to_ascii(e_res2[i].bytes[1]),
+         e_res2[i].value
+        );
+        offset += 2;
+    }
+    printf("\n  058, 059: %03d %03d | 3A, 3B: %02X %02X | '%c', '%c' | \t\t\t%u};",
+     e_res2[9].bytes[0], e_res2[9].bytes[1],
+     e_res2[9].bytes[0], e_res2[9].bytes[1],
+     to_ascii(e_res2[9].bytes[0]), to_ascii(e_res2[9].bytes[1]),
+     e_res2[9].value
+    );
     printf("\n -------------------------------------------------------------");
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
     printf("\n  060: %03d | 3C: %02X | '%c' | uint32_t e_lfanew = %u (0x%08X)", e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.bytes[0], e_lfanew.value, e_lfanew.value);
