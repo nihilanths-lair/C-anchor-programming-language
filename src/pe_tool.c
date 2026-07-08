@@ -65,7 +65,6 @@ union__uint64_t SizeOfStackCommit; // Сколько памяти выделит
 union__uint64_t SizeOfHeapReserve; // Сколько памяти зарезервировать под кучу (В PE32 — 4 байта, в PE32+ — 8 байт).
 union__uint64_t SizeOfHeapCommit; // Сколько памяти выделить под кучу сразу (В PE32 — 4 байта, в PE32+ — 8 байт).
 union__uint32_t LoaderFlags; // Устаревшее поле, всегда 0.
-//
 union__uint32_t NumberOfRvaAndSizes; // Количество каталогов данных. Показывает, сколько элементов будет в следующем (4-м) блоке. По стандарту их всегда 16.
 
 
