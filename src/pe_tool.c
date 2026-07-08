@@ -121,7 +121,7 @@ char to_ascii(uint8_t ascii)
     case '\t': return '·';
     case '\n': return '·';
     case '\r': return '·';
-    case 0x13: return '·'; // ‼
+    case 0x13: return '·'; // ?
     }
     return ascii;
     //return (b >= 32 && b <= 126) ? (char) b : '·';
@@ -134,7 +134,7 @@ bool is_this_printable_character(uint8_t ascii)
     case '\t': return false;
     case '\n': return false;
     case '\r': return false;
-    case 0x13: return false; // ‼
+    case 0x13: return false; // ?
     }
     return true;
 }
@@ -289,10 +289,10 @@ void pe_analyzer()
     //FILE * descriptor = fopen("test_subject.exe", "rb");
     FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
-    printf("\n    ____________________________________");
-    printf("\n  _/                                    \\_");
-    printf("\n |_  БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)  _|");
-    printf("\n   \\____________________________________/");
+    printf("\n  ____________________________________");
+    printf("\n /                                    \\");
+    printf("\n %c БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) %c", 16, 17);
+    printf("\n \\____________________________________/");
     //printf("\n    ____________________________________");
     //printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
     if (fread(&e_magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_magic");*/ return; }
@@ -422,10 +422,10 @@ void pe_analyzer()
         printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     }
     offset = e_lfanew.value;
-    printf("\n    _________________________________________");
-    printf("\n  _/                                         \\_");
-    printf("\n |_  БЛОК 2: PE ЗАГОЛОВОК (COFF File Header)  _|");
-    printf("\n   \\_________________________________________/");
+    printf("\n  _________________________________________");
+    printf("\n /                                         \\");
+    printf("\n %c БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) %c", 16, 17);
+    printf("\n \\_________________________________________/");
     //printf("\n    _________________________________________");
     //printf("\n __/ БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) \\__");
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
@@ -684,9 +684,9 @@ void pe_analyzer()
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     printf("\n  ____________________________________________");
-     printf("\n /                                            \\");
-     printf("\n %c БЛОК 4: КАТАЛОГИ ДАННЫХ (Data Directories) %c", 16, 17);
-     printf("\n \\____________________________________________/");
+    printf("\n /                                            \\");
+    printf("\n %c БЛОК 4: КАТАЛОГИ ДАННЫХ (Data Directories) %c", 16, 17);
+    printf("\n \\____________________________________________/");
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     char abbreviation[32];
     uint32_t dir_count = NumberOfRvaAndSizes.value;
