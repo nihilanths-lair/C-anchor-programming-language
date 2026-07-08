@@ -184,11 +184,7 @@ void console_log(
     case 1:
     {
         printf("\n  %d: %03d | %X: %02X | '", loc_offset, cell_1, loc_offset, cell_1);
-        if (is_this_printable_character(cell_1))
-        {
-            printf("\n СИМВОЛ ЯВЛЯЕТСЯ ПЕЧАТНЫМ.\n ");
-            putchar(cell_1);
-        }
+        if (is_this_printable_character(cell_1)) /*printf("\n СИМВОЛ ЯВЛЯЕТСЯ ПЕЧАТНЫМ.\n ");*/ putchar(cell_1);
         else
         {
             printf("\n СИМВОЛ НЕ ЯВЛЯЕТСЯ ПЕЧАТНЫМ!!!\n ");
@@ -209,7 +205,7 @@ void console_log(
         printf("\n  %d: %03d %03d | %X: %02X %02X | \"", loc_offset, cell_1, cell_2, loc_offset, cell_1, cell_2);
         if (!is_this_printable_character(cell_1))
         {
-            printf("\n СИМВОЛ-1 НЕ ПЕЧАТНЫЙ!!!\n ");
+            //printf("\n СИМВОЛ-1 НЕ ПЕЧАТНЫЙ!!!\n ");
             // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
            #ifdef _WIN32
             SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
@@ -695,8 +691,8 @@ void pe_analyzer()
     printf("\n \\____________________________________________/");
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     char abbreviation[32];
-    uint32_t dir_count = NumberOfRvaAndSizes.value;
-    for (uint32_t i = 0; i < dir_count; i++)
+    //uint32_t dir_count = NumberOfRvaAndSizes.value;
+    for (uint32_t i = 0; i < NumberOfRvaAndSizes.value; i++)
     {
         printf("\n  __________________________");
         printf("\n / %s", directory_names[i]);
