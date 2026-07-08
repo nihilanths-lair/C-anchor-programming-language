@@ -360,11 +360,22 @@ void pe_analyzer()
     );
     offset += 2;
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n    _________________________");
-    printf("\n __/ БЛОК 3: OPTIONAL HEADER \\__");
+    if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Magic");*/ return; }
+    switch (Magic.value){
+    case 0x010B:
+     printf("\n    _______________________________________");
+     printf("\n __/ БЛОК 3: OPTIONAL HEADER (PE32/32-bit) \\__");
+     break;
+    case 0x020B:
+     printf("\n    ________________________________________");
+     printf("\n __/ БЛОК 3: OPTIONAL HEADER (PE32+/64-bit) \\__");
+     break;
+    default:
+     printf("\n    _________________________");
+     printf("\n __/ БЛОК 3: OPTIONAL HEADER \\__");
+    }
     // Часть 1: Стандартные поля COFF (Standard Fields) — одинаковые для 32/64 бит
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Magic");*/ return; }
     // Далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
     console_log(2, offset, Magic.bytes[0], Magic.bytes[1], 0, 0, 0, 0, 0, 0, Magic.value, "Magic");
     offset += 2;
@@ -413,6 +424,7 @@ void pe_analyzer()
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     // [Примечание]: Только в PE32 здесь идёт ещё 4 байта uint32_t BaseOfData. В 64-битном PE32+ этого поля вообще нет!
+    //if (Magic.value == 0x010B) { ... }
     // Часть 2: Специфичные поля Windows (Windows-Specific Fields) — размеры различаются!
     if (fread(&ImageBase, 8, 1, descriptor) != 1) { /*printf("\n /!\\ ImageBase");*/ return; }
     console_log(8, offset,
