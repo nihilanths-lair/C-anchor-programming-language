@@ -89,6 +89,7 @@ char to_ascii(uint8_t b)
 void console_log(
  char size, uint8_t loc_offset,
  uint8_t cell_1, uint8_t cell_2, uint8_t cell_3, uint8_t cell_4,
+  uint8_t cell_5, uint8_t cell_6, uint8_t cell_7, uint8_t cell_8,
  uint64_t value, const char * abbreviation
 )
 {
@@ -120,7 +121,13 @@ void console_log(
     }
     case 8:
     {
-        printf("\n  %03d: %03d %03d | %02X: %02X %02X | \"%c%c\" | uint64_t %s = %u; // 0x%016X");
+        printf("\n  %03d: %03d %03d %03d %03d %03d %03d %03d %03d | %02X: %02X %02X %02X %02X %02X %02X %02X %02X | \"%c%c%c%c%c%c%c%c\" | uint64_t %s = %u; // 0x%016X",
+         loc_offset, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8,
+         loc_offset, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8,
+         to_ascii(cell_1), to_ascii(cell_2), to_ascii(cell_3), to_ascii(cell_4),
+          to_ascii(cell_5), to_ascii(cell_6), to_ascii(cell_7), to_ascii(cell_8),
+         abbreviation, value, value
+        );
         break;
     }}
 }
@@ -408,12 +415,12 @@ void pe_analyzer()
     printf("\n -----------------------------------------------------------------------------------------------------------");
     // [Примечание]: Только в PE32 здесь идёт ещё 4 байта uint32_t BaseOfData. В 64-битном PE32+ этого поля вообще нет!
     // Часть 2: Специфичные поля Windows (Windows-Specific Fields) — размеры различаются!
+    // Произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
     if (fread(&ImageBase, 8, 1, descriptor) != 1) { /*printf("\n Ошибка чтения ImageBase");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d %03d %03d %03d %03d | %02X: %02X %02X %02X %02X %02X %02X %02X %02X | \"%c%c%c%c%c%c%c%c\" | uint64_t ImageBase = %u; // 0x%016X",
-     offset, ImageBase.bytes[0], ImageBase.bytes[1], ImageBase.bytes[2], ImageBase.bytes[3], ImageBase.bytes[4], ImageBase.bytes[5], ImageBase.bytes[6], ImageBase.bytes[7],
-     offset, ImageBase.bytes[0], ImageBase.bytes[1], ImageBase.bytes[2], ImageBase.bytes[3], ImageBase.bytes[4], ImageBase.bytes[5], ImageBase.bytes[6], ImageBase.bytes[7],
-     to_ascii(ImageBase.bytes[0]), to_ascii(ImageBase.bytes[1]), to_ascii(ImageBase.bytes[2]), to_ascii(ImageBase.bytes[3]), to_ascii(ImageBase.bytes[4]), to_ascii(ImageBase.bytes[5]), to_ascii(ImageBase.bytes[6]), to_ascii(ImageBase.bytes[7]),
-     ImageBase.value, ImageBase.value
+    console_log(8, offset,
+     ImageBase.bytes[0], ImageBase.bytes[1], ImageBase.bytes[2], ImageBase.bytes[3],
+      ImageBase.bytes[4], ImageBase.bytes[5], ImageBase.bytes[6], ImageBase.bytes[7],
+     ImageBase.value, "ImageBase"
     );
     offset += 8;
     printf("\n -----------------------------------------------------------------------------------------------------------");
@@ -435,39 +442,39 @@ void pe_analyzer()
     );
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------");
-    // Далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
+    // Всё далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
     if (fread(&MajorOperatingSystemVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorOperatingSystemVersion");*/ return; }
-    console_log(2, offset, MajorOperatingSystemVersion.bytes[0], MajorOperatingSystemVersion.bytes[1], 0, 0,
+    console_log(2, offset, MajorOperatingSystemVersion.bytes[0], MajorOperatingSystemVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MajorOperatingSystemVersion.value, "MajorOperatingSystemVersion"
     );
     offset += 2;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&MinorOperatingSystemVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorOperatingSystemVersion");*/ return; }
-    console_log(2, offset, MinorOperatingSystemVersion.bytes[0], MinorOperatingSystemVersion.bytes[1], 0, 0,
+    console_log(2, offset, MinorOperatingSystemVersion.bytes[0], MinorOperatingSystemVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MinorOperatingSystemVersion.value, "MinorOperatingSystemVersion"
     );
     offset += 2;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&MajorImageVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorImageVersion = ?");*/ return; }
-    console_log(2, offset, MajorImageVersion.bytes[0], MajorImageVersion.bytes[1], 0, 0,
+    console_log(2, offset, MajorImageVersion.bytes[0], MajorImageVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MajorImageVersion.value, "MajorImageVersion"
     );
     offset += 2;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&MinorImageVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorImageVersion = ?");*/ return; }
-    console_log(2, offset, MinorImageVersion.bytes[0], MinorImageVersion.bytes[1], 0, 0,
+    console_log(2, offset, MinorImageVersion.bytes[0], MinorImageVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MinorImageVersion.value, "MinorImageVersion"
     );
     offset += 2;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&MajorSubsystemVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorSubsystemVersion = ?");*/ return; }
-    console_log(2, offset, MajorSubsystemVersion.bytes[0], MajorSubsystemVersion.bytes[1], 0, 0,
+    console_log(2, offset, MajorSubsystemVersion.bytes[0], MajorSubsystemVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MajorSubsystemVersion.value, "MajorSubsystemVersion"
     );
     offset += 2;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&MinorSubsystemVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorSubsystemVersion = ?");*/ return; }
-    console_log(2, offset, MinorSubsystemVersion.bytes[0], MinorSubsystemVersion.bytes[1], 0, 0,
+    console_log(2, offset, MinorSubsystemVersion.bytes[0], MinorSubsystemVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MinorSubsystemVersion.value, "MinorSubsystemVersion"
     );
     offset += 2;
