@@ -351,99 +351,77 @@ void pe_analyzer()
     printf("\n __/ БЛОК 3: OPTIONAL HEADER \\__");
     // Часть 1: Стандартные поля COFF (Standard Fields) — одинаковые для 32/64 бит
     printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения Magic");*/ return; }
-    printf("\n  %03d: %03d %03d | %02X: %02X %02X | \"%c%c\" | uint16_t Magic = %u; // 0x%04X",
-     offset, Magic.bytes[0], Magic.bytes[1],
-     offset, Magic.bytes[0], Magic.bytes[1],
-     to_ascii(Magic.bytes[0]), to_ascii(Magic.bytes[1]),
-     Magic.value, Magic.value
-    );
-    offset++;
+    if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Magic");*/ return; }
+    // Далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
+    console_log(2, offset, Magic.bytes[0], Magic.bytes[1], 0, 0, 0, 0, 0, 0, Magic.value, "Magic");
+    offset += 2;
     printf("\n -----------------------------------------------------------------------------------------------------------");
     MajorLinkerVersion = getc(descriptor);
+    console_log(1, offset, MajorLinkerVersion, 0, 0, 0, 0, 0, 0, 0, MajorLinkerVersion, "MajorLinkerVersion");
     offset++;
-    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint8_t MajorLinkerVersion = %u; // 0x%02X",
-     offset, MajorLinkerVersion, offset, MajorLinkerVersion, to_ascii(MajorLinkerVersion), MajorLinkerVersion, MajorLinkerVersion
-    );
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     MinorLinkerVersion = getc(descriptor);
-    offset++;
-    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint8_t MinorLinkerVersion = %u; // 0x%02X",
-     offset, MinorLinkerVersion, offset, MinorLinkerVersion, to_ascii(MinorLinkerVersion), MinorLinkerVersion, MinorLinkerVersion
-    );
+    console_log(1, offset, MinorLinkerVersion, 0, 0, 0, 0, 0, 0, 0, MinorLinkerVersion, "MinorLinkerVersion");
     offset++;
     printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfCode.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SizeOfCode");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t SizeOfCode = %u; // 0x%08X",
-     offset, SizeOfCode.bytes[0], SizeOfCode.bytes[1], SizeOfCode.bytes[2], SizeOfCode.bytes[3],
-     offset, SizeOfCode.bytes[0], SizeOfCode.bytes[1], SizeOfCode.bytes[2], SizeOfCode.bytes[3],
-     to_ascii(SizeOfCode.bytes[0]), to_ascii(SizeOfCode.bytes[1]), to_ascii(SizeOfCode.bytes[2]), to_ascii(SizeOfCode.bytes[3]),
-     SizeOfCode.value, SizeOfCode.value
+    if (fread(&SizeOfCode.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfCode");*/ return; }
+    console_log(4, offset,
+     SizeOfCode.bytes[0], SizeOfCode.bytes[1], SizeOfCode.bytes[2], SizeOfCode.bytes[3], 0, 0, 0, 0,
+     SizeOfCode.value, "SizeOfCode"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfInitializedData, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SizeOfInitializedData");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t SizeOfInitializedData = %u; // 0x%08X",
-     offset, SizeOfInitializedData.bytes[0], SizeOfInitializedData.bytes[1], SizeOfInitializedData.bytes[2], SizeOfInitializedData.bytes[3],
-     offset, SizeOfInitializedData.bytes[0], SizeOfInitializedData.bytes[1], SizeOfInitializedData.bytes[2], SizeOfInitializedData.bytes[3],
-     to_ascii(SizeOfInitializedData.bytes[0]), to_ascii(SizeOfInitializedData.bytes[1]), to_ascii(SizeOfInitializedData.bytes[2]), to_ascii(SizeOfInitializedData.bytes[3]),
-     SizeOfInitializedData.value, SizeOfInitializedData.value
+    if (fread(&SizeOfInitializedData, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfInitializedData");*/ return; }
+    console_log(4, offset,
+     SizeOfInitializedData.bytes[0], SizeOfInitializedData.bytes[1], SizeOfInitializedData.bytes[2], SizeOfInitializedData.bytes[3], 0, 0, 0, 0,
+     SizeOfInitializedData.value, "SizeOfInitializedData"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfUninitializedData, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SizeOfUninitializedData");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t SizeOfUninitializedData = %u; // 0x%08X",
-     offset, SizeOfUninitializedData.bytes[0], SizeOfUninitializedData.bytes[1], SizeOfUninitializedData.bytes[2], SizeOfUninitializedData.bytes[3],
-     offset, SizeOfUninitializedData.bytes[0], SizeOfUninitializedData.bytes[1], SizeOfUninitializedData.bytes[2], SizeOfUninitializedData.bytes[3],
-     to_ascii(SizeOfUninitializedData.bytes[0]), to_ascii(SizeOfUninitializedData.bytes[1]), to_ascii(SizeOfUninitializedData.bytes[2]), to_ascii(SizeOfUninitializedData.bytes[3]),
-     SizeOfUninitializedData.value, SizeOfUninitializedData.value
+    if (fread(&SizeOfUninitializedData, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfUninitializedData");*/ return; }
+    console_log(4, offset,
+     SizeOfUninitializedData.bytes[0], SizeOfUninitializedData.bytes[1], SizeOfUninitializedData.bytes[2], SizeOfUninitializedData.bytes[3], 0, 0, 0, 0,
+     SizeOfUninitializedData.value, "SizeOfUninitializedData"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&AddressOfEntryPoint, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения AddressOfEntryPoint");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t AddressOfEntryPoint = %u; // 0x%08X",
-     offset, AddressOfEntryPoint.bytes[0], AddressOfEntryPoint.bytes[1], AddressOfEntryPoint.bytes[2], AddressOfEntryPoint.bytes[3],
-     offset, AddressOfEntryPoint.bytes[0], AddressOfEntryPoint.bytes[1], AddressOfEntryPoint.bytes[2], AddressOfEntryPoint.bytes[3],
-     to_ascii(AddressOfEntryPoint.bytes[0]), to_ascii(AddressOfEntryPoint.bytes[1]), to_ascii(AddressOfEntryPoint.bytes[2]), to_ascii(AddressOfEntryPoint.bytes[3]),
-     AddressOfEntryPoint.value, AddressOfEntryPoint.value
+    if (fread(&AddressOfEntryPoint, 4, 1, descriptor) != 1) { /*printf("\n /!\\ AddressOfEntryPoint");*/ return; }
+    console_log(4, offset,
+     AddressOfEntryPoint.bytes[0], AddressOfEntryPoint.bytes[1], AddressOfEntryPoint.bytes[2], AddressOfEntryPoint.bytes[3], 0, 0, 0, 0,
+     AddressOfEntryPoint.value, "AddressOfEntryPoint"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&BaseOfCode, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения BaseOfCode");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t BaseOfCode = %u; // 0x%08X",
-     offset, BaseOfCode.bytes[0], BaseOfCode.bytes[1], BaseOfCode.bytes[2], BaseOfCode.bytes[3],
-     offset, BaseOfCode.bytes[0], BaseOfCode.bytes[1], BaseOfCode.bytes[2], BaseOfCode.bytes[3],
-     to_ascii(BaseOfCode.bytes[0]), to_ascii(BaseOfCode.bytes[1]), to_ascii(BaseOfCode.bytes[2]), to_ascii(BaseOfCode.bytes[3]),
-     BaseOfCode.value, BaseOfCode.value
+    if (fread(&BaseOfCode, 4, 1, descriptor) != 1) { /*printf("\n /!\\ BaseOfCode");*/ return; }
+    console_log(4, offset,
+     BaseOfCode.bytes[0], BaseOfCode.bytes[1], BaseOfCode.bytes[2], BaseOfCode.bytes[3], 0, 0, 0, 0,
+     BaseOfCode.value, "BaseOfCode"
     );
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------");
     // [Примечание]: Только в PE32 здесь идёт ещё 4 байта uint32_t BaseOfData. В 64-битном PE32+ этого поля вообще нет!
     // Часть 2: Специфичные поля Windows (Windows-Specific Fields) — размеры различаются!
-    // Произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
-    if (fread(&ImageBase, 8, 1, descriptor) != 1) { /*printf("\n Ошибка чтения ImageBase");*/ return; }
+    if (fread(&ImageBase, 8, 1, descriptor) != 1) { /*printf("\n /!\\ ImageBase");*/ return; }
     console_log(8, offset,
-     ImageBase.bytes[0], ImageBase.bytes[1], ImageBase.bytes[2], ImageBase.bytes[3],
-      ImageBase.bytes[4], ImageBase.bytes[5], ImageBase.bytes[6], ImageBase.bytes[7],
+     ImageBase.bytes[0], ImageBase.bytes[1], ImageBase.bytes[2], ImageBase.bytes[3], ImageBase.bytes[4], ImageBase.bytes[5], ImageBase.bytes[6], ImageBase.bytes[7],
      ImageBase.value, "ImageBase"
     );
     offset += 8;
     printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&SectionAlignment, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SectionAlignment");*/ return; }
+    if (fread(&SectionAlignment, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SectionAlignment");*/ return; }
     console_log(4, offset,
      SectionAlignment.bytes[0], SectionAlignment.bytes[1], SectionAlignment.bytes[2], SectionAlignment.bytes[3], 0, 0, 0, 0,
      SectionAlignment.value, "SectionAlignment"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
-    if (fread(&FileAlignment, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения FileAlignment");*/ return; }
+    if (fread(&FileAlignment, 4, 1, descriptor) != 1) { /*printf("\n /!\\ FileAlignment");*/ return; }
     console_log(4, offset,
      FileAlignment.bytes[0], FileAlignment.bytes[1], FileAlignment.bytes[2], FileAlignment.bytes[3], 0, 0, 0, 0,
      FileAlignment.value, "FileAlignment"
     );
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------");
-    // Всё далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
     if (fread(&MajorOperatingSystemVersion, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorOperatingSystemVersion");*/ return; }
     console_log(2, offset, MajorOperatingSystemVersion.bytes[0], MajorOperatingSystemVersion.bytes[1], 0, 0, 0, 0, 0, 0,
      MajorOperatingSystemVersion.value, "MajorOperatingSystemVersion"
