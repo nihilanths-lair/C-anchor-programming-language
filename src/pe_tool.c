@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
+//typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
 typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
@@ -116,6 +116,12 @@ uint64_t offset = 0;
 // Функция превращает байт в печатный символ, а непечатные заменяет точкой
 char to_ascii(uint8_t ascii)
 {
+   //#ifdef _WIN32
+    //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 1. Получаем дескриптор консоли
+    //CONSOLE_SCREEN_BUFFER_INFO consoleInfo; // 2. Сохраняем текущий цвет (чтобы не испортить последующий вывод)
+    //WORD saved_attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE; // дефолтный белый
+    //if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) { saved_attributes = consoleInfo.wAttributes; }
+   //#endif
     switch (ascii){
     case '\0': return '·';
     case '\t': return '·';
@@ -717,8 +723,17 @@ void pe_analyzer()
 int main()
 {
     setlocale(0, "");
+
+    pe_builder();
+    pe_analyzer();
+
+    putchar('\n');
+    return 0;
+}
+
+/*
     // АКТИВАЦИЯ ЦВЕТА В WINDOWS
-#ifdef _WIN32
+   #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut != INVALID_HANDLE_VALUE)
     {
@@ -729,10 +744,5 @@ int main()
             SetConsoleMode(hOut, dwMode);
         }
     }
-#endif
-    pe_builder();
-    pe_analyzer();
-
-    putchar('\n');
-    return 0;
-}
+   #endif
+*/
