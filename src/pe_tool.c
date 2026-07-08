@@ -116,7 +116,12 @@ void console_log(
     }
     case 4:
     {
-        printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t %s = %u; // 0x%08X");
+        printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t %s = %u; // 0x%08X",
+         loc_offset, cell_1, cell_2, cell_3, cell_4,
+         loc_offset, cell_1, cell_2, cell_3, cell_4,
+         to_ascii(cell_1), to_ascii(cell_2), to_ascii(cell_3), to_ascii(cell_4),
+         abbreviation, value, value
+        );
         break;
     }
     case 8:
@@ -425,20 +430,16 @@ void pe_analyzer()
     offset += 8;
     printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&SectionAlignment, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SectionAlignment");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t SectionAlignment = %u; // 0x%08X",
-     offset, SectionAlignment.bytes[0], SectionAlignment.bytes[1], SectionAlignment.bytes[2], SectionAlignment.bytes[3],
-     offset, SectionAlignment.bytes[0], SectionAlignment.bytes[1], SectionAlignment.bytes[2], SectionAlignment.bytes[3],
-     to_ascii(SectionAlignment.bytes[0]), to_ascii(SectionAlignment.bytes[1]), to_ascii(SectionAlignment.bytes[2]), to_ascii(SectionAlignment.bytes[3]),
-     SectionAlignment.value, SectionAlignment.value
+    console_log(4, offset,
+     SectionAlignment.bytes[0], SectionAlignment.bytes[1], SectionAlignment.bytes[2], SectionAlignment.bytes[3], 0, 0, 0, 0,
+     SectionAlignment.value, "SectionAlignment"
     );
     offset += 4;
     //printf("\n -----------------------------------------------------------------------------------------------------------");
     if (fread(&FileAlignment, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения FileAlignment");*/ return; }
-    printf("\n  %03d: %03d %03d %03d %03d | %02X: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t FileAlignment = %u; // 0x%08X",
-     offset, FileAlignment.bytes[0], FileAlignment.bytes[1], FileAlignment.bytes[2], FileAlignment.bytes[3],
-     offset, FileAlignment.bytes[0], FileAlignment.bytes[1], FileAlignment.bytes[2], FileAlignment.bytes[3],
-     to_ascii(FileAlignment.bytes[0]), to_ascii(FileAlignment.bytes[1]), to_ascii(FileAlignment.bytes[2]), to_ascii(FileAlignment.bytes[3]),
-     FileAlignment.value, FileAlignment.value
+    console_log(4, offset,
+     FileAlignment.bytes[0], FileAlignment.bytes[1], FileAlignment.bytes[2], FileAlignment.bytes[3], 0, 0, 0, 0,
+     FileAlignment.value, "FileAlignment"
     );
     offset += 4;
     printf("\n -----------------------------------------------------------------------------------------------------------");
