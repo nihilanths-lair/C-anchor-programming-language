@@ -71,7 +71,30 @@ union__uint32_t NumberOfRvaAndSizes; // Количество каталогов 
 // БЛОК 4: КАТАЛОГИ ДАННЫХ (Data Directories)
 //  Размер: Динамический. Зависит от NumberOfRvaAndSizes. Каждый каталог занимает 8 байт (4 байта адрес + 4 байта размер). Если каталогов 16 \(\rightarrow \) размер строго 128 байт.
 //  Природа: Указатели на сложные системные таблицы.
-// ... ... ...
+//typedef struct {
+union__uint32_t virtual_address[16];
+union__uint32_t size[16];
+//} DataDirectory;
+
+const char * directory_names[16] =
+{
+    "EXPORT Table            ", // 0: Таблица экспорта (нужна для DLL)
+    "IMPORT Table            ", // 1: Таблица импорта (какие DLL и функции нужны EXE)
+    "RESOURCE Table          ", // 2: Ресурсы (иконки, манифест, меню, строки)
+    "EXCEPTION Table         ", // 3: Таблица исключений (триггеры для x64 try/catch)
+    "SECURITY Table          ", // 4: Сертификаты и цифровые подписи (смещение файла, а не RVA!)
+    "BASE RELOCATION Table   ", // 5: Таблица релокаций (нужна для ASLR и DLL)
+    "DEBUG Debug Directory   ", // 6: Отладочная информация (пути к .pdb файлам)
+    "ARCHITECTURE Data       ", // 7: Зарезервировано под специфичную архитектуру процессора
+    "GLOBAL POINTER Register ", // 8: Относительный адрес глобального указателя (RVA)
+    "THREAD LOCAL STORAGE    ", // 9: Таблица TLS (потоковые локальные переменные)
+    "LOAD CONFIG Directory   ", // 10: Конфигурация загрузки (важно для защиты Control Flow Guard)
+    "BOUND IMPORT Table      ", // 11: Связанный импорт (оптимизация старых ОС, сейчас редко)
+    "IMPORT ADDRESS Table    ", // 12: Таблица IAT (сюда Windows пишет реальные адреса функций)
+    "DELAY IMPORT Descriptors", // 13: Отложенный импорт (загрузка DLL только при первом вызове)
+    "CLR RUNTIME Header      ", // 14: Заголовок .NET / CLR (если приложение написано на C#/.NET)
+    "RESERVED                "  // 15: Зарезервировано Microsoft, всегда нули
+};
 
 
 // БЛОК 5: ТАБЛИЦА СЕКЦИЙ (Section Table)
@@ -563,6 +586,32 @@ void pe_analyzer()
      NumberOfRvaAndSizes.value, "NumberOfRvaAndSizes"
     );
     offset += 4;
+    printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    printf("\n    ____________________________________________");
+    printf("\n  _/                                            \\_");
+    printf("\n |_  БЛОК 4: КАТАЛОГИ ДАННЫХ (Data Directories)  _|");
+    printf("\n   \\____________________________________________/");
+    printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    char abbreviation[32];
+    uint32_t dir_count = NumberOfRvaAndSizes.value;
+    for (uint32_t i = 0; i < dir_count; i++)
+    {
+        sprintf(abbreviation, "virtual_address[%d]", i);
+        //}
+        if (fread(&virtual_address[i].value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset,
+         virtual_address[i].bytes[0], virtual_address[i].bytes[1], virtual_address[i].bytes[2], virtual_address[i].bytes[3], 0, 0, 0, 0,
+         virtual_address[i].value, abbreviation
+        );
+        offset += 4;
+        sprintf(abbreviation, "size[%d]", i);
+        if (fread(&size[i].value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset,
+            size[i].bytes[0], size[i].bytes[1], size[i].bytes[2], size[i].bytes[3], 0, 0, 0, 0, size[i].value, abbreviation
+        );
+        offset += 4;
+        //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    }
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     fclose(descriptor);
 }
