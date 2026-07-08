@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-//typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
+typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
 typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
@@ -17,6 +17,7 @@ typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 //  Размер: Всегда строго 64 байта.
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
 union__uint16_t e_magic;    // 000~001      | 00~01      #  Магическое число
+union__uint16_t e_cblp;
 //uint8_t dos_reserved[38];   // 002~039      | 02~27      #  Зарезервировано: Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
 union__uint16_t e_res2[10];
 union__uint32_t e_lfanew;   // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
@@ -179,29 +180,68 @@ void console_log(
         printf("\n  %d: %03d | %X: %02X | '", loc_offset, cell_1, loc_offset, cell_1);
         if (is_this_printable_character(cell_1))
         {
+            printf("\n СИМВОЛ ЯВЛЯЕТСЯ ПЕЧАТНЫМ.\n ");
             putchar(cell_1);
-            printf("' | uint8_t %s = %u; // 0x%02X", abbreviation, value, value);
-            break;
         }
-        // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
-       #ifdef _WIN32
-        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
-       #endif
-        putchar(cell_1);
-       #ifdef _WIN32
-        SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
-       #endif
+        else
+        {
+            printf("\n СИМВОЛ НЕ ЯВЛЯЕТСЯ ПЕЧАТНЫМ!!!\n ");
+            // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+           #endif
+            putchar(cell_1);
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+           #endif
+        }
         printf("' | uint8_t %s = %u; // 0x%02X", abbreviation, value, value);
         break;
     }
     case 2:
     {
-        printf("\n  %d: %03d %03d | %X: %02X %02X | \"%c%c\" | uint16_t %s = %u; // 0x%04X",
-         loc_offset, cell_1, cell_2, //bytes[0], bytes[1],
-         loc_offset, cell_1, cell_2, //bytes[0], bytes[1],
-         to_ascii(cell_1/*bytes[0]*/), to_ascii(cell_2/*bytes[1]*/),
-         abbreviation, value, value
-        );
+        printf("\n  %d: %03d %03d | %X: %02X %02X | \"", loc_offset, cell_1, cell_2, loc_offset, cell_1, cell_2);
+        if (!is_this_printable_character(cell_1))
+        {
+            printf("\n СИМВОЛ-1 НЕ ПЕЧАТНЫЙ!!!\n ");
+            // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+           #endif
+            putchar(cell_1);
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+           #endif
+        }
+        else
+        {
+            //printf("\n СИМВОЛ-1 ЯВЛЯЕТСЯ ПЕЧАТНЫМ.\n ");
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+           #endif
+           putchar(cell_1);
+        }
+        if (!is_this_printable_character(cell_2))
+        {
+            //printf("\n СИМВОЛ-2 НЕ ПЕЧАТНЫЙ!!!\n ");
+            // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+           #endif
+            putchar('·');
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+           #endif
+        }
+        else
+        {
+            //printf("\n СИМВОЛ-2 ЯВЛЯЕТСЯ ПЕЧАТНЫМ.\n ");
+           #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+           #endif
+           putchar(cell_2);
+        }
+        printf("\" | uint16_t %s = %u; // 0x%04X", abbreviation, value, value);
         break;
     }
     case 4:
@@ -250,97 +290,94 @@ void pe_analyzer()
     FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
     printf("\n    ____________________________________");
-    printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
-    if (fread(&e_magic, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_magic");*/ return; }
+    printf("\n  _/                                    \\_");
+    printf("\n |_  БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)  _|");
+    printf("\n   \\____________________________________/");
+    //printf("\n    ____________________________________");
+    //printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
+    if (fread(&e_magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_magic");*/ return; }
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  000: %03d %03d | 00: %02X %02X | \"%c%c\" | uint16_t e_magic = %u; // 0x%04X",
-     e_magic.bytes[0], e_magic.bytes[1], e_magic.bytes[0], e_magic.bytes[1], to_ascii(e_magic.bytes[0]), to_ascii(e_magic.bytes[1]),
-     e_magic.value, e_magic.value
-    );
+    console_log(2, 0, e_magic.bytes[0], e_magic.bytes[1], 0, 0, 0, 0, 0, 0, e_magic.value, "e_magic");
     printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    // Размер массива должен быть строго 38 байт (40 - 2 байта MZ)
-    uint8_t dos_reserved[38];
-    // Читаем ровно 38 байт, чтобы каретка файла остановилась строго на позиции 40
-    if (fread(dos_reserved, 1, 38, descriptor) != 38) { /*printf("\n  Ошибка чтения по смещению 002~039 | 02~27");*/ return; }
-    printf("\n  002: %03d %03d | 02: %02X %02X | \"%c%c\" | uint16_t e_cblp = ?;",
+    if (fread(&e_cblp.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_cblp");*/ return; }
+    console_log(2, 2, e_cblp.bytes[0], e_cblp.bytes[1], 0, 0, 0, 0, 0, 0, e_cblp.value, "e_cblp");
+    //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    // Размер массива должен быть строго 36 байт (40 - 2 - 2 байта MZ)
+    uint8_t dos_reserved[36];
+    if (fread(dos_reserved, 1, 36, descriptor) != 36) { /*printf("\n  Ошибка чтения по смещению 004~039 | 02~27");*/ return; }
+    printf("\n  4: %03d %03d | 4: %02X %02X | \"%c%c\" | uint16_t e_cp = ?;",
      dos_reserved[0], dos_reserved[1], dos_reserved[0], dos_reserved[1], to_ascii(dos_reserved[0]), to_ascii(dos_reserved[1])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  004: %03d %03d | 04: %02X %02X | \"%c%c\" | uint16_t e_cp = ?;",
+    printf("\n  6: %03d %03d | 6: %02X %02X | \"%c%c\" | uint16_t e_crlc = ?;",
      dos_reserved[2], dos_reserved[3], dos_reserved[2], dos_reserved[3], to_ascii(dos_reserved[2]), to_ascii(dos_reserved[3])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  006: %03d %03d | 06: %02X %02X | \"%c%c\" | uint16_t e_crlc = ?;",
+    printf("\n  8: %03d %03d | 8: %02X %02X | \"%c%c\" | uint16_t e_cparhdr = ?;",
      dos_reserved[4], dos_reserved[5], dos_reserved[4], dos_reserved[5], to_ascii(dos_reserved[4]), to_ascii(dos_reserved[5])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  008: %03d %03d | 08: %02X %02X | \"%c%c\" | uint16_t e_cparhdr = ?;",
+    printf("\n  10: %03d %03d | A: %02X %02X | \"%c%c\" | uint16_t e_minalloc = ?;",
      dos_reserved[6], dos_reserved[7], dos_reserved[6], dos_reserved[7], to_ascii(dos_reserved[6]), to_ascii(dos_reserved[7])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  010: %03d %03d | 0A: %02X %02X | \"%c%c\" | uint16_t e_minalloc = ?;",
+    printf("\n  12: %03d %03d | C: %02X %02X | \"%c%c\" | uint16_t e_maxalloc = ?;",
      dos_reserved[8], dos_reserved[9], dos_reserved[8], dos_reserved[9], to_ascii(dos_reserved[8]), to_ascii(dos_reserved[9])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  012: %03d %03d | 0C: %02X %02X | \"%c%c\" | uint16_t e_maxalloc = ?;",
+    printf("\n  14: %03d %03d | E: %02X %02X | \"%c%c\" | uint16_t e_ss = ?;",
      dos_reserved[10], dos_reserved[11], dos_reserved[10], dos_reserved[11], to_ascii(dos_reserved[10]), to_ascii(dos_reserved[11])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  014: %03d %03d | 0E: %02X %02X | \"%c%c\" | uint16_t e_ss = ?;",
+    printf("\n  16: %03d %03d | 10: %02X %02X | \"%c%c\" | uint16_t e_sp = ?;",
      dos_reserved[12], dos_reserved[13], dos_reserved[12], dos_reserved[13], to_ascii(dos_reserved[12]), to_ascii(dos_reserved[13])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  016: %03d %03d | 10: %02X %02X | \"%c%c\" | uint16_t e_sp = ?;",
+    printf("\n  18: %03d %03d | 12: %02X %02X | \"%c%c\" | uint16_t e_csum = ?;",
      dos_reserved[14], dos_reserved[15], dos_reserved[14], dos_reserved[15], to_ascii(dos_reserved[14]), to_ascii(dos_reserved[15])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  018: %03d %03d | 12: %02X %02X | \"%c%c\" | uint16_t e_csum = ?;",
+    printf("\n  20: %03d %03d | 14: %02X %02X | \"%c%c\" | uint16_t e_ip = ?;",
      dos_reserved[16], dos_reserved[17], dos_reserved[16], dos_reserved[17], to_ascii(dos_reserved[16]), to_ascii(dos_reserved[17])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  020: %03d %03d | 14: %02X %02X | \"%c%c\" | uint16_t e_ip = ?;",
+    printf("\n  22: %03d %03d | 16: %02X %02X | \"%c%c\" | uint16_t e_cs = ?;",
      dos_reserved[18], dos_reserved[19], dos_reserved[18], dos_reserved[19], to_ascii(dos_reserved[18]), to_ascii(dos_reserved[19])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  022: %03d %03d | 16: %02X %02X | \"%c%c\" | uint16_t e_cs = ?;",
+    printf("\n  24: %03d %03d | 18: %02X %02X | \"%c%c\" | uint16_t e_lfarlc = ?;",
      dos_reserved[20], dos_reserved[21], dos_reserved[20], dos_reserved[21], to_ascii(dos_reserved[20]), to_ascii(dos_reserved[21])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  024: %03d %03d | 18: %02X %02X | \"%c%c\" | uint16_t e_lfarlc = ?;",
+    printf("\n  26: %03d %03d | 1A: %02X %02X | \"%c%c\" | uint16_t e_ovno = ?;",
      dos_reserved[22], dos_reserved[23], dos_reserved[22], dos_reserved[23], to_ascii(dos_reserved[22]), to_ascii(dos_reserved[23])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  026: %03d %03d | 1A: %02X %02X | \"%c%c\" | uint16_t e_ovno = ?;",
+    printf("\n  28: %03d %03d | 1C: %02X %02X | \"%c%c\" | uint16_t e_res[4] = {?,",
      dos_reserved[24], dos_reserved[25], dos_reserved[24], dos_reserved[25], to_ascii(dos_reserved[24]), to_ascii(dos_reserved[25])
     );
-    //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  028: %03d %03d | 1C: %02X %02X | \"%c%c\" | uint16_t e_res[4] = {?,",
+    printf("\n  30: %03d %03d | 1E: %02X %02X | \"%c%c\" | \t\t\t ?,",
      dos_reserved[26], dos_reserved[27], dos_reserved[26], dos_reserved[27], to_ascii(dos_reserved[26]), to_ascii(dos_reserved[27])
     );
-    printf("\n  030: %03d %03d | 1E: %02X %02X | \"%c%c\" | \t\t\t ?,",
+    printf("\n  32: %03d %03d | 20: %02X %02X | \"%c%c\" | \t\t\t ?,",
      dos_reserved[28], dos_reserved[29], dos_reserved[28], dos_reserved[29], to_ascii(dos_reserved[28]), to_ascii(dos_reserved[29])
     );
-    printf("\n  032: %03d %03d | 20: %02X %02X | \"%c%c\" | \t\t\t ?,",
+    printf("\n  34: %03d %03d | 22: %02X %02X | \"%c%c\" | \t\t\t ?};",
      dos_reserved[30], dos_reserved[31], dos_reserved[30], dos_reserved[31], to_ascii(dos_reserved[30]), to_ascii(dos_reserved[31])
     );
-    printf("\n  034: %03d %03d | 22: %02X %02X | \"%c%c\" | \t\t\t ?};",
+    //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    printf("\n  36: %03d %03d | 24: %02X %02X | \"%c%c\" | uint16_t e_oemid = ?;",
      dos_reserved[32], dos_reserved[33], dos_reserved[32], dos_reserved[33], to_ascii(dos_reserved[32]), to_ascii(dos_reserved[33])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  036: %03d %03d | 24: %02X %02X | \"%c%c\" | uint16_t e_oemid = ?;",
+    printf("\n  38: %03d %03d | 26: %02X %02X | \"%c%c\" | uint16_t e_oeminfo = ?;",
      dos_reserved[34], dos_reserved[35], dos_reserved[34], dos_reserved[35], to_ascii(dos_reserved[34]), to_ascii(dos_reserved[35])
-    );
-    //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  038: %03d %03d | 26: %02X %02X | \"%c%c\" | uint16_t e_oeminfo = ?;",
-     dos_reserved[36], dos_reserved[37],
-     dos_reserved[36], dos_reserved[37],
-     to_ascii(dos_reserved[36]), to_ascii(dos_reserved[37])
     );
     //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     //fseek(descriptor, 40, SEEK_SET);
     //printf("\n ТЕКУЩАЯ ПОЗИЦИЯ В ФАЙЛЕ: %ld", ftell(descriptor));
     if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n Ошибка чтения e_res2[10]");*/ return; }
-    printf("\n  040: %03d %03d | 28: %02X %02X | \"%c%c\" | uint16_t e_res2[10] = {%u,",
+    printf("\n  40: %03d %03d | 28: %02X %02X | \"%c%c\" | uint16_t e_res2[10] = {%u,",
      e_res2[0].bytes[0], e_res2[0].bytes[1],
      e_res2[0].bytes[0], e_res2[0].bytes[1],
      to_ascii(e_res2[0].bytes[0]), to_ascii(e_res2[0].bytes[1]),
@@ -350,7 +387,7 @@ void pe_analyzer()
     for (unsigned char i = 1; i <= 8; i++)
     {
         //offset += 2;
-        printf("\n  %03d: %03d %03d | %02X: %02X %02X | \"%c%c\" | \t\t\t   %u,",
+        printf("\n  %d: %03d %03d | %02X: %02X %02X | \"%c%c\" | \t\t\t   %u,",
          offset, e_res2[i].bytes[0], e_res2[i].bytes[1],
          offset, e_res2[i].bytes[0], e_res2[i].bytes[1],
          to_ascii(e_res2[i].bytes[0]), to_ascii(e_res2[i].bytes[1]),
@@ -358,7 +395,7 @@ void pe_analyzer()
         );
         offset += 2;
     }
-    printf("\n  058: %03d %03d | 3A: %02X %02X | \"%c%c\" | \t\t\t   %u};",
+    printf("\n  58: %03d %03d | 3A: %02X %02X | \"%c%c\" | \t\t\t   %u};",
      e_res2[9].bytes[0], e_res2[9].bytes[1],
      e_res2[9].bytes[0], e_res2[9].bytes[1],
      to_ascii(e_res2[9].bytes[0]), to_ascii(e_res2[9].bytes[1]),
