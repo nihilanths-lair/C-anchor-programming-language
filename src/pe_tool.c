@@ -121,6 +121,18 @@ char to_ascii(uint8_t b)
     //return (b >= 32 && b <= 126) ? (char) b : '·';
 }
 
+void print_colored_char(uint8_t b)
+{
+    // Если символ нечитаемый (управляющий или нулевой)
+    if (b < 32 || b > 126) {
+        // Печатаем КРАСНУЮ точку: \033[1;31m включаем красный, \033[0m выключаем
+        printf("\033[1;31m.\033[0m"); 
+    } else {
+        // Обычный символ печатаем как есть
+        putchar(b);
+    }
+}
+
 void console_log(
  uint8_t size, uint64_t loc_offset,
  uint8_t cell_1, uint8_t cell_2, uint8_t cell_3, uint8_t cell_4,
@@ -624,6 +636,13 @@ int main()
 
     pe_builder();
     pe_analyzer();
+    
+    putchar('\n');
+    print_colored_char('.');
+    putchar('\n');
+    print_colored_char('\b');
+    putchar('\n');
+    print_colored_char('.');
 
     putchar('\n');
     return 0;
