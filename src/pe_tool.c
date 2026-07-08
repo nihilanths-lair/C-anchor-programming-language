@@ -6,6 +6,7 @@
 #include <locale.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 //typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
 typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
@@ -112,29 +113,51 @@ uint8_t program[2048];
 uint64_t offset = 0;
 
 // Функция превращает байт в печатный символ, а непечатные заменяет точкой
-char to_ascii(uint8_t b)
+char to_ascii(uint8_t ascii)
 {
-    switch (b){
+    switch (ascii){
     case '\0': return '·';
     case '\t': return '·';
     case '\n': return '·';
     case '\r': return '·';
     case 0x13: return '·'; // ‼
     }
-    return b;
+    return ascii;
     //return (b >= 32 && b <= 126) ? (char) b : '·';
+}
+
+bool is_this_printable_character(uint8_t ascii)
+{
+    switch (ascii){
+    case '\0': return false;
+    case '\t': return false;
+    case '\n': return false;
+    case '\r': return false;
+    case 0x13: return false; // ‼
+    }
+    return true;
 }
 
 void print_colored_char(uint8_t b)
 {
     // Если символ нечитаемый (управляющий или нулевой)
-    if (b < 32 || b > 126) {
-        // Печатаем КРАСНУЮ точку: \033[1;31m включаем красный, \033[0m выключаем
-        printf("\033[1;31m.\033[0m"); 
-    } else {
-        // Обычный символ печатаем как есть
-        putchar(b);
+    if (b < 32 || b > 126)
+    {
+        #ifdef _WIN32
+         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 1. Получаем дескриптор консоли
+         CONSOLE_SCREEN_BUFFER_INFO consoleInfo; // 2. Сохраняем текущий цвет (чтобы не испортить последующий вывод)
+         WORD saved_attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE; // дефолтный белый
+         if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) { saved_attributes = consoleInfo.wAttributes; }
+         // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
+         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+         printf("."); // 4. Печатаем точку
+         SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+        #else
+         // Для Linux/macOS оставляем ANSI-коды, там они работают из коробки
+         printf("\033[1;31m.\033[0m");
+        #endif
     }
+    else putchar(b); // Обычный читаемый ASCII символ печатаем как есть
 }
 
 void console_log(
@@ -144,15 +167,31 @@ void console_log(
  uint64_t value, const char * abbreviation
 )
 {
+   #ifdef _WIN32
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 1. Получаем дескриптор консоли
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo; // 2. Сохраняем текущий цвет (чтобы не испортить последующий вывод)
+    WORD saved_attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE; // дефолтный белый
+    if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) { saved_attributes = consoleInfo.wAttributes; }
+   #endif
     switch (size){
     case 1:
     {
-        printf("\n  %d: %03d | %X: %02X | '%c' | uint8_t %s = %u; // 0x%02X",
-         loc_offset, cell_1, //bytes[0],
-         loc_offset, cell_1, //bytes[0],
-         to_ascii(cell_1/*bytes[0]*/),
-         abbreviation, value, value
-        );
+        printf("\n  %d: %03d | %X: %02X | '", loc_offset, cell_1, loc_offset, cell_1);
+        if (is_this_printable_character(cell_1))
+        {
+            putchar(cell_1);
+            printf("' | uint8_t %s = %u; // 0x%02X", abbreviation, value, value);
+            break;
+        }
+        // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
+       #ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+       #endif
+        putchar(cell_1);
+       #ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
+       #endif
+        printf("' | uint8_t %s = %u; // 0x%02X", abbreviation, value, value);
         break;
     }
     case 2:
@@ -637,7 +676,6 @@ void pe_analyzer()
 int main()
 {
     setlocale(0, "");
-
     // АКТИВАЦИЯ ЦВЕТА В WINDOWS
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -651,16 +689,8 @@ int main()
         }
     }
 #endif
-
     pe_builder();
     pe_analyzer();
-    
-    putchar('\n');
-    print_colored_char('.');
-    putchar('\n');
-    print_colored_char('\b');
-    putchar('\n');
-    print_colored_char('.');
 
     putchar('\n');
     return 0;
