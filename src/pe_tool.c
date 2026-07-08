@@ -591,11 +591,13 @@ void pe_analyzer()
     printf("\n  _/                                            \\_");
     printf("\n |_  БЛОК 4: КАТАЛОГИ ДАННЫХ (Data Directories)  _|");
     printf("\n   \\____________________________________________/");
-    printf("\n -----------------------------------------------------------------------------------------------------------------------------");
+    //printf("\n -----------------------------------------------------------------------------------------------------------------------------");
     char abbreviation[32];
     uint32_t dir_count = NumberOfRvaAndSizes.value;
     for (uint32_t i = 0; i < dir_count; i++)
     {
+        printf("\n  __________________________");
+        printf("\n / %s", directory_names[i]);
         sprintf(abbreviation, "virtual_address[%d]", i);
         //}
         if (fread(&virtual_address[i].value, 4, 1, descriptor) != 1) return;
