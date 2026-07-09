@@ -650,13 +650,7 @@ void pe_analyzer()
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     for (short i = 0; i < 256; i++)
     {
-        /*
-        if (i == 7) printf("\n Символ-%d: %c  | ", i+1, i);
-        else if (i == 8) printf("\n Символ-%d: %c   | ", i+1, i);
-        else if (i == 9) printf("\n Символ-%d: %c | ", i+1, i);
-        else
-        */
-        printf("\n Символ-%d: %c | ", i+1, i);
+        printf("\n №%d: %c, | ", i+1, i);
         symbol_adjustment(i);
     }
     fclose(descriptor);
@@ -672,19 +666,3 @@ int main()
     putchar('\n');
     return 0;
 }
-
-/*
-    // АКТИВАЦИЯ ЦВЕТА В WINDOWS
-   #ifdef _WIN32
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hOut != INVALID_HANDLE_VALUE)
-    {
-        DWORD dwMode = 0;
-        if (GetConsoleMode(hOut, &dwMode))
-        {
-            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            SetConsoleMode(hOut, dwMode);
-        }
-    }
-   #endif
-*/
