@@ -296,12 +296,20 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
 
         // 4. Печатаем тип данных и значение
         const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
-        if (size != 1) printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+        if (size != 1)
+        {
+            if (abbreviation[0] != '\0') printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+            else printf(" |");
+        } 
         // Красиво выводим HEX значение нужной разрядности
         //if (size == 1) printf("%02llX", value);
         if (size == 2) printf("%04llX", value);
         else if (size == 4) printf("%08llX", value);
-        else if (size == 8) printf("%016llX", value);
+        else if (size == 8)
+        {
+            if (abbreviation[0] != '\0') printf("%016llX", value);
+            //else putchar('|');
+        }
         else putchar('|');
     }
     break;
@@ -471,12 +479,17 @@ void pe_analyzer()
     // Если всё хорошо, последовательно вычитываем DOS-заглушку байт за байтом
     if (e_lfanew.value > 64)
     {
-        union__uint8_t byte;
-        for (int i = 64; i < e_lfanew.value; i++)
+        printf("\n  ____________________");
+        printf("\n /                    \\");
+        printf("\n %c БЛОК 1.2: DOS STUB %c", 16, 17);
+        printf("\n \\____________________/");
+        printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+        union__uint64_t byte;
+        for (int i = 64; i < e_lfanew.value; i += 8)
         {
-            byte.value = getc(descriptor);
-            console_log(1, offset, byte.bytes, byte.value, "");
-            offset++;
+            if (fread(&byte.value, 1, 8, descriptor) != 8) return;
+            console_log(8, offset, byte.bytes, byte.value, "");
+            offset += 8;
         }
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
