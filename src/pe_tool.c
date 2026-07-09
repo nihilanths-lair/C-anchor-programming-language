@@ -273,10 +273,10 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
         printf("\n %010lld:", loc_offset); // 0 ~ 4'294'967'295
         for (int i = 0; i < size; i++) printf(" %03d", bytes[i]);
-        for (int i = size; i < 8; i++) printf(" ···"); // Выравнивание
+        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('·'); symbol_adjustment('·'); symbol_adjustment('·'); } // Выравнивание
         printf(" |");
         for (int i = 0; i < size; i++) printf(" %02X", bytes[i]);
-        for (int i = size; i < 8; i++) printf(" ··"); // Выравнивание
+        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('·'); symbol_adjustment('·'); } // Выравнивание
         // 3. Выводим символы с цветной обработкой
         printf(" | ");
         uint8_t printed_chars = 0; 
@@ -398,31 +398,24 @@ void pe_analyzer()
     if (fread(&e_sp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 16, e_sp.bytes, e_sp.value, "e_sp");
 
-    
+    if (fread(&e_csum.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 18, e_csum.bytes, e_csum.value, "e_csum");
 
-    uint8_t dos_reserved[22];
-    printf("\n  18: %03d %03d | 12: %02X %02X | \"%c%c\" | uint16_t e_csum = ?;",
-     dos_reserved[14], dos_reserved[15], dos_reserved[14], dos_reserved[15], to_ascii(dos_reserved[14]), to_ascii(dos_reserved[15])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  20: %03d %03d | 14: %02X %02X | \"%c%c\" | uint16_t e_ip = ?;",
-     dos_reserved[16], dos_reserved[17], dos_reserved[16], dos_reserved[17], to_ascii(dos_reserved[16]), to_ascii(dos_reserved[17])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  22: %03d %03d | 16: %02X %02X | \"%c%c\" | uint16_t e_cs = ?;",
-     dos_reserved[18], dos_reserved[19], dos_reserved[18], dos_reserved[19], to_ascii(dos_reserved[18]), to_ascii(dos_reserved[19])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  24: %03d %03d | 18: %02X %02X | \"%c%c\" | uint16_t e_lfarlc = ?;",
-     dos_reserved[20], dos_reserved[21], dos_reserved[20], dos_reserved[21], to_ascii(dos_reserved[20]), to_ascii(dos_reserved[21])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  26: %03d %03d | 1A: %02X %02X | \"%c%c\" | uint16_t e_ovno = ?;",
-     dos_reserved[22], dos_reserved[23], dos_reserved[22], dos_reserved[23], to_ascii(dos_reserved[22]), to_ascii(dos_reserved[23])
-    );
+    if (fread(&e_ip.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 20, e_ip.bytes, e_ip.value, "e_ip");
+
+    if (fread(&e_cs.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 22, e_cs.bytes, e_cs.value, "e_cs");
+
+    if (fread(&e_lfarlc.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 24, e_lfarlc.bytes, e_lfarlc.value, "e_lfarlc");
+
+    if (fread(&e_ovno.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 26, e_ovno.bytes, e_ovno.value, "e_ovno");
+
     offset = 28;
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_res[0].value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_res[4]");*/ return; }
+
+    if (fread(&e_res[0].value, 2, 1, descriptor) != 1) return;
     printf("\n  __________________________");
     printf("\n / dw/short e_res[4];");
     char _e_res[32];
@@ -433,16 +426,16 @@ void pe_analyzer()
         offset += 2;
     }
     putchar('\n');
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_oemid.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_oemid");*/ return; }
+
+    if (fread(&e_oemid.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, e_oemid.bytes, e_oemid.value, "dw/short e_oemid");
     offset += 2;
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_oeminfo.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_oeminfo");*/ return; }
+
+    if (fread(&e_oeminfo.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, e_oeminfo.bytes, e_oeminfo.value, "dw/short e_oeminfo");
     offset += 2;
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n /!\\ e_res2[10]");*/ return; }
+
+    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) return;
     printf("\n  __________________________");
     printf("\n / dw/short e_res2[10];");
     char _e_res2[32];
@@ -453,8 +446,9 @@ void pe_analyzer()
         offset += 2;
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ e_lfanew");*/ return; }
+    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "dd/int e_lfanew");
+    offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // С этого момента структура блоков (её полей) может иметь разное смещение
     if (e_lfanew.value > 64)
