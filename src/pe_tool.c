@@ -17,10 +17,19 @@ typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 //  Размер: Всегда строго 64 байта.
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
 union__uint16_t e_magic;    // 000~001      | 00~01      #  Магическое число
-union__uint16_t e_cblp;
+
 //uint8_t dos_reserved[38];   // 002~039      | 02~27      #  Зарезервировано: Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
-union__uint16_t e_res2[10];
+union__uint16_t e_cblp;     // dos reserved №1
+union__uint16_t e_cp;       // dos reserved №2
+union__uint16_t e_crlc;     // dos reserved №3
+union__uint16_t e_cparhdr;  // dos reserved №4
+union__uint16_t e_res[4];   // dos reserved №5
+union__uint16_t e_oemid;    // dos reserved №6
+union__uint16_t e_oeminfo;  // dos reserved №7
+union__uint16_t e_res2[10]; // dos reserved №8
+
 union__uint32_t e_lfanew;   // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
+
 
 // БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) / 2. COFF Заголовок файла (Характеристики процессора)
 //  Размер: Всегда строго 24 байта (4 байта сигнатура + 20 байт заголовок).
@@ -120,6 +129,20 @@ typedef struct {
 uint8_t program[2048];
 uint64_t offset = 0;
 
+void print_offset_in_bytes(uint64_t offset)
+{
+    // Распиливаем 64-битное число на массив из 8 байт через указатель
+    uint8_t *b = (uint8_t*) &offset;
+    printf("\n Числовое значение: %lld (0x%016llX)", offset, offset);
+    // 1. Выводим побайтово в Десятичной СС (8 байт по 3 цифры)
+    printf("\n Десятичные байты: ");
+    for (int i = 0; i < 8; i++) printf("%03d ", b[i]); // %03d делает "005" вместо "5"
+    // 2. Выводим побайтово в Шестнадцатеричной СС (8 байт по 2 знака)
+    printf("\n HEX-байты (Little): ");
+    for (int i = 0; i < 8; i++) printf("%02X ", b[i]); // %02X делает "0A" вместо "A"
+    printf("\n ------------------------------------------------");
+}
+
 /*
 
  1. Управляющие символы (0~31, 127)
@@ -187,7 +210,7 @@ bool is_this_printable_character(uint8_t ascii)
     //return (ascii >= 32 && ascii <= 126) ? true : false;
 }
 
-void symbol_adjustment(uint8_t ascii)
+uint8_t symbol_adjustment(uint8_t ascii)
 {
     switch (ascii){
     case '\0': // 0: 000 = 00 = NUL
@@ -211,35 +234,100 @@ void symbol_adjustment(uint8_t ascii)
          // Для Linux/macOS оставляем ANSI-коды, там они работают из коробки
          printf("\033[1;31m.\033[0m");
         #endif
-        break;
+        return 2;
     default:
         putchar(ascii); // Обычный читаемый ASCII символ печатаем как есть
+        return 1;
     }
 }
+/*
+ Object 1: Offset, параметры:
+ Вывод: включён [по умолчанию].
+ Как отображать смещение (в человекочитаемом виде/в машинном виде)?
+ 1: Без разбивки (непрерывная цепочка), с форматированием: недостающие цифры спереди забиваются нулями [по умолчанию].
+ 2: Бить число на отдельные десятичные байты (без форматирования).
+ 4: Бить число на отдельные шестнадцатеричные байты (без форматирования).
+ 8: - ?
+ 16: - ?
+ 32: - ?
+ 64: - ?
+ 128: - ?
+*/
+uint8_t regulator = 0; // configurator
+uint8_t checksum = 1; // Контрольная сумма
 
-void console_log(uint8_t size, uint64_t loc_offset, const uint8_t * bytes, uint64_t value, const char * abbreviation)
+void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint64_t value, const char * abbreviation)
 {
-    // 1. Печатаем адрес и десятичные байты
-    printf("\n  %lld: ", loc_offset);
-    for (int i = 0; i < size; i++) printf("%03d ", bytes[i]);
-    for (int i = size; i < 8; i++) printf("    "); // Добиваем пробелами для выравнивания колонки, если размер меньше 8 байт
-    // 2. Печатаем шестнадцатеричные байты
-    printf("| %04llX: ", loc_offset);
-    for (int i = 0; i < size; i++) printf("%02X ", bytes[i]);
-    for (int i = size; i < 8; i++) printf("   "); // Добиваем пробелами для выравнивания колонки, если размер меньше 8 байт
-    // 3. Печатаем текстовое представление с цветными точками
-    printf("| ");//printf("| \"");
-    for (int i = 0; i < size; i++) symbol_adjustment(bytes[i]);
-    printf("  ");//printf("\" ");
-    for (int i = size; i < 8*2; i++) putchar(' '); // выравнивание закрывающей кавычки
-    // 4. Печатаем тип данных и значение
-    const char * type_str = (size == 1) ? "uint8_t " : (size == 2) ? "uint16_t" : (size == 4) ? "uint32_t" : "uint64_t";
-    printf("| %s %s = %llu; // 0x", type_str, abbreviation, value);
-    // Красиво выводим HEX значение нужной разрядности
-    if (size == 1) printf("%02llX", value);
-    else if (size == 2) printf("%04llX", value);
-    else if (size == 4) printf("%08llX", value);
-    else printf("%016llX", value);
+    switch (checksum){
+    case 1:
+    {
+        // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
+        printf("\n %010lld:", loc_offset); // 0 ~ 4'294'967'295
+        for (int i = 0; i < size; i++) printf(" %03d", bytes[i]);
+        for (int i = size; i < 8; i++) printf(" ···"); // Выравнивание
+        printf(" |");
+        for (int i = 0; i < size; i++) printf(" %02X", bytes[i]);
+        for (int i = size; i < 8; i++) printf(" ··"); // Выравнивание
+        // 3. Выводим символы с цветной обработкой
+        printf(" | ");
+        uint8_t printed_chars = 0; 
+        for (int i = 0; i < size; i++) printed_chars += symbol_adjustment(bytes[i]);
+        // === ИДЕАЛЬНОЕ ВЫРАВНИВАНИЕ ДЛЯ CASE 1 ===
+        // Базовая ширина текстового поля для 8 байт, если все символы печатные (8 байт * 2 символа на HEX-шаг) = 16.
+        // Но так как у нас символы выводятся «липко» друг за другом, максимальное экранное поле под символы — 16 знаков.
+        int max_width = 8;
+        int dots_to_print = max_width - printed_chars;
+        // КРИТИЧЕСКИЙ МОМЕНТ: Если из файла прочитано меньше 8 байт (например, size = 2 или 4),
+        // нам нужно компенсировать пустые байты, которые мы вообще не выводили в цикле.
+        // За каждый отсутствующий байт добавляем по 2 выравнивающие точки.
+        int missing_bytes = 8 - size;
+        dots_to_print += (missing_bytes * 2);
+        // Забиваем оставшееся пространство точками
+        for (int i = 0; i < dots_to_print; i++) printf("·");
+    }
+    break;
+    default:
+        for (int i = 0; i < size; i++) printf("%03d ", bytes[i]);
+        for (int i = size; i < 8; i++) printf("    "); // Выравнивание
+        // Распиливаем адрес loc_offset на массив из 8 байт
+        uint8_t * bo = (uint8_t*) &loc_offset;
+        // Определяем реальное количество байт, необходимых для отображения текущего адреса.
+        // Для смещений в начале файла (до 255) хватит 1 байта, до 65535 - 2 байт, для PE обычно хватает 4 байт.
+        // Сделаем фиксированно 4 байта (32-битный адрес), чтобы колонки в консоли не съезжали.
+        int addr_size = 4;
+        // 2. Выводим Byte offset (dec) в формате Big-Endian (от старшего байта к младшему)
+        for (int i = addr_size - 1; i >= 0; i--) printf("%03d", bo[i]); // липкие байты
+        printf("(be) = ");
+        // 3. Выводим Byte offset (dec) в формате Little-Endian (от младшего байта к старшему)
+        for (int i = 0; i < addr_size; i++) printf("%03d", bo[i]); // липкие байты
+        printf("(le) :: ");
+        // 4. Выводим Byte offset (hex) в формате Big-Endian
+        for (int i = addr_size - 1; i >= 0; i--) printf("%02X ", bo[i]);
+        printf("(be) = ");
+        // 5. Выводим Byte offset (hex) в формате Little-Endian
+        for (int i = 0; i < addr_size; i++) printf("%02X ", bo[i]);
+        printf("(le): ");
+        // 6. ПРАВАЯ ЧАСТЬ (Вывод самих данных, которые мы прочитали из файла)
+        // Печатаем сырые байты считанного значения в десятичном виде
+        
+        // Переходим к вашему шагу №2 (Вывод HEX-значений считанных данных)
+        printf(" | ");
+        for (int i = 0; i < size; i++) printf("%02X ", bytes[i]);
+        for (int i = size; i < 8; i++) printf("   "); // Выравнивание
+        // 3. Печатаем текстовое представление с цветными точками
+        printf("| ");//printf("| \"");
+        for (int i = 0; i < size; i++) symbol_adjustment(bytes[i]);
+        printf("  ");//printf("\" ");
+        for (int i = size; i < 8*2; i++) putchar(' '); // выравнивание закрывающей кавычки
+        // 4. Печатаем тип данных и значение
+        const char * type_str = (size == 1) ? " uint8_t " : (size == 2) ? "" : (size == 4) ? " uint32_t" : " uint64_t";
+        printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+        // Красиво выводим HEX значение нужной разрядности
+        if (size == 1) printf("%02llX", value);
+        else if (size == 2) printf("%04llX", value);
+        else if (size == 4) printf("%08llX", value);
+        else printf("%016llX", value);
+    }
 }
 
 void pe_builder()
@@ -264,34 +352,32 @@ void pe_analyzer()
     //FILE * descriptor = fopen("test_subject.exe", "rb");
     FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n  ____________________________________");
     printf("\n /                                    \\");
     printf("\n %c БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) %c", 16, 17);
     printf("\n \\____________________________________/");
     //printf("\n    ____________________________________");
     //printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
-    if (fread(&e_magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_magic");*/ return; }
+    if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    console_log(2, 0, e_magic.bytes, e_magic.value, "e_magic");
-    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&e_cblp.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_cblp");*/ return; }
+    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ e_magic");
+    //putchar('\n');
+    if (fread(&e_cblp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 2, e_cblp.bytes, e_cblp.value, "e_cblp");
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    // Размер массива должен быть строго 36 байт (40 - 2 - 2 байта MZ)
-    uint8_t dos_reserved[36];
-    if (fread(dos_reserved, 1, 36, descriptor) != 36) { /*printf("\n  Ошибка чтения по смещению 004~039 | 02~27");*/ return; }
-    printf("\n  4: %03d %03d | 4: %02X %02X | \"%c%c\" | uint16_t e_cp = ?;",
-     dos_reserved[0], dos_reserved[1], dos_reserved[0], dos_reserved[1], to_ascii(dos_reserved[0]), to_ascii(dos_reserved[1])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  6: %03d %03d | 6: %02X %02X | \"%c%c\" | uint16_t e_crlc = ?;",
-     dos_reserved[2], dos_reserved[3], dos_reserved[2], dos_reserved[3], to_ascii(dos_reserved[2]), to_ascii(dos_reserved[3])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  8: %03d %03d | 8: %02X %02X | \"%c%c\" | uint16_t e_cparhdr = ?;",
-     dos_reserved[4], dos_reserved[5], dos_reserved[4], dos_reserved[5], to_ascii(dos_reserved[4]), to_ascii(dos_reserved[5])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&e_cp.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 4, e_cp.bytes, e_cp.value, "e_cp");
+    if (fread(&e_crlc.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 6, e_crlc.bytes, e_crlc.value, "e_crlc");
+
+    if (fread(&e_cparhdr.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 8, e_cparhdr.bytes, e_cparhdr.value, "e_cparhdr");
+
+
+
+    uint8_t dos_reserved[22];
     printf("\n  10: %03d %03d | A: %02X %02X | \"%c%c\" | uint16_t e_minalloc = ?;",
      dos_reserved[6], dos_reserved[7], dos_reserved[6], dos_reserved[7], to_ascii(dos_reserved[6]), to_ascii(dos_reserved[7])
     );
@@ -327,64 +413,41 @@ void pe_analyzer()
     printf("\n  26: %03d %03d | 1A: %02X %02X | \"%c%c\" | uint16_t e_ovno = ?;",
      dos_reserved[22], dos_reserved[23], dos_reserved[22], dos_reserved[23], to_ascii(dos_reserved[22]), to_ascii(dos_reserved[23])
     );
+    offset = 28;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  28: %03d %03d | 1C: %02X %02X | \"%c%c\" | uint16_t e_res[4] = {?,",
-     dos_reserved[24], dos_reserved[25], dos_reserved[24], dos_reserved[25], to_ascii(dos_reserved[24]), to_ascii(dos_reserved[25])
-    );
-    printf("\n  30: %03d %03d | 1E: %02X %02X | \"%c%c\" | \t\t\t ?,",
-     dos_reserved[26], dos_reserved[27], dos_reserved[26], dos_reserved[27], to_ascii(dos_reserved[26]), to_ascii(dos_reserved[27])
-    );
-    printf("\n  32: %03d %03d | 20: %02X %02X | \"%c%c\" | \t\t\t ?,",
-     dos_reserved[28], dos_reserved[29], dos_reserved[28], dos_reserved[29], to_ascii(dos_reserved[28]), to_ascii(dos_reserved[29])
-    );
-    printf("\n  34: %03d %03d | 22: %02X %02X | \"%c%c\" | \t\t\t ?};",
-     dos_reserved[30], dos_reserved[31], dos_reserved[30], dos_reserved[31], to_ascii(dos_reserved[30]), to_ascii(dos_reserved[31])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  36: %03d %03d | 24: %02X %02X | \"%c%c\" | uint16_t e_oemid = ?;",
-     dos_reserved[32], dos_reserved[33], dos_reserved[32], dos_reserved[33], to_ascii(dos_reserved[32]), to_ascii(dos_reserved[33])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  38: %03d %03d | 26: %02X %02X | \"%c%c\" | uint16_t e_oeminfo = ?;",
-     dos_reserved[34], dos_reserved[35], dos_reserved[34], dos_reserved[35], to_ascii(dos_reserved[34]), to_ascii(dos_reserved[35])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    //fseek(descriptor, 40, SEEK_SET);
-    //printf("\n ТЕКУЩАЯ ПОЗИЦИЯ В ФАЙЛЕ: %ld", ftell(descriptor));
-    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n Ошибка чтения e_res2[10]");*/ return; }
-    printf("\n  40: %03d %03d | 28: %02X %02X | \"%c%c\" | uint16_t e_res2[10] = {%u,",
-     e_res2[0].bytes[0], e_res2[0].bytes[1],
-     e_res2[0].bytes[0], e_res2[0].bytes[1],
-     to_ascii(e_res2[0].bytes[0]), to_ascii(e_res2[0].bytes[1]),
-     e_res2[0].value
-    );
-    offset = 42;
-    for (unsigned char i = 1; i <= 8; i++)
+    if (fread(&e_res[0].value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_res[4]");*/ return; }
+    printf("\n  __________________________");
+    printf("\n / dw/short e_res[4];");
+    char _e_res[32];
+    for (uint8_t i = 0; i < 4; i++)
     {
-        //offset += 2;
-        printf("\n  %d: %03d %03d | %02X: %02X %02X | \"%c%c\" | \t\t\t   %u,",
-         offset, e_res2[i].bytes[0], e_res2[i].bytes[1],
-         offset, e_res2[i].bytes[0], e_res2[i].bytes[1],
-         to_ascii(e_res2[i].bytes[0]), to_ascii(e_res2[i].bytes[1]),
-         e_res2[i].value
-        );
+        sprintf(_e_res, "e_res[%d]", i);
+        console_log(2, offset, e_res[i].bytes, e_res[i].value, _e_res);
         offset += 2;
     }
-    printf("\n  58: %03d %03d | 3A: %02X %02X | \"%c%c\" | \t\t\t   %u};",
-     e_res2[9].bytes[0], e_res2[9].bytes[1],
-     e_res2[9].bytes[0], e_res2[9].bytes[1],
-     to_ascii(e_res2[9].bytes[0]), to_ascii(e_res2[9].bytes[1]),
-     e_res2[9].value
-    );
+    putchar('\n');
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&e_oemid.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_oemid");*/ return; }
+    console_log(2, offset, e_oemid.bytes, e_oemid.value, "dw/short e_oemid");
+    offset += 2;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&e_oeminfo.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ e_oeminfo");*/ return; }
+    console_log(2, offset, e_oeminfo.bytes, e_oeminfo.value, "dw/short e_oeminfo");
+    offset += 2;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) { /*printf("\n /!\\ e_res2[10]");*/ return; }
+    printf("\n  __________________________");
+    printf("\n / dw/short e_res2[10];");
+    char _e_res2[32];
+    for (uint8_t i = 0; i < 10; i++)
+    {
+        sprintf(_e_res2, "e_res2[%d]", i);
+        console_log(2, offset, e_res2[i].bytes, e_res2[i].value, _e_res2);
+        offset += 2;
+    }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    //printf("\n %zu", sizeof (union__uint16_t)); // 2
-    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения e_lfanew");*/ return; }
-    printf("\n  060: %03d %03d %03d %03d | 3C: %02X %02X %02X %02X | \"%c%c%c%c\" | uint32_t e_lfanew = %u; // 0x%08X",
-     e_lfanew.bytes[0], e_lfanew.bytes[1], e_lfanew.bytes[2], e_lfanew.bytes[3],
-     e_lfanew.bytes[0], e_lfanew.bytes[1], e_lfanew.bytes[2], e_lfanew.bytes[3],
-     to_ascii(e_lfanew.bytes[0]), to_ascii(e_lfanew.bytes[1]), to_ascii(e_lfanew.bytes[2]), to_ascii(e_lfanew.bytes[3]),
-     e_lfanew.value, e_lfanew.value
-    );
+    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ e_lfanew");*/ return; }
+    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "dd/int e_lfanew");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // С этого момента структура блоков (её полей) может иметь разное смещение
     if (e_lfanew.value > 64)
@@ -648,10 +711,12 @@ void pe_analyzer()
         offset += 4;
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    putchar('\n');
     for (short i = 0; i < 256; i++)
     {
-        printf("\n №%d: %c, | ", i+1, i);
+        printf(" №%d: %c | ", i+1, i);
         symbol_adjustment(i);
+        putchar(',');
     }
     fclose(descriptor);
 }
