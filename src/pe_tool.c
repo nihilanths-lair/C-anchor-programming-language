@@ -23,10 +23,19 @@ union__uint16_t e_cblp;     // dos reserved №1
 union__uint16_t e_cp;       // dos reserved №2
 union__uint16_t e_crlc;     // dos reserved №3
 union__uint16_t e_cparhdr;  // dos reserved №4
-union__uint16_t e_res[4];   // dos reserved №5
-union__uint16_t e_oemid;    // dos reserved №6
-union__uint16_t e_oeminfo;  // dos reserved №7
-union__uint16_t e_res2[10]; // dos reserved №8
+union__uint16_t e_minalloc; // dos reserved №5
+union__uint16_t e_maxalloc; // dos reserved №6
+union__uint16_t e_ss;       // dos reserved №7
+union__uint16_t e_sp;       // dos reserved №8
+union__uint16_t e_csum;     // dos reserved №9
+union__uint16_t e_ip;       // dos reserved №10
+union__uint16_t e_cs;       // dos reserved №11
+union__uint16_t e_lfarlc;   // dos reserved №12
+union__uint16_t e_ovno;     // dos reserved №13
+union__uint16_t e_res[4];   // dos reserved №14
+union__uint16_t e_oemid;    // dos reserved №15
+union__uint16_t e_oeminfo;  // dos reserved №16
+union__uint16_t e_res2[10]; // dos reserved №17
 
 union__uint32_t e_lfanew;   // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
 
@@ -361,39 +370,37 @@ void pe_analyzer()
     printf("\n \\____________________________________/");
     //printf("\n    ____________________________________");
     //printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
-    if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
     console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ e_magic");
-    //putchar('\n');
+
     if (fread(&e_cblp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 2, e_cblp.bytes, e_cblp.value, "e_cblp");
+
     if (fread(&e_cp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 4, e_cp.bytes, e_cp.value, "e_cp");
+
     if (fread(&e_crlc.value, 2, 1, descriptor) != 1) return;
     console_log(2, 6, e_crlc.bytes, e_crlc.value, "e_crlc");
 
     if (fread(&e_cparhdr.value, 2, 1, descriptor) != 1) return;
     console_log(2, 8, e_cparhdr.bytes, e_cparhdr.value, "e_cparhdr");
 
+    if (fread(&e_minalloc.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 10, e_minalloc.bytes, e_minalloc.value, "e_minalloc");
 
+    if (fread(&e_maxalloc.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 12, e_maxalloc.bytes, e_maxalloc.value, "e_maxalloc");
+
+    if (fread(&e_ss.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 14, e_ss.bytes, e_ss.value, "e_ss");
+
+    if (fread(&e_sp.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 16, e_sp.bytes, e_sp.value, "e_sp");
+
+    
 
     uint8_t dos_reserved[22];
-    printf("\n  10: %03d %03d | A: %02X %02X | \"%c%c\" | uint16_t e_minalloc = ?;",
-     dos_reserved[6], dos_reserved[7], dos_reserved[6], dos_reserved[7], to_ascii(dos_reserved[6]), to_ascii(dos_reserved[7])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  12: %03d %03d | C: %02X %02X | \"%c%c\" | uint16_t e_maxalloc = ?;",
-     dos_reserved[8], dos_reserved[9], dos_reserved[8], dos_reserved[9], to_ascii(dos_reserved[8]), to_ascii(dos_reserved[9])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  14: %03d %03d | E: %02X %02X | \"%c%c\" | uint16_t e_ss = ?;",
-     dos_reserved[10], dos_reserved[11], dos_reserved[10], dos_reserved[11], to_ascii(dos_reserved[10]), to_ascii(dos_reserved[11])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  16: %03d %03d | 10: %02X %02X | \"%c%c\" | uint16_t e_sp = ?;",
-     dos_reserved[12], dos_reserved[13], dos_reserved[12], dos_reserved[13], to_ascii(dos_reserved[12]), to_ascii(dos_reserved[13])
-    );
-    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n  18: %03d %03d | 12: %02X %02X | \"%c%c\" | uint16_t e_csum = ?;",
      dos_reserved[14], dos_reserved[15], dos_reserved[14], dos_reserved[15], to_ascii(dos_reserved[14]), to_ascii(dos_reserved[15])
     );
