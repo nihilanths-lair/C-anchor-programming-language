@@ -273,10 +273,10 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
         printf("\n %010lld:", loc_offset); // 0 ~ 4'294'967'295
         for (int i = 0; i < size; i++) printf(" %03d", bytes[i]);
-        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('·'); symbol_adjustment('·'); symbol_adjustment('·'); } // Выравнивание
+        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('-'); symbol_adjustment('-'); symbol_adjustment('-'); } // Выравнивание
         printf(" |");
         for (int i = 0; i < size; i++) printf(" %02X", bytes[i]);
-        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('·'); symbol_adjustment('·'); } // Выравнивание
+        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('-'); symbol_adjustment('-'); } // Выравнивание
         // 3. Выводим символы с цветной обработкой
         printf(" | ");
         uint8_t printed_chars = 0; 
@@ -293,6 +293,15 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         dots_to_print += (missing_bytes * 2);
         // Забиваем оставшееся пространство точками
         for (int i = 0; i < dots_to_print; i++) printf("·");
+
+        // 4. Печатаем тип данных и значение
+        const char * type_str = (size == 1) ? " uint8_t " : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
+        printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+        // Красиво выводим HEX значение нужной разрядности
+        if (size == 1) printf("%02llX", value);
+        else if (size == 2) printf("%04llX", value);
+        else if (size == 4) printf("%08llX", value);
+        else printf("%016llX", value);
     }
     break;
     default:
@@ -372,7 +381,7 @@ void pe_analyzer()
     //printf("\n __/ БЛОК 1: DOS ЗАГОЛОВОК (DOS Header) \\__");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ e_magic");
+    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ dw/short e_magic");
 
     if (fread(&e_cblp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 2, e_cblp.bytes, e_cblp.value, "e_cblp");
@@ -447,8 +456,8 @@ void pe_analyzer()
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "dd/int e_lfanew");
-    offset += 4;
+    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "/!\\ dd/int e_lfanew");
+    //offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // С этого момента структура блоков (её полей) может иметь разное смещение
     if (e_lfanew.value > 64)
@@ -457,6 +466,7 @@ void pe_analyzer()
         {
             byte = getc(descriptor);
             printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, to_ascii(byte));
+            //offset++;
         }
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
