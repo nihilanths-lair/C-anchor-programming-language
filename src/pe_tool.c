@@ -120,37 +120,83 @@ typedef struct {
 uint8_t program[2048];
 uint64_t offset = 0;
 
+/*
+
+ 1. Управляющие символы (0~31, 127)
+
+
+ 2. Печатные символы (32~126)
+
+
+ 3. Расширенные символы ASCII Win-1251 кириллица (128~255)
+ 149 = 0x95 = 10010101	•	&#149;	&bull;
+
+*/
 // Функция превращает байт в печатный символ, а непечатные заменяет точкой
 char to_ascii(uint8_t ascii)
 {
     switch (ascii){
-    case '\0': return '·';
-    case '\t': return '·';
-    case '\n': return '·';
-    case '\r': return '·';
-    case 0x13: return '·'; // ?
+    case '\0': return '·'; // 0: 000 = 00 = NUL
+    case '\a': return '·'; // 7: 007 = 07 = BEL
+    case '\b': return '·'; // 8: 008 = 08 = BS
+    case '\t': return '·'; // 9: 009 = 09 = TAB
+    case '\n': return '·'; // 10: 010 = 0A = LF
+    case '\r': return '·'; // 13: 013 = 0D = CR
     }
     return ascii;
-    //return (b >= 32 && b <= 126) ? (char) b : '·';
+    //return (ascii >= 32 && ascii <= 126) ? (char) ascii : '·';
+}
+
+// Функция превращает непечатный байт в экранированную ascii-последовательность
+const char * to_str_ascii(uint8_t ascii)
+{
+    // static сохраняет массив в памяти после выхода из функции. 5 байт хватит для любой строки.
+    static char buffer[5];
+    // Обрабатываем непечатные спецсимволы
+    switch (ascii) {
+    case '\0': return "\\0"; // 0x00: Нуль-терминатор
+    case '\a': return "\\a"; // 0x07: Сигнал (Bell)
+    case '\b': return "\\b"; // 0x08: Забой (Backspace)
+    case '\t': return "\\t"; // 0x09: Табуляция
+    case '\n': return "\\n"; // 0x0A: Перевод строки (Line Feed)
+    //case '\v': return "\\v"; // 0x0B: Вертикальная табуляция
+    //case '\f': return "\\f"; // 0x0C: Смена страницы (Form Feed)
+    case '\r': return "\\r"; // 0x0D: Возврат каретки
+    //case 27:   return "\\e"; // 0x1B: Escape-символ
+    }
+    // Для всех остальных непечатных байт (например, 0x01, 0x86, 0xFF)
+    // возвращаем красивую универсальную заглушку с кодом символа
+    buffer[0] = '\\';
+    buffer[1] = '?';
+    buffer[2] = '\0';
+    return buffer;
+    //return (ascii >= 32 && ascii <= 126) ? (char) ascii : '·';
 }
 
 bool is_this_printable_character(uint8_t ascii)
 {
     switch (ascii){
-    case '\0': return false;
-    case '\t': return false;
-    case '\n': return false;
-    case '\r': return false;
-    case 0x13: return false; // ?
+    case '\0': return false; // 0: 000 = 00 = NUL
+    case '\a': return false; // 7: 007 = 07 = BEL
+    case '\b': return false; // 8: 008 = 08 = BS
+    case '\t': return false; // 9: 009 = 09 = TAB
+    case '\n': return false; // 10: 010 = 0A = LF
+    case '\r': return false; // 13: 013 = 0D = CR
     }
     return true;
+    //return (ascii >= 32 && ascii <= 126) ? true : false;
 }
 
 void symbol_adjustment(uint8_t ascii)
 {
-    // Если символ нечитаемый (управляющий или нулевой)
-    if (ascii == '\0' || ascii == '\b' || ascii == '\t' || ascii == '\n' || ascii == '\r')
-    {
+    switch (ascii){
+    case '\0': // 0: 000 = 00 = NUL
+    case '\a': // 7: 007 = 07 = BEL
+    case '\b': // 8: 008 = 08 = BS
+    case '\t': // 9: 009 = 09 = TAB
+    case '\n': // 10: 010 = 0A = LF
+    case '\r': // 13: 013 = 0D = CR
+        // Если символ нечитаемый (управляющий или нулевой)
         #ifdef _WIN32
          HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 1. Получаем дескриптор консоли
          CONSOLE_SCREEN_BUFFER_INFO consoleInfo; // 2. Сохраняем текущий цвет (чтобы не испортить последующий вывод)
@@ -158,14 +204,17 @@ void symbol_adjustment(uint8_t ascii)
          if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) { saved_attributes = consoleInfo.wAttributes; }
          // 3. Устанавливаем ярко-красный цвет текста (FOREGROUND_INTENSITY делает цвет сочным)
          SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
-         printf("·"); // 4. Печатаем точку
+         //putchar(95); //putchar(35); //putchar(36); //putchar(21); //putchar(137); //putchar(20); //putchar(127);
+         printf("%s", to_str_ascii(ascii)); //putchar(19); //putchar(14); //putchar(2); //putchar(164); //putchar(184);
          SetConsoleTextAttribute(hConsole, saved_attributes); // 5. Возвращаем исходный цвет обратно
         #else
          // Для Linux/macOS оставляем ANSI-коды, там они работают из коробки
          printf("\033[1;31m.\033[0m");
         #endif
+        break;
+    default:
+        putchar(ascii); // Обычный читаемый ASCII символ печатаем как есть
     }
-    else putchar(ascii); // Обычный читаемый ASCII символ печатаем как есть
 }
 
 void console_log(uint8_t size, uint64_t loc_offset, const uint8_t * bytes, uint64_t value, const char * abbreviation)
@@ -182,7 +231,7 @@ void console_log(uint8_t size, uint64_t loc_offset, const uint8_t * bytes, uint6
     printf("| ");//printf("| \"");
     for (int i = 0; i < size; i++) symbol_adjustment(bytes[i]);
     printf("  ");//printf("\" ");
-    for (int i = size; i < 8; i++) printf(" "); // выравнивание закрывающей кавычки
+    for (int i = size; i < 8*2; i++) putchar(' '); // выравнивание закрывающей кавычки
     // 4. Печатаем тип данных и значение
     const char * type_str = (size == 1) ? "uint8_t " : (size == 2) ? "uint16_t" : (size == 4) ? "uint32_t" : "uint64_t";
     printf("| %s %s = %llu; // 0x", type_str, abbreviation, value);
@@ -355,50 +404,36 @@ void pe_analyzer()
     //printf("\n    _________________________________________");
     //printf("\n __/ БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) \\__");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&pe_signature.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения pe_signature");*/ return; }
-    printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t pe_signature = %u; // 0x%08X", offset, pe_signature.bytes[0], offset, pe_signature.bytes[0], to_ascii(pe_signature.bytes[0]), pe_signature.value, pe_signature.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                             offset, pe_signature.bytes[1], offset, pe_signature.bytes[1], to_ascii(pe_signature.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                             offset, pe_signature.bytes[2], offset, pe_signature.bytes[2], to_ascii(pe_signature.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                             offset, pe_signature.bytes[3], offset, pe_signature.bytes[3], to_ascii(pe_signature.bytes[3]));
+    if (fread(&pe_signature.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ pe_signature");*/ return; }
+    console_log(4, offset, pe_signature.bytes, pe_signature.value, "pe_signature");
+    offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Machine.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения Machine");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t Machine = %u; // 0x%04X", offset, Machine.bytes[0], offset, Machine.bytes[0], to_ascii(Machine.bytes[0]), Machine.value, Machine.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                  offset, Machine.bytes[1], offset, Machine.bytes[1], to_ascii(Machine.bytes[1]));
+    if (fread(&Machine.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Machine");*/ return; }
+    console_log(2, offset, Machine.bytes, Machine.value, "Machine");
+    offset += 2;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ NumberOfSections");*/ return; }
+    console_log(2, offset, NumberOfSections.bytes, NumberOfSections.value, "NumberOfSections");
+    offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения NumberOfSections");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t NumberOfSections = %u; // 0x%04X", offset, NumberOfSections.bytes[0], offset, NumberOfSections.bytes[0], to_ascii(NumberOfSections.bytes[0]), NumberOfSections.value, NumberOfSections.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                           offset, NumberOfSections.bytes[1], offset, NumberOfSections.bytes[1], to_ascii(NumberOfSections.bytes[1]));
+    if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ TimeDateStamp");*/ return; }
+    console_log(4, offset, TimeDateStamp.bytes, TimeDateStamp.value, "TimeDateStamp");
+    offset += 4;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ PointerToSymbolTable");*/ return; }
+    console_log(4, offset, PointerToSymbolTable.bytes, PointerToSymbolTable.value, "PointerToSymbolTable");
+    offset += 4;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&NumberOfSymbols.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ NumberOfSymbols");*/ return; }
+    console_log(4, offset, NumberOfSymbols.bytes, NumberOfSymbols.value, "NumberOfSymbols");
+    offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения TimeDateStamp");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t TimeDateStamp = %u; // 0x%08X", offset, TimeDateStamp.bytes[0], offset, TimeDateStamp.bytes[0], to_ascii(TimeDateStamp.bytes[0]), TimeDateStamp.value, TimeDateStamp.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                        offset, TimeDateStamp.bytes[1], offset, TimeDateStamp.bytes[1], to_ascii(TimeDateStamp.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                        offset, TimeDateStamp.bytes[2], offset, TimeDateStamp.bytes[2], to_ascii(TimeDateStamp.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                        offset, TimeDateStamp.bytes[3], offset, TimeDateStamp.bytes[3], to_ascii(TimeDateStamp.bytes[3]));
-    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения PointerToSymbolTable");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t PointerToSymbolTable = %u; // 0x%08X", offset, PointerToSymbolTable.bytes[0], offset, PointerToSymbolTable.bytes[0], to_ascii(PointerToSymbolTable.bytes[0]), PointerToSymbolTable.value, PointerToSymbolTable.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                               offset, PointerToSymbolTable.bytes[1], offset, PointerToSymbolTable.bytes[1], to_ascii(PointerToSymbolTable.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                               offset, PointerToSymbolTable.bytes[2], offset, PointerToSymbolTable.bytes[2], to_ascii(PointerToSymbolTable.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                               offset, PointerToSymbolTable.bytes[3], offset, PointerToSymbolTable.bytes[3], to_ascii(PointerToSymbolTable.bytes[3]));
-    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&NumberOfSymbols.value, 4, 1, descriptor) != 1) { /*printf("\n Ошибка чтения NumberOfSymbols");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint32_t NumberOfSymbols = %u; // 0x%08X", offset, NumberOfSymbols.bytes[0], offset, NumberOfSymbols.bytes[0], to_ascii(NumberOfSymbols.bytes[0]), NumberOfSymbols.value, NumberOfSymbols.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                          offset, NumberOfSymbols.bytes[1], offset, NumberOfSymbols.bytes[1], to_ascii(NumberOfSymbols.bytes[1]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                          offset, NumberOfSymbols.bytes[2], offset, NumberOfSymbols.bytes[2], to_ascii(NumberOfSymbols.bytes[2]));
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                          offset, NumberOfSymbols.bytes[3], offset, NumberOfSymbols.bytes[3], to_ascii(NumberOfSymbols.bytes[3]));
-    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfOptionalHeader.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения SizeOfOptionalHeader");*/ return; }
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' | uint16_t SizeOfOptionalHeader = %u; // 0x%04X", offset, SizeOfOptionalHeader.bytes[0], offset, SizeOfOptionalHeader.bytes[0], to_ascii(SizeOfOptionalHeader.bytes[0]), SizeOfOptionalHeader.value, SizeOfOptionalHeader.value);
-    offset++; printf("\n  %03d: %03d | %02X: %02X | '%c' |",                                               offset, SizeOfOptionalHeader.bytes[1], offset, SizeOfOptionalHeader.bytes[1], to_ascii(SizeOfOptionalHeader.bytes[1]));
-    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Characteristics.value, 2, 1, descriptor) != 1) { /*printf("\n Ошибка чтения Characteristics");*/ return; }
-    offset++;
-    printf("\n  %03d: %03d %03d | %02X: %02X %02X | \"%c%c\" | uint16_t Characteristics = %u; // 0x%04X",
-     offset, Characteristics.bytes[0], Characteristics.bytes[1],
-     offset, Characteristics.bytes[0], Characteristics.bytes[1],
-     to_ascii(Characteristics.bytes[0]), to_ascii(Characteristics.bytes[1]),
-     Characteristics.value, Characteristics.value
-    );
+    if (fread(&SizeOfOptionalHeader.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfOptionalHeader");*/ return; }
+    console_log(2, offset, SizeOfOptionalHeader.bytes, SizeOfOptionalHeader.value, "SizeOfOptionalHeader");
+    offset += 2;
+    //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    if (fread(&Characteristics.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Characteristics");*/ return; }
+    console_log(2, offset, Characteristics.bytes, Characteristics.value, "Characteristics");
     offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Magic");*/ return; }
@@ -613,6 +648,17 @@ void pe_analyzer()
         offset += 4;
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    for (short i = 0; i < 256; i++)
+    {
+        /*
+        if (i == 7) printf("\n Символ-%d: %c  | ", i+1, i);
+        else if (i == 8) printf("\n Символ-%d: %c   | ", i+1, i);
+        else if (i == 9) printf("\n Символ-%d: %c | ", i+1, i);
+        else
+        */
+        printf("\n Символ-%d: %c | ", i+1, i);
+        symbol_adjustment(i);
+    }
     fclose(descriptor);
 }
 
