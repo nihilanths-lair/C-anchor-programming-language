@@ -295,13 +295,14 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         for (int i = 0; i < dots_to_print; i++) printf("·");
 
         // 4. Печатаем тип данных и значение
-        const char * type_str = (size == 1) ? " uint8_t " : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
-        printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+        const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
+        if (size != 1) printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
         // Красиво выводим HEX значение нужной разрядности
-        if (size == 1) printf("%02llX", value);
-        else if (size == 2) printf("%04llX", value);
+        //if (size == 1) printf("%02llX", value);
+        if (size == 2) printf("%04llX", value);
         else if (size == 4) printf("%08llX", value);
-        else printf("%016llX", value);
+        else if (size == 8) printf("%016llX", value);
+        else putchar('|');
     }
     break;
     default:
@@ -424,7 +425,7 @@ void pe_analyzer()
 
     offset = 28;
 
-    if (fread(&e_res[0].value, 2, 1, descriptor) != 1) return;
+    if (fread(&e_res[0].value, 2, 4, descriptor) != 4) return;
     printf("\n  __________________________");
     printf("\n / dw/short e_res[4];");
     char _e_res[32];
@@ -461,19 +462,21 @@ void pe_analyzer()
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // БЕЗОПАСНОСТЬ: Если e_lfanew некорректный (меньше конца DOS-заголовка),
     // то PE-заголовка в файле физически быть не может. Завершаем работу.
-    if (e_lfanew.value < 64) 
+    if (e_lfanew.value < 64)
     {
-        printf("\n [ОШИБКА] Неверное смещение e_lfanew. Файл не является исполняемым PE-файлом Windows.");
-        fclose(descriptor);
+        //printf("\n [ОШИБКА] Неверное смещение e_lfanew. Файл не является исполняемым PE-файлом Windows.");
+        //fclose(descriptor);
         return;
     }
     // Если всё хорошо, последовательно вычитываем DOS-заглушку байт за байтом
     if (e_lfanew.value > 64)
     {
-        for (int i = 64, byte = 0; i < e_lfanew.value; i++)
+        union__uint8_t byte;
+        for (int i = 64; i < e_lfanew.value; i++)
         {
-            byte = getc(descriptor);
-            printf("\n  %03d: %03d | %02X: %02X | '%c' |", i, byte, i, byte, to_ascii(byte));
+            byte.value = getc(descriptor);
+            console_log(1, offset, byte.bytes, byte.value, "");
+            offset++;
         }
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
