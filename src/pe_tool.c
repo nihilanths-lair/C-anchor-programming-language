@@ -106,11 +106,18 @@ const char * directory_names[16] =
 // БЛОК 5: ТАБЛИЦА СЕКЦИЙ (Section Table)
 //  Размер: Динамический. Равен NumberOfSections \(\times \) 40 байт.
 //  Природа: Массив "паспортов" для каждого блока данных. Каждый паспорт имеет строго фиксированную структуру из 40 байт.
-// ... ... ...
+typedef struct {
+    uint8_t Name[8];
+    union__uint32_t VirtualSize;
+    union__uint32_t VirtualAddress;
+    union__uint32_t SizeOfRawData;
+    union__uint32_t PointerToRawData;
+    uint8_t Reserved[12]; // Пропускаем легаси-поля (3 поля по 4 байта)
+    union__uint32_t Characteristics;
+} SectionHeader;
 
 
 uint8_t program[2048];
-
 uint64_t offset = 0;
 
 // Функция превращает байт в печатный символ, а непечатные заменяет точкой
@@ -560,6 +567,51 @@ void pe_analyzer()
     printf("\n /                                        \\");
     printf("\n %c БЛОК 5: ТАБЛИЦА СЕКЦИЙ (Section Table) %c", 16, 17);
     printf("\n \\________________________________________/");
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    // Количество секций берем из Блока 2 (переменная NumberOfSections)
+    uint16_t sec_count = NumberOfSections.value;
+    SectionHeader current_sec;
+    for (uint16_t i = 0; i < sec_count; i++)
+    {
+        // 1. Читаем Имя секции (8 байт)
+        if (fread(current_sec.Name, 1, 8, descriptor) != 8) { return; }
+        // Выводим имя (можно через вашу обновленную функцию console_log или напрямую)
+        printf("\n  __________________________");
+        printf("\n / SECTION: %d, NAME: ", i);
+        for (int n = 0; n < 8; n++) { symbol_adjustment(current_sec.Name[n]); }
+        //printf("\n -------------------------------------------------------------------------------------------------");
+        offset += 8;
+
+        // 2. Читаем VirtualSize (4 байта)
+        if (fread(&current_sec.VirtualSize.value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset, current_sec.VirtualSize.bytes, current_sec.VirtualSize.value, "VirtualSize");
+        offset += 4;
+
+        // 3. Читаем VirtualAddress (4 байта)
+        if (fread(&current_sec.VirtualAddress.value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset, current_sec.VirtualAddress.bytes, current_sec.VirtualAddress.value, "VirtualAddress");
+        offset += 4;
+
+        // 4. Читаем SizeOfRawData (4 байта)
+        if (fread(&current_sec.SizeOfRawData.value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset, current_sec.SizeOfRawData.bytes, current_sec.SizeOfRawData.value, "SizeOfRawData");
+        offset += 4;
+
+        // 5. Читаем PointerToRawData (4 байта)
+        if (fread(&current_sec.PointerToRawData.value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset, current_sec.PointerToRawData.bytes, current_sec.PointerToRawData.value, "PointerToRawData");
+        offset += 4;
+
+        // 6. Пропускаем 12 байт неиспользуемых легаси-полей
+        if (fread(current_sec.Reserved, 1, 12, descriptor) != 12) { return; }
+        // При желании можно вывести их одной строчкой, offset += 12
+        offset += 12;
+
+        // 7. Читаем Characteristics (4 байта)
+        if (fread(&current_sec.Characteristics.value, 4, 1, descriptor) != 1) { return; }
+        console_log(4, offset, current_sec.Characteristics.bytes, current_sec.Characteristics.value, "Characteristics");
+        offset += 4;
+    }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     fclose(descriptor);
 }
