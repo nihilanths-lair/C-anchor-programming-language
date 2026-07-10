@@ -256,11 +256,7 @@ uint8_t symbol_adjustment(uint8_t ascii)
  1: Без разбивки (непрерывная цепочка), с форматированием: недостающие цифры спереди забиваются нулями [по умолчанию].
  2: Бить число на отдельные десятичные байты (без форматирования).
  4: Бить число на отдельные шестнадцатеричные байты (без форматирования).
- 8: - ?
- 16: - ?
- 32: - ?
- 64: - ?
- 128: - ?
+ 8, 16, 32, 64, 128: - ?
 */
 uint8_t regulator = 0; // configurator
 uint8_t checksum = 1; // Контрольная сумма
@@ -273,10 +269,21 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
         printf("\n %010lld:", loc_offset); // 0 ~ 4'294'967'295
         for (int i = 0; i < size; i++) printf(" %03d", bytes[i]);
-        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('-'); symbol_adjustment('-'); symbol_adjustment('-'); } // Выравнивание
+        for (int i = size; i < 8; i++)
+        {
+            putchar(' ');
+            symbol_adjustment(22);
+            symbol_adjustment(22);
+            symbol_adjustment(22);
+        } // Выравнивание
         printf(" |");
         for (int i = 0; i < size; i++) printf(" %02X", bytes[i]);
-        for (int i = size; i < 8; i++) { putchar(' '); symbol_adjustment('-'); symbol_adjustment('-'); } // Выравнивание
+        for (int i = size; i < 8; i++)
+        {
+            putchar(' ');
+            symbol_adjustment(22);
+            symbol_adjustment(22);
+        } // Выравнивание
         // 3. Выводим символы с цветной обработкой
         printf(" | ");
         uint8_t printed_chars = 0; 
@@ -286,7 +293,7 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // А каждый реально обработанный байт уменьшает ширину поля на 2 точки.
         int dots_to_print = (16 - printed_chars) + ((8 - size) * 2);
         // Внимание: проверьте, чтобы у вас в printf стояла одна точка БЕЗ пробела:
-        for (int i = 0; i < dots_to_print; i++) printf("·");
+        for (int i = 0; i < dots_to_print; i++) putchar(22);
         // 4. Печатаем тип данных и значение
         const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
         if (size != 1)
@@ -457,17 +464,8 @@ void pe_analyzer()
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "/!\\ dd/int e_lfanew");
-    offset += 4; // Теперь offset равен 64, и маркер файла на 64
+    offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    // БЕЗОПАСНОСТЬ: Если e_lfanew некорректный (меньше конца DOS-заголовка),
-    // то PE-заголовка в файле физически быть не может. Завершаем работу.
-    if (e_lfanew.value < 64)
-    {
-        //printf("\n [ОШИБКА] Неверное смещение e_lfanew. Файл не является исполняемым PE-файлом Windows.");
-        //fclose(descriptor);
-        return;
-    }
-    // Если всё хорошо, последовательно вычитываем DOS-заглушку байт за байтом
     if (e_lfanew.value > 64)
     {
         printf("\n  _________________");
@@ -484,6 +482,7 @@ void pe_analyzer()
         }
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
+    else if (e_lfanew.value < 64) return;
     printf("\n  ________________________");
     printf("\n /                        \\");
     printf("\n %c №2.1 | IMAGE NT HEADER %c", 16, 17);
@@ -499,36 +498,35 @@ void pe_analyzer()
     printf("\n %c №2.2 | IMAGE FILE HEADER %c", 16, 17);
     printf("\n \\__________________________/");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    // Это FILE HEADER или нет?
-    if (fread(&Machine.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Machine");*/ return; }
+    if (fread(&Machine.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, Machine.bytes, Machine.value, "Machine");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ NumberOfSections");*/ return; }
+    if (fread(&NumberOfSections.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, NumberOfSections.bytes, NumberOfSections.value, "NumberOfSections");
     offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ TimeDateStamp");*/ return; }
+    if (fread(&TimeDateStamp.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, TimeDateStamp.bytes, TimeDateStamp.value, "TimeDateStamp");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ PointerToSymbolTable");*/ return; }
+    if (fread(&PointerToSymbolTable.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, PointerToSymbolTable.bytes, PointerToSymbolTable.value, "PointerToSymbolTable");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&NumberOfSymbols.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ NumberOfSymbols");*/ return; }
+    if (fread(&NumberOfSymbols.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, NumberOfSymbols.bytes, NumberOfSymbols.value, "NumberOfSymbols");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfOptionalHeader.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfOptionalHeader");*/ return; }
+    if (fread(&SizeOfOptionalHeader.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, SizeOfOptionalHeader.bytes, SizeOfOptionalHeader.value, "SizeOfOptionalHeader");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Characteristics.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Characteristics");*/ return; }
+    if (fread(&Characteristics.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, Characteristics.bytes, Characteristics.value, "Characteristics");
     offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Magic.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Magic");*/ return; }
+    if (fread(&Magic.value, 2, 1, descriptor) != 1) return;
     switch (Magic.value){
     case 0x010B:
     {
@@ -563,110 +561,110 @@ void pe_analyzer()
     console_log(1, offset, MinorLinkerVersion.bytes, MinorLinkerVersion.value, "MinorLinkerVersion");
     offset++;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfCode.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfCode");*/ return; }
+    if (fread(&SizeOfCode.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfCode.bytes, SizeOfCode.value, "SizeOfCode");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfInitializedData.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfInitializedData");*/ return; }
+    if (fread(&SizeOfInitializedData.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfInitializedData.bytes, SizeOfInitializedData.value, "SizeOfInitializedData");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfUninitializedData.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfUninitializedData");*/ return; }
+    if (fread(&SizeOfUninitializedData.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfUninitializedData.bytes, SizeOfUninitializedData.value, "SizeOfUninitializedData");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&AddressOfEntryPoint.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ AddressOfEntryPoint");*/ return; }
+    if (fread(&AddressOfEntryPoint.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, AddressOfEntryPoint.bytes, AddressOfEntryPoint.value, "AddressOfEntryPoint");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&BaseOfCode.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ BaseOfCode");*/ return; }
+    if (fread(&BaseOfCode.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, BaseOfCode.bytes, BaseOfCode.value, "BaseOfCode");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // [Примечание]: Только в PE32 здесь идёт ещё 4 байта uint32_t BaseOfData. В 64-битном PE32+ этого поля вообще нет!
     //if (Magic.value == 0x010B) { ... }
     // Часть 2: Специфичные поля Windows (Windows-Specific Fields) — размеры различаются!
-    if (fread(&ImageBase.value, 8, 1, descriptor) != 1) { /*printf("\n /!\\ ImageBase");*/ return; }
+    if (fread(&ImageBase.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, ImageBase.bytes, ImageBase.value, "ImageBase");
     offset += 8;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SectionAlignment.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SectionAlignment");*/ return; }
+    if (fread(&SectionAlignment.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SectionAlignment.bytes, SectionAlignment.value, "SectionAlignment");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&FileAlignment.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ FileAlignment");*/ return; }
+    if (fread(&FileAlignment.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, FileAlignment.bytes, FileAlignment.value, "FileAlignment");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MajorOperatingSystemVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorOperatingSystemVersion");*/ return; }
+    if (fread(&MajorOperatingSystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorOperatingSystemVersion.bytes, MajorOperatingSystemVersion.value, "MajorOperatingSystemVersion");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MinorOperatingSystemVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorOperatingSystemVersion");*/ return; }
+    if (fread(&MinorOperatingSystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorOperatingSystemVersion.bytes, MinorOperatingSystemVersion.value, "MinorOperatingSystemVersion");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MajorImageVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorImageVersion = ?");*/ return; }
+    if (fread(&MajorImageVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorImageVersion.bytes, MajorImageVersion.value, "MajorImageVersion");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MinorImageVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorImageVersion = ?");*/ return; }
+    if (fread(&MinorImageVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorImageVersion.bytes, MinorImageVersion.value, "MinorImageVersion");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MajorSubsystemVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MajorSubsystemVersion = ?");*/ return; }
+    if (fread(&MajorSubsystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorSubsystemVersion.bytes, MajorSubsystemVersion.value, "MajorSubsystemVersion");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&MinorSubsystemVersion.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ MinorSubsystemVersion = ?");*/ return; }
+    if (fread(&MinorSubsystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorSubsystemVersion.bytes, MinorSubsystemVersion.value, "MinorSubsystemVersion");
     offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Win32VersionValue.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ Win32VersionValue = ?");*/ return; }
+    if (fread(&Win32VersionValue.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, Win32VersionValue.bytes, Win32VersionValue.value, "Win32VersionValue");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfImage.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfImage = ?");*/ return; }
+    if (fread(&SizeOfImage.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfImage.bytes, SizeOfImage.value, "SizeOfImage");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfHeaders.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfHeaders = ?");*/ return; }
+    if (fread(&SizeOfHeaders.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfHeaders.bytes, SizeOfHeaders.value, "SizeOfHeaders");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&CheckSum.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ CheckSum = ?");*/ return; }
+    if (fread(&CheckSum.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, CheckSum.bytes, CheckSum.value, "CheckSum");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&Subsystem.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ Subsystem = ?");*/ return; }
+    if (fread(&Subsystem.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, Subsystem.bytes, Subsystem.value, "Subsystem");
     offset += 2;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&DllCharacteristics.value, 2, 1, descriptor) != 1) { /*printf("\n /!\\ DllCharacteristics = ?");*/ return; }
+    if (fread(&DllCharacteristics.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, DllCharacteristics.bytes, DllCharacteristics.value, "DllCharacteristics");
     offset += 2;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfStackReserve.value, 8, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfStackReserve");*/ return; }
+    if (fread(&SizeOfStackReserve.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfStackReserve.bytes, SizeOfStackReserve.value, "SizeOfStackReserve");
     offset += 8;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfStackCommit.value, 8, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfStackCommit");*/ return; }
+    if (fread(&SizeOfStackCommit.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfStackCommit.bytes, SizeOfStackCommit.value, "SizeOfStackCommit");
     offset += 8;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfHeapReserve.value, 8, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfHeapReserve");*/ return; }
+    if (fread(&SizeOfHeapReserve.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfHeapReserve.bytes, SizeOfHeapReserve.value, "SizeOfHeapReserve");
     offset += 8;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&SizeOfHeapCommit.value, 8, 1, descriptor) != 1) { /*printf("\n /!\\ SizeOfHeapCommit");*/ return; }
+    if (fread(&SizeOfHeapCommit.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfHeapCommit.bytes, SizeOfHeapCommit.value, "SizeOfHeapCommit");
     offset += 8;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&LoaderFlags.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ LoaderFlags = ?");*/ return; }
+    if (fread(&LoaderFlags.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, LoaderFlags.bytes, LoaderFlags.value, "LoaderFlags");
     offset += 4;
     //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    if (fread(&NumberOfRvaAndSizes.value, 4, 1, descriptor) != 1) { /*printf("\n /!\\ NumberOfRvaAndSizes = ?");*/ return; }
+    if (fread(&NumberOfRvaAndSizes.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, NumberOfRvaAndSizes.bytes, NumberOfRvaAndSizes.value, "NumberOfRvaAndSizes");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -687,7 +685,7 @@ void pe_analyzer()
         console_log(4, offset, virtual_address[i].bytes, virtual_address[i].value, abbreviation);
         offset += 4;
         sprintf(abbreviation, "size[%d]", i);
-        if (fread(&size[i].value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&size[i].value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, size[i].bytes, size[i].value, abbreviation);
         offset += 4;
         //printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -704,41 +702,40 @@ void pe_analyzer()
     for (uint16_t i = 0; i < sec_count; i++)
     {
         // 1. Читаем Имя секции (8 байт)
-        if (fread(current_sec.Name, 1, 8, descriptor) != 8) { return; }
+        if (fread(current_sec.Name, 1, 8, descriptor) != 8) return;
         // Выводим имя (можно через вашу обновленную функцию console_log или напрямую)
         printf("\n  __________________________");
         printf("\n / SECTION: %d, NAME: ", i);
-        for (int n = 0; n < 8; n++) { symbol_adjustment(current_sec.Name[n]); }
+        for (int n = 0; n < 8; n++) symbol_adjustment(current_sec.Name[n]);
         //printf("\n -------------------------------------------------------------------------------------------------");
         offset += 8;
 
         // 2. Читаем VirtualSize (4 байта)
-        if (fread(&current_sec.VirtualSize.value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&current_sec.VirtualSize.value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, current_sec.VirtualSize.bytes, current_sec.VirtualSize.value, "VirtualSize");
         offset += 4;
 
         // 3. Читаем VirtualAddress (4 байта)
-        if (fread(&current_sec.VirtualAddress.value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&current_sec.VirtualAddress.value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, current_sec.VirtualAddress.bytes, current_sec.VirtualAddress.value, "VirtualAddress");
         offset += 4;
 
         // 4. Читаем SizeOfRawData (4 байта)
-        if (fread(&current_sec.SizeOfRawData.value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&current_sec.SizeOfRawData.value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, current_sec.SizeOfRawData.bytes, current_sec.SizeOfRawData.value, "SizeOfRawData");
         offset += 4;
 
         // 5. Читаем PointerToRawData (4 байта)
-        if (fread(&current_sec.PointerToRawData.value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&current_sec.PointerToRawData.value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, current_sec.PointerToRawData.bytes, current_sec.PointerToRawData.value, "PointerToRawData");
         offset += 4;
 
         // 6. Пропускаем 12 байт неиспользуемых легаси-полей
-        if (fread(current_sec.Reserved, 1, 12, descriptor) != 12) { return; }
-        // При желании можно вывести их одной строчкой, offset += 12
-        offset += 12;
+        if (fread(current_sec.Reserved, 1, 12, descriptor) != 12) return;
+        offset += 12; // При желании можно вывести их одной строчкой, offset += 12
 
         // 7. Читаем Characteristics (4 байта)
-        if (fread(&current_sec.Characteristics.value, 4, 1, descriptor) != 1) { return; }
+        if (fread(&current_sec.Characteristics.value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, current_sec.Characteristics.bytes, current_sec.Characteristics.value, "Characteristics");
         offset += 4;
     }
@@ -747,9 +744,18 @@ void pe_analyzer()
     putchar('\n');
     for (short i = 0; i < 256; i++)
     {
-        printf(" №%d: %c | ", i+1, i);
+        switch (i){
+        case '\0': printf("\n №%d: \\0 | ", i+1); break;
+        case '\a': printf("\n №%d: \\a | ", i+1); break;
+        case '\b': printf("\n №%d: \\b | ", i+1); break;
+        case '\t': printf("\n №%d: \\t | ", i+1); break;
+        case '\n': printf("\n №%d: \\n | ", i+1); break;
+        case '\r': printf("\n №%d: \\r | ", i+1); break;
+        case 149: printf("\n №%d: \\? | ", i+1); break;
+        default: printf("\n №%d: %c | ", i+1, i);
+        }
         symbol_adjustment(i);
-        putchar(',');
+        //putchar(',');
     }
     */
     fclose(descriptor);
