@@ -288,17 +288,20 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         printf(" | ");
         uint8_t printed_chars = 0; 
         for (int i = 0; i < size; i++) printed_chars += symbol_adjustment(bytes[i]);
-        // === ЖЕЛЕЗОБЕТОННЫЙ ВАРЯНТ ===
-        // Каждые 2 напечатанных экранных символа «съедают» 2 точки из 16.
-        // А каждый реально обработанный байт уменьшает ширину поля на 2 точки.
-        int dots_to_print = (16 - printed_chars) + ((8 - size) * 2);
-        // Внимание: проверьте, чтобы у вас в printf стояла одна точка БЕЗ пробела:
-        for (int i = 0; i < dots_to_print; i++) putchar(22);
+        // === МАТЕМАТИЧЕСКИ ИДЕАЛЬНЫЙ ВАРИАНТ ===
+        // Нам не важен размер size и сколько байт пропущено. 
+        // Мы просто смотрим, сколько знаков (включая двойные \0) уже вывелось на экран,
+        // и принудительно добиваем текстовое поле до фиксированной ширины в 16 знаков.
+        int dots_to_print = 16 - printed_chars;
+        // Если dots_to_print уходит в минус (на всякий случай защита), обнуляем
+        if (dots_to_print < 0) dots_to_print = 0;
+        // Забиваем оставшееся пространство знаками выравнивания
+        for (int i = 0; i < dots_to_print; i++) putchar(22); // Выводим ваш символ '▬' через putchar
         // 4. Печатаем тип данных и значение
         const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
         if (size != 1)
         {
-            if (abbreviation[0] != '\0') printf("|%s %s = %llu; // 0x", type_str, abbreviation, value);
+            if (abbreviation[0] != '\0') printf(" |%s %s = %llu; // 0x", type_str, abbreviation, value);
             else printf(" |");
         } 
         // Красиво выводим HEX значение нужной разрядности
