@@ -674,10 +674,10 @@ void pe_analyzer()
     console_log(4, offset, NumberOfRvaAndSizes.bytes, NumberOfRvaAndSizes.value, "NumberOfRvaAndSizes");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n  _______________________________________");
-    printf("\n /                                       \\");
-    printf("\n %c №4 | OPTIONAL HEADER / DATA DIRECTORY %c", 16, 17);
-    printf("\n \\_______________________________________/");
+    printf("\n  _______________________________________________________");
+    printf("\n /                                                       \\");
+    printf("\n %c №2.2.1 | NT HEADER / OPTIONAL HEADER / DATA DIRECTORY %c", 16, 17);
+    printf("\n \\_______________________________________________________/");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     char abbreviation[32];
     //uint32_t dir_count = NumberOfRvaAndSizes.value;
