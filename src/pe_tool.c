@@ -812,24 +812,6 @@ void pe_analyzer()
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     // gcc -s pe_tool.c -o pe_tool.exe / Strip (Удаление отладочной информации/лишнего мусора)
     // gcc -Os -s pe_tool.c -o pe_tool.exe
-    
-    putchar('\n');
-    for (short i = 0; i < 256; i++)
-    {
-        switch (i){
-        case '\0': printf("\n №%d: \\0 | ", i+1); break;
-        case '\a': printf("\n №%d: \\a | ", i+1); break;
-        case '\b': printf("\n №%d: \\b | ", i+1); break;
-        case '\t': printf("\n №%d: \\t | ", i+1); break;
-        case '\n': printf("\n №%d: \\n | ", i+1); break;
-        case '\r': printf("\n №%d: \\r | ", i+1); break;
-        case 149: printf("\n №%d: \\? | ", i+1); break;
-        default: printf("\n №%d: %c | ", i+1, i);
-        }
-        symbol_adjustment(i);
-        //putchar(',');
-    }
-    
     fclose(descriptor);
 }
 
@@ -843,3 +825,21 @@ int main()
     putchar('\n');
     return 0;
 }
+/*
+putchar('\n');
+for (short i = 0; i < 256; i++)
+{
+    switch (i){
+    case '\0': printf("\n №%d: \\0 | ", i+1); break;
+    case '\a': printf("\n №%d: \\a | ", i+1); break;
+    case '\b': printf("\n №%d: \\b | ", i+1); break;
+    case '\t': printf("\n №%d: \\t | ", i+1); break;
+    case '\n': printf("\n №%d: \\n | ", i+1); break;
+    case '\r': printf("\n №%d: \\r | ", i+1); break;
+    case 149: printf("\n №%d: \\? | ", i+1); break;
+    default: printf("\n №%d: %c | ", i+1, i);
+    }
+    symbol_adjustment(i);
+    //putchar(',');
+}
+*/
