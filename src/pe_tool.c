@@ -230,6 +230,7 @@ uint8_t symbol_adjustment(uint8_t ascii)
     case '\t': // 9: 009 = 09 = TAB
     case '\n': // 10: 010 = 0A = LF
     case '\r': // 13: 013 = 0D = CR
+    case 149:  //     149 = 95 = •
         // Если символ нечитаемый (управляющий или нулевой)
         #ifdef _WIN32
          HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 1. Получаем дескриптор консоли
@@ -809,9 +810,9 @@ void pe_analyzer()
         offset += read_bytes;
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    // gcc -s pe_tool.c -o pe_tool.exe
+    // gcc -s pe_tool.c -o pe_tool.exe / Strip (Удаление отладочной информации/лишнего мусора)
     // gcc -Os -s pe_tool.c -o pe_tool.exe
-    /*
+    
     putchar('\n');
     for (short i = 0; i < 256; i++)
     {
@@ -828,7 +829,7 @@ void pe_analyzer()
         symbol_adjustment(i);
         //putchar(',');
     }
-    */
+    
     fclose(descriptor);
 }
 
