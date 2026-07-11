@@ -134,6 +134,7 @@ typedef struct {
     uint8_t Reserved[12]; // Пропускаем легаси-поля (3 поля по 4 байта)
     union__uint32_t Characteristics;
 } SectionHeader;
+SectionHeader section_header[96]; // Ограничимся пока 96-ю секциями
 
 
 uint8_t program[2048];
@@ -702,48 +703,70 @@ void pe_analyzer()
     printf("\n %c №3 | SECTION HEADER %c", 16, 17);
     printf("\n \\_____________________/");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-    // Количество секций берем из Блока 2 (переменная NumberOfSections)
-    uint16_t sec_count = NumberOfSections.value;
-    SectionHeader current_sec;
-    for (uint16_t i = 0; i < sec_count; i++)
+    for (uint16_t i = 0; i < NumberOfSections.value; i++)
     {
         // 1. Читаем Имя секции (8 байт)
-        if (fread(current_sec.Name, 1, 8, descriptor) != 8) return;
-        // Выводим имя (можно через вашу обновленную функцию console_log или напрямую)
+        if (fread(section_header[i].Name, 1, 8, descriptor) != 8) return;
         printf("\n  __________________________");
         printf("\n / SECTION: %d, NAME: ", i);
-        for (int n = 0; n < 8; n++) symbol_adjustment(current_sec.Name[n]);
-        //printf("\n -------------------------------------------------------------------------------------------------");
+        for (int j = 0; j < 8; j++) symbol_adjustment(section_header[i].Name[j]);
         offset += 8;
 
-        // 2. Читаем VirtualSize (4 байта)
-        if (fread(&current_sec.VirtualSize.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, current_sec.VirtualSize.bytes, current_sec.VirtualSize.value, "VirtualSize");
+        if (fread(&section_header[i].VirtualSize.value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset, section_header[i].VirtualSize.bytes, section_header[i].VirtualSize.value, "VirtualSize");
         offset += 4;
 
-        // 3. Читаем VirtualAddress (4 байта)
-        if (fread(&current_sec.VirtualAddress.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, current_sec.VirtualAddress.bytes, current_sec.VirtualAddress.value, "VirtualAddress");
+        if (fread(&section_header[i].VirtualAddress.value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset, section_header[i].VirtualAddress.bytes, section_header[i].VirtualAddress.value, "VirtualAddress");
         offset += 4;
 
-        // 4. Читаем SizeOfRawData (4 байта)
-        if (fread(&current_sec.SizeOfRawData.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, current_sec.SizeOfRawData.bytes, current_sec.SizeOfRawData.value, "SizeOfRawData");
+        if (fread(&section_header[i].SizeOfRawData.value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset, section_header[i].SizeOfRawData.bytes, section_header[i].SizeOfRawData.value, "SizeOfRawData");
         offset += 4;
 
-        // 5. Читаем PointerToRawData (4 байта)
-        if (fread(&current_sec.PointerToRawData.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, current_sec.PointerToRawData.bytes, current_sec.PointerToRawData.value, "PointerToRawData");
+        if (fread(&section_header[i].PointerToRawData.value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset, section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
         offset += 4;
 
         // 6. Пропускаем 12 байт неиспользуемых легаси-полей
-        if (fread(current_sec.Reserved, 1, 12, descriptor) != 12) return;
-        offset += 12; // При желании можно вывести их одной строчкой, offset += 12
+        if (fread(section_header[i].Reserved, 1, 12, descriptor) != 12) return;
+        offset += 12;
 
-        // 7. Читаем Characteristics (4 байта)
-        if (fread(&current_sec.Characteristics.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, current_sec.Characteristics.bytes, current_sec.Characteristics.value, "Characteristics");
+        if (fread(&section_header[i].Characteristics.value, 4, 1, descriptor) != 1) return;
+        console_log(4, offset, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
         offset += 4;
+    }
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n  _________________________________");
+    printf("\n /                                 \\");
+    printf("\n %c №4 | HEADER PADDING (ALIGNMENT) %c", 16, 17); // Зазор выравнивания
+    printf("\n \\_________________________________/");
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    // Записываем максимально возможное число (4'294'967'295)
+    // Любой реальный адрес в файле гарантированно окажется меньше него!
+    uint32_t sort = 0xFFFFFFFF;
+    for (uint16_t i = 0; i < NumberOfSections.value; i++)
+    {
+        if (sort > section_header[i].PointerToRawData.value && section_header[i].PointerToRawData.value > 0)
+        {
+            sort = section_header[i].PointerToRawData.value;
+        }
+    }
+    uint8_t bytes[8];
+    uint8_t chunk_size;
+    while (offset < sort)
+    {
+        chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
+        if (sort - offset < 8) chunk_size = sort - offset; // Если у финиша осталось меньше 8 байт
+        // 2. Набиваем буфер байтами из файла
+        for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
+        // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
+        // Передаем: chunk_size (размер), offset (текущий адрес), bytes (указатель на массив)
+        // Для четвертого аргумента (value) при чтении 8 байт обычно передают 0, 
+        // либо первый байт буфера, так как выравниватель внутри console_log у вас уже отлажен.
+        console_log(chunk_size, offset, bytes, bytes[0], "");
+        // 4. Двигаем offset сразу на размер прочитанной группы байт
+        offset += chunk_size;
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     /*
