@@ -300,10 +300,10 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // Забиваем оставшееся пространство знаками выравнивания
         for (int i = 0; i < dots_to_print; i++) putchar(22); // Выводим ваш символ '▬' через putchar
         // 4. Печатаем тип данных и значение
-        const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
+        //const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
         if (size != 1)
         {
-            if (abbreviation[0] != '\0') printf(" |%s %s = %llu; // 0x", type_str, abbreviation, value);
+            if (abbreviation[0] != '\0') printf(" | %s = %llu; // 0x", abbreviation, value); // "%s", type_str
             else printf(" |");
         } 
         // Красиво выводим HEX значение нужной разрядности
@@ -393,7 +393,7 @@ void pe_analyzer()
     printf("\n \\___________________/");
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ dw/short e_magic");
+    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ e_magic");
 
     if (fread(&e_cblp.value, 2, 1, descriptor) != 1) return;
     console_log(2, 2, e_cblp.bytes, e_cblp.value, "e_cblp");
@@ -449,11 +449,11 @@ void pe_analyzer()
     putchar('\n');
 
     if (fread(&e_oemid.value, 2, 1, descriptor) != 1) return;
-    console_log(2, offset, e_oemid.bytes, e_oemid.value, "dw/short e_oemid");
+    console_log(2, offset, e_oemid.bytes, e_oemid.value, "e_oemid");
     offset += 2;
 
     if (fread(&e_oeminfo.value, 2, 1, descriptor) != 1) return;
-    console_log(2, offset, e_oeminfo.bytes, e_oeminfo.value, "dw/short e_oeminfo");
+    console_log(2, offset, e_oeminfo.bytes, e_oeminfo.value, "e_oeminfo");
     offset += 2;
 
     if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) return;
@@ -468,7 +468,7 @@ void pe_analyzer()
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "/!\\ dd/int e_lfanew");
+    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "/!\\ e_lfanew");
     offset += 4;
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     if (e_lfanew.value > 64)
@@ -478,12 +478,21 @@ void pe_analyzer()
         printf("\n %c №1.2 | DOS STUB %c", 16, 17);
         printf("\n \\_________________/");
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
-        union__uint64_t byte;
-        for (int i = 64; i < e_lfanew.value; i += 8)
+        uint8_t bytes[8];
+        uint8_t chunk_size;
+        while (offset < e_lfanew.value)
         {
-            if (fread(&byte.value, 1, 8, descriptor) != 8) return;
-            console_log(8, offset, byte.bytes, byte.value, "");
-            offset += 8;
+            chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
+            if (e_lfanew.value - offset < 8) chunk_size = e_lfanew.value - offset; // Если у финиша осталось меньше 8 байт
+            // 2. Набиваем буфер байтами из файла
+            for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
+            // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
+            // Передаем: chunk_size (размер), offset (текущий адрес), bytes (указатель на массив)
+            // Для четвертого аргумента (value) при чтении 8 байт обычно передают 0, 
+            // либо первый байт буфера, так как выравниватель внутри console_log у вас уже отлажен.
+            console_log(chunk_size, offset, bytes, bytes[0], "");
+            // 4. Двигаем offset сразу на размер прочитанной группы байт
+            offset += chunk_size;
         }
         printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
