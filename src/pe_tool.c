@@ -761,21 +761,24 @@ void pe_analyzer()
             sort = section_header[i].PointerToRawData.value;
         }
     }
-    uint8_t bytes[8];
-    uint8_t chunk_size;
-    while (offset < sort)
+
     {
-        chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
-        if (sort - offset < 8) chunk_size = sort - offset; // Если у финиша осталось меньше 8 байт
-        // 2. Набиваем буфер байтами из файла
-        for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
-        // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
-        // Передаем: chunk_size (размер), offset (текущий адрес), bytes (указатель на массив)
-        // Для четвертого аргумента (value) при чтении 8 байт обычно передают 0, 
-        // либо первый байт буфера, так как выравниватель внутри console_log у вас уже отлажен.
-        console_log(chunk_size, offset, bytes, bytes[0], "");
-        // 4. Двигаем offset сразу на размер прочитанной группы байт
-        offset += chunk_size;
+        uint8_t bytes[8];
+        uint8_t chunk_size;
+        while (offset < sort)
+        {
+            chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
+            if (sort - offset < 8) chunk_size = sort - offset; // Если у финиша осталось меньше 8 байт
+            // 2. Набиваем буфер байтами из файла
+            for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
+            // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
+            // Передаем: chunk_size (размер), offset (текущий адрес), bytes (указатель на массив)
+            // Для четвертого аргумента (value) при чтении 8 байт обычно передают 0, 
+            // либо первый байт буфера, так как выравниватель внутри console_log у вас уже отлажен.
+            console_log(chunk_size, offset, bytes, bytes[0], "");
+            // 4. Двигаем offset сразу на размер прочитанной группы байт
+            offset += chunk_size;
+        }
     }
     printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n  _______________________________");
@@ -786,6 +789,28 @@ void pe_analyzer()
     // Формула вычисления точки входа на диске
     uint32_t raw_entry_point =
      AddressOfEntryPoint.value - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value;
+    uint8_t bytes[8]; // Буфер для чтения пачками по 8 байт
+    int read_bytes;
+    while (true)
+    {
+        // 1. Фиксируем адрес начала этой 8-байтовой строки на диске
+        //long long current_offset = ftell(descriptor); / Уже отвечает за это offset!
+        // 2. Читаем ровно 8 байт из файла
+        read_bytes = fread(bytes, 1, 8, descriptor);
+        // Если fread вернул 0 или меньше — файл физически закончился, выходим
+        if (read_bytes <= 0) break; 
+        // 3. Выводим строку байт через вашу отлаженную функцию
+        console_log(read_bytes, offset, bytes, bytes[0], "");
+        // 4. Проверяем, попала ли наша точка входа (2528) внутрь этой строки
+        if (raw_entry_point >= offset && raw_entry_point < offset + read_bytes)
+        {
+            printf(" <-- [!!!] ENTRY POINT IS HERE (Точка входа в программу) [!!!]");
+        }
+        offset += read_bytes;
+    }
+    printf("\n ---------------------------------------------------------------------------------------------------------------------------------------------------------");
+    // gcc -s pe_tool.c -o pe_tool.exe
+    // gcc -Os -s pe_tool.c -o pe_tool.exe
     /*
     putchar('\n');
     for (short i = 0; i < 256; i++)
