@@ -580,6 +580,7 @@ void pe_builder(const char * output_filename)
     for (uint32_t padding_needed = 512 - headers_real_size; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
     // Начало секции .text (точка входа в программу)
     fputc(0xC3, descriptor); // RET
+    for (uint32_t padding_needed = 512 - 1; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
 
     fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
 }
@@ -588,7 +589,6 @@ void pe_analyzer()
 {
     FILE * descriptor = fopen("test_subject.exe", "rb");
     //FILE * descriptor = fopen("pe_tool.exe", "rb");
-    //FILE * descriptor = fopen("0x.exe", "rb");
     if (!descriptor) return;
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
