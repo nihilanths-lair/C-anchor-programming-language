@@ -13,6 +13,36 @@ typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 
+// --- //
+#pragma pack(push, 1) // Приказываем компилятору упаковывать структуры строго по 1 байту
+
+// БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
+//  Размер: Всегда строго 64 байта.
+//  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
+typedef struct {
+    uint16_t magic;        // 2 байта (смещение 0)
+    uint8_t  reserved[58]; // 58 байт (зазор)
+    uint32_t lfanew;       // 4 байта (смещение 60 / 0x3C)
+} DosHeader;
+DosHeader dos_header; // Стоит ли использовать глобальную переменную-объект?
+
+// БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) / 2. COFF Заголовок файла (Характеристики процессора)
+//  Размер: Всегда строго 24 байта (4 байта сигнатура + 20 байт заголовок).
+//  Природа: Задает базовые свойства файла.
+typedef struct {
+    uint16_t machine;                 // Архитектура процессора (для 32-бит x86 это 0x014C)
+    uint16_t number_of_sections;      // Количество секций в файле
+    uint32_t time_date_stamp;         // Время создания файла (POSIX timestamp)
+    uint32_t pointer_to_symbol_table; // Смещение таблицы символов (для EXE обычно 0)
+    uint32_t number_of_symbols;       // Количество символов (для EXE обычно 0)
+    uint16_t size_of_optional_header; // Размер следующего за ним Опционального заголовка
+    uint16_t characteristics;         // Флаги файла (что это исполняемый EXE, 32-бит и т.д.)
+} FileHeader;
+FileHeader file_header; // Стоит ли использовать глобальную переменную-объект?
+
+#pragma pack(pop) // Возвращаем стандартные настройки компилятора
+// --- //
+
 // БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
 //  Размер: Всегда строго 64 байта.
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
