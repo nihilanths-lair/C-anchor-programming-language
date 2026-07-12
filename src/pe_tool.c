@@ -108,16 +108,16 @@ typedef struct {
     DataDirectory data_directories[16];
 } OptionalHeader64;
 typedef struct {
-    uint8_t  name[8];                // Имя секции (8 байт, например ".text\0\0\0")
-    uint32_t virtual_size;           // Размер секции в оперативной памяти
-    uint32_t virtual_address;        // Виртуальный адрес начала секции в памяти (RVA)
-    uint32_t size_of_raw_data;       // Физический размер секции на жестком диске
-    uint32_t pointer_to_raw_data;    // Физическое смещение начала секции в файле (RAW)
-    uint32_t pointer_to_relocations; // Смещение таблицы релокаций (для EXE обычно 0)
+    uint8_t  name[8];                 // Имя секции (8 байт, например ".text\0\0\0")
+    uint32_t virtual_size;            // Размер секции в оперативной памяти
+    uint32_t virtual_address;         // Виртуальный адрес начала секции в памяти (RVA)
+    uint32_t size_of_raw_data;        // Физический размер секции на жестком диске
+    uint32_t pointer_to_raw_data;     // Физическое смещение начала секции в файле (RAW)
+    uint32_t pointer_to_relocations;  // Смещение таблицы релокаций (для EXE обычно 0)
     uint32_t pointer_to_line_numbers; // Смещение номеров строк (всегда 0)
-    uint16_t number_of_relocations;  // Количество релокаций (обычно 0)
+    uint16_t number_of_relocations;   // Количество релокаций (обычно 0)
     uint16_t number_of_line_numbers;  // Количество номеров строк (всегда 0)
-    uint32_t characteristics;        // Флаги доступа (чтение, запись, выполнение)
+    uint32_t characteristics;         // Флаги доступа (чтение, запись, выполнение)
 } SectionHeader;
 #pragma pack(pop)
 
@@ -568,6 +568,20 @@ void pe_builder(const char * output_filename)
 
     // Записываем структуру нашей единственной секции .text (40 байт)
     fwrite(&section_header, sizeof (SectionHeader), 1, descriptor);
+
+    uint32_t headers_real_size =
+     sizeof (DosHeader) +
+     sizeof (pe_signature) +
+     sizeof (FileHeader) +
+     sizeof (OptionalHeader64) +
+     sizeof (SectionHeader)
+    ;
+    // Вычисляем, сколько нулей нужно добить до границы 512
+    for (uint32_t padding_needed = 512 - headers_real_size; padding_needed != 0; padding_needed--)
+    {
+        //putc('\0', descriptor);
+        fputc('\0', descriptor);
+    }
 
     fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
 }
