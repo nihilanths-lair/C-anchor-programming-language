@@ -949,22 +949,26 @@ void pe_analyzer()
             sort = section_header[i].PointerToRawData.value;
         }
     }
-
+    // anonymous scope //
     {
         uint8_t bytes[8];
         uint8_t chunk_size;
-        while (offset < sort)
+        // 2. Набиваем буфер байтами из файла
+        for (uint8_t i = 0; i < chunk_size; i++)
         {
-            chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
-            if (sort - offset < 8) chunk_size = sort - offset; // Если у финиша осталось меньше 8 байт
-            // 2. Набиваем буфер байтами из файла
-            for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
-            // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
-            // Передаем: chunk_size (размер), offset (текущий адрес), bytes (указатель на массив)
-            // Для четвертого аргумента (value) при чтении 8 байт обычно передают 0, 
-            // либо первый байт буфера, так как выравниватель внутри console_log у вас уже отлажен.
+            int ch = getc(descriptor);
+            if (ch == EOF) // Если файл внезапно кончился — принудительно останавливаем всё!
+            {
+                sort = offset; // Схлопываем границу, чтобы внешний while(offset < sort) сразу завершился
+                chunk_size = i; // Корректируем размер реально прочитанного хвостика
+                break;
+            }
+            bytes[i] = (uint8_t) ch;
+        }
+        // Вызываем console_log только если мы реально прочитали хоть один байт
+        if (chunk_size > 0)
+        {
             console_log(chunk_size, offset, bytes, bytes[0], "");
-            // 4. Двигаем offset сразу на размер прочитанной группы байт
             offset += chunk_size;
         }
     }
