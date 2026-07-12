@@ -49,7 +49,7 @@ typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 
 #pragma pack(push, 1)
 typedef struct {
-    uint16_t magic;        // 2 байта (смещение 0)
+    uint16_t magic;        // 2 байта
     uint8_t  reserved[58]; // 58 байт (зазор)
     uint32_t lfanew;       // 4 байта (смещение 60 / 0x3C)
 } DosHeader;
@@ -571,7 +571,7 @@ void pe_builder(const char * output_filename)
 
     uint32_t headers_real_size =
      sizeof (DosHeader) +        // 64 байта
-     sizeof (pe_signature) +     // 5 байт! (Опа, ловушка!)
+     sizeof (pe_signature) +     // 4 байта
      sizeof (FileHeader) +       // 20 байт
      sizeof (OptionalHeader64) + // 240 байт
      sizeof (SectionHeader)      // 40 байт
