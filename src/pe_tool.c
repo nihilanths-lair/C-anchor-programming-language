@@ -533,7 +533,7 @@ void pe_builder(const char * output_filename)
     optional_header_64.size_of_image = 8192;
 
     // Размер всех заголовков на диске вместе с зазором (наш Padding)
-    optional_header_64.size_of_headers = 512;
+    optional_header_64.size_of_headers = 512; // Заголовки займут ровно 1 сектор
 
     optional_header_64.check_sum = 0;
     optional_header_64.subsystem = 3; // IMAGE_SUBSYSTEM_WINDOWS_CUI (Консольное приложение)
@@ -552,10 +552,10 @@ void pe_builder(const char * output_filename)
     }
 
     memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
+    section_header.virtual_size = 10;         // Укажем реальный размер кода (пока 10 байт)
     section_header.virtual_address = 4096;    // В памяти секция начнется с RVA 0x1000
-    section_header.pointer_to_raw_data = 512; // На диске код начнется со смещения 0x200
-    section_header.virtual_size = 0;          // укажем реальный размер кода (пока 0 байт)
-    section_header.size_of_raw_data = 1024;   // округлим размер на диске по закону диска!
+    section_header.size_of_raw_data = 512;    // На диске округляем до минимальных 512 байт
+    section_header.pointer_to_raw_data = 512; // Код начнется сразу после 512-байтных заголовков
 
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
