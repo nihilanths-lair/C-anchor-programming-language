@@ -959,7 +959,7 @@ void pe_analyzer()
             int ch = getc(descriptor);
             if (ch == EOF) // Если файл внезапно кончился — принудительно останавливаем всё!
             {
-                sort = offset; // Схлопываем границу, чтобы внешний while(offset < sort) сразу завершился
+                sort = offset; // Схлопываем границу, чтобы внешний while (offset < sort) сразу завершился
                 chunk_size = i; // Корректируем размер реально прочитанного хвостика
                 break;
             }
