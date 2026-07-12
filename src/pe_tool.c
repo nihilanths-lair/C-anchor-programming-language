@@ -551,6 +551,10 @@ void pe_builder(const char * output_filename)
         optional_header_64.data_directories[i].size = 0;
     }
 
+    memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
+    section_header.virtual_address = 4096;    // В памяти секция начнется с RVA 0x1000
+    section_header.pointer_to_raw_data = 512; // На диске код начнется со смещения 0x200
+
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
     fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: DOS (64 байта)
