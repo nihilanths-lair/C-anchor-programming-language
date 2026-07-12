@@ -471,28 +471,43 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
     }
 }
 
-void pe_builder()
+void pe_builder(const char * output_filename)
 {
-    FILE * descriptor = fopen("test_subject.exe", "wb");
+    FILE * descriptor = fopen(output_filename, "wb");
     if (!descriptor) return;
-    fwrite("MZ", 1, 2, descriptor); // e_magic  | 000: 077 090 | 00: 4D 5A | MZ
-    uint8_t dos_reserved[58] = {0}; // Гарантируем ровно 58 байт нулей в зарезервированной зоне DOS
-    fwrite(dos_reserved, 1, 58, descriptor);
-    fwrite("\x40\x00\x00\x00", 1, 4, descriptor); // uint32_t e_lfanew              -|-  Адрес PE-сигнатуры (0x00000040 = 64 в десятичной)
-    fwrite("PE\0\0", 1, 4, descriptor);           // uint32_t pe_signature          -|-  PE-сигнатура
-    fwrite("\x64\x86", 1, 2, descriptor);         // uint16_t Machine               -|-  Архитектура процессора
-    fwrite("\x00\x01", 1, 2, descriptor);         // uint16_t NumberOfSections      -|-  Количество секций
-    fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t TimeDateStamp         -|-  Время создания файла
-    fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t PointerToSymbolTable  -|-  Символьная таблица (для дебага, у нас 0)
-    //fwrite("\x00\x00\x00\x00", 1, 4, descriptor); // uint32_t NumberOfSymbols;      -|-  Количество символов
-    fclose(descriptor);
+
+    // 1. Создаем пустые структуры в памяти (зануляем их через {0})
+    DosHeader dos_header = {0};
+    FileHeader file_header = {0};
+    OptionalHeader64 opt = {0};
+    SectionHeader text_sec = {0};
+
+    // 2. ЗАПОЛНЯЕМ DOS ЗАГОЛОВОК
+    // Используем обычные числа — процессор сам уложит их в Little-Endian!
+    dos_header.magic = 0x5A4D; // Это символы 'MZ'
+    dos_header.lfanew = 64;    // Сигнатура PE начнется строго на 64-м байте (сразу за DOS-заголовком)
+
+    // 3. ЗАПОЛНЯЕМ COFF FILE HEADER
+    file_header.machine = 0x8664;                                    // Архитектура x86_64 (AMD64)
+    file_header.number_of_sections = 1;                              // У нас будет всего 1 секция (.text)
+    file_header.time_date_stamp = 0xFFFFFFFF;                        // Пока заглушка
+    file_header.size_of_optional_header = sizeof (OptionalHeader64); // Компилятор сам посчитает (240 байт)!
+    file_header.characteristics = 0x0022;                            // Флаги: EXE файл + приложение может обрабатывать адреса > 2 ГБ
+
+    // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
+    // Каждая структура улетает монолитным идеальным блоком
+    fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: DOS (64 байта)
+    fwrite(pe_signature, 1, 4, descriptor);            // Блок 2: Сигнатура "PE\0\0" (4 байта)
+    fwrite(&file_header, sizeof (FileHeader), 1, descriptor); // Блок 3: File Header (20 байт)
+
+    fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
 }
 
 void pe_analyzer()
 {
-    //FILE * descriptor = fopen("test_subject.exe", "rb");
+    FILE * descriptor = fopen("test_subject.exe", "rb");
     //FILE * descriptor = fopen("pe_tool.exe", "rb");
-    FILE * descriptor = fopen("0x.exe", "rb");
+    //FILE * descriptor = fopen("0x.exe", "rb");
     if (!descriptor) return;
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
@@ -936,7 +951,7 @@ int main()
 {
     setlocale(0, "");
 
-    pe_builder();
+    pe_builder("test_subject.exe");
     pe_analyzer();
 
     putchar('\n');
