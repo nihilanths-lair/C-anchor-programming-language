@@ -492,7 +492,64 @@ void pe_builder(const char * output_filename)
     file_header.number_of_sections = 1;                              // У нас будет всего 1 секция (.text)
     file_header.time_date_stamp = 0xFFFFFFFF;                        // Пока заглушка
     file_header.size_of_optional_header = sizeof (OptionalHeader64); // Компилятор сам посчитает (240 байт)!
-    file_header.characteristics = 0x0022;                            // Флаги: EXE файл + приложение может обрабатывать адреса > 2 ГБ
+    // Флаги: IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_LARGE_ADDRESS_AWARE
+    //  EXE файл + приложение может обрабатывать адреса > 2 ГБ
+    file_header.characteristics = 0x0022;
+
+    // Этого не было, но ты сказал якобы у меня стояло, пришлось добавить...
+    optional_header_64.magic = 0x020B; // PE32+
+    optional_header_64.major_linker_version = 1;
+    optional_header_64.minor_linker_version = 0;
+
+    // Размеры секций (пока у нас только .text, её физический размер на диске будет 512 байт)
+    optional_header_64.size_of_code = 512;
+    optional_header_64.size_of_initialized_data = 0;
+    optional_header_64.size_of_uninitialized_data = 0;
+
+    // ТОЧКА ВХОДА: Укажем RVA (Relative Virtual Address). 
+    // Первая секция в памяти всегда начинается со смещения 4096 (0x1000).
+    // Пусть наша точка входа указывает прямо на самое начало этой секции!
+    optional_header_64.address_of_entry_point = 4096;
+    optional_header_64.base_of_code = 4096;
+
+    // Базовый адрес, куда Windows попытается загрузить программу в памяти
+    optional_header_64.image_base = 0x00400000;
+
+    // Выравнивания (Жесткий закон PE-формата)
+    optional_header_64.section_alignment = 4096; // В памяти выравниваем по 4 КБ
+    optional_header_64.file_alignment = 512;     // В файле выравниваем по 512 байт
+
+    // Версии операционной системы (ставим Windows 7/10 совместимость)
+    optional_header_64.major_operating_system_version = 6;
+    optional_header_64.minor_operating_system_version = 0;
+    optional_header_64.major_image_version = 0;
+    optional_header_64.minor_image_version = 0;
+    optional_header_64.major_subsystem_version = 6;
+    optional_header_64.minor_subsystem_version = 0;
+    optional_header_64.win32_version_value = 0;
+
+    // Общий размер файла при развертывании в оперативной памяти.
+    // Заголовки занимают 4096 в памяти + секция .text занимает 4096. Итого: 8192!
+    optional_header_64.size_of_image = 8192;
+
+    // Размер всех заголовков на диске вместе с зазором (наш Padding)
+    optional_header_64.size_of_headers = 512;
+
+    optional_header_64.check_sum = 0;
+    optional_header_64.subsystem = 3; // IMAGE_SUBSYSTEM_WINDOWS_CUI (Консольное приложение)
+    optional_header_64.dll_characteristics = 0;
+    optional_header_64.size_of_stack_reserve = 0x100000; // Стандартный 1 МБ стека
+    optional_header_64.size_of_stack_commit = 0x1000;
+    optional_header_64.size_of_heap_reserve = 0x100000;
+    optional_header_64.size_of_heap_commit = 0x1000;
+    optional_header_64.loader_flags = 0;
+    optional_header_64.number_of_rva_and_sizes = 16; // 16 каталогов данных
+
+    for (int i = 0; i < 16; i++)
+    {
+        optional_header_64.data_directories[i].virtual_address = 0;
+        optional_header_64.data_directories[i].size = 0;
+    }
 
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
