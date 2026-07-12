@@ -8,27 +8,56 @@
 #include <string.h>
 #include <stdbool.h>
 
+// Разворот 16-битного числа (WORD)
+#define macro__to_le16(x) \
+ ((((x) & 0x00FF) << 8) | \
+ (((x) & 0xFF00) >> 8))
+
+// Разворот 32-битного числа (DWORD)
+#define macro__to_le32(x) \
+ ((((x) & 0x000000FF) << 24) | \
+ (((x) & 0x0000FF00) << 8) | \
+ (((x) & 0x00FF0000) >> 8) | \
+ (((x) & 0xFF000000) >> 24))
+
+// Для 2 символов (например, 'M', 'Z') -> преобразует в uint16_t в Little-Endian
+#define macro__str_le16(c1, c2) \
+ ((uint16_t)(uint8_t)(c1) | \
+ ((uint16_t)(uint8_t)(c2) << 8))
+
+// Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
+#define macro__str_le32(c1, c2, c3, c4) \
+ ((uint32_t)(uint8_t)(c1) | \
+ ((uint32_t)(uint8_t)(c2) << 8) | \
+ ((uint32_t)(uint8_t)(c3) << 16) | \
+ ((uint32_t)(uint8_t)(c4) << 24))
+
+static inline uint32_t str_to_le32(const char * str)
+{
+    return
+     ((uint32_t)(uint8_t)str[0]) |
+     ((uint32_t)(uint8_t)str[1] << 8) |
+     ((uint32_t)(uint8_t)str[2] << 16) |
+     ((uint32_t)(uint8_t)str[3] << 24)
+    ;
+}
+
 typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
 typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 
-// --- //
-#pragma pack(push, 1) // Приказываем компилятору упаковывать структуры строго по 1 байту
-
-// БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
-//  Размер: Всегда строго 64 байта.
-//  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
+#pragma pack(push, 1)
 typedef struct {
     uint16_t magic;        // 2 байта (смещение 0)
     uint8_t  reserved[58]; // 58 байт (зазор)
     uint32_t lfanew;       // 4 байта (смещение 60 / 0x3C)
 } DosHeader;
-DosHeader dos_header; // Стоит ли использовать глобальную переменную-объект?
-
-// БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) / 2. COFF Заголовок файла (Характеристики процессора)
-//  Размер: Всегда строго 24 байта (4 байта сигнатура + 20 байт заголовок).
-//  Природа: Задает базовые свойства файла.
+#pragma pack(pop)
+// Сигнатура PE в виде 32-битного числа (0x00004550)
+// В памяти типа Little-Endian она запишется на диск как 'P' 'E' '\0' '\0'
+const int8_t pe_signature[] = "PE\0\0"; // macro__str_le32('P', 'E', '\0', '\0'); // 0x00004550;
+#pragma pack(push, 1)
 typedef struct {
     uint16_t machine;                 // Архитектура процессора (для 32-бит x86 это 0x014C)
     uint16_t number_of_sections;      // Количество секций в файле
@@ -38,10 +67,59 @@ typedef struct {
     uint16_t size_of_optional_header; // Размер следующего за ним Опционального заголовка
     uint16_t characteristics;         // Флаги файла (что это исполняемый EXE, 32-бит и т.д.)
 } FileHeader;
-FileHeader file_header; // Стоит ли использовать глобальную переменную-объект?
-
-#pragma pack(pop) // Возвращаем стандартные настройки компилятора
-// --- //
+typedef struct { // Кирпичик для каталога данных (Занимает ровно 8 байт)
+    uint32_t virtual_address; // Виртуальный адрес начала таблицы (RVA)
+    uint32_t size;            // Размер таблицы в байтах
+} DataDirectory;
+typedef struct {
+    // --- Стандартные поля (Standard Fields) ---
+    uint16_t magic;         
+    uint8_t  major_linker_version; 
+    uint8_t  minor_linker_version;
+    uint32_t size_of_code; 
+    uint32_t size_of_initialized_data;
+    uint32_t size_of_uninitialized_data;
+    uint32_t address_of_entry_point;
+    uint32_t base_of_code;
+    // --- Дополнительные поля Windows (Windows-Specific Fields) ---
+    uint64_t image_base;      
+    uint32_t section_alignment;     
+    uint32_t file_alignment;
+    uint16_t major_operating_system_version;
+    uint16_t minor_operating_system_version;
+    uint16_t major_image_version;
+    uint16_t minor_image_version;
+    uint16_t major_subsystem_version;
+    uint16_t minor_subsystem_version;
+    uint32_t win32_version_value;   
+    uint32_t size_of_image;          
+    uint32_t size_of_headers;        
+    uint32_t check_sum;            
+    uint16_t subsystem;    
+    uint16_t dll_characteristics;  
+    uint64_t size_of_stack_reserve; 
+    uint64_t size_of_stack_commit;
+    uint64_t size_of_heap_reserve; 
+    uint64_t size_of_heap_commit;   
+    uint32_t loader_flags;
+    uint32_t number_of_rva_and_sizes;  // Тут всегда будет записано число 16
+    // --- НАШ ВЛОЖЕННЫЙ МАССИВ (Data Directories) ---
+    // Физически продолжает заголовок. Занимает: 16 директорий * 8 байт = 128 байт.
+    DataDirectory data_directories[16];
+} OptionalHeader64;
+typedef struct {
+    uint8_t  name[8];                // Имя секции (8 байт, например ".text\0\0\0")
+    uint32_t virtual_size;           // Размер секции в оперативной памяти
+    uint32_t virtual_address;        // Виртуальный адрес начала секции в памяти (RVA)
+    uint32_t size_of_raw_data;       // Физический размер секции на жестком диске
+    uint32_t pointer_to_raw_data;    // Физическое смещение начала секции в файле (RAW)
+    uint32_t pointer_to_relocations; // Смещение таблицы релокаций (для EXE обычно 0)
+    uint32_t pointer_to_line_numbers; // Смещение номеров строк (всегда 0)
+    uint16_t number_of_relocations;  // Количество релокаций (обычно 0)
+    uint16_t number_of_line_numbers;  // Количество номеров строк (всегда 0)
+    uint32_t characteristics;        // Флаги доступа (чтение, запись, выполнение)
+} SectionHeader;
+#pragma pack(pop)
 
 // БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
 //  Размер: Всегда строго 64 байта.
@@ -163,8 +241,8 @@ typedef struct {
     union__uint32_t PointerToRawData;
     uint8_t Reserved[12]; // Пропускаем легаси-поля (3 поля по 4 байта)
     union__uint32_t Characteristics;
-} SectionHeader;
-SectionHeader section_header[96]; // Ограничимся пока 96-ю секциями
+} _SectionHeader;
+_SectionHeader section_header[96]; // Ограничимся пока 96-ю секциями
 
 
 uint8_t program[2048];
