@@ -56,7 +56,7 @@ typedef struct {
 #pragma pack(pop)
 // Сигнатура PE в виде 32-битного числа (0x00004550)
 // В памяти типа Little-Endian она запишется на диск как 'P' 'E' '\0' '\0'
-const int8_t pe_signature[] = "PE\0\0"; // macro__str_le32('P', 'E', '\0', '\0'); // 0x00004550;
+const char pe_signature[4] = "PE\0\0"; // macro__str_le32('P', 'E', '\0', '\0'); // 0x00004550;
 #pragma pack(push, 1)
 typedef struct {
     uint16_t machine;                 // Архитектура процессора (для 32-бит x86 это 0x014C)
@@ -570,11 +570,11 @@ void pe_builder(const char * output_filename)
     fwrite(&section_header, sizeof (SectionHeader), 1, descriptor);
 
     uint32_t headers_real_size =
-     sizeof (DosHeader) +
-     sizeof (pe_signature) +
-     sizeof (FileHeader) +
-     sizeof (OptionalHeader64) +
-     sizeof (SectionHeader)
+     sizeof (DosHeader) +        // 64 байта
+     sizeof (pe_signature) +     // 5 байт! (Опа, ловушка!)
+     sizeof (FileHeader) +       // 20 байт
+     sizeof (OptionalHeader64) + // 240 байт
+     sizeof (SectionHeader)      // 40 байт
     ;
     // Вычисляем, сколько нулей нужно добить до границы 512
     for (uint32_t padding_needed = 512 - headers_real_size; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
