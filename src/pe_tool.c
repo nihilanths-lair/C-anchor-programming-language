@@ -479,8 +479,8 @@ void pe_builder(const char * output_filename)
     // 1. Создаем пустые структуры в памяти (зануляем их через {0})
     DosHeader dos_header = {0};
     FileHeader file_header = {0};
-    OptionalHeader64 opt = {0};
-    SectionHeader text_sec = {0};
+    OptionalHeader64 optional_header_64 = {0};
+    SectionHeader section_header = {0};
 
     // 2. ЗАПОЛНЯЕМ DOS ЗАГОЛОВОК
     // Используем обычные числа — процессор сам уложит их в Little-Endian!
@@ -497,7 +497,7 @@ void pe_builder(const char * output_filename)
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
     fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: DOS (64 байта)
-    fwrite(pe_signature, 1, 4, descriptor);            // Блок 2: Сигнатура "PE\0\0" (4 байта)
+    fwrite(pe_signature, 1, 4, descriptor);                   // Блок 2: Сигнатура "PE\0\0" (4 байта)
     fwrite(&file_header, sizeof (FileHeader), 1, descriptor); // Блок 3: File Header (20 байт)
 
     fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
