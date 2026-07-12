@@ -557,6 +557,12 @@ void pe_builder(const char * output_filename)
     fwrite(pe_signature, 1, 4, descriptor);                   // Блок 2: Сигнатура "PE\0\0" (4 байта)
     fwrite(&file_header, sizeof (FileHeader), 1, descriptor); // Блок 3: File Header (20 байт)
 
+    // Записываем Опциональный заголовок вместе со всеми 16 директориями данных (240 байт)
+    fwrite(&optional_header_64, sizeof (OptionalHeader64), 1, descriptor);
+
+    // Записываем структуру нашей единственной секции .text (40 байт)
+    fwrite(&section_header, sizeof (SectionHeader), 1, descriptor);
+
     fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
 }
 
