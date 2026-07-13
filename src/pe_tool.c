@@ -591,8 +591,8 @@ void pe_analyzer()
     FILE * descriptor = fopen("test_subject.exe", "rb");
     //FILE * descriptor = fopen("pe_tool.exe", "rb");
     if (!descriptor) return;
-    printf("\n ------------------------------------------------------------------------------------------");
-    printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
+    //printf("\n ------------------------------------------------------------------------------------------");
+    //printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  ___________________");
     printf("\n /                   \\");
