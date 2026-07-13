@@ -532,7 +532,7 @@ void pe_builder(const char * output_filename)
     // Заголовки занимают 4096 в памяти + секция .text занимает 4096. Итого: 8192!
     optional_header_64.size_of_image = 8192;
 
-    // Размер всех заголовков на диске вместе с зазором (наш Padding)
+    // Размер всех заголовков на диске вместе с зазором (Padding)
     optional_header_64.size_of_headers = 512; // Заголовки займут ровно 1 сектор
 
     optional_header_64.check_sum = 0;
