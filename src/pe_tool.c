@@ -407,7 +407,7 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         // Если dots_to_print уходит в минус (на всякий случай защита), обнуляем
         if (dots_to_print < 0) dots_to_print = 0;
         // Забиваем оставшееся пространство знаками выравнивания
-        for (int i = 0; i < dots_to_print; i++) putchar(22); // Выводим ваш символ '▬' через putchar
+        for (int i = 0; i < dots_to_print; i++) putchar(22); // Выводим ваш символ '?' через putchar
         // 4. Печатаем тип данных и значение
         //const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
         if (size != 1)
@@ -496,7 +496,9 @@ void pe_builder(const char * output_filename)
     //  EXE файл + приложение может обрабатывать адреса > 2 ГБ
     file_header.characteristics = 0x0022;
 
-    // Этого не было, но ты сказал якобы у меня стояло, пришлось добавить...
+    /////////////////////////////
+    // OPTIONAL_HEADER [START] //
+
     optional_header_64.magic = 0x020B; // PE32+
     optional_header_64.major_linker_version = 1;
     optional_header_64.minor_linker_version = 0;
@@ -550,6 +552,9 @@ void pe_builder(const char * output_filename)
         optional_header_64.data_directories[i].virtual_address = 0;
         optional_header_64.data_directories[i].size = 0;
     }
+
+    // OPTIONAL_HEADER [END] //
+    ///////////////////////////
 
     memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
     section_header.virtual_size = 10;         // Укажем реальный размер кода (пока 10 байт)
