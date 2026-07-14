@@ -21,24 +21,52 @@
  (((x) & 0xFF000000) >> 24))
 
 // Для 2 символов (например, 'M', 'Z') -> преобразует в uint16_t в Little-Endian
-#define macro__str_le16(c1, c2) \
- ((uint16_t)(uint8_t)(c1) | \
- ((uint16_t)(uint8_t)(c2) << 8))
-
+#define macro__str_le16(b1, b2) \
+( \
+ (uint16_t)(uint8_t)(b1) | \
+ ((uint16_t)(uint8_t)(b2) << 8) \
+)
 // Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
-#define macro__str_le32(c1, c2, c3, c4) \
- ((uint32_t)(uint8_t)(c1) | \
- ((uint32_t)(uint8_t)(c2) << 8) | \
- ((uint32_t)(uint8_t)(c3) << 16) | \
- ((uint32_t)(uint8_t)(c4) << 24))
+#define macro__str_le32(b1, b2, b3, b4) \
+( \
+ (uint32_t)(uint8_t)(b1) | \
+ ((uint32_t)(uint8_t)(b2) << 8) | \
+ ((uint32_t)(uint8_t)(b3) << 16) | \
+ ((uint32_t)(uint8_t)(b4) << 24) \
+)
+// Для 8 символов (например, '.', 't', 'e', 'x', 't') -> преобразует в uint64_t в Little-Endian
+#define macro__str_le64(b1, b2, b3, b4, b5, b6, b7, b8) \
+( \
+ (uint64_t)(uint8_t)(b1) | \
+ ((uint64_t)(uint8_t)(b2) << 8) | \
+ ((uint64_t)(uint8_t)(b3) << 16) | \
+ ((uint64_t)(uint8_t)(b4) << 24) | \
+ ((uint64_t)(uint8_t)(b5) << 32) | \
+ ((uint64_t)(uint8_t)(b6) << 40) | \
+ ((uint64_t)(uint8_t)(b7) << 48) | \
+ ((uint64_t)(uint8_t)(b8) << 56) \
+)
 
 static inline uint32_t str_to_le32(const char * str)
 {
     return
-     ((uint32_t)(uint8_t)str[0]) |
-     ((uint32_t)(uint8_t)str[1] << 8) |
-     ((uint32_t)(uint8_t)str[2] << 16) |
-     ((uint32_t)(uint8_t)str[3] << 24)
+     ((uint32_t)(uint8_t) str[0]) |
+     ((uint32_t)(uint8_t) str[1] << 8) |
+     ((uint32_t)(uint8_t) str[2] << 16) |
+     ((uint32_t)(uint8_t) str[3] << 24)
+    ;
+}
+static inline uint64_t str_to_le64(const char * str)
+{
+    return
+     ((uint64_t)(uint8_t) str[0]) |
+     ((uint64_t)(uint8_t) str[1] << 8) |
+     ((uint64_t)(uint8_t) str[2] << 16) |
+     ((uint64_t)(uint8_t) str[3] << 24) |
+     ((uint64_t)(uint8_t) str[4] << 32) |
+     ((uint64_t)(uint8_t) str[5] << 40) |
+     ((uint64_t)(uint8_t) str[6] << 48) |
+     ((uint64_t)(uint8_t) str[7] << 56)
     ;
 }
 
@@ -108,7 +136,7 @@ typedef struct {
     DataDirectory data_directories[16];
 } OptionalHeader64;
 typedef struct {
-    uint8_t  name[8];                 // Имя секции (8 байт, например ".text\0\0\0")
+    union__uint64_t name;             // Имя секции (8 байт, например ".text\0\0\0")
     uint32_t virtual_size;            // Размер секции в оперативной памяти
     uint32_t virtual_address;         // Виртуальный адрес начала секции в памяти (RVA)
     uint32_t size_of_raw_data;        // Физический размер секции на жестком диске
@@ -556,7 +584,9 @@ void pe_builder(const char * output_filename)
     // OPTIONAL_HEADER [END] //
     ///////////////////////////
 
-    memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
+    //memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
+    //section_header.name.value = macro__str_le64('.', 't', 'e', 'x', 't', '\0', '\0', '\0');
+    section_header.name.value = str_to_le64(".text\0\0\0");
     section_header.virtual_size = 10;         // Укажем реальный размер кода (пока 10 байт)
     section_header.virtual_address = 4096;    // В памяти секция начнется с RVA 0x1000
     section_header.size_of_raw_data = 512;    // На диске округляем до минимальных 512 байт
