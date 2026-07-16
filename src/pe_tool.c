@@ -149,6 +149,26 @@ typedef struct {
 } SectionHeader;
 #pragma pack(pop)
 
+// Продолжение ->
+#pragma pack(push, 1)
+// Описание одной импортируемой DLL (20 байт)
+typedef struct {
+    uint32_t import_lookup_table_rva;   // RVA на массив ILT (с именами)
+    uint32_t time_date_stamp;           // 0
+    uint32_t forwarder_chain;           // 0
+    uint32_t name_rva;                  // RVA на строку с именем DLL (например, "kernel32.dll")
+    uint32_t import_address_table_rva;  // RVA на массив IAT (куда ОС запишет адрес)
+} ImportDescriptor;
+
+// Структура Hint/Name для функции
+typedef struct {
+    uint16_t hint;                      // Очередь перебора (можно 0)
+    char name[12];                      // "ExitProcess\0" (выровнено)
+} ImportHintName;
+#pragma pack(pop)
+
+// --- //
+
 // БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
 //  Размер: Всегда строго 64 байта.
 //  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
@@ -504,6 +524,15 @@ void pe_builder(const char * output_filename)
     FILE * descriptor = fopen(output_filename, "wb");
     if (!descriptor) return;
 
+    uint32_t code_size   = 16;  // Пока заглушка: пусть код занимает 16 байт
+    uint32_t import_size = 128; // Пока заглушка: пусть импорт занимает 128 байт
+
+    uint32_t code_rva   = 4096; // Первое доступное место в памяти (0x1000)
+    uint32_t import_rva = code_rva + code_size;
+
+    uint32_t code_raw   = 512;  // Первое доступное место в файле (0x200)
+    uint32_t import_raw = code_raw + code_size;
+
     // 1. Создаем пустые структуры в памяти (зануляем их через {0})
     DosHeader dos_header = {0};
     FileHeader file_header = {0};
@@ -532,15 +561,15 @@ void pe_builder(const char * output_filename)
     optional_header_64.minor_linker_version = 0;
 
     // Размеры секций (пока у нас только .text, её физический размер на диске будет 512 байт)
-    optional_header_64.size_of_code = 512;
+    optional_header_64.size_of_code = 10;
     optional_header_64.size_of_initialized_data = 0;
     optional_header_64.size_of_uninitialized_data = 0;
 
     // ТОЧКА ВХОДА: Укажем RVA (Relative Virtual Address). 
     // Первая секция в памяти всегда начинается со смещения 4096 (0x1000).
     // Пусть наша точка входа указывает прямо на самое начало этой секции!
-    optional_header_64.address_of_entry_point = 4096;
-    optional_header_64.base_of_code = 4096;
+    optional_header_64.address_of_entry_point = code_rva; // 4096
+    optional_header_64.base_of_code           = code_rva; // 4096
 
     // Базовый адрес, куда Windows попытается загрузить программу в памяти
     optional_header_64.image_base = 0x00400000;
@@ -575,7 +604,11 @@ void pe_builder(const char * output_filename)
     optional_header_64.loader_flags = 0;
     optional_header_64.number_of_rva_and_sizes = 16; // 16 каталогов данных
 
-    for (int i = 0; i < 16; i++)
+    optional_header_64.data_directories[0].virtual_address = 0;
+    optional_header_64.data_directories[0].size = 0;
+    optional_header_64.data_directories[1].virtual_address = import_rva;
+    optional_header_64.data_directories[1].size = import_size;
+    for (int i = 2; i < 16; i++)
     {
         optional_header_64.data_directories[i].virtual_address = 0;
         optional_header_64.data_directories[i].size = 0;
@@ -587,8 +620,8 @@ void pe_builder(const char * output_filename)
     //memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
     //section_header.name.value = macro__str_le64('.', 't', 'e', 'x', 't', '\0', '\0', '\0');
     section_header.name.value = str_to_le64(".text\0\0\0");
-    section_header.virtual_size = 10;         // Укажем реальный размер кода (пока 10 байт)
-    section_header.virtual_address = 4096;    // В памяти секция начнется с RVA 0x1000
+    section_header.virtual_size = code_size + import_size; // Укажем реальный размер кода (пока 10 байт)
+    section_header.virtual_address = code_rva;             // В памяти секция начнется с RVA 0x1000 (4096)
     section_header.size_of_raw_data = 512;    // На диске округляем до минимальных 512 байт
     section_header.pointer_to_raw_data = 512; // Код начнется сразу после 512-байтных заголовков
 
