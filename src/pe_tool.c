@@ -78,11 +78,48 @@ typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
 
 #pragma pack(push, 1)
+// БЛОК 1: DOS HEADER.
+//  Размер: Всегда строго 64 байта.
+//  Природа: Статичный исторический балласт. Изменяется только одно поле `lfanew`.
 typedef struct {
-    uint16_t magic;        // 2 байта
-    uint8_t  reserved[58]; // 58 байт (зазор)
-    uint32_t lfanew;       // 4 байта (смещение 60 / 0x3C)
+    uint16_t magic;        // 2 байта (000~001: 077 090 | 00~01: 4D 5A): LE 23'117 | MZ  @  Магическое число
+    // Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
+    uint8_t  reserved[58]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
+    //uint16_t reserved[29]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
+    // Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE).
+    // • Минимум: 64 (если DOS-код заглушки отсутствует).
+    // • Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"),
+    //  это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
+    uint32_t lfanew; // 4 байта (060~063: 064 | 3C~3F: 40): 64
 } DosHeader;
+#pragma pack(pop)
+union__uint16_t dos_header__magic; // 2 байта (000~001: 077 090 | 00~01: 4D 5A): LE 23'117 | MZ  @  Магическое число
+union__uint16_t dos_header__reserved[29]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
+union__uint16_t dos_header__res[4];
+union__uint16_t dos_header__reserved_2[2]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
+union__uint16_t dos_header__res2[10];
+union__uint32_t dos_header__lfanew; // 4 байта (060~063: 064 | 3C~3F: 40): 64
+#pragma pack(push, 1)
+typedef struct {
+    union__uint16_t reserved[29]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
+    union__uint16_t cblp;
+    union__uint16_t cp;
+    union__uint16_t crlc;
+    union__uint16_t cparhdr;
+    union__uint16_t minalloc;
+    union__uint16_t maxalloc;
+    union__uint16_t ss;
+    union__uint16_t sp;
+    union__uint16_t csum;
+    union__uint16_t ip;
+    union__uint16_t cs;
+    union__uint16_t lfarlc;
+    union__uint16_t ovno;
+    union__uint16_t res[4];
+    union__uint16_t oemid;
+    union__uint16_t oeminfo;
+    union__uint16_t res2[10];
+} Analyzer__DosHeader;
 #pragma pack(pop)
 // Сигнатура PE в виде 32-битного числа (0x00004550)
 // В памяти типа Little-Endian она запишется на диск как 'P' 'E' '\0' '\0'
@@ -170,32 +207,6 @@ typedef struct {
 #pragma pack(pop)
 
 // --- //
-
-// БЛОК 1: DOS ЗАГОЛОВОК (DOS Header)
-//  Размер: Всегда строго 64 байта.
-//  Природа: Статичный исторический балласт. Изменяется только одно поле -> e_lfanew.
-union__uint16_t e_magic;    // 000~001      | 00~01      #  Магическое число
-
-//uint8_t dos_reserved[38];   // 002~039      | 02~27      #  Зарезервировано: Обычно забито нулями (0). Сюда можно спрятать кастомные метаданные компилятора, Windows их игнорирует.
-union__uint16_t e_cblp;     // dos reserved №1
-union__uint16_t e_cp;       // dos reserved №2
-union__uint16_t e_crlc;     // dos reserved №3
-union__uint16_t e_cparhdr;  // dos reserved №4
-union__uint16_t e_minalloc; // dos reserved №5
-union__uint16_t e_maxalloc; // dos reserved №6
-union__uint16_t e_ss;       // dos reserved №7
-union__uint16_t e_sp;       // dos reserved №8
-union__uint16_t e_csum;     // dos reserved №9
-union__uint16_t e_ip;       // dos reserved №10
-union__uint16_t e_cs;       // dos reserved №11
-union__uint16_t e_lfarlc;   // dos reserved №12
-union__uint16_t e_ovno;     // dos reserved №13
-union__uint16_t e_res[4];   // dos reserved №14
-union__uint16_t e_oemid;    // dos reserved №15
-union__uint16_t e_oeminfo;  // dos reserved №16
-union__uint16_t e_res2[10]; // dos reserved №17
-
-union__uint32_t e_lfanew;   // 060~063: 064 | 3C~3F: 40  #  Динамическое поле: Указывает смещение (в байтах от начала файла), где начнется Блок 2 (PE). • Минимум: 64 (если DOS-код заглушки отсутствует).• Динамика: Если ты решишь вставить туда реальную DOS-программу (которая пишет "This program cannot be run in DOS mode"), это поле сдвинется вперед на размер этого DOS-кода (обычно 128 или 248).
 
 
 // БЛОК 2: PE ЗАГОЛОВОК (COFF File Header) / 2. COFF Заголовок файла (Характеристики процессора)
@@ -656,6 +667,13 @@ void pe_builder(const char * output_filename)
     fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
 }
 
+const char dos_header__reserved_name[13][24+1] =
+{
+    "cblp", "cp", "crlc", "cparhdr", "minalloc", "maxalloc",
+    "ss"  , "sp", "csum", "ip"     , "cs"      , "lfarlc"  ,
+    "ovno"
+};
+
 void pe_analyzer()
 {
     FILE * descriptor = fopen("test_subject.exe", "rb");
@@ -669,86 +687,62 @@ void pe_analyzer()
     printf("\n %c №1.1 | DOS HEADER %c", 16, 17);
     printf("\n \\___________________/");
     printf("\n ------------------------------------------------------------------------------------------");
-    if (fread(&e_magic.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 0, e_magic.bytes, e_magic.value, "/!\\ e_magic");
 
-    if (fread(&e_cblp.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 2, e_cblp.bytes, e_cblp.value, "e_cblp");
+    if (fread(&dos_header__magic.value, 2, 1, descriptor) != 1) return;
+    console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "/!\\ e_magic");
 
-    if (fread(&e_cp.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 4, e_cp.bytes, e_cp.value, "e_cp");
-
-    if (fread(&e_crlc.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 6, e_crlc.bytes, e_crlc.value, "e_crlc");
-
-    if (fread(&e_cparhdr.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 8, e_cparhdr.bytes, e_cparhdr.value, "e_cparhdr");
-
-    if (fread(&e_minalloc.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 10, e_minalloc.bytes, e_minalloc.value, "e_minalloc");
-
-    if (fread(&e_maxalloc.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 12, e_maxalloc.bytes, e_maxalloc.value, "e_maxalloc");
-
-    if (fread(&e_ss.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 14, e_ss.bytes, e_ss.value, "e_ss");
-
-    if (fread(&e_sp.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 16, e_sp.bytes, e_sp.value, "e_sp");
-
-    if (fread(&e_csum.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 18, e_csum.bytes, e_csum.value, "e_csum");
-
-    if (fread(&e_ip.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 20, e_ip.bytes, e_ip.value, "e_ip");
-
-    if (fread(&e_cs.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 22, e_cs.bytes, e_cs.value, "e_cs");
-
-    if (fread(&e_lfarlc.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 24, e_lfarlc.bytes, e_lfarlc.value, "e_lfarlc");
-
-    if (fread(&e_ovno.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 26, e_ovno.bytes, e_ovno.value, "e_ovno");
-
-    offset = 28;
-
-    if (fread(&e_res[0].value, 2, 4, descriptor) != 4) return;
-    printf("\n  __________________________");
-    printf("\n / dw/short e_res[4];");
-    char _e_res[32];
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        sprintf(_e_res, "e_res[%d]", i);
-        console_log(2, offset, e_res[i].bytes, e_res[i].value, _e_res);
-        offset += 2;
+    if (fread(&dos_header__reserved[0].value, 2, 13, descriptor) != 13) return;
+    for (uint8_t i = 0; i < 13; i++) {
+        console_log(2,  i*2+2, dos_header__reserved[i].bytes, dos_header__reserved[i].value, dos_header__reserved_name[i]);
     }
-    putchar('\n');
+    /*
+    console_log(2,  2, dos_header__reserved[0].bytes, dos_header__reserved[0].value, "e_cblp"    );
+    console_log(2,  4, dos_header__reserved[1].bytes, dos_header__reserved[1].value, "e_cp"      );
+    console_log(2,  6, dos_header__reserved[2].bytes, dos_header__reserved[2].value, "e_crlc"    );
+    console_log(2,  8, dos_header__reserved[3].bytes, dos_header__reserved[3].value, "e_cparhdr" );
+    console_log(2, 10, dos_header__reserved[4].bytes, dos_header__reserved[4].value, "e_minalloc");
+    console_log(2, 12, dos_header__reserved[5].bytes, dos_header__reserved[5].value, "e_maxalloc");
+    console_log(2, 14, dos_header__reserved[6].bytes, dos_header__reserved[6].value, "e_ss"      );
+    console_log(2, 16, dos_header__reserved[7].bytes, dos_header__reserved[7].value, "e_sp"      );
+    console_log(2, 18, dos_header__reserved[8].bytes, dos_header__reserved[8].value, "e_csum"    );
+    console_log(2, 20, dos_header__reserved[9].bytes, dos_header__reserved[9].value, "e_ip"      );
+    console_log(2, 22, dos_header__reserved[10].bytes, dos_header__reserved[10].value, "e_cs"     );
+    console_log(2, 24, dos_header__reserved[11].bytes, dos_header__reserved[11].value, "e_lfarlc" );
+    console_log(2, 26, dos_header__reserved[12].bytes, dos_header__reserved[12].value, "e_ovno"   );
+    */
+    if (fread(&dos_header__res[0].value, 2, 4, descriptor) != 4) return;
+    printf("\n  __________________________");
+    printf("\n / dw e_res[4];");
+    console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "e_res[0]");
+    console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "e_res[1]");
+    console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "e_res[2]");
+    console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "e_res[3]");
 
-    if (fread(&e_oemid.value, 2, 1, descriptor) != 1) return;
-    console_log(2, offset, e_oemid.bytes, e_oemid.value, "e_oemid");
-    offset += 2;
+    if (fread(&dos_header__reserved_2[0].value, 2, 2, descriptor) != 2) return;
+    console_log(2, 36, dos_header__reserved_2[0].bytes, dos_header__reserved_2[0].value, "e_oemid");
+    console_log(2, 38, dos_header__reserved_2[1].bytes, dos_header__reserved_2[1].value, "e_oeminfo");
 
-    if (fread(&e_oeminfo.value, 2, 1, descriptor) != 1) return;
-    console_log(2, offset, e_oeminfo.bytes, e_oeminfo.value, "e_oeminfo");
-    offset += 2;
+    offset = 40;
 
-    if (fread(&e_res2[0].value, 2, 10, descriptor) != 10) return;
+    if (fread(&dos_header__res2[0].value, 2, 10, descriptor) != 10) return;
     printf("\n  __________________________");
     printf("\n / dw/short e_res2[10];");
+
+    putchar('\n');
+    
     char _e_res2[32];
     for (uint8_t i = 0; i < 10; i++)
     {
         sprintf(_e_res2, "e_res2[%d]", i);
-        console_log(2, offset, e_res2[i].bytes, e_res2[i].value, _e_res2);
+        console_log(2, offset, dos_header__res2[i].bytes, dos_header__res2[i].value, _e_res2);
         offset += 2;
     }
     printf("\n ------------------------------------------------------------------------------------------");
-    if (fread(&e_lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, e_lfanew.bytes, e_lfanew.value, "/!\\ e_lfanew");
+    if (fread(&dos_header__lfanew.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "/!\\ e_lfanew");
     offset += 4;
     printf("\n ------------------------------------------------------------------------------------------");
-    if (e_lfanew.value > 64)
+    if (dos_header__lfanew.value > 64)
     {
         printf("\n  _________________");
         printf("\n /                 \\");
@@ -757,10 +751,10 @@ void pe_analyzer()
         printf("\n ------------------------------------------------------------------------------------------");
         uint8_t bytes[8];
         uint8_t chunk_size;
-        while (offset < e_lfanew.value)
+        while (offset < dos_header__lfanew.value)
         {
             chunk_size = 8; // 1. Вычисляем, сколько байт выдать в этой строке (максимум 8)
-            if (e_lfanew.value - offset < 8) chunk_size = e_lfanew.value - offset; // Если у финиша осталось меньше 8 байт
+            if (dos_header__lfanew.value - offset < 8) chunk_size = dos_header__lfanew.value - offset; // Если у финиша осталось меньше 8 байт
             // 2. Набиваем буфер байтами из файла
             for (uint8_t i = 0; i < chunk_size; i++) bytes[i] = getc(descriptor);
             // 3. Отдаем всю пачку из 8 байт в вашу console_log за один раз!
@@ -773,13 +767,13 @@ void pe_analyzer()
         }
         printf("\n ------------------------------------------------------------------------------------------");
     }
-    else if (e_lfanew.value < 64) return;
+    else if (dos_header__lfanew.value < 64) return;
     printf("\n  ________________");
     printf("\n /                \\");
     printf("\n %c №2 | NT HEADER %c", 16, 17);
     printf("\n \\________________/");
     printf("\n ------------------------------------------------------------------------------------------");
-    offset = e_lfanew.value;
+    offset = dos_header__lfanew.value;
     if (fread(&Signature.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, Signature.bytes, Signature.value, "Signature");
     offset += 4;
