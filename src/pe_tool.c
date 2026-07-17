@@ -689,57 +689,41 @@ void pe_analyzer()
     printf("\n ------------------------------------------------------------------------------------------");
 
     if (fread(&dos_header__magic.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "/!\\ e_magic");
+    console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "/!\\ magic");
 
     if (fread(&dos_header__reserved[0].value, 2, 13, descriptor) != 13) return;
     for (uint8_t i = 0; i < 13; i++) {
         console_log(2,  i*2+2, dos_header__reserved[i].bytes, dos_header__reserved[i].value, dos_header__reserved_name[i]);
     }
-    /*
-    console_log(2,  2, dos_header__reserved[0].bytes, dos_header__reserved[0].value, "e_cblp"    );
-    console_log(2,  4, dos_header__reserved[1].bytes, dos_header__reserved[1].value, "e_cp"      );
-    console_log(2,  6, dos_header__reserved[2].bytes, dos_header__reserved[2].value, "e_crlc"    );
-    console_log(2,  8, dos_header__reserved[3].bytes, dos_header__reserved[3].value, "e_cparhdr" );
-    console_log(2, 10, dos_header__reserved[4].bytes, dos_header__reserved[4].value, "e_minalloc");
-    console_log(2, 12, dos_header__reserved[5].bytes, dos_header__reserved[5].value, "e_maxalloc");
-    console_log(2, 14, dos_header__reserved[6].bytes, dos_header__reserved[6].value, "e_ss"      );
-    console_log(2, 16, dos_header__reserved[7].bytes, dos_header__reserved[7].value, "e_sp"      );
-    console_log(2, 18, dos_header__reserved[8].bytes, dos_header__reserved[8].value, "e_csum"    );
-    console_log(2, 20, dos_header__reserved[9].bytes, dos_header__reserved[9].value, "e_ip"      );
-    console_log(2, 22, dos_header__reserved[10].bytes, dos_header__reserved[10].value, "e_cs"     );
-    console_log(2, 24, dos_header__reserved[11].bytes, dos_header__reserved[11].value, "e_lfarlc" );
-    console_log(2, 26, dos_header__reserved[12].bytes, dos_header__reserved[12].value, "e_ovno"   );
-    */
+
     if (fread(&dos_header__res[0].value, 2, 4, descriptor) != 4) return;
     printf("\n  __________________________");
     printf("\n / dw e_res[4];");
-    console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "e_res[0]");
-    console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "e_res[1]");
-    console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "e_res[2]");
-    console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "e_res[3]");
+    console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "res[0]");
+    console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "res[1]");
+    console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "res[2]");
+    console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "res[3]");
 
     if (fread(&dos_header__reserved_2[0].value, 2, 2, descriptor) != 2) return;
-    console_log(2, 36, dos_header__reserved_2[0].bytes, dos_header__reserved_2[0].value, "e_oemid");
-    console_log(2, 38, dos_header__reserved_2[1].bytes, dos_header__reserved_2[1].value, "e_oeminfo");
+    console_log(2, 36, dos_header__reserved_2[0].bytes, dos_header__reserved_2[0].value, "oemid");
+    console_log(2, 38, dos_header__reserved_2[1].bytes, dos_header__reserved_2[1].value, "oeminfo");
 
     offset = 40;
 
     if (fread(&dos_header__res2[0].value, 2, 10, descriptor) != 10) return;
     printf("\n  __________________________");
-    printf("\n / dw/short e_res2[10];");
+    printf("\n / dw res2[10];");
 
-    putchar('\n');
-    
     char _e_res2[32];
     for (uint8_t i = 0; i < 10; i++)
     {
-        sprintf(_e_res2, "e_res2[%d]", i);
+        sprintf(_e_res2, "res2[%d]", i);
         console_log(2, offset, dos_header__res2[i].bytes, dos_header__res2[i].value, _e_res2);
         offset += 2;
     }
     printf("\n ------------------------------------------------------------------------------------------");
     if (fread(&dos_header__lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "/!\\ e_lfanew");
+    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "/!\\ lfanew");
     offset += 4;
     printf("\n ------------------------------------------------------------------------------------------");
     if (dos_header__lfanew.value > 64)
