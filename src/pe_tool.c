@@ -817,6 +817,7 @@ void pe_builder(const char * output_filename)
     //section_header.virtual_address = code_rva; // В памяти секция начнется с RVA 0x1000 (4096)
     //section_header.size_of_raw_data = macro__align_up(code_size + import_size, 512); // На диске округляем до минимальных 512 байт
     section_header.pointer_to_raw_data = 512;  // Код начнется сразу после 512-байтных заголовков
+    section_header.characteristics = 0xE0000020; // CODE | EXECUTE | READ | WRITE
 
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
