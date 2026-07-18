@@ -1062,16 +1062,34 @@ void pe_analyzer()
     // В нашем файле он лежит на RVA 4160 (0x1040). Физически на диске это: 
     // RAW = PointerToRawData + (Import_RVA - Section_VirtualAddress)
     // RAW = 512 + (4160 - 4096) = 512 + 64 = 576.
-    uint32_t import_rva = optional_header_64.data_directories[1].virtual_address; // 4160
+    // Вместо: uint32_t import_rva = optional_header_64.data_directories[1].virtual_address;
+    // Пишем прямо из глобального массива каталогов (индекс 1 - это IMPORT Table):
+    uint32_t import_rva = virtual_address[1].value;
+    //uint32_t import_rva = optional_header_64.data_directories[1].virtual_address; // 4160
     uint32_t import_raw = text_sec.PointerToRawData.value + (import_rva - text_sec.VirtualAddress.value);
 
     // Прыгаем на физическое смещение импорта в файле
     fseek(descriptor, import_raw, SEEK_SET);
 
-    printf("\n ___________________");
-    printf("\n /                  \\");
-    printf("\n   RAW IMPORT DATA   ");
-    printf("\n \\__________________/");
+    bool language_localization = 1; // По умолчанию: другой (English)
+    const char s_language_localization[] = "Russian";
+    if (!strcmp(s_language_localization, "Russian")/* || !strcmp(s_language_localization, "Русская")*/) language_localization = 0;
+    //else language_localization = 1;
+    
+    if (!language_localization) // Russian / Российский
+    {
+        printf("\n  _____________________________");
+        printf("\n /                             \\");
+        printf("\n %c ИСХОДНЫЕ ДАННЫЕ ДЛЯ ИМПОРТА %c", 16, 17);
+        printf("\n \\_____________________________/");
+    }
+    else // Другой (English)
+    {
+        printf("\n  _________________");
+        printf("\n /                 \\");
+        printf("\n %c RAW IMPORT DATA %c", 16, 17);
+        printf("\n \\_________________/");
+    }
     printf("\n ------------------------------------------------------------------------------------------");
 
     // Читаем Import Descriptor (20 байт)
@@ -1090,8 +1108,8 @@ void pe_analyzer()
     
     char dll_name[32] = {0};
     fread(dll_name, 1, 32, descriptor);
-    printf("\n\n [!] Анализатор нашел привязанную DLL: %s", dll_name);
-    printf("\n ------------------------------------------------------------------------------------------\n");
+    printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n /!\\ Анализатор нашел привязанную DLL: %s", dll_name);
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _____________________");
     printf("\n /                     \\");
