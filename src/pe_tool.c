@@ -1168,33 +1168,36 @@ void pe_analyzer()
         }
         if (read_bytes == 0) break; // Файл полностью прочитан, выходим
         // --- ХИРУРГИЧЕСКИЙ РАЗБОР ИМПОРТА БЕЗ СТРУКТУР ---
-        // 1. Первая пачка (смещение 576): тут лежат первые 8 байт импорта
+        // 1. Первая пачка (смещение 576): содержит ILT RVA (первые 4 байта) и TimeDateStamp (следующие 4 байта)
         if (offset == import_raw)
         {
             printf("\n\n ------------------------------------------------------------------------------------------");
             printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
             printf("\n ------------------------------------------------------------------------------------------");
-            // Собираем ILT RVA вручную из первых 4 байт массива (Little-Endian)
+            // Собираем ILT RVA из байт 0, 1, 2, 3 текущего буфера
             uint32_t ilt_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-            // Выводим первые 4 байта как ILT RVA, а остальные 4 байта (TimeDateStamp) просто как пустые
-            console_log(4, offset, &bytes[0], ilt_rva, "ILT RVA");
-            console_log(4, offset + 4, &bytes[4], 0, "TimeDateStamp");
+            // Собираем TimeDateStamp из байт 4, 5, 6, 7 текущего буфера
+            uint32_t time_stamp = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
+            console_log(4, offset,     &bytes[0], ilt_rva,    "ILT RVA");
+            console_log(4, offset + 4, &bytes[4], time_stamp, "TimeDateStamp");
         }
-        // 2. Вторая пачка (смещение 584): тут лежит ForwarderChain (4 байта) и Name RVA (4 байта)
+        // 2. Вторая пачка (смещение 584): содержит ForwarderChain (4 байта) и Name RVA (4 байта)
         else if (offset == import_raw + 8)
         {
-            // Собираем Name RVA из последних 4 байт массива
+            // Собираем ForwarderChain из байт 0, 1, 2, 3
+            uint32_t forward_chain = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+            // Собираем Name RVA из байт 4, 5, 6, 7
             uint32_t name_rva = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
-            console_log(4, offset, &bytes[0], 0, "ForwarderChain");
-            console_log(4, offset + 4, &bytes[4], name_rva, "DLL Name RVA");
+            console_log(4, offset,     &bytes[0], forward_chain, "ForwarderChain");
+            console_log(4, offset + 4, &bytes[4], name_rva,       "DLL Name RVA");
         }
-        // 3. Третья пачка (смещение 592): тут лежит IAT RVA (4 байта) и 4 байта нулей следующего дескриптора
+        // 3. Третья пачка (смещение 592): содержит IAT RVA (первые 4 байта) и начало следующего дескриптора
         else if (offset == import_raw + 16)
         {
-            // Собираем IAT RVA из первых 4 байт массива
+            // Собираем IAT RVA из байт 0, 1, 2, 3
             uint32_t iat_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-            console_log(4, offset, &bytes[0], iat_rva, "IAT RVA");
-            console_log(4, offset + 4, &bytes[4], 0, "Terminator Part");
+            console_log(4, offset,     &bytes[0], iat_rva, "IAT RVA");
+            console_log(4, offset + 4, &bytes[4], 0,       "Terminator Part");
             printf("\n ------------------------------------------------------------------------------------------\n");
         }
         // 4. Обычные данные (шеллкод, строки, нули выравнивания)
