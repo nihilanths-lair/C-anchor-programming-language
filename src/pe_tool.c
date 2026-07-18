@@ -1150,9 +1150,16 @@ void pe_analyzer()
     printf("\n [ СЕКЦИЯ ПОД КУРСОРОМ: СТРЕЙТ-ПОТОК ]");
     printf("\n ------------------------------------------------------------------------------------------");
     // Вычисляем физический RAW-адрес таблицы импорта на диске
-    uint32_t import_raw = section_header.PointerToRawData.value + (virtual_address.value - section_header.VirtualAddress.value);
 
-    uint8_t buffer = {0};
+    // 1. Указываем точные индексы массивов (Секция .text [0] и каталог импорта IMPORT Table)
+    uint32_t import_raw
+     =
+     section_header[0].PointerToRawData.value
+     +
+     (virtual_address[1].value - section_header[0].VirtualAddress.value)
+    ;
+    // 2. Объявляем buffer как ЧЕСТНЫЙ массив из 8 байт, чтобы Си не ругался на скобки [buf_idx]
+    uint8_t local_buffer[8] = {0};
     uint8_t buf_idx = 0;
     uint32_t row_start_offset = offset;
 
@@ -1161,15 +1168,16 @@ void pe_analyzer()
         int c = getc(descriptor);
         // Если файл кончился ИЛИ мы наткнулись на импорт ИЛИ накопили 8 байт —
         // сбрасываем накопленный буфер на экран в ровную строку
+        // На строке 1168 замените старый вызов вывода на local_buffer с передачей адреса:
         if (c == EOF || offset == import_raw || buf_idx == 8)
         {
             if (buf_idx > 0)
             {
-                console_log(buf_idx, row_start_offset, buffer, buffer, "");
+                console_log(buf_idx, row_start_offset, local_buffer, local_buffer[0], "");
                 buf_idx = 0;
             }
-            if (c == EOF) break; // Финиш, файл прочитан полностью
-            row_start_offset = offset; // Обновляем адрес начала новой строки
+            if (c == EOF) break;
+            row_start_offset = offset;
         }
         // --- ТОЧНЫЙ ПЕРЕХВАТ ТАБЛИЦЫ ИМПОРТА НА ЛИНЕЙНЫХ МАССИВАХ ---
         if (offset == import_raw)
@@ -1198,7 +1206,7 @@ void pe_analyzer()
             continue; // Возвращаемся к чтению обычных байт
         }
         // Накапливаем текущий байт в буфер обычной строки
-        buffer[buf_idx] = (uint8_t) c;
+        local_buffer[buf_idx] = (uint8_t) c;
         buf_idx++;
         offset++;
     }
