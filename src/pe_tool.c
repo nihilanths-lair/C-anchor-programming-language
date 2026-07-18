@@ -1149,24 +1149,14 @@ void pe_analyzer()
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n [ СЕКЦИЯ ПОД КУРСОРОМ: СТРЕЙТ-ПОТОК ]");
     printf("\n ------------------------------------------------------------------------------------------");
-    // Вычисляем, на каком RAW-смещении диска лежит таблица импорта
-    uint32_t import_raw = section_header[0].PointerToRawData.value + (virtual_address[1].value - section_header[0].VirtualAddress.value);
-    bytes[8];
-    while (true)
+    // Вычисляем физический RAW-адрес таблицы импорта на диске
+    // (Этот расчет использует только простые числа, которые будут и в вашем ЯП)
+    uint32_t import_raw = section_header.PointerToRawData.value +
+        (virtual_address.value - section_header.VirtualAddress.value)
+    ;
+    while (1)
     {
-        // Если дошли до импорта — красиво парсим дескриптор
-        if (offset == import_raw)
-        {
-            ImportDescriptor id_struct = {0};
-            if (fread(&id_struct, sizeof (ImportDescriptor), 1, descriptor) == 1)
-            {
-                console_log(4, offset,    (uint8_t *) &id_struct.import_lookup_table_rva,  id_struct.import_lookup_table_rva,  "ILT RVA");
-                console_log(4, offset+12, (uint8_t *) &id_struct.name_rva,                 id_struct.name_rva,                 "DLL Name RVA");
-                console_log(4, offset+16, (uint8_t *) &id_struct.import_address_table_rva, id_struct.import_address_table_rva, "IAT RVA");
-                offset += sizeof (ImportDescriptor);
-            }
-        }
-        // Читаем обычные байты (шеллкод, строки, нули) группами по 8
+        // Читаем строго по 8 байт в наш уже существующий глобальный массив bytes
         int read_bytes = 0;
         for (int i = 0; i < 8; i++)
         {
@@ -1175,8 +1165,39 @@ void pe_analyzer()
             bytes[i] = (uint8_t) c;
             read_bytes++;
         }
-        if (read_bytes == 0) break; // Файл кончился
-        console_log(read_bytes, offset, bytes, bytes[0], "");
+        if (read_bytes == 0) break; // Файл полностью прочитан, выходим
+        // --- ХИРУРГИЧЕСКИЙ РАЗБОР ИМПОРТА БЕЗ СТРУКТУР ---
+        // 1. Первая пачка (смещение 576): тут лежат первые 8 байт импорта
+        if (offset == import_raw)
+        {
+            printf("\n\n ------------------------------------------------------------------------------------------");
+            printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
+            printf("\n ------------------------------------------------------------------------------------------");
+            // Собираем ILT RVA вручную из первых 4 байт массива (Little-Endian)
+            uint32_t ilt_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+            // Выводим первые 4 байта как ILT RVA, а остальные 4 байта (TimeDateStamp) просто как пустые
+            console_log(4, offset, &bytes[0], ilt_rva, "ILT RVA");
+            console_log(4, offset + 4, &bytes[4], 0, "TimeDateStamp");
+        }
+        // 2. Вторая пачка (смещение 584): тут лежит ForwarderChain (4 байта) и Name RVA (4 байта)
+        else if (offset == import_raw + 8)
+        {
+            // Собираем Name RVA из последних 4 байт массива
+            uint32_t name_rva = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
+            console_log(4, offset, &bytes[0], 0, "ForwarderChain");
+            console_log(4, offset + 4, &bytes[4], name_rva, "DLL Name RVA");
+        }
+        // 3. Третья пачка (смещение 592): тут лежит IAT RVA (4 байта) и 4 байта нулей следующего дескриптора
+        else if (offset == import_raw + 16)
+        {
+            // Собираем IAT RVA из первых 4 байт массива
+            uint32_t iat_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+            console_log(4, offset, &bytes[0], iat_rva, "IAT RVA");
+            console_log(4, offset + 4, &bytes[4], 0, "Terminator Part");
+            printf("\n ------------------------------------------------------------------------------------------\n");
+        }
+        // 4. Обычные данные (шеллкод, строки, нули выравнивания)
+        else console_log(read_bytes, offset, bytes, bytes[0], "");
         offset += read_bytes;
     }
     printf("\n ------------------------------------------------------------------------------------------");
