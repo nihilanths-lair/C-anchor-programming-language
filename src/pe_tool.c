@@ -1042,6 +1042,7 @@ void pe_analyzer()
         offset += 4;
         //printf("\n ------------------------------------------------------------------------------------------");
     }
+    /*
     // --- ЧТЕНИЕ ТАБЛИЦЫ СЕКЦИЙ ---
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  SECTION TABLE");
@@ -1073,7 +1074,7 @@ void pe_analyzer()
 
     bool language_localization = 1; // По умолчанию: другой (English)
     const char s_language_localization[] = "Russian";
-    if (!strcmp(s_language_localization, "Russian")/* || !strcmp(s_language_localization, "Русская")*/) language_localization = 0;
+    if (!strcmp(s_language_localization, "Russian") || !strcmp(s_language_localization, "Русская")) language_localization = 0;
     //else language_localization = 1;
     
     if (!language_localization) // Russian / Российский
@@ -1110,6 +1111,7 @@ void pe_analyzer()
     fread(dll_name, 1, 32, descriptor);
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n /!\\ Анализатор нашел привязанную DLL: %s", dll_name);
+    */
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _____________________");
     printf("\n /                     \\");
@@ -1117,7 +1119,6 @@ void pe_analyzer()
     printf("\n \\_____________________/");
     printf("\n ------------------------------------------------------------------------------------------");
     // Мы стоим на смещении таблицы секций (после Optional Header)
-    printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  №3 | SECTION TABLE (Всего секций: %d)", NumberOfSections.value);
     printf("\n ------------------------------------------------------------------------------------------");
     // Цикл читает ВСЕ секции файла одну за другой строго линейно
