@@ -1134,45 +1134,10 @@ void pe_analyzer()
         console_log(4, offset+4, section_header[i].VirtualAddress.bytes,  section_header[i].VirtualAddress.value,  "VirtualAddress");
         console_log(4, offset+8, section_header[i].SizeOfRawData.bytes,   section_header[i].SizeOfRawData.value,   "SizeOfRawData");
         console_log(4, offset+12,section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
-        // Пропускаем 12 байт легаси-полей
+        // Пропускаем 12 байт неиспользуемых легаси-полей
         console_log(4, offset+36,section_header[i].Characteristics.bytes,  section_header[i].Characteristics.value,  "Characteristics");
         offset += 40;
     }
-    /*
-    for (uint16_t i = 0; i < NumberOfSections.value; i++)
-    {
-        // 1. Читаем Имя секции (8 байт)
-        if (fread(section_header[i].Name, 1, 8, descriptor) != 8) return;
-        printf("\n  __________________________");
-        printf("\n / SECTION: %d, NAME: ", i);
-        for (int j = 0; j < 8; j++) symbol_adjustment(section_header[i].Name[j]);
-        offset += 8;
-
-        if (fread(&section_header[i].VirtualSize.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, section_header[i].VirtualSize.bytes, section_header[i].VirtualSize.value, "VirtualSize");
-        offset += 4;
-
-        if (fread(&section_header[i].VirtualAddress.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, section_header[i].VirtualAddress.bytes, section_header[i].VirtualAddress.value, "VirtualAddress");
-        offset += 4;
-
-        if (fread(&section_header[i].SizeOfRawData.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, section_header[i].SizeOfRawData.bytes, section_header[i].SizeOfRawData.value, "SizeOfRawData");
-        offset += 4;
-
-        if (fread(&section_header[i].PointerToRawData.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
-        offset += 4;
-
-        // 6. Пропускаем 12 байт неиспользуемых легаси-полей
-        if (fread(section_header[i].Reserved, 1, 12, descriptor) != 12) return;
-        offset += 12;
-
-        if (fread(&section_header[i].Characteristics.value, 4, 1, descriptor) != 1) return;
-        console_log(4, offset, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
-        offset += 4;
-    }
-    */
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
     printf("\n /                                 \\");
@@ -1266,6 +1231,41 @@ int main()
 }
 
 // [#-. EOF .-#]
+/*
+for (uint16_t i = 0; i < NumberOfSections.value; i++)
+{
+    // 1. Читаем Имя секции (8 байт)
+    if (fread(section_header[i].Name, 1, 8, descriptor) != 8) return;
+    printf("\n  __________________________");
+    printf("\n / SECTION: %d, NAME: ", i);
+    for (int j = 0; j < 8; j++) symbol_adjustment(section_header[i].Name[j]);
+    offset += 8;
+
+    if (fread(&section_header[i].VirtualSize.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, section_header[i].VirtualSize.bytes, section_header[i].VirtualSize.value, "VirtualSize");
+    offset += 4;
+
+    if (fread(&section_header[i].VirtualAddress.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, section_header[i].VirtualAddress.bytes, section_header[i].VirtualAddress.value, "VirtualAddress");
+    offset += 4;
+
+    if (fread(&section_header[i].SizeOfRawData.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, section_header[i].SizeOfRawData.bytes, section_header[i].SizeOfRawData.value, "SizeOfRawData");
+    offset += 4;
+
+    if (fread(&section_header[i].PointerToRawData.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
+    offset += 4;
+
+    // 6. Пропускаем 12 байт неиспользуемых легаси-полей
+    if (fread(section_header[i].Reserved, 1, 12, descriptor) != 12) return;
+    offset += 12;
+
+    if (fread(&section_header[i].Characteristics.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
+    offset += 4;
+}
+*/
 /*
 uint32_t code_size   = 16;  // Пока заглушка: пусть код занимает 16 байт
 uint32_t import_size = 128; // Пока заглушка: пусть импорт занимает 128 байт
