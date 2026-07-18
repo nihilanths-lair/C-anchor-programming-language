@@ -315,8 +315,8 @@ typedef struct {
     union__uint32_t PointerToRawData;
     uint8_t Reserved[12]; // Пропускаем легаси-поля (3 поля по 4 байта)
     union__uint32_t Characteristics;
-} _SectionHeader;
-_SectionHeader section_header[96]; // Ограничимся пока 96-ю секциями
+} Analyzer__SectionHeader;
+Analyzer__SectionHeader section_header[96]; // Ограничимся пока 96-ю секциями
 
 
 uint8_t program[2048];
@@ -1047,9 +1047,9 @@ void pe_analyzer()
     printf("\n  SECTION TABLE");
     printf("\n ------------------------------------------------------------------------------------------");
     
-    _SectionHeader text_sec = {0};
+    Analyzer__SectionHeader text_sec = {0};
     // Читаем первую секцию (у нас она одна, .text)
-    if (fread(&text_sec, sizeof(_SectionHeader), 1, descriptor) != 1) return;
+    if (fread(&text_sec, sizeof (Analyzer__SectionHeader), 1, descriptor) != 1) return;
     
     // Выводим важные параметры секции для контроля
     printf("\n Section Name: %s", text_sec.Name);
@@ -1116,6 +1116,28 @@ void pe_analyzer()
     printf("\n %c №3 | SECTION HEADER %c", 16, 17);
     printf("\n \\_____________________/");
     printf("\n ------------------------------------------------------------------------------------------");
+    // Мы стоим на смещении таблицы секций (после Optional Header)
+    printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n  №3 | SECTION TABLE (Всего секций: %d)", NumberOfSections.value);
+    printf("\n ------------------------------------------------------------------------------------------");
+    // Цикл читает ВСЕ секции файла одну за другой строго линейно
+    for (uint16_t i = 0; i < NumberOfSections.value; i++) 
+    {
+        // Читаем по 40 байт в ваш глобальный массив union-структур section_header[i]
+        if (fread(&section_header[i], 40, 1, descriptor) != 1) return;
+        // 1. Имя секции (8 байт)
+        printf("\n  __________________________");
+        printf("\n / SECTION: %d, NAME: ", i+1);
+        for (int j = 0; j < 8; j++) symbol_adjustment(section_header[i].Name[j]);
+        console_log(4, offset, section_header[i].VirtualSize.bytes, section_header[i].VirtualSize.value, "VirtualSize");
+        console_log(4, offset+4, section_header[i].VirtualAddress.bytes, section_header[i].VirtualAddress.value, "VirtualAddress");
+        console_log(4, offset+8, section_header[i].SizeOfRawData.bytes, section_header[i].SizeOfRawData.value, "SizeOfRawData");
+        console_log(4, offset+12, section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
+        // 6. Пропускаем 12 байт неиспользуемых легаси-полей
+        console_log(4, offset+24, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
+        offset += 40;
+    }
+    /*
     for (uint16_t i = 0; i < NumberOfSections.value; i++)
     {
         // 1. Читаем Имя секции (8 байт)
@@ -1149,6 +1171,7 @@ void pe_analyzer()
         console_log(4, offset, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
         offset += 4;
     }
+    */
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
     printf("\n /                                 \\");
