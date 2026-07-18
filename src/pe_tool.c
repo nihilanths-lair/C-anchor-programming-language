@@ -204,6 +204,19 @@ typedef struct {
     uint16_t hint;                      // Очередь перебора (можно 0)
     char name[12];                      // "ExitProcess\0" (выровнено)
 } ImportHintName;
+
+typedef struct {
+    ImportDescriptor kernel32_desc;  // Паспорт DLL (20 байт)
+    ImportDescriptor terminator;     // Нулевой финиш (20 байт)
+    
+    uint64_t ILT[3];                 // Список импортируемых функций (ExitProcess, WriteFile, NULL)
+    uint64_t IAT[3];                 // Точно такой же список для адресов (ОС его перезапишет)
+    
+    // Сюда мы сложим сами текстовые строчки
+    ImportHintName fn_exit;          // Структура для имени "ExitProcess"
+    ImportHintName fn_write;         // Структура для имени "WriteFile"
+    char dll_name[13];               // "kernel32.dll\0"
+} Kernel32Import;
 #pragma pack(pop)
 
 // --- //
