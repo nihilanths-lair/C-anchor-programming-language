@@ -550,21 +550,6 @@ void pe_builder(const char * output_filename)
     FILE * descriptor = fopen(output_filename, "wb");
     if (!descriptor) return;
 
-    /*
-    uint32_t code_size   = 16;  // Пока заглушка: пусть код занимает 16 байт
-    uint32_t import_size = 128; // Пока заглушка: пусть импорт занимает 128 байт
-
-    uint32_t code_rva   = 4096; // Первое доступное место в памяти (0x1000)
-    uint32_t import_rva = code_rva + code_size;
-
-    uint32_t code_raw   = 512;  // Первое доступное место в файле (0x200)
-    uint32_t import_raw = code_raw + code_size;
-
-    // Массив, куда мы побайтово упакуем весь наш импорт
-    uint8_t import_buffer[256] = {0};
-    uint32_t import_ptr = 0; // Наш внутренний курсор для записи в буфер
-    */
-
     // Секция .text (.code) на диске занимает ровно 512 байт. Инициализируем всё нулями.
     uint8_t section_text[512] = {0};
 
@@ -593,16 +578,13 @@ void pe_builder(const char * output_filename)
     // Смещение: 64 (В памяти RVA: 0x1040). Длина: 20 байт.
 
     // 2.1 ILT RVA (указывает на смещение 104 -> RVA 0x1068)
-    section_text[64] = 0x68;
-    section_text[65] = 0x10;
+    section_text[64] = 0x68; section_text[65] = 0x10;
 
     // 2.2 Name RVA (указывает на имя DLL на смещении 150 -> RVA 0x1096)
-    section_text[76] = 0x96;
-    section_text[77] = 0x10;
+    section_text[76] = 0x96; section_text[77] = 0x10;
 
     // 2.3 IAT RVA (указывает на смещение 120 -> RVA 0x1078)
-    section_text[80] = 0x78;
-    section_text[81] = 0x10;
+    section_text[80] = 0x78; section_text[81] = 0x10;
 
     // --- БЛОК 3: DLL TERMINATOR ---
     // Смещение: 84 (В памяти RVA: 0x1054). Длина: 20 байт. Остается нулями.
@@ -629,88 +611,6 @@ void pe_builder(const char * output_filename)
     memcpy(&section_text[150], "kernel32.dll", 12);
 
     // --- ТЕПЕРЬ СОБИРАЕМ И ЗАПИСЫВАЕМ ЗАГОЛОВКИ EXE-ФАЙЛА ---
-
-    /*
-    // --- БЛОК 1: ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
-    // Вызывает ExitProcess(42)
-    /*
-    uint8_t shellcode[64] =
-    {
-        0xB9, 0x2A, 0x00, 0x00, 0x00,       // mov ecx, 42
-        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // jmp qword ptr [RIP+0]
-        0xC3                                // ret
-    };
-    uint32_t code_size = 64;
-
-    // --- РАСЧЕТ АДРЕСОВ ИМПОРТА / РАСЧЕТ БАЗОВЫХ АДРЕСОВ ---
-    uint32_t code_rva = 4096; // 0x1000
-    uint32_t import_base_rva = code_rva + code_size; // 0x1040
-
-    // Инициализируем структуру импорта (нужно убедиться, что Kernel32Import определена)
-    Kernel32Import kernel32_import = {0};
-
-    // --- АВТОМАТИЧЕСКИЙ РАСЧЕТ RVA (Расчет RVA блоков внутри импорта) ---
-    uint32_t rva_descriptors = import_base_rva;
-    uint32_t rva_iat         = import_base_rva + offsetof(Kernel32Import, IAT);      // 2 функции + нуль-терминатор
-    uint32_t rva_fn_exit     = import_base_rva + offsetof(Kernel32Import, fn_exit);
-    uint32_t rva_fn_write    = import_base_rva + offsetof(Kernel32Import, fn_write); // sizeof (Hint) + "ExitProcess\0" + padding
-    uint32_t rva_dll_name    = import_base_rva + offsetof(Kernel32Import, dll_name); // sizeof (Hint) + "WriteFile\0" + padding
-    /*
-    uint32_t rva_ilt         = rva_descriptors + 40; // 2 дескриптора (наш + нулевой)
-    uint32_t rva_iat         = rva_ilt + 24;         // 2 функции + нуль-терминатор
-    uint32_t rva_fn_exit     = rva_iat + 24;
-    uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof (Hint) + "ExitProcess\0" + padding
-    uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof (Hint) + "WriteFile\0" + padding
-    */
-   ///
-    /*
-    // --- НАСТРОЙКА ПЕРЕКРЕСТНЫХ ССЫЛОК (Прошиваем смещение в шеллкод) ---
-    uint32_t rip_offset = rva_iat - (code_rva + 5 + 6);
-    memcpy(&shellcode[7], &rip_offset, 4);
-
-    // --- ЗАПОЛНЕНИЕ СТРУКТУРЫ ---
-    kernel32_import.kernel32.import_lookup_table_rva = import_base_rva + offsetof(Kernel32Import, ILT);
-    kernel32_import.kernel32.name_rva = rva_dll_name;
-    kernel32_import.kernel32.import_address_table_rva = rva_iat;
-
-    kernel32_import.ILT[0] = kernel32_import.IAT[0] = rva_fn_exit;
-    kernel32_import.ILT[1] = kernel32_import.IAT[1] = rva_fn_write;
-
-    kernel32_import.fn_exit.hint = 0; strcpy(kernel32_import.fn_exit.name, "ExitProcess");
-    kernel32_import.fn_write.hint = 0; strcpy(kernel32_import.fn_write.name, "WriteFile");
-    strcpy(kernel32_import.dll_name, "kernel32.dll");
-
-    // --- СБОРКА БУФЕРА ИМПОРТА (IB) ---
-    uint8_t ib[256] = {0};
-    
-    // 1. Заполняем Import Descriptor
-    ImportDescriptor import_descriptor = {0};
-    import_descriptor.import_lookup_table_rva = rva_ilt;
-    import_descriptor.name_rva = rva_dll_name;
-    import_descriptor.import_address_table_rva = rva_iat;
-    memcpy(&ib[0], &desc, sizeof (ImportDescriptor));
-
-    // 2. ILT (Указатели на имена функций)
-    uint64_t entry_exit = rva_fn_exit;
-    uint64_t entry_write = rva_fn_write;
-    memcpy(&ib[40], &entry_exit, 8);
-    memcpy(&ib[48], &entry_write, 8);
-
-    // 3. IAT (На диске дублирует ILT)
-    memcpy(&ib[64], &entry_exit, 8);
-    memcpy(&ib[72], &entry_write, 8);
-
-    // 4. Имена функций (Hint/Name) и DLL
-    uint16_t hint = 0;
-    memcpy(&ib[88], &hint, 2);
-    memcpy(&ib[90], "ExitProcess\0", 12);
-    memcpy(&ib[102], &hint, 2);
-    memcpy(&ib[104], "WriteFile\0", 10);
-    memcpy(&ib[114], "kernel32.dll\0", 13);
-    
-    uint32_t import_size = 114 + 13;
-    */
-
     // --- ЗАПИСЬ ЗАГОЛОВКОВ И СЕКЦИИ ---
 
     // 1. Создаем пустые структуры в памяти (зануляем их через {0})
@@ -1272,6 +1172,102 @@ int main()
     putchar('\n');
     return 0;
 }
+
+// [#-. EOF .-#]
+/*
+uint32_t code_size   = 16;  // Пока заглушка: пусть код занимает 16 байт
+uint32_t import_size = 128; // Пока заглушка: пусть импорт занимает 128 байт
+
+uint32_t code_rva   = 4096; // Первое доступное место в памяти (0x1000)
+uint32_t import_rva = code_rva + code_size;
+
+uint32_t code_raw   = 512;  // Первое доступное место в файле (0x200)
+uint32_t import_raw = code_raw + code_size;
+
+// Массив, куда мы побайтово упакуем весь наш импорт
+uint8_t import_buffer[256] = {0};
+uint32_t import_ptr = 0; // Наш внутренний курсор для записи в буфер
+*/
+/*
+// --- БЛОК 1: ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
+// Вызывает ExitProcess(42)
+/*
+uint8_t shellcode[64] =
+{
+    0xB9, 0x2A, 0x00, 0x00, 0x00,       // mov ecx, 42
+    0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // jmp qword ptr [RIP+0]
+    0xC3                                // ret
+};
+uint32_t code_size = 64;
+
+// --- РАСЧЕТ АДРЕСОВ ИМПОРТА / РАСЧЕТ БАЗОВЫХ АДРЕСОВ ---
+uint32_t code_rva = 4096; // 0x1000
+uint32_t import_base_rva = code_rva + code_size; // 0x1040
+
+// Инициализируем структуру импорта (нужно убедиться, что Kernel32Import определена)
+Kernel32Import kernel32_import = {0};
+
+// --- АВТОМАТИЧЕСКИЙ РАСЧЕТ RVA (Расчет RVA блоков внутри импорта) ---
+uint32_t rva_descriptors = import_base_rva;
+uint32_t rva_iat         = import_base_rva + offsetof(Kernel32Import, IAT);      // 2 функции + нуль-терминатор
+uint32_t rva_fn_exit     = import_base_rva + offsetof(Kernel32Import, fn_exit);
+uint32_t rva_fn_write    = import_base_rva + offsetof(Kernel32Import, fn_write); // sizeof (Hint) + "ExitProcess\0" + padding
+uint32_t rva_dll_name    = import_base_rva + offsetof(Kernel32Import, dll_name); // sizeof (Hint) + "WriteFile\0" + padding
+/*
+uint32_t rva_ilt         = rva_descriptors + 40; // 2 дескриптора (наш + нулевой)
+uint32_t rva_iat         = rva_ilt + 24;         // 2 функции + нуль-терминатор
+uint32_t rva_fn_exit     = rva_iat + 24;
+uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof (Hint) + "ExitProcess\0" + padding
+uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof (Hint) + "WriteFile\0" + padding
+*/
+///
+/*
+// --- НАСТРОЙКА ПЕРЕКРЕСТНЫХ ССЫЛОК (Прошиваем смещение в шеллкод) ---
+uint32_t rip_offset = rva_iat - (code_rva + 5 + 6);
+memcpy(&shellcode[7], &rip_offset, 4);
+
+// --- ЗАПОЛНЕНИЕ СТРУКТУРЫ ---
+kernel32_import.kernel32.import_lookup_table_rva = import_base_rva + offsetof(Kernel32Import, ILT);
+kernel32_import.kernel32.name_rva = rva_dll_name;
+kernel32_import.kernel32.import_address_table_rva = rva_iat;
+
+kernel32_import.ILT[0] = kernel32_import.IAT[0] = rva_fn_exit;
+kernel32_import.ILT[1] = kernel32_import.IAT[1] = rva_fn_write;
+
+kernel32_import.fn_exit.hint = 0; strcpy(kernel32_import.fn_exit.name, "ExitProcess");
+kernel32_import.fn_write.hint = 0; strcpy(kernel32_import.fn_write.name, "WriteFile");
+strcpy(kernel32_import.dll_name, "kernel32.dll");
+
+// --- СБОРКА БУФЕРА ИМПОРТА (IB) ---
+uint8_t ib[256] = {0};
+
+// 1. Заполняем Import Descriptor
+ImportDescriptor import_descriptor = {0};
+import_descriptor.import_lookup_table_rva = rva_ilt;
+import_descriptor.name_rva = rva_dll_name;
+import_descriptor.import_address_table_rva = rva_iat;
+memcpy(&ib[0], &desc, sizeof (ImportDescriptor));
+
+// 2. ILT (Указатели на имена функций)
+uint64_t entry_exit = rva_fn_exit;
+uint64_t entry_write = rva_fn_write;
+memcpy(&ib[40], &entry_exit, 8);
+memcpy(&ib[48], &entry_write, 8);
+
+// 3. IAT (На диске дублирует ILT)
+memcpy(&ib[64], &entry_exit, 8);
+memcpy(&ib[72], &entry_write, 8);
+
+// 4. Имена функций (Hint/Name) и DLL
+uint16_t hint = 0;
+memcpy(&ib[88], &hint, 2);
+memcpy(&ib[90], "ExitProcess\0", 12);
+memcpy(&ib[102], &hint, 2);
+memcpy(&ib[104], "WriteFile\0", 10);
+memcpy(&ib[114], "kernel32.dll\0", 13);
+
+uint32_t import_size = 114 + 13;
+*/
 /*
 putchar('\n');
 for (short i = 0; i < 256; i++)
