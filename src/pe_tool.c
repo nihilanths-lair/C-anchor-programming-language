@@ -1134,9 +1134,15 @@ void pe_analyzer()
         console_log(4, offset+4, section_header[i].VirtualAddress.bytes,  section_header[i].VirtualAddress.value,  "VirtualAddress");
         console_log(4, offset+8, section_header[i].SizeOfRawData.bytes,   section_header[i].SizeOfRawData.value,   "SizeOfRawData");
         console_log(4, offset+12,section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
-        // Пропускаем 12 байт неиспользуемых легаси-полей
-        console_log(4, offset+36,section_header[i].Characteristics.bytes,  section_header[i].Characteristics.value,  "Characteristics");
-        offset += 40;
+        offset += 16;
+        // Пропускаем неиспользуемые легаси-поля (3 поля по 4 байта, итого: 12)
+        for (int j = 0; j < 3; j++)
+        {
+            console_log(4, offset, section_header[i].Reserved, section_header[i].Reserved[0], ""); // ?
+            offset += 4;
+        }
+        console_log(4, offset, section_header[i].Characteristics.bytes,  section_header[i].Characteristics.value,  "Characteristics");
+        offset += 4;
     }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
