@@ -201,21 +201,21 @@ typedef struct {
 
 // Структура Hint/Name для функции
 typedef struct {
-    uint16_t hint;                      // Очередь перебора (можно 0)
-    char name[12];                      // "ExitProcess\0" (выровнено)
+    uint16_t hint;               // Очередь перебора (можно 0)
+    char name[12];               // "ExitProcess\0" (выровнено)
 } ImportHintName;
 
 typedef struct {
-    ImportDescriptor kernel32_desc;  // Паспорт DLL (20 байт)
-    ImportDescriptor terminator;     // Нулевой финиш (20 байт)
+    ImportDescriptor kernel32;   // Паспорт DLL (20 байт)
+    ImportDescriptor terminator; // Нулевой финиш (20 байт)
     
-    uint64_t ILT[3];                 // Список импортируемых функций (ExitProcess, WriteFile, NULL)
-    uint64_t IAT[3];                 // Точно такой же список для адресов (ОС его перезапишет)
+    uint64_t ILT[3];             // Список импортируемых функций (ExitProcess, WriteFile, NULL)
+    uint64_t IAT[3];             // Точно такой же список для адресов (ОС его перезапишет)
     
     // Сюда мы сложим сами текстовые строчки
-    ImportHintName fn_exit;          // Структура для имени "ExitProcess"
-    ImportHintName fn_write;         // Структура для имени "WriteFile"
-    char dll_name[13];               // "kernel32.dll\0"
+    ImportHintName fn_exit;      // Структура для имени "ExitProcess"
+    ImportHintName fn_write;     // Структура для имени "WriteFile"
+    char dll_name[13];           // "kernel32.dll\0"
 } Kernel32Import;
 #pragma pack(pop)
 
@@ -573,21 +573,41 @@ void pe_builder(const char * output_filename)
     };
     uint32_t code_size = 64;
 
-    // --- РАСЧЕТ АДРЕСОВ ИМПОРТА ---
+    // --- РАСЧЕТ АДРЕСОВ ИМПОРТА / РАСЧЕТ БАЗОВЫХ АДРЕСОВ ---
     uint32_t code_rva = 4096; // 0x1000
     uint32_t import_base_rva = code_rva + code_size; // 0x1040
 
-    // Расчет RVA блоков внутри импорта
+    // Инициализируем структуру импорта (нужно убедиться, что Kernel32Import определена)
+    Kernel32Import kernel32_import = {0};
+
+    // --- АВТОМАТИЧЕСКИЙ РАСЧЕТ RVA (Расчет RVA блоков внутри импорта) ---
     uint32_t rva_descriptors = import_base_rva;
+    uint32_t rva_iat         = import_base_rva + offsetof(Kernel32Import, IAT);      // 2 функции + нуль-терминатор
+    uint32_t rva_fn_exit     = import_base_rva + offsetof(Kernel32Import, fn_exit);
+    uint32_t rva_fn_write    = import_base_rva + offsetof(Kernel32Import, fn_write); // sizeof (Hint) + "ExitProcess\0" + padding
+    uint32_t rva_dll_name    = import_base_rva + offsetof(Kernel32Import, dll_name); // sizeof (Hint) + "WriteFile\0" + padding
+    /*
     uint32_t rva_ilt         = rva_descriptors + 40; // 2 дескриптора (наш + нулевой)
     uint32_t rva_iat         = rva_ilt + 24;         // 2 функции + нуль-терминатор
     uint32_t rva_fn_exit     = rva_iat + 24;
-    uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof(Hint) + "ExitProcess\0" + padding
-    uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof(Hint) + "WriteFile\0" + padding
-
-    // Прошиваем смещение в шеллкод
+    uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof (Hint) + "ExitProcess\0" + padding
+    uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof (Hint) + "WriteFile\0" + padding
+    */
+    // --- НАСТРОЙКА ПЕРЕКРЕСТНЫХ ССЫЛОК (Прошиваем смещение в шеллкод) ---
     uint32_t rip_offset = rva_iat - (code_rva + 5 + 6);
     memcpy(&shellcode[7], &rip_offset, 4);
+
+    // --- ЗАПОЛНЕНИЕ СТРУКТУРЫ ---
+    kernel32_import.kernel32.import_lookup_table_rva = import_base_rva + offsetof(Kernel32Import, ILT);
+    kernel32_import.kernel32.name_rva = rva_dll_name;
+    kernel32_import.kernel32.import_address_table_rva = rva_iat;
+
+    kernel32_import.ILT[0] = kernel32_import.IAT[0] = rva_fn_exit;
+    kernel32_import.ILT[1] = kernel32_import.IAT[1] = rva_fn_write;
+
+    kernel32_import.fn_exit.hint = 0; strcpy(kernel32_import.fn_exit.name, "ExitProcess");
+    kernel32_import.fn_write.hint = 0; strcpy(kernel32_import.fn_write.name, "WriteFile");
+    strcpy(kernel32_import.dll_name, "kernel32.dll");
 
     // --- СБОРКА БУФЕРА ИМПОРТА (IB) ---
     uint8_t ib[256] = {0};
