@@ -76,6 +76,7 @@ typedef union { uint8_t value; uint8_t bytes[1]; } union__uint8_t;
 typedef union { uint16_t value; uint8_t bytes[2]; } union__uint16_t;
 typedef union { uint32_t value; uint8_t bytes[4]; } union__uint32_t;
 typedef union { uint64_t value; uint8_t bytes[8]; } union__uint64_t;
+uint8_t bytes[1];
 
 #pragma pack(push, 1)
 // БЛОК 1: DOS HEADER.
@@ -1150,7 +1151,7 @@ void pe_analyzer()
     printf("\n ------------------------------------------------------------------------------------------");
     // Вычисляем, на каком RAW-смещении диска лежит таблица импорта
     uint32_t import_raw = section_header[0].PointerToRawData.value + (virtual_address[1].value - section_header[0].VirtualAddress.value);
-    uint8_t bytes[8];
+    bytes[8];
     while (true)
     {
         // Если дошли до импорта — красиво парсим дескриптор
@@ -1194,28 +1195,25 @@ void pe_analyzer()
             sort = section_header[i].PointerToRawData.value;
         }
     }
-    // anonymous scope //
+    bytes[8];
+    uint8_t chunk_size;
+    // 2. Набиваем буфер байтами из файла
+    for (uint8_t i = 0; i < chunk_size; i++)
     {
-        uint8_t bytes[8];
-        uint8_t chunk_size;
-        // 2. Набиваем буфер байтами из файла
-        for (uint8_t i = 0; i < chunk_size; i++)
+        int ch = getc(descriptor);
+        if (ch == EOF) // Если файл внезапно кончился — принудительно останавливаем всё!
         {
-            int ch = getc(descriptor);
-            if (ch == EOF) // Если файл внезапно кончился — принудительно останавливаем всё!
-            {
-                sort = offset; // Схлопываем границу, чтобы внешний while (offset < sort) сразу завершился
-                chunk_size = i; // Корректируем размер реально прочитанного хвостика
-                break;
-            }
-            bytes[i] = (uint8_t) ch;
+            sort = offset; // Схлопываем границу, чтобы внешний while (offset < sort) сразу завершился
+            chunk_size = i; // Корректируем размер реально прочитанного хвостика
+            break;
         }
-        // Вызываем console_log только если мы реально прочитали хоть один байт
-        if (chunk_size > 0)
-        {
-            console_log(chunk_size, offset, bytes, bytes[0], "");
-            offset += chunk_size;
-        }
+        bytes[i] = (uint8_t) ch;
+    }
+    // Вызываем console_log только если мы реально прочитали хоть один байт
+    if (chunk_size > 0)
+    {
+        console_log(chunk_size, offset, bytes, bytes[0], "");
+        offset += chunk_size;
     }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _______________________________");
@@ -1226,35 +1224,32 @@ void pe_analyzer()
     // Формула вычисления точки входа на диске
     uint32_t raw_entry_point =
      AddressOfEntryPoint.value - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value;
-    // anonymous scope //
+    bytes[8]; // Буфер для чтения пачками по 8 байт
+    int read_bytes;
+    while (true)
     {
-        uint8_t bytes[8]; // Буфер для чтения пачками по 8 байт
-        int read_bytes;
-        while (true)
+        read_bytes = fread(bytes, 1, 8, descriptor);
+        if (read_bytes <= 0) break;
+        if (raw_entry_point >= offset && raw_entry_point < offset + read_bytes)
         {
-            read_bytes = fread(bytes, 1, 8, descriptor);
-            if (read_bytes <= 0) break;
-            if (raw_entry_point >= offset && raw_entry_point < offset + read_bytes)
-            {
-                printf("\n ------------------------------------------------------------------------------------------");
-                printf("\n  __________________________");
-                printf("\n /                          \\");
-                printf("\n %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
-                printf("\n \\__________________________/");
-                printf("\n ------------------------------------------------------------------------------------------");
-            }
-            console_log(read_bytes, offset, bytes, bytes[0], "");
-            offset += read_bytes;
+            printf("\n ------------------------------------------------------------------------------------------");
+            printf("\n  __________________________");
+            printf("\n /                          \\");
+            printf("\n %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
+            printf("\n \\__________________________/");
+            printf("\n ------------------------------------------------------------------------------------------");
         }
-        while (true)
-        {
-            read_bytes = fread(bytes, 1, 8, descriptor);
-            if (read_bytes <= 0) break;
-            // Точка входа в программу уже ранее была пройдена, опускаем проверку
-            console_log(read_bytes, offset, bytes, bytes[0], "");
-            // Точка входа в программу уже ранее была пройдена, опускаем проверку
-            offset += read_bytes;
-        }
+        console_log(read_bytes, offset, bytes, bytes[0], "");
+        offset += read_bytes;
+    }
+    while (true)
+    {
+        read_bytes = fread(bytes, 1, 8, descriptor);
+        if (read_bytes <= 0) break;
+        // Точка входа в программу уже ранее была пройдена, опускаем проверку
+        console_log(read_bytes, offset, bytes, bytes[0], "");
+        // Точка входа в программу уже ранее была пройдена, опускаем проверку
+        offset += read_bytes;
     }
     printf("\n ------------------------------------------------------------------------------------------");
     // gcc -s pe_tool.c -o pe_tool.exe / Strip (Удаление отладочной информации/лишнего мусора)
