@@ -1150,59 +1150,57 @@ void pe_analyzer()
     printf("\n [ СЕКЦИЯ ПОД КУРСОРОМ: СТРЕЙТ-ПОТОК ]");
     printf("\n ------------------------------------------------------------------------------------------");
     // Вычисляем физический RAW-адрес таблицы импорта на диске
-    // (Этот расчет использует только простые числа, которые будут и в вашем ЯП)
-    uint32_t import_raw
-    =
-     section_header[0].PointerToRawData.value + (virtual_address[1].value - section_header[0].VirtualAddress.value)
-    ;
+    uint32_t import_raw = section_header.PointerToRawData.value + (virtual_address.value - section_header.VirtualAddress.value);
+
+    uint8_t buffer = {0};
+    uint8_t buf_idx = 0;
+    uint32_t row_start_offset = offset;
+
     while (1)
     {
-        // Читаем строго по 8 байт в наш уже существующий глобальный массив bytes
-        int read_bytes = 0;
-        for (int i = 0; i < 8; i++)
+        int c = getc(descriptor);
+        // Если файл кончился ИЛИ мы наткнулись на импорт ИЛИ накопили 8 байт —
+        // сбрасываем накопленный буфер на экран в ровную строку
+        if (c == EOF || offset == import_raw || buf_idx == 8)
         {
-            int c = getc(descriptor);
-            if (c == EOF) break;
-            bytes[i] = (uint8_t) c;
-            read_bytes++;
+            if (buf_idx > 0)
+            {
+                console_log(buf_idx, row_start_offset, buffer, buffer, "");
+                buf_idx = 0;
+            }
+            if (c == EOF) break; // Финиш, файл прочитан полностью
+            row_start_offset = offset; // Обновляем адрес начала новой строки
         }
-        if (read_bytes == 0) break; // Файл полностью прочитан, выходим
-        // --- ХИРУРГИЧЕСКИЙ РАЗБОР ИМПОРТА БЕЗ СТРУКТУР ---
-        // 1. Первая пачка (смещение 576): содержит ILT RVA (первые 4 байта) и TimeDateStamp (следующие 4 байта)
+        // --- ТОЧНЫЙ ПЕРЕХВАТ ТАБЛИЦЫ ИМПОРТА НА ЛИНЕЙНЫХ МАССИВАХ ---
         if (offset == import_raw)
         {
             printf("\n\n ------------------------------------------------------------------------------------------");
             printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
             printf("\n ------------------------------------------------------------------------------------------");
-            // Собираем ILT RVA из байт 0, 1, 2, 3 текущего буфера
-            uint32_t ilt_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-            // Собираем TimeDateStamp из байт 4, 5, 6, 7 текущего буфера
-            uint32_t time_stamp = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
-            console_log(4, offset,     &bytes[0], ilt_rva,    "ILT RVA");
-            console_log(4, offset + 4, &bytes[4], time_stamp, "TimeDateStamp");
-        }
-        // 2. Вторая пачка (смещение 584): содержит ForwarderChain (4 байта) и Name RVA (4 байта)
-        else if (offset == import_raw + 8)
-        {
-            // Собираем ForwarderChain из байт 0, 1, 2, 3
-            uint32_t forward_chain = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-            // Собираем Name RVA из байт 4, 5, 6, 7
-            uint32_t name_rva = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
-            console_log(4, offset,     &bytes[0], forward_chain, "ForwarderChain");
-            console_log(4, offset + 4, &bytes[4], name_rva,       "DLL Name RVA");
-        }
-        // 3. Третья пачка (смещение 592): содержит IAT RVA (первые 4 байта) и начало следующего дескриптора
-        else if (offset == import_raw + 16)
-        {
-            // Собираем IAT RVA из байт 0, 1, 2, 3
-            uint32_t iat_rva = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-            console_log(4, offset,     &bytes[0], iat_rva, "IAT RVA");
-            console_log(4, offset + 4, &bytes[4], 0,       "Terminator Part");
+            // Читаем ровно 20 байт паспорта DLL в обычный массив
+            uint8_t id_bytes[20];
+            for (int i = 0; i < 20; i++) id_bytes[i] = (uint8_t) getc(descriptor);
+            // Вручную собираем 32-битные RVA-числа из байт массива (Little-Endian)
+            uint32_t ilt_rva   = id_bytes[0]  | (id_bytes[1]  << 8) | (id_bytes[2]  << 16) | (id_bytes[3]  << 24);
+            uint32_t timestamp = id_bytes[4]  | (id_bytes[5]  << 8) | (id_bytes[6]  << 16) | (id_bytes[7]  << 24);
+            uint32_t forwarder = id_bytes[8]  | (id_bytes[9]  << 8) | (id_bytes[10] << 16) | (id_bytes[11] << 24);
+            uint32_t name_rva  = id_bytes[12] | (id_bytes[13] << 8) | (id_bytes[14] << 16) | (id_bytes[15] << 24);
+            uint32_t iat_rva   = id_bytes[16] | (id_bytes[17] << 8) | (id_bytes[18] << 16) | (id_bytes[19] << 24);
+            // Красиво выводим каждое поле по 4 байта через ваш console_log
+            console_log(4, offset,      &id_bytes[0],  ilt_rva,   "ILT RVA");
+            console_log(4, offset + 4,  &id_bytes[4],  timestamp, "TimeDateStamp");
+            console_log(4, offset + 8,  &id_bytes[8],  forwarder, "ForwarderChain");
+            console_log(4, offset + 12, &id_bytes[12], name_rva,  "DLL Name RVA");
+            console_log(4, offset + 16, &id_bytes[16], iat_rva,   "IAT RVA");
+            offset += 20;
+            row_start_offset = offset;
             printf("\n ------------------------------------------------------------------------------------------\n");
+            continue; // Возвращаемся к чтению обычных байт
         }
-        // 4. Обычные данные (шеллкод, строки, нули выравнивания)
-        else console_log(read_bytes, offset, bytes, bytes[0], "");
-        offset += read_bytes;
+        // Накапливаем текущий байт в буфер обычной строки
+        buffer[buf_idx] = (uint8_t) c;
+        buf_idx++;
+        offset++;
     }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
