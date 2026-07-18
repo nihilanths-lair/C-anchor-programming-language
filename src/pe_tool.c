@@ -822,15 +822,11 @@ void pe_builder(const char * output_filename)
     // --- ЗАПИСЬ ВСЕГО ПИРОГА НА ДИСК ---
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
-    fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: DOS (64 байта)
+    fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: Dos Header (64 байта)
     fwrite(pe_signature, 1, 4, descriptor);                   // Блок 2: Сигнатура "PE\0\0" (4 байта)
     fwrite(&file_header, sizeof (FileHeader), 1, descriptor); // Блок 3: File Header (20 байт)
-
-    // Записываем Опциональный заголовок вместе со всеми 16 директориями данных (240 байт)
-    fwrite(&optional_header_64, sizeof (OptionalHeader64), 1, descriptor);
-
-    // Записываем структуру единственной секции .text (40 байт)
-    fwrite(&section_header, sizeof (SectionHeader), 1, descriptor);
+    fwrite(&optional_header_64, sizeof (OptionalHeader64), 1, descriptor); // Блок 4: Optional Header 64 вместе со всеми 16 директориями данных (240 байт)
+    fwrite(&section_header, sizeof (SectionHeader), 1, descriptor); // Блок 5: Секция .text (40 байт)
 
     uint32_t headers_size =
      sizeof (DosHeader) +        // 64 байта
