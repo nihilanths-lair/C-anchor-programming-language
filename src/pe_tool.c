@@ -839,9 +839,9 @@ void pe_builder(const char * output_filename)
     // Вычисляем, сколько нулей нужно добить до границы 512
     for (uint32_t padding_needed = 512 - headers_size; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
     // Начало секции .text (точка входа в программу)
-    fputc(0xC3, descriptor); // RET
+    //fputc(0xC3, descriptor); // RET
     // Выравнивание самого тела секции .text до 512 байт (итого файл 1024)
-    for (uint32_t padding_needed = 512 - 1; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
+    //for (uint32_t padding_needed = 512 - 1; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
 
     // Записываем всю нашу побайтово размеченную секцию целиком (все 512 байт)
     fwrite(section_text, 1, 512, descriptor);
