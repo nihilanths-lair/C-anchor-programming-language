@@ -550,6 +550,64 @@ void pe_builder(const char * output_filename)
     uint8_t import_buffer[256] = {0};
     uint32_t import_ptr = 0; // Наш внутренний курсор для записи в буфер
 
+    // --- НАШ ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
+    // Вызывает ExitProcess(42)
+    uint8_t shellcode[64] =
+    {
+        0xB9, 0x2A, 0x00, 0x00, 0x00,       // mov ecx, 42
+        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // jmp qword ptr [RIP+0]
+        0xC3                                // ret
+    };
+    uint32_t code_size = 64;
+
+    // --- РАСЧЕТ АДРЕСОВ ИМПОРТА ---
+    uint32_t code_rva = 4096; // 0x1000
+    uint32_t import_base_rva = code_rva + code_size; // 0x1040
+
+    // Расчет RVA блоков внутри импорта
+    uint32_t rva_descriptors = import_base_rva;
+    uint32_t rva_ilt         = rva_descriptors + 40; // 2 дескриптора (наш + нулевой)
+    uint32_t rva_iat         = rva_ilt + 24;         // 2 функции + нуль-терминатор
+    uint32_t rva_fn_exit     = rva_iat + 24;
+    uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof(Hint) + "ExitProcess\0" + padding
+    uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof(Hint) + "WriteFile\0" + padding
+
+    // Прошиваем смещение в шеллкод
+    uint32_t rip_offset = rva_iat - (code_rva + 5 + 6);
+    memcpy(&shellcode[7], &rip_offset, 4);
+
+    // --- СБОРКА БУФЕРА ИМПОРТА (IB) ---
+    uint8_t ib[256] = {0};
+    
+    // 1. Заполняем Import Descriptor
+    ImportDescriptor import_descriptor = {0};
+    import_descriptor.import_lookup_table_rva = rva_ilt;
+    import_descriptor.name_rva = rva_dll_name;
+    import_descriptor.import_address_table_rva = rva_iat;
+    memcpy(&ib[0], &desc, sizeof (ImportDescriptor));
+
+    // 2. ILT (Указатели на имена функций)
+    uint64_t entry_exit = rva_fn_exit;
+    uint64_t entry_write = rva_fn_write;
+    memcpy(&ib[40], &entry_exit, 8);
+    memcpy(&ib[48], &entry_write, 8);
+
+    // 3. IAT (На диске дублирует ILT)
+    memcpy(&ib[64], &entry_exit, 8);
+    memcpy(&ib[72], &entry_write, 8);
+
+    // 4. Имена функций (Hint/Name) и DLL
+    uint16_t hint = 0;
+    memcpy(&ib[88], &hint, 2);
+    memcpy(&ib[90], "ExitProcess\0", 12);
+    memcpy(&ib[102], &hint, 2);
+    memcpy(&ib[104], "WriteFile\0", 10);
+    memcpy(&ib[114], "kernel32.dll\0", 13);
+    
+    uint32_t import_size = 114 + 13;
+
+    // --- ЗАПИСЬ ЗАГОЛОВКОВ И СЕКЦИИ ---
+
     // 1. Создаем пустые структуры в памяти (зануляем их через {0})
     DosHeader dos_header = {0};
     FileHeader file_header = {0};
@@ -623,8 +681,11 @@ void pe_builder(const char * output_filename)
 
     optional_header_64.data_directories[0].virtual_address = 0;
     optional_header_64.data_directories[0].size = 0;
-    optional_header_64.data_directories[1].virtual_address = import_rva;
-    optional_header_64.data_directories[1].size = import_size;
+    // ВАЖНО: Выставляем Data Directory для Импорта
+    optional_header_64.data_directories[1].virtual_address = rva_descriptors;
+    optional_header_64.data_directories[1].size = 40; 
+    //optional_header_64.data_directories[1].virtual_address = import_rva;
+    //optional_header_64.data_directories[1].size = import_size;
     for (int i = 2; i < 16; i++)
     {
         optional_header_64.data_directories[i].virtual_address = 0;
