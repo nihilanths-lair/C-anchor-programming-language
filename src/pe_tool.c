@@ -1226,32 +1226,35 @@ void pe_analyzer()
     // Формула вычисления точки входа на диске
     uint32_t raw_entry_point =
      AddressOfEntryPoint.value - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value;
-    uint8_t bytes[8]; // Буфер для чтения пачками по 8 байт
-    int read_bytes;
-    while (true)
+    // anonymous scope //
     {
-        read_bytes = fread(bytes, 1, 8, descriptor);
-        if (read_bytes <= 0) break;
-        if (raw_entry_point >= offset && raw_entry_point < offset + read_bytes)
+        uint8_t bytes[8]; // Буфер для чтения пачками по 8 байт
+        int read_bytes;
+        while (true)
         {
-            printf("\n ------------------------------------------------------------------------------------------");
-            printf("\n  __________________________");
-            printf("\n /                          \\");
-            printf("\n %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
-            printf("\n \\__________________________/");
-            printf("\n ------------------------------------------------------------------------------------------");
+            read_bytes = fread(bytes, 1, 8, descriptor);
+            if (read_bytes <= 0) break;
+            if (raw_entry_point >= offset && raw_entry_point < offset + read_bytes)
+            {
+                printf("\n ------------------------------------------------------------------------------------------");
+                printf("\n  __________________________");
+                printf("\n /                          \\");
+                printf("\n %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
+                printf("\n \\__________________________/");
+                printf("\n ------------------------------------------------------------------------------------------");
+            }
+            console_log(read_bytes, offset, bytes, bytes[0], "");
+            offset += read_bytes;
         }
-        console_log(read_bytes, offset, bytes, bytes[0], "");
-        offset += read_bytes;
-    }
-    while (true)
-    {
-        read_bytes = fread(bytes, 1, 8, descriptor);
-        if (read_bytes <= 0) break;
-        // Точка входа в программу уже ранее была пройдена, опускаем проверку
-        console_log(read_bytes, offset, bytes, bytes[0], "");
-        // Точка входа в программу уже ранее была пройдена, опускаем проверку
-        offset += read_bytes;
+        while (true)
+        {
+            read_bytes = fread(bytes, 1, 8, descriptor);
+            if (read_bytes <= 0) break;
+            // Точка входа в программу уже ранее была пройдена, опускаем проверку
+            console_log(read_bytes, offset, bytes, bytes[0], "");
+            // Точка входа в программу уже ранее была пройдена, опускаем проверку
+            offset += read_bytes;
+        }
     }
     printf("\n ------------------------------------------------------------------------------------------");
     // gcc -s pe_tool.c -o pe_tool.exe / Strip (Удаление отладочной информации/лишнего мусора)
