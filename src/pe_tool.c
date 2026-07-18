@@ -819,6 +819,7 @@ void pe_builder(const char * output_filename)
     section_header.pointer_to_raw_data = 512;  // Код начнется сразу после 512-байтных заголовков
     section_header.characteristics = 0xE0000020; // CODE | EXECUTE | READ | WRITE
 
+    // --- ЗАПИСЬ ВСЕГО ПИРОГА НА ДИСК ---
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
     // Каждая структура улетает монолитным идеальным блоком
     fwrite(&dos_header, sizeof (DosHeader), 1, descriptor);   // Блок 1: DOS (64 байта)
@@ -831,21 +832,25 @@ void pe_builder(const char * output_filename)
     // Записываем структуру единственной секции .text (40 байт)
     fwrite(&section_header, sizeof (SectionHeader), 1, descriptor);
 
-    uint32_t headers_real_size =
+    uint32_t headers_size =
      sizeof (DosHeader) +        // 64 байта
      sizeof (pe_signature) +     // 4 байта
      sizeof (FileHeader) +       // 20 байт
      sizeof (OptionalHeader64) + // 240 байт
      sizeof (SectionHeader)      // 40 байт
     ;
+    // Добиваем заголовки нулями до 512 байт
     // Вычисляем, сколько нулей нужно добить до границы 512
-    for (uint32_t padding_needed = 512 - headers_real_size; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
+    for (uint32_t padding_needed = 512 - headers_size; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
     // Начало секции .text (точка входа в программу)
     fputc(0xC3, descriptor); // RET
     // Выравнивание самого тела секции .text до 512 байт (итого файл 1024)
     for (uint32_t padding_needed = 512 - 1; padding_needed != 0; padding_needed--) fputc('\0', descriptor);
 
-    fclose(descriptor); // Временная заглушка, чтобы файл пока просто закрывался
+    // Записываем всю нашу побайтово размеченную секцию целиком (все 512 байт)
+    fwrite(section_text, 1, 512, descriptor);
+
+    fclose(descriptor);
 }
 
 const char dos_header__reserved_name[13][24+1] =
@@ -1001,7 +1006,6 @@ void pe_analyzer()
     }
     // Часть 1: Стандартные поля COFF (Standard Fields) — одинаковые для 32/64 бит
     printf("\n ------------------------------------------------------------------------------------------");
-    // Далее произведён рефакторинг кода (функция printf перемещена в console_log). Сделано это для уменьшения объёма (дублирования) кода.
     console_log(2, offset, Magic.bytes, Magic.value, "Magic");
     offset += 2;
     printf("\n ------------------------------------------------------------------------------------------");
@@ -1016,19 +1020,19 @@ void pe_analyzer()
     if (fread(&SizeOfCode.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfCode.bytes, SizeOfCode.value, "SizeOfCode");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfInitializedData.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfInitializedData.bytes, SizeOfInitializedData.value, "SizeOfInitializedData");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfUninitializedData.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfUninitializedData.bytes, SizeOfUninitializedData.value, "SizeOfUninitializedData");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&AddressOfEntryPoint.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, AddressOfEntryPoint.bytes, AddressOfEntryPoint.value, "AddressOfEntryPoint");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&BaseOfCode.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, BaseOfCode.bytes, BaseOfCode.value, "BaseOfCode");
     offset += 4;
@@ -1043,7 +1047,7 @@ void pe_analyzer()
     if (fread(&SectionAlignment.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SectionAlignment.bytes, SectionAlignment.value, "SectionAlignment");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&FileAlignment.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, FileAlignment.bytes, FileAlignment.value, "FileAlignment");
     offset += 4;
@@ -1051,23 +1055,23 @@ void pe_analyzer()
     if (fread(&MajorOperatingSystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorOperatingSystemVersion.bytes, MajorOperatingSystemVersion.value, "MajorOperatingSystemVersion");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&MinorOperatingSystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorOperatingSystemVersion.bytes, MinorOperatingSystemVersion.value, "MinorOperatingSystemVersion");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&MajorImageVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorImageVersion.bytes, MajorImageVersion.value, "MajorImageVersion");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&MinorImageVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorImageVersion.bytes, MinorImageVersion.value, "MinorImageVersion");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&MajorSubsystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MajorSubsystemVersion.bytes, MajorSubsystemVersion.value, "MajorSubsystemVersion");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&MinorSubsystemVersion.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, MinorSubsystemVersion.bytes, MinorSubsystemVersion.value, "MinorSubsystemVersion");
     offset += 2;
@@ -1075,15 +1079,15 @@ void pe_analyzer()
     if (fread(&Win32VersionValue.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, Win32VersionValue.bytes, Win32VersionValue.value, "Win32VersionValue");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfImage.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfImage.bytes, SizeOfImage.value, "SizeOfImage");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfHeaders.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, SizeOfHeaders.bytes, SizeOfHeaders.value, "SizeOfHeaders");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&CheckSum.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, CheckSum.bytes, CheckSum.value, "CheckSum");
     offset += 4;
@@ -1091,7 +1095,7 @@ void pe_analyzer()
     if (fread(&Subsystem.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, Subsystem.bytes, Subsystem.value, "Subsystem");
     offset += 2;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&DllCharacteristics.value, 2, 1, descriptor) != 1) return;
     console_log(2, offset, DllCharacteristics.bytes, DllCharacteristics.value, "DllCharacteristics");
     offset += 2;
@@ -1099,15 +1103,15 @@ void pe_analyzer()
     if (fread(&SizeOfStackReserve.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfStackReserve.bytes, SizeOfStackReserve.value, "SizeOfStackReserve");
     offset += 8;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfStackCommit.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfStackCommit.bytes, SizeOfStackCommit.value, "SizeOfStackCommit");
     offset += 8;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfHeapReserve.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfHeapReserve.bytes, SizeOfHeapReserve.value, "SizeOfHeapReserve");
     offset += 8;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&SizeOfHeapCommit.value, 8, 1, descriptor) != 1) return;
     console_log(8, offset, SizeOfHeapCommit.bytes, SizeOfHeapCommit.value, "SizeOfHeapCommit");
     offset += 8;
@@ -1115,7 +1119,7 @@ void pe_analyzer()
     if (fread(&LoaderFlags.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, LoaderFlags.bytes, LoaderFlags.value, "LoaderFlags");
     offset += 4;
-    //printf("\n ------------------------------------------------------------------------------------------");
+
     if (fread(&NumberOfRvaAndSizes.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, NumberOfRvaAndSizes.bytes, NumberOfRvaAndSizes.value, "NumberOfRvaAndSizes");
     offset += 4;
