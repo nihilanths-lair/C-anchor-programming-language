@@ -546,6 +546,10 @@ void pe_builder(const char * output_filename)
     uint32_t code_raw   = 512;  // Первое доступное место в файле (0x200)
     uint32_t import_raw = code_raw + code_size;
 
+    // Массив, куда мы побайтово упакуем весь наш импорт
+    uint8_t import_buffer[256] = {0};
+    uint32_t import_ptr = 0; // Наш внутренний курсор для записи в буфер
+
     // 1. Создаем пустые структуры в памяти (зануляем их через {0})
     DosHeader dos_header = {0};
     FileHeader file_header = {0};
@@ -698,7 +702,7 @@ void pe_analyzer()
 
     if (fread(&dos_header__res[0].value, 2, 4, descriptor) != 4) return;
     printf("\n  __________________________");
-    printf("\n / dw e_res[4];");
+    printf("\n / dw res[4];");
     console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "res[0]");
     console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "res[1]");
     console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "res[2]");
