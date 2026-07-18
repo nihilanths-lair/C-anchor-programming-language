@@ -1130,12 +1130,12 @@ void pe_analyzer()
         printf("\n  __________________________");
         printf("\n / SECTION: %d, NAME: ", i+1);
         for (int j = 0; j < 8; j++) symbol_adjustment(section_header[i].Name[j]);
-        console_log(4, offset, section_header[i].VirtualSize.bytes, section_header[i].VirtualSize.value, "VirtualSize");
-        console_log(4, offset+4, section_header[i].VirtualAddress.bytes, section_header[i].VirtualAddress.value, "VirtualAddress");
-        console_log(4, offset+8, section_header[i].SizeOfRawData.bytes, section_header[i].SizeOfRawData.value, "SizeOfRawData");
-        console_log(4, offset+12, section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
-        // 6. Пропускаем 12 байт неиспользуемых легаси-полей
-        console_log(4, offset+24, section_header[i].Characteristics.bytes, section_header[i].Characteristics.value, "Characteristics");
+        console_log(4, offset,     section_header[i].VirtualSize.bytes,     section_header[i].VirtualSize.value,     "VirtualSize");
+        console_log(4, offset+4, section_header[i].VirtualAddress.bytes,  section_header[i].VirtualAddress.value,  "VirtualAddress");
+        console_log(4, offset+8, section_header[i].SizeOfRawData.bytes,   section_header[i].SizeOfRawData.value,   "SizeOfRawData");
+        console_log(4, offset+12,section_header[i].PointerToRawData.bytes, section_header[i].PointerToRawData.value, "PointerToRawData");
+        // Пропускаем 12 байт легаси-полей
+        console_log(4, offset+36,section_header[i].Characteristics.bytes,  section_header[i].Characteristics.value,  "Characteristics");
         offset += 40;
     }
     /*
