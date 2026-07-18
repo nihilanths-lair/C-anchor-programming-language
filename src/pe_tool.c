@@ -1144,6 +1144,40 @@ void pe_analyzer()
         console_log(4, offset, section_header[i].Characteristics.bytes,  section_header[i].Characteristics.value,  "Characteristics");
         offset += 4;
     }
+    // --- ЛИНЕЙНЫЙ ПОТОК ДАННЫХ (Чтение секции без fseek) ---
+    printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n [ СЕКЦИЯ ПОД КУРСОРОМ: СТРЕЙТ-ПОТОК ]");
+    printf("\n ------------------------------------------------------------------------------------------");
+    // Вычисляем, на каком RAW-смещении диска лежит таблица импорта
+    uint32_t import_raw = section_header[0].PointerToRawData.value + (virtual_address[1].value - section_header[0].VirtualAddress.value);
+    uint8_t bytes[8];
+    while (true)
+    {
+        // Если дошли до импорта — красиво парсим дескриптор
+        if (offset == import_raw)
+        {
+            ImportDescriptor id_struct = {0};
+            if (fread(&id_struct, sizeof (ImportDescriptor), 1, descriptor) == 1)
+            {
+                console_log(4, offset,    (uint8_t *) &id_struct.import_lookup_table_rva,  id_struct.import_lookup_table_rva,  "ILT RVA");
+                console_log(4, offset+12, (uint8_t *) &id_struct.name_rva,                 id_struct.name_rva,                 "DLL Name RVA");
+                console_log(4, offset+16, (uint8_t *) &id_struct.import_address_table_rva, id_struct.import_address_table_rva, "IAT RVA");
+                offset += sizeof (ImportDescriptor);
+            }
+        }
+        // Читаем обычные байты (шеллкод, строки, нули) группами по 8
+        int read_bytes = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            int c = getc(descriptor);
+            if (c == EOF) break;
+            bytes[i] = (uint8_t) c;
+            read_bytes++;
+        }
+        if (read_bytes == 0) break; // Файл кончился
+        console_log(read_bytes, offset, bytes, bytes[0], "");
+        offset += read_bytes;
+    }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
     printf("\n /                                 \\");
