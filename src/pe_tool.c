@@ -1151,8 +1151,9 @@ void pe_analyzer()
     printf("\n ------------------------------------------------------------------------------------------");
     // Вычисляем физический RAW-адрес таблицы импорта на диске
     // (Этот расчет использует только простые числа, которые будут и в вашем ЯП)
-    uint32_t import_raw = section_header.PointerToRawData.value +
-        (virtual_address.value - section_header.VirtualAddress.value)
+    uint32_t import_raw
+    =
+     section_header[0].PointerToRawData.value + (virtual_address[1].value - section_header[0].VirtualAddress.value)
     ;
     while (1)
     {
