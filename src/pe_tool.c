@@ -550,6 +550,7 @@ void pe_builder(const char * output_filename)
     FILE * descriptor = fopen(output_filename, "wb");
     if (!descriptor) return;
 
+    /*
     uint32_t code_size   = 16;  // Пока заглушка: пусть код занимает 16 байт
     uint32_t import_size = 128; // Пока заглушка: пусть импорт занимает 128 байт
 
@@ -562,9 +563,77 @@ void pe_builder(const char * output_filename)
     // Массив, куда мы побайтово упакуем весь наш импорт
     uint8_t import_buffer[256] = {0};
     uint32_t import_ptr = 0; // Наш внутренний курсор для записи в буфер
+    */
 
-    // --- НАШ ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
+    // Секция .text (.code) на диске занимает ровно 512 байт. Инициализируем всё нулями.
+    uint8_t section_text[512] = {0};
+
+    // --- БЛОК 1: ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
+    // Смещение: 0 (В памяти RVA: 0x1000)
+    // mov ecx, 42
+    section_text[0] = 0xB9;
+    section_text[1] = 0x2A;
+    section_text[2] = 0x00;
+    section_text[3] = 0x00;
+    section_text[4] = 0x00; // mov ecx, 42
+    // jmp qword ptr [RIP + offset]
+    section_text[5] = 0xFF;
+    section_text[6] = 0x25; // jmp qword ptr [RIP + offset]
+
+    // В jmp [RIP + offset] нам нужно прописать смещение до нашей таблицы IAT (смещение 120 в массиве).
+    // Формула: Адрес_Цели - (Адрес_Текущей_Инструкции + Размер_Инструкции)
+    // Внутри массива: 120 - (5 + 6) = 109. Записываем 109 как 32-битное число:
+    section_text[7] = 109;
+    section_text[8] = 0x00;
+    section_text[9] = 0x00;
+    section_text[10] = 0x00;
+    section_text[11] = 0xC3; // ret
+
+    // --- БЛОК 2: KERNEL32 DESCRIPTOR ---
+    // Смещение: 64 (В памяти RVA: 0x1040). Длина: 20 байт.
+
+    // 2.1 ILT RVA (указывает на смещение 104 -> RVA 0x1068)
+    section_text[64] = 0x68;
+    section_text[65] = 0x10;
+
+    // 2.2 Name RVA (указывает на имя DLL на смещении 150 -> RVA 0x1096)
+    section_text[76] = 0x96;
+    section_text[77] = 0x10;
+
+    // 2.3 IAT RVA (указывает на смещение 120 -> RVA 0x1078)
+    section_text[80] = 0x78;
+    section_text[81] = 0x10;
+
+    // --- БЛОК 3: DLL TERMINATOR ---
+    // Смещение: 84 (В памяти RVA: 0x1054). Длина: 20 байт. Остается нулями.
+
+    // --- БЛОК 4: ILT (Import Lookup Table) ---
+    // Смещение: 104 (В памяти RVA: 0x1068). Длина: 16 байт.
+    // Указывает на имя функции на смещении 136 -> RVA 0x1088 (это 64-битное число)
+    section_text[104] = 0x88;
+    section_text[105] = 0x10;
+
+    // --- БЛОК 5: IAT (Import Address Table) ---
+    // Смещение: 120 (В памяти RVA: 0x1078). Длина: 16 байт.
+    // Дублирует ILT на диске: тоже указывает на RVA 0x1088
+    section_text[120] = 0x88;
+    section_text[121] = 0x10;
+
+    // --- БЛОК 6: ИМЯ ФУНКЦИИ (Hint/Name) ---
+    // Смещение: 136 (В памяти RVA: 0x1088). Длина: 14 байт.
+    // Первые два байта — hint (0x0000). Смещение 138 — сама строка.
+    memcpy(&section_text[138], "ExitProcess", 11);
+
+    // --- БЛОК 7: ИМЯ DLL ---
+    // Смещение: 150 (В памяти RVA: 0x1096). Длина: 13 байт.
+    memcpy(&section_text[150], "kernel32.dll", 12);
+
+    // --- ТЕПЕРЬ СОБИРАЕМ И ЗАПИСЫВАЕМ ЗАГОЛОВКИ EXE-ФАЙЛА ---
+
+    /*
+    // --- БЛОК 1: ХАРДКОДНЫЙ ШЕЛЛКОД (x64) ---
     // Вызывает ExitProcess(42)
+    /*
     uint8_t shellcode[64] =
     {
         0xB9, 0x2A, 0x00, 0x00, 0x00,       // mov ecx, 42
@@ -593,6 +662,8 @@ void pe_builder(const char * output_filename)
     uint32_t rva_fn_write    = rva_fn_exit + 14;     // sizeof (Hint) + "ExitProcess\0" + padding
     uint32_t rva_dll_name    = rva_fn_write + 12;    // sizeof (Hint) + "WriteFile\0" + padding
     */
+   ///
+    /*
     // --- НАСТРОЙКА ПЕРЕКРЕСТНЫХ ССЫЛОК (Прошиваем смещение в шеллкод) ---
     uint32_t rip_offset = rva_iat - (code_rva + 5 + 6);
     memcpy(&shellcode[7], &rip_offset, 4);
@@ -638,6 +709,7 @@ void pe_builder(const char * output_filename)
     memcpy(&ib[114], "kernel32.dll\0", 13);
     
     uint32_t import_size = 114 + 13;
+    */
 
     // --- ЗАПИСЬ ЗАГОЛОВКОВ И СЕКЦИИ ---
 
@@ -676,8 +748,10 @@ void pe_builder(const char * output_filename)
     // ТОЧКА ВХОДА: Укажем RVA (Relative Virtual Address). 
     // Первая секция в памяти всегда начинается со смещения 4096 (0x1000).
     // Пусть наша точка входа указывает прямо на самое начало этой секции!
-    optional_header_64.address_of_entry_point = code_rva; // 4096
-    optional_header_64.base_of_code           = code_rva; // 4096
+    optional_header_64.address_of_entry_point = 4096; // Шеллкод на RVA 0x1000
+    optional_header_64.base_of_code = 4096;
+    //optional_header_64.address_of_entry_point = code_rva; // 4096
+    //optional_header_64.base_of_code           = code_rva; // 4096
 
     // Базовый адрес, куда Windows попытается загрузить программу в памяти
     optional_header_64.image_base = 0x00400000;
@@ -714,9 +788,14 @@ void pe_builder(const char * output_filename)
 
     optional_header_64.data_directories[0].virtual_address = 0;
     optional_header_64.data_directories[0].size = 0;
+
     // ВАЖНО: Выставляем Data Directory для Импорта
-    optional_header_64.data_directories[1].virtual_address = rva_descriptors;
-    optional_header_64.data_directories[1].size = 40; 
+    // Прописываем расположение импорта для Windows в Data Directories
+    // Индекс 1 — это Import Table Directory
+    optional_header_64.data_directories[1].virtual_address = 4160; // Дескриптор на RVA 0x1040 (4096 + 64)
+    optional_header_64.data_directories[1].size = 40; // 2 дескриптора по 20 байт
+    //optional_header_64.data_directories[1].virtual_address = rva_descriptors;
+    //optional_header_64.data_directories[1].size = 40; 
     //optional_header_64.data_directories[1].virtual_address = import_rva;
     //optional_header_64.data_directories[1].size = import_size;
     for (int i = 2; i < 16; i++)
@@ -731,9 +810,12 @@ void pe_builder(const char * output_filename)
     //memcpy(section_header.name, ".text", 5);  // Скопирует 5 символов: '.', 't', 'e', 'x', 't'
     //section_header.name.value = macro__str_le64('.', 't', 'e', 'x', 't', '\0', '\0', '\0');
     section_header.name.value = str_to_le64(".text\0\0\0");
-    section_header.virtual_size = code_size + import_size; // Укажем реальный размер кода (пока 10 байт)
-    section_header.virtual_address = code_rva; // В памяти секция начнется с RVA 0x1000 (4096)
-    section_header.size_of_raw_data = macro__align_up(code_size + import_size, 512); // На диске округляем до минимальных 512 байт
+    section_header.virtual_size = 163; // Реальный размер наших данных (до конца строки kernel32.dll)
+    section_header.virtual_address = 4096; // В памяти секция начнется с RVA 0x1000 (4096)
+    section_header.size_of_raw_data = 512; // Округляем до сектора диска
+    //section_header.virtual_size = code_size + import_size; // Укажем реальный размер кода (пока 10 байт)
+    //section_header.virtual_address = code_rva; // В памяти секция начнется с RVA 0x1000 (4096)
+    //section_header.size_of_raw_data = macro__align_up(code_size + import_size, 512); // На диске округляем до минимальных 512 байт
     section_header.pointer_to_raw_data = 512;  // Код начнется сразу после 512-байтных заголовков
 
     // 4. ПОСЛЕДОВАТЕЛЬНО ЗАПИСЫВАЕМ ВСЁ НА ДИСК
