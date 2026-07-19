@@ -96,7 +96,8 @@ typedef struct {
 #pragma pack(pop)
 union__uint16_t dos_header__magic; // 2 байта (000~001: 077 090 | 00~01: 4D 5A): LE 23'117 | MZ  @  Магическое число
 union__uint16_t dos_header__reserved[29]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
-union__uint16_t dos_header__res[4];
+//union__uint16_t dos_header__res[4];
+union__uint64_t dos_header__res;
 union__uint16_t dos_header__reserved_2[2]; // 58 байт (002~059 | 02~39)  @  Зазор (бесполезные поля, не несут нагрузку)
 union__uint16_t dos_header__res2[10];
 union__uint32_t dos_header__lfanew; // 4 байта (060~063: 064 | 3C~3F: 40): 64
@@ -286,22 +287,22 @@ union__uint32_t size[16];
 
 const char * directory_names[16] =
 {
-    "EXPORT Table            ", // 0: Таблица экспорта (нужна для DLL)
-    "IMPORT Table            ", // 1: Таблица импорта (какие DLL и функции нужны EXE)
-    "RESOURCE Table          ", // 2: Ресурсы (иконки, манифест, меню, строки)
-    "EXCEPTION Table         ", // 3: Таблица исключений (триггеры для x64 try/catch)
-    "SECURITY Table          ", // 4: Сертификаты и цифровые подписи (смещение файла, а не RVA!)
-    "BASE RELOCATION Table   ", // 5: Таблица релокаций (нужна для ASLR и DLL)
-    "DEBUG Debug Directory   ", // 6: Отладочная информация (пути к .pdb файлам)
-    "ARCHITECTURE Data       ", // 7: Зарезервировано под специфичную архитектуру процессора
-    "GLOBAL POINTER Register ", // 8: Относительный адрес глобального указателя (RVA)
-    "THREAD LOCAL STORAGE    ", // 9: Таблица TLS (потоковые локальные переменные)
-    "LOAD CONFIG Directory   ", // 10: Конфигурация загрузки (важно для защиты Control Flow Guard)
-    "BOUND IMPORT Table      ", // 11: Связанный импорт (оптимизация старых ОС, сейчас редко)
-    "IMPORT ADDRESS Table    ", // 12: Таблица IAT (сюда Windows пишет реальные адреса функций)
-    "DELAY IMPORT Descriptors", // 13: Отложенный импорт (загрузка DLL только при первом вызове)
-    "CLR RUNTIME Header      ", // 14: Заголовок .NET / CLR (если приложение написано на C#/.NET)
-    "RESERVED                "  // 15: Зарезервировано Microsoft, всегда нули
+    "EXPORT_TABLE"            , //  0: Таблица экспорта (нужна для DLL)
+    "IMPORT_TABLE"            , //  1: Таблица импорта (какие DLL и функции нужны EXE)
+    "RESOURCE_TABLE"          , //  2: Ресурсы (иконки, манифест, меню, строки)
+    "EXCEPTION_TABLE"         , //  3: Таблица исключений (триггеры для x64 try/catch)
+    "SECURITY_TABLE"          , //  4: Сертификаты и цифровые подписи (смещение файла, а не RVA!)
+    "BASE_RELOCATION_TABLE"   , //  5: Таблица релокаций (нужна для ASLR и DLL)
+    "DEBUG_DIRECTORY"         , //  6: Отладочная информация (пути к .pdb файлам)
+    "ARCHITECTURE_DATA"       , //  7: Зарезервировано под специфичную архитектуру процессора
+    "GLOBAL_POINTER_REGISTER" , //  8: Относительный адрес глобального указателя (RVA)
+    "THREAD_LOCAL_STORAGE"    , //  9: Таблица TLS (потоковые локальные переменные)
+    "LOAD_CONFIG_DIRECTORY"   , // 10: Конфигурация загрузки (важно для защиты Control Flow Guard)
+    "BOUND_IMPORT_TABLE"      , // 11: Связанный импорт (оптимизация старых ОС, сейчас редко)
+    "IMPORT_ADDRESS_TABLE"    , // 12: Таблица IAT (сюда Windows пишет реальные адреса функций)
+    "DELAY_IMPORT_DESCRIPTORS", // 13: Отложенный импорт (загрузка DLL только при первом вызове)
+    "CLR_RUNTIME_HEADER"      , // 14: Заголовок .NET / CLR (если приложение написано на C#/.NET)
+    "RESERVED"                  // 15: Зарезервировано Microsoft, всегда нули
 };
 
 
@@ -504,28 +505,20 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
         for (int i = 0; i < dots_to_print; i++) putchar(22); // Выводим ваш символ '?' через putchar
         // 4. Печатаем тип данных и значение
         //const char * type_str = (size == 1) ? "" : (size == 2) ? "" : (size == 4) ? "" : " uint64_t";
-        if (size != 1)
-        {
-            if (abbreviation[0] != '\0') printf(" | %s = %llu; // 0x", abbreviation, value); // "%s", type_str
-            else printf(" |");
-        } 
-        // Красиво выводим HEX значение нужной разрядности
-        //if (size == 1) printf("%02llX", value);
-        if (size == 2) printf("%04llX", value);
-        else if (size == 4) printf("%08llX", value);
-        else if (size == 8)
-        {
-            if (abbreviation[0] != '\0') printf("%016llX", value);
-            //else putchar('|');
-        }
-        else printf(" |");
-    }
+        if (!abbreviation[0]) printf(" |");
+        else printf(" | %s", abbreviation);
+
+        if (size == 8 && abbreviation[0] != '\0') printf(": %llu <- # -> %llu", value, __builtin_bswap64(value));
+        else if (size == 4 && abbreviation[0] != '\0') printf(": %llu <- # -> %llu", value, __builtin_bswap32(value));
+        else if (size == 2 && abbreviation[0] != '\0') printf(": %llu <- # -> %llu", value, __builtin_bswap16(value));
+        else if (size == 1 && abbreviation[0] != '\0') printf(": %llu <- # -> %llu", value, value);
+    } // %016llX, %08llX, %04llX, %02llX
     break;
     default:
         for (int i = 0; i < size; i++) printf("%03d ", bytes[i]);
         for (int i = size; i < 8; i++) printf("    "); // Выравнивание
         // Распиливаем адрес loc_offset на массив из 8 байт
-        uint8_t * bo = (uint8_t*) &loc_offset;
+        uint8_t * bo = (uint8_t *) &loc_offset;
         // Определяем реальное количество байт, необходимых для отображения текущего адреса.
         // Для смещений в начале файла (до 255) хватит 1 байта, до 65535 - 2 байт, для PE обычно хватает 4 байт.
         // Сделаем фиксированно 4 байта (32-битный адрес), чтобы колонки в консоли не съезжали.
@@ -783,28 +776,36 @@ void pe_analyzer()
     if (!descriptor) return;
     //printf("\n ------------------------------------------------------------------------------------------");
     //printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
-    printf("\n ------------------------------------------------------------------------------------------");
-    printf("\n  ___________________");
-    printf("\n /                   \\");
-    printf("\n %c №1.1 | DOS HEADER %c", 16, 17);
-    printf("\n \\___________________/");
-    printf("\n ------------------------------------------------------------------------------------------");
+    //printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n --------------------------");
+    printf("\n /!\\ Анализ PE-файла начат.");
+    printf("\n --------------------------");
+    printf("\n      ___________________");
+    //printf("\n /                   \\");
+    printf("\n ____/ №1 |·| DOS HEADER \\____");
+    //printf("\n \\___________________/");
+    //printf("\n ------------------------------------------------------------------------------------------");
 
     if (fread(&dos_header__magic.value, 2, 1, descriptor) != 1) return;
-    console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "/!\\ magic");
+    console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "magic"); printf(" /!\\");
 
     if (fread(&dos_header__reserved[0].value, 2, 13, descriptor) != 13) return;
     for (uint8_t i = 0; i < 13; i++) {
         console_log(2,  i*2+2, dos_header__reserved[i].bytes, dos_header__reserved[i].value, dos_header__reserved_name[i]);
     }
 
-    if (fread(&dos_header__res[0].value, 2, 4, descriptor) != 4) return;
-    printf("\n  __________________________");
-    printf("\n / dw res[4];");
-    console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "res[0]");
-    console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "res[1]");
-    console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "res[2]");
-    console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "res[3]");
+    //if (fread(&dos_header__res[0].value, 2, 4, descriptor) != 4) return;
+    if (fread(&dos_header__res.value, 8, 1, descriptor) != 1) return;
+    //printf("\n      ___________");
+    //printf("\n ____/ dw res[4] \\____");
+    console_log(8, 28, dos_header__res.bytes, dos_header__res.value, ""); printf(" res[4]");
+    /*
+    console_log(2, 28, dos_header__res[0].bytes, dos_header__res[0].value, "res[1]"); //printf("res[0]");
+    console_log(2, 30, dos_header__res[1].bytes, dos_header__res[1].value, "res[2]"); //printf("res[1]");
+    console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "res[3]"); //printf("res[2]");
+    console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "res[4]"); //printf("res[3]");
+    */
+    //putchar('\n');
 
     if (fread(&dos_header__reserved_2[0].value, 2, 2, descriptor) != 2) return;
     console_log(2, 36, dos_header__reserved_2[0].bytes, dos_header__reserved_2[0].value, "oemid");
@@ -813,21 +814,21 @@ void pe_analyzer()
     offset = 40;
 
     if (fread(&dos_header__res2[0].value, 2, 10, descriptor) != 10) return;
-    printf("\n  __________________________");
-    printf("\n / dw res2[10];");
+    //printf("\n      _____________");
+    //printf("\n ____/ dw res2[10] \\____");
 
     char _e_res2[32];
     for (uint8_t i = 0; i < 10; i++)
     {
-        sprintf(_e_res2, "res2[%d]", i);
+        sprintf(_e_res2, "res2[%d]", i+1);
         console_log(2, offset, dos_header__res2[i].bytes, dos_header__res2[i].value, _e_res2);
         offset += 2;
     }
-    printf("\n ------------------------------------------------------------------------------------------");
+    //putchar('\n');
     if (fread(&dos_header__lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "/!\\ lfanew");
+    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "lfanew"); printf(" /!\\");
     offset += 4;
-    printf("\n ------------------------------------------------------------------------------------------");
+    //printf("\n ------------------------------------------------------------------------------------------");
     if (dos_header__lfanew.value > 64)
     {
         printf("\n  _________________");
@@ -851,19 +852,19 @@ void pe_analyzer()
             // 4. Двигаем offset сразу на размер прочитанной группы байт
             offset += chunk_size;
         }
-        printf("\n ------------------------------------------------------------------------------------------");
+        //printf("\n ------------------------------------------------------------------------------------------");
     }
     else if (dos_header__lfanew.value < 64) return;
-    printf("\n  ________________");
-    printf("\n /                \\");
-    printf("\n %c №2 | NT HEADER %c", 16, 17);
-    printf("\n \\________________/");
-    printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n      ________________");
+    //printf("\n /                \\");
+    printf("\n ____/ №2 | NT HEADER \\____");
+    //printf("\n \\________________/");
+    //printf("\n ------------------------------------------------------------------------------------------");
     offset = dos_header__lfanew.value;
     if (fread(&Signature.value, 4, 1, descriptor) != 1) return;
     console_log(4, offset, Signature.bytes, Signature.value, "Signature");
     offset += 4;
-    printf("\n ------------------------------------------------------------------------------------------");
+    //printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  ________________________________");
     printf("\n /                                \\");
     printf("\n %c №2.1 | NT HEADER / FILE HEADER %c", 16, 17);
@@ -1049,9 +1050,9 @@ void pe_analyzer()
     //uint32_t dir_count = NumberOfRvaAndSizes.value;
     for (uint32_t i = 0; i < NumberOfRvaAndSizes.value; i++)
     {
-        printf("\n  __________________________");
-        printf("\n / %s", directory_names[i]);
-        sprintf(abbreviation, "virtual_address[%d]", i);
+        //printf("\n  __________________________");
+        //printf("\n / %s", directory_names[i]);
+        sprintf(abbreviation, "virtual_address[%s]", directory_names[i]);
         //}
         if (fread(&virtual_address[i].value, 4, 1, descriptor) != 1) return;
         console_log(4, offset, virtual_address[i].bytes, virtual_address[i].value, abbreviation);
@@ -1117,7 +1118,7 @@ void pe_analyzer()
         // Как только накопили 8 байт ИЛИ уперлись в границу секции (512) — сбрасываем строку
         if (pad_idx == 8 || offset == section_header[0].PointerToRawData.value) 
         {
-            console_log(pad_idx, pad_row_start, pad_buffer, 0, "Header Padding");
+            console_log(pad_idx, pad_row_start, pad_buffer, 0, "");
             pad_idx = 0;
             pad_row_start = offset;
         }
@@ -1215,6 +1216,8 @@ void pe_analyzer()
         }
     }
     printf("\n ------------------------------------------------------------------------------------------");
+    printf("\n /!\\ Анализ PE-файла завершён.");
+    printf("\n -----------------------------");
     // gcc -s pe_tool.c -o pe_tool.exe / Strip (Удаление отладочной информации/лишнего мусора)
     // gcc -Os -s pe_tool.c -o pe_tool.exe
     fclose(descriptor);
