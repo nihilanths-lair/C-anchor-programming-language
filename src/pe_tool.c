@@ -1149,65 +1149,83 @@ void pe_analyzer()
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n [ СЕКЦИЯ ПОД КУРСОРОМ: СТРЕЙТ-ПОТОК ]");
     printf("\n ------------------------------------------------------------------------------------------");
-    // Универсальный и честный динамический расчет RAW-адреса таблицы импорта для ЛЮБОГО файла.
-    // Берем RVA каталога импорта и переводим его в физическое смещение на диске.
+        // Динамический расчет RAW-адреса импорта для любого файла
     uint32_t import_raw = section_header[0].PointerToRawData.value + 
-     (virtual_address[1].value - section_header[0].VirtualAddress.value)
-    ;
+        (virtual_address[1].value - section_header[0].VirtualAddress.value);
 
+    // Буфер для накопления ровной строки (8 байт)
     uint8_t local_buffer[8] = {0};
     uint8_t buf_idx = 0;
     uint32_t row_start_offset = offset;
 
+    // Массив для вытаскивания 20 байт дескриптора импорта
+    uint8_t id_bytes[20] = {0};
+    uint8_t id_idx = 0;
+    bool reading_import = false;
+
     while (1)
     {
         int c = getc(descriptor);
-        // Перехватываем поток строго на вычисленном RAW-смещении импорта
-        if (offset == import_raw && c != EOF)
+        if (c == EOF)
         {
-            // Если в накопительном буфере строки что-то было — сбрасываем на экран
+            // Если файл кончился и в буфере строки что-то осталось — выводим
+            if (buf_idx > 0) console_log(buf_idx, row_start_offset, local_buffer, 0, "");
+            break; 
+        }
+        // ТОЧКА ВХОДА: Наступило время импорта?
+        if (offset == import_raw)
+        {
+            // Сбрасываем на экран обычные байты, скопившиеся до этой секунды
             if (buf_idx > 0)
             {
-                console_log(buf_idx, row_start_offset, local_buffer, local_buffer[0], "");
+                console_log(buf_idx, row_start_offset, local_buffer, 0, "");
                 buf_idx = 0;
             }
+            reading_import = true; // Включаем режим чтения дескриптора
+            id_idx = 0;
             printf("\n\n ------------------------------------------------------------------------------------------");
             printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
             printf("\n ------------------------------------------------------------------------------------------");
-            // Читаем 20 байт структуры импорта строго по 4-байтовым полям в чистый массив
-            uint8_t id_field[4];
-            uint32_t val;
-            const char * fields[] = {"ILT RVA", "TimeDateStamp", "ForwarderChain", "DLL Name RVA", "IAT RVA"};
-            for (int f = 0; f < 5; f++)
-            {
-                // Читаем ровно 4 байта очередного поля дескриптора
-                for (int b = 0; b < 4; b++) id_field[b] = (uint8_t) getc(descriptor);
-                // Собираем 32-битное число по закону Little-Endian (без структур!)
-                val = id_field[0] | (id_field[1] << 8) | (id_field[2] << 16) | (id_field[3] << 24);
-                // Выводим поле на экран через ваш console_log
-                console_log(4, offset, id_field, val, fields[f]);
-                offset += 4;
-            }
-            printf("\n ------------------------------------------------------------------------------------------\n");
-            row_start_offset = offset;
-            // Читаем следующий байт после блока импорта, чтобы войти в колею
-            c = getc(descriptor);
         }
-        // Если файл кончился ИЛИ накопили ровную строку в 8 байт — сбрасываем буфер
-        if (c == EOF || buf_idx == 8)
+        // РЕЖИМ 1: Мы внутри импорта. Просто копим 20 байт подряд
+        if (reading_import == true)
         {
-            if (buf_idx > 0)
+            id_bytes[id_idx] = (uint8_t) c;
+            id_idx++;
+            offset++;
+            // Накопили все 20 байт дескриптора? Выводим их по полям!
+            if (id_idx == 20)
             {
-                console_log(buf_idx, row_start_offset, local_buffer, local_buffer[0], "");
-                buf_idx = 0;
+                // Собираем 32-битные RVA вручную по закону Little-Endian
+                uint32_t ilt = id_bytes[0] | (id_bytes[1] << 8) | (id_bytes[2] << 16) | (id_bytes[3] << 24);
+                uint32_t time = id_bytes[4] | (id_bytes[5] << 8) | (id_bytes[6] << 16) | (id_bytes[7] << 24);
+                uint32_t fwd = id_bytes[8] | (id_bytes[9] << 8) | (id_bytes[10] << 16) | (id_bytes[11] << 24);
+                uint32_t name = id_bytes[12] | (id_bytes[13] << 8) | (id_bytes[14] << 16) | (id_bytes[15] << 24);
+                uint32_t iat = id_bytes[16] | (id_bytes[17] << 8) | (id_bytes[18] << 16) | (id_bytes[19] << 24);
+                // Выводим каждое поле по 4 байта через ваш console_log
+                // Берем адреса ячеек внутри id_bytes
+                console_log(4, import_raw,      &id_bytes[0],  ilt,  "ILT RVA");
+                console_log(4, import_raw + 4,  &id_bytes[4],  time, "TimeDateStamp");
+                console_log(4, import_raw + 8,  &id_bytes[8],  fwd,  "ForwarderChain");
+                console_log(4, import_raw + 12, &id_bytes[12], name, "DLL Name RVA");
+                console_log(4, import_raw + 16, &id_bytes[16], iat,  "IAT RVA");
+                printf("\n ------------------------------------------------------------------------------------------\n");
+                reading_import = false; // Выключаем режим импорта
+                row_start_offset = offset; // Новая строка обычного дампа начнется отсюда
             }
-            if (c == EOF) break; // Выход по концу файла
-            row_start_offset = offset;
+            continue; // Идем за следующим байтом, пропуская обычный вывод
         }
-        // Накапливаем обычные байты в массив
+        // РЕЖИМ 2: Обычный вывод шеллкода и строк
         local_buffer[buf_idx] = (uint8_t) c;
         buf_idx++;
         offset++;
+        // Как только накопили строку в 8 байт — печатаем её
+        if (buf_idx == 8)
+        {
+            console_log(8, row_start_offset, local_buffer, 0, "");
+            buf_idx = 0;
+            row_start_offset = offset;
+        }
     }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _________________________________");
