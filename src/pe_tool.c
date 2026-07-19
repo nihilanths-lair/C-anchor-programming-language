@@ -449,6 +449,25 @@ uint8_t symbol_adjustment(uint8_t ascii)
 uint8_t regulator = 0; // configurator
 uint8_t checksum = 1; // Контрольная сумма
 
+uint32_t rva_to_raw(uint32_t rva, const uint8_t *section_table_buffer, int num_sections)
+{
+    for (int i = 0; i < num_sections; i++)
+    {
+        // Каждый заголовок секции занимает строго 40 байт
+        uint32_t base = i * 40;
+        // Извлекаем значения напрямую по фиксированным байтовым смещениям:
+        // Смещение +8:  VirtualSize (4 байта)
+        // Смещение +12: VirtualAddress (4 байта)
+        // Смещение +20: PointerToRawData (4 байта)
+        uint32_t v_size  = * (const uint32_t *)(section_table_buffer + base + 8);
+        uint32_t v_addr  = * (const uint32_t *)(section_table_buffer + base + 12);
+        uint32_t raw_ptr = * (const uint32_t *)(section_table_buffer + base + 20);
+        // Проверяем, попадает ли искомый RVA в диапазон текущей секции
+        if (rva >= v_addr && rva < (v_addr + v_size)) return rva - v_addr + raw_ptr;
+    }
+    return 0; // Если RVA не принадлежит ни одной секции
+}
+
 void pad_number(char * buffer, int num, int width, char pad_char)
 {
     char temp[32];
@@ -771,12 +790,43 @@ const char dos_header__reserved_name[13][24+1] =
 
 void pe_analyzer()
 {
+    // 1. Открываем файл в бинарном режиме
     FILE * descriptor = fopen("test_subject.exe", "rb");
-    //FILE * descriptor = fopen("pe_tool.exe", "rb");
-    if (!descriptor) return;
-    //printf("\n ------------------------------------------------------------------------------------------");
-    //printf("\n  Offset(text): dec byte | Byte offset(dec/hex): hex byte");
-    //printf("\n ------------------------------------------------------------------------------------------");
+    if (!descriptor)
+    {
+        printf("\n [ОШИБКА]: Не удалось открыть файл test_subject.exe");
+        return;
+    }
+    // 2. Измеряем точный физический размер файла на диске
+    fseek(descriptor, 0, SEEK_END);
+    long file_size = ftell(descriptor);
+    fseek(descriptor, 0, SEEK_SET);
+    // Минимальный размер для DOS-заголовка
+    if (file_size < 64)
+    {
+        printf("\n [ОШИБКА]: Файл слишком мал для PE-формата");
+        fclose(descriptor);
+        return;
+    }
+    // 3. Выделяем память под весь файл
+    uint8_t * file_buffer = (uint8_t *) malloc(file_size);
+    if (!file_buffer)
+    {
+        printf("\n [ОШИБКА]: Не удалось выделить память под буфер файла");
+        fclose(descriptor);
+        return;
+    }
+    // 4. Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
+    long bytes_read = fread(file_buffer, 1, file_size, descriptor);
+    fclose(descriptor);
+    if (bytes_read != file_size)
+    {
+        printf("\n [ОШИБКА]: Не удалось полностью прочитать файл в память");
+        free(file_buffer);
+        return;
+    }
+    // Текущее смещение в байтах от начала файла (заменяет системный указатель файла)
+    uint64_t current_offset = 0;
     printf("\n --------------------------");
     printf("\n /!\\ Анализ PE-файла начат.");
     printf("\n --------------------------");
@@ -1123,7 +1173,86 @@ void pe_analyzer()
             pad_row_start = offset;
         }
     }
+    // 1. Извлекаем RVA и размер таблицы импорта из Data Directory (Индекс 1)
+    // file_buffer — это указатель на начало всего вашего EXE-файла в памяти
+    uint32_t import_rva = optional_header_64.data_directories[1].virtual_address;
+    uint32_t import_size = optional_header_64.data_directories[1].size;
 
+    if (import_rva == 0 || import_size == 0) {
+        printf("\n [ ТАБЛИЦА ИМПОРТА ОТСУТСТВУЕТ ]");
+        return;
+    }
+
+    // 2. Переводим виртуальный адрес начала таблицы в физический адрес внутри нашего буфера
+    uint32_t import_raw = rva_to_raw(import_rva, section_header, NumberOfSections.value);
+    if (import_raw == 0) {
+        printf("\n [ ОШИБКА: Не удалось локализовать таблицу импорта в секциях ]");
+        return;
+    }
+
+    printf("\n------------------------------------------------------------------------------------------");
+    printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА ]");
+    printf("\n RAW смещение таблицы: 0x%08X, Размер: %d байт", import_raw, import_size);
+    printf("\n------------------------------------------------------------------------------------------");
+
+    // Устанавливаем указатель на первый дескриптор импорта (каждый занимает строго 20 байт)
+    ImportDescriptor *descriptor = (ImportDescriptor *)(file_buffer + import_raw);
+
+    // 3. Главный цикл по DLL: крутимся, пока не встретим пустой дескриптор-терминатор (все 20 байт равны 0)
+    int dll_index = 1;
+    while (descriptor->import_lookup_table_rva != 0 || descriptor->name_rva != 0) {
+        
+        // Получаем физический адрес имени DLL
+        uint32_t dll_name_raw = rva_to_raw(descriptor->name_rva, section_header, NumberOfSections.value);
+        const char *dll_name = (const char *)(file_buffer + dll_name_raw);
+        
+        printf("\n\n  ► [%d] ИМПОРТ ИЗ БИБЛИОТЕКИ: %s", dll_index++, dll_name);
+        printf("\n    └─ ILT RVA: 0x%08X | IAT RVA: 0x%08X", 
+            descriptor->import_lookup_table_rva, 
+            descriptor->import_address_table_rva);
+        printf("\n    ────────────────────────────────────────────────────────");
+
+        // Выбираем таблицу, из которой будем читать имена функций — ILT (или IAT, если ILT равен 0)
+        uint32_t lookup_table_rva = descriptor->import_lookup_table_rva;
+        if (lookup_table_rva == 0) {
+            lookup_table_rva = descriptor->import_address_table_rva;
+        }
+
+        uint32_t lookup_raw = rva_to_raw(lookup_table_rva, section_header, NumberOfSections.value);
+        
+        // 4. Внутренний цикл по функциям этой конкретной DLL
+        // В PE32+ (64-бит) элементы таблиц ILT/IAT имеют размер 8 байт (uint64_t)
+        uint64_t *lookup_entry = (uint64_t *)(file_buffer + lookup_raw);
+        int func_index = 1;
+
+        while (*lookup_entry != 0) {
+            // Проверяем флаг Import by Ordinal (самый старший бит 64-битного числа)
+            // Если бит установлен — функция импортируется по порядковому номеру, а не по имени
+            if (*lookup_entry & 0x8000000000000000ULL) {
+                uint16_t ordinal = (uint16_t)(*lookup_entry & 0xFFFF);
+                printf("\n       %d) Порядковый номер (Ordinal): %d", func_index++, ordinal);
+            } else {
+                // Иначе — импорт по имени. Элемент содержит RVA, ведущий к структуре Hint/Name
+                uint32_t hint_name_rva = (uint32_t)(*lookup_entry & 0xFFFFFFFF);
+                uint32_t hint_name_raw = rva_to_raw(hint_name_rva, section_header, NumberOfSections.value);
+                
+                // Первые 2 байта структуры — это Hint (подсказка для ОС)
+                uint16_t hint = *(uint16_t *)(file_buffer + hint_name_raw);
+                // Сразу за ними идет ASCII-строка с именем функции с нуль-терминатором
+                const char *func_name = (const char *)(file_buffer + hint_name_raw + 2);
+                
+                printf("\n       %d) Hint: %04d | Функция: %s", func_index++, hint, func_name);
+            }
+            
+            lookup_entry++; // Шагаем на следующие 8 байт (следующая функция)
+        }
+
+        descriptor++; // Двигаемся к следующему дескриптору DLL (следующие 20 байт)
+    }
+
+    printf("\n\n------------------------------------------------------------------------------------------");
+    printf("\n [ АНАЛИЗ ТАБЛИЦЫ ИМПОРТА УСПЕШНО ЗАВЕРШЕН ]");
+    printf("\n------------------------------------------------------------------------------------------\n");
     // === №5 | SECTIONS RAW DATA STREAM ===
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n  _______________________________");
