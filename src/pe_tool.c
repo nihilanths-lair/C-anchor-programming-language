@@ -468,6 +468,7 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
     switch (checksum){
     case 1:
     {
+        char result[32];
         pad_number(result, loc_offset, 10, '-');
         printf("\n [-#-] result = %s [-#-]\n", result);
         // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
@@ -1129,14 +1130,12 @@ void pe_analyzer()
     printf("\n   %c №5 | SECTIONS RAW DATA STREAM %c", 16, 17);
     printf("\n \\_______________________________/");
     printf("\n ------------------------------------------------------------------------------------------");
-
     // === №6 | PROGRAM ENTRY POINT ===
     // Вычисляем физическую точку входа на диске (RVA 4096 превращается в RAW 512)
-    uint32_t raw_entry_point = AddressOfEntryPoint.value - 
-        section_header[0].VirtualAddress.value + 
-        section_header[0].PointerToRawData.value;
-
-    if (offset == raw_entry_point) 
+    uint32_t raw_entry_point =
+     AddressOfEntryPoint.value - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value
+    ;
+    if (offset == raw_entry_point)
     {
         printf("\n ------------------------------------------------------------------------------------------");
         printf("\n  __________________________");
@@ -1144,16 +1143,7 @@ void pe_analyzer()
         printf("\n   %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
         printf("\n \\__________________________/");
         printf("\n ------------------------------------------------------------------------------------------");
-        fflush(stdout);
     }
-
-    // Динамический расчет RAW-адреса импорта для любого файла
-    // Вот этот кусок кода сейчас работает со сдвигом:
-    // === №6 | PROGRAM ENTRY POINT ===
-    uint32_t raw_entry_point = AddressOfEntryPoint.value - 
-        section_header[0].VirtualAddress.value + 
-        section_header[0].PointerToRawData.value;
-
     // Буфер для накопления ровной строки (8 байт) Обычного потока
     uint8_t local_buffer[8] = {0};
     uint8_t buf_idx = 0;
