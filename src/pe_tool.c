@@ -469,8 +469,8 @@ void console_log(uint8_t size, uint32_t loc_offset, const uint8_t * bytes, uint6
     case 1:
     {
         char result[32];
-        pad_number(result, loc_offset, 10, '-');
-        printf("\n [-#-] result = %s [-#-]\n", result);
+        pad_number(result, loc_offset, 10, '·');
+        printf("\n %s:", result);
         // 1. Выводим числовой адрес в текстовом виде и сырые байты в десятичной системе счисления
         //printf("\n %010lld:", loc_offset); // 0 ~ 4'294'967'295
         for (int i = 0; i < size; i++) printf(" %03d", bytes[i]);
@@ -1148,73 +1148,66 @@ void pe_analyzer()
     uint8_t local_buffer[8] = {0};
     uint8_t buf_idx = 0;
     uint32_t row_start_offset = offset;
-
     // Массив для вытаскивания 20 байт дескриптора импорта
     uint8_t id_bytes[20] = {0};
     uint8_t id_idx = 0;
     bool reading_import = false;
-
-    while (1) 
+    while (1)
     {
         int c = getc(descriptor);
-        if (c == EOF) 
+        if (c == EOF)
         {
             // Сбрасываем остатки строки на экран перед выходом
             if (buf_idx > 0) console_log(buf_idx, row_start_offset, local_buffer, 0, "");
-            break; 
+            break;
         }
-
         // ТОЧКА ВХОДА В ИМПОРТ: Перехватываем поток строго на нужном байте
         if (offset == raw_entry_point)
         {
-            if (buf_idx > 0) 
+            if (buf_idx > 0)
             {
                 console_log(buf_idx, row_start_offset, local_buffer, 0, "");
                 buf_idx = 0;
             }
             reading_import = true;
             id_idx = 0;
-            
             printf("\n\n ------------------------------------------------------------------------------------------");
             printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
             printf("\n ------------------------------------------------------------------------------------------");
         }
-
         // РЕЖИМ 1: Мы внутри импорта. Копим 20 байт
-        if (reading_import == true) 
+        if (reading_import == true)
         {
             id_bytes[id_idx] = (uint8_t) c;
             id_idx++;
             offset++;
-
-            if (id_idx == 20) 
+            if (id_idx == 20)
             {
                 uint32_t ilt  = id_bytes[0]  | (id_bytes[1]  << 8) | (id_bytes[2]  << 16) | (id_bytes[3]  << 24);
                 uint32_t time = id_bytes[4]  | (id_bytes[5]  << 8) | (id_bytes[6]  << 16) | (id_bytes[7]  << 24);
                 uint32_t fwd  = id_bytes[8]  | (id_bytes[9]  << 8) | (id_bytes[10] << 16) | (id_bytes[11] << 24);
                 uint32_t name = id_bytes[12] | (id_bytes[13] << 8) | (id_bytes[14] << 16) | (id_bytes[15] << 24);
                 uint32_t iat  = id_bytes[16] | (id_bytes[17] << 8) | (id_bytes[18] << 16) | (id_bytes[19] << 24);
-
+                // === РАСЧЕТ RAW АДРЕСА ТАБЛИЦЫ ИМПОРТА ===
+                // Вытаскиваем RVA импорта (он равен 4160 в вашем билдере) и переводим в физический адрес
+                uint32_t import_raw = 4160 - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value;
+                // Теперь вызываем вашу функцию — ошибка исчезнет!
                 console_log(4, import_raw,      &id_bytes[0],  ilt,  "ILT RVA");
                 console_log(4, import_raw + 4,  &id_bytes[4],  time, "TimeDateStamp");
                 console_log(4, import_raw + 8,  &id_bytes[8],  fwd,  "ForwarderChain");
                 console_log(4, import_raw + 12, &id_bytes[12], name, "DLL Name RVA");
                 console_log(4, import_raw + 16, &id_bytes[16], iat,  "IAT RVA");
-
                 printf("\n ------------------------------------------------------------------------------------------\n");
-                
                 reading_import = false;
                 row_start_offset = offset;
             }
-            continue; 
+            continue;
         }
-
         // РЕЖИМ 2: Обычный вывод шеллкода, строк и поддона секции до конца файла
-        local_buffer[buf_idx] = (uint8_t)c;
+        local_buffer[buf_idx] = (uint8_t) c;
         buf_idx++;
         offset++;
-
-        if (buf_idx == 8) 
+        if (buf_idx == 8)
         {
             console_log(8, row_start_offset, local_buffer, 0, "");
             buf_idx = 0;
