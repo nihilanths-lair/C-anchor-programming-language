@@ -827,6 +827,9 @@ void pe_analyzer()
     }
     // Текущее смещение в байтах от начала файла (заменяет системный указатель файла)
     uint64_t current_offset = 0;
+    // Дорожная карта навигации
+    // _[0~63] ; IMAGE_DOS_HEADER (неизменяемая/фиксированная часть)
+    for (int i = 0; i < 64; i++) printf("\n _[%d] = %02X", i, file_buffer[i]);
     printf("\n --------------------------");
     printf("\n /!\\ Анализ PE-файла начат.");
     printf("\n --------------------------");
@@ -836,9 +839,11 @@ void pe_analyzer()
     //printf("\n \\___________________/");
     //printf("\n ------------------------------------------------------------------------------------------");
 
-    if (fread(&dos_header__magic.value, 2, 1, descriptor) != 1) return;
+    dos_header__magic.bytes[0] = file_buffer[0];
+    dos_header__magic.bytes[1] = file_buffer[1];
+    //if (fread(&dos_header__magic.value, 2, 1, descriptor) != 1) return;
     console_log(2, 0, dos_header__magic.bytes, dos_header__magic.value, "magic"); printf(" /!\\");
-
+    /*
     if (fread(&dos_header__reserved[0].value, 2, 13, descriptor) != 13) return;
     for (uint8_t i = 0; i < 13; i++) {
         console_log(2,  i*2+2, dos_header__reserved[i].bytes, dos_header__reserved[i].value, dos_header__reserved_name[i]);
@@ -855,6 +860,55 @@ void pe_analyzer()
     console_log(2, 32, dos_header__res[2].bytes, dos_header__res[2].value, "res[3]"); //printf("res[2]");
     console_log(2, 34, dos_header__res[3].bytes, dos_header__res[3].value, "res[4]"); //printf("res[3]");
     */
+    int zero_sequence_start = -1; // Смещение, с которого начался ряд нулей
+    int number_of_zeros = 0;      // Количество накопленных нулевых байт
+    for (int i = 2; i < 64; i += 2)
+    {
+        // Проверяем, является ли текущая 2-байтная пайка нулевой
+        if (file_buffer[i] == '\0' && file_buffer[i+1] == '\0')
+        {
+            if (number_of_zeros == 0) zero_sequence_start = i; // Запоминаем, где началась пустота
+            number_of_zeros += 2; // Копим байты (каждая итерация — это 2 байта)
+            continue;
+        }
+        // --- СЮДА МЫ ПОПАДАЕМ, ЕСЛИ НАШЛИ ЗНАЧАЩИЕ БАЙТЫ ---
+        // СБРОС НАКОПЛЕННЫХ НУЛЕЙ: Если до этого копились нули, выводим их диапазон одним разом
+        if (number_of_zeros > 0)
+        {
+            printf("\n ·········%d\x19                                 |                         |                  |", zero_sequence_start);
+            //printf("\n [Зазор/Паддинг] Пропущено %d нулевых байт.", number_of_zeros);
+            printf("\n          \x17: "
+             "000 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 | "
+             "00 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 | "
+            );
+            symbol_adjustment('\0'); printf("\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16 |");
+            printf("\n ········%d\x18                                 |                         |                  |", zero_sequence_start + number_of_zeros-1);
+            number_of_zeros = 0; // Сбрасываем счетчик для будущих зазоров
+        }
+        // Выводим текущую значащую пайку
+        char bytes[2] = {file_buffer[i], file_buffer[i+1]};
+        //bytes[0] = file_buffer[i];
+        //bytes[1] = file_buffer[i+1];
+        uint16_t value16 = ((uint16_t) file_buffer[i+1] << 8) | file_buffer[i];
+        console_log(2, i, bytes, value16, "");
+    }
+    // ФИНАЛЬНЫЙ СБРОС: Если файл закончился на нулях (например, весь DOS stub пустой)
+    if (number_of_zeros > 0)
+    {
+        printf("\n ········%d\x19                                 |                         |                  |", zero_sequence_start);
+        //printf("\n [Зазор/Паддинг] Пропущено %d нулевых байт.", number_of_zeros);
+        printf("\n         \x17\x17: "
+         "000 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 \x16\x16\x16 | "
+         "00 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 \x16\x16 | "
+        );
+        symbol_adjustment('\0'); printf("\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16\x16 |");
+        printf("\n ········%d\x18                                 |                         |                  |", zero_sequence_start + number_of_zeros-1);
+        //printf(" |");
+        // Проверка вашего условия на полное сжатие (от 2 до 64 байт — это ровно 62 байта пустоты)
+        //if (number_of_zeros == 62) printf("\n Количество нулей: 62. Весь заголовок, кроме сигнатуры MZ, заполнен нулями.");
+        //else printf("\n Количество нулей не 62 (Найдено: %d).", number_of_zeros);
+    }
+    /*
     //putchar('\n');
 
     if (fread(&dos_header__reserved_2[0].value, 2, 2, descriptor) != 2) return;
@@ -874,16 +928,21 @@ void pe_analyzer()
         console_log(2, offset, dos_header__res2[i].bytes, dos_header__res2[i].value, _e_res2);
         offset += 2;
     }
+    */
     //putchar('\n');
-    if (fread(&dos_header__lfanew.value, 4, 1, descriptor) != 1) return;
-    console_log(4, offset, dos_header__lfanew.bytes, dos_header__lfanew.value, "lfanew"); printf(" /!\\");
+    dos_header__lfanew.bytes[0] = file_buffer[60];
+    dos_header__lfanew.bytes[1] = file_buffer[61];
+    dos_header__lfanew.bytes[2] = file_buffer[62];
+    dos_header__lfanew.bytes[3] = file_buffer[63];
+    //if (fread(&dos_header__lfanew.value, 4, 1, descriptor) != 1) return;
+    console_log(4, offset+=63, dos_header__lfanew.bytes, dos_header__lfanew.value, "lfanew"); printf(" /!\\");
     offset += 4;
     //printf("\n ------------------------------------------------------------------------------------------");
     if (dos_header__lfanew.value > 64)
     {
         printf("\n  _________________");
         printf("\n /                 \\");
-        printf("\n %c №1.2 | DOS STUB %c", 16, 17);
+        printf("\n %c №1.2 |·| DOS STUB %c", 16, 17);
         printf("\n \\_________________/");
         printf("\n ------------------------------------------------------------------------------------------");
         uint8_t bytes[8];
@@ -905,9 +964,9 @@ void pe_analyzer()
         //printf("\n ------------------------------------------------------------------------------------------");
     }
     else if (dos_header__lfanew.value < 64) return;
-    printf("\n      ________________");
+    printf("\n      __________________");
     //printf("\n /                \\");
-    printf("\n ____/ №2 | NT HEADER \\____");
+    printf("\n ____/ №2 |·| NT HEADER \\____");
     //printf("\n \\________________/");
     //printf("\n ------------------------------------------------------------------------------------------");
     offset = dos_header__lfanew.value;
@@ -1153,197 +1212,6 @@ void pe_analyzer()
     printf("\n %c №4 | HEADER PADDING (ALIGNMENT) %c", 16, 17);
     printf("\n \\_________________________________/");
     printf("\n ------------------------------------------------------------------------------------------");
-
-    // Накапливаем нули паддинга в 8-байтовые пачки, чтобы дамп не растягивался вертикально
-    uint8_t pad_buffer[8] = {0};
-    uint8_t pad_idx = 0;
-    uint32_t pad_row_start = offset;
-
-    while (offset < section_header[0].PointerToRawData.value) 
-    {
-        pad_buffer[pad_idx] = (uint8_t) getc(descriptor);
-        pad_idx++;
-        offset++;
-
-        // Как только накопили 8 байт ИЛИ уперлись в границу секции (512) — сбрасываем строку
-        if (pad_idx == 8 || offset == section_header[0].PointerToRawData.value) 
-        {
-            console_log(pad_idx, pad_row_start, pad_buffer, 0, "");
-            pad_idx = 0;
-            pad_row_start = offset;
-        }
-    }
-    // 1. Извлекаем RVA и размер таблицы импорта из Data Directory (Индекс 1)
-    // file_buffer — это указатель на начало всего вашего EXE-файла в памяти
-    uint32_t import_rva = optional_header_64.data_directories[1].virtual_address;
-    uint32_t import_size = optional_header_64.data_directories[1].size;
-
-    if (import_rva == 0 || import_size == 0) {
-        printf("\n [ ТАБЛИЦА ИМПОРТА ОТСУТСТВУЕТ ]");
-        return;
-    }
-
-    // 2. Переводим виртуальный адрес начала таблицы в физический адрес внутри нашего буфера
-    uint32_t import_raw = rva_to_raw(import_rva, section_header, NumberOfSections.value);
-    if (import_raw == 0) {
-        printf("\n [ ОШИБКА: Не удалось локализовать таблицу импорта в секциях ]");
-        return;
-    }
-
-    printf("\n------------------------------------------------------------------------------------------");
-    printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА ]");
-    printf("\n RAW смещение таблицы: 0x%08X, Размер: %d байт", import_raw, import_size);
-    printf("\n------------------------------------------------------------------------------------------");
-
-    // Устанавливаем указатель на первый дескриптор импорта (каждый занимает строго 20 байт)
-    ImportDescriptor *descriptor = (ImportDescriptor *)(file_buffer + import_raw);
-
-    // 3. Главный цикл по DLL: крутимся, пока не встретим пустой дескриптор-терминатор (все 20 байт равны 0)
-    int dll_index = 1;
-    while (descriptor->import_lookup_table_rva != 0 || descriptor->name_rva != 0) {
-        
-        // Получаем физический адрес имени DLL
-        uint32_t dll_name_raw = rva_to_raw(descriptor->name_rva, section_header, NumberOfSections.value);
-        const char *dll_name = (const char *)(file_buffer + dll_name_raw);
-        
-        printf("\n\n  ► [%d] ИМПОРТ ИЗ БИБЛИОТЕКИ: %s", dll_index++, dll_name);
-        printf("\n    └─ ILT RVA: 0x%08X | IAT RVA: 0x%08X", 
-            descriptor->import_lookup_table_rva, 
-            descriptor->import_address_table_rva);
-        printf("\n    ────────────────────────────────────────────────────────");
-
-        // Выбираем таблицу, из которой будем читать имена функций — ILT (или IAT, если ILT равен 0)
-        uint32_t lookup_table_rva = descriptor->import_lookup_table_rva;
-        if (lookup_table_rva == 0) {
-            lookup_table_rva = descriptor->import_address_table_rva;
-        }
-
-        uint32_t lookup_raw = rva_to_raw(lookup_table_rva, section_header, NumberOfSections.value);
-        
-        // 4. Внутренний цикл по функциям этой конкретной DLL
-        // В PE32+ (64-бит) элементы таблиц ILT/IAT имеют размер 8 байт (uint64_t)
-        uint64_t *lookup_entry = (uint64_t *)(file_buffer + lookup_raw);
-        int func_index = 1;
-
-        while (*lookup_entry != 0) {
-            // Проверяем флаг Import by Ordinal (самый старший бит 64-битного числа)
-            // Если бит установлен — функция импортируется по порядковому номеру, а не по имени
-            if (*lookup_entry & 0x8000000000000000ULL) {
-                uint16_t ordinal = (uint16_t)(*lookup_entry & 0xFFFF);
-                printf("\n       %d) Порядковый номер (Ordinal): %d", func_index++, ordinal);
-            } else {
-                // Иначе — импорт по имени. Элемент содержит RVA, ведущий к структуре Hint/Name
-                uint32_t hint_name_rva = (uint32_t)(*lookup_entry & 0xFFFFFFFF);
-                uint32_t hint_name_raw = rva_to_raw(hint_name_rva, section_header, NumberOfSections.value);
-                
-                // Первые 2 байта структуры — это Hint (подсказка для ОС)
-                uint16_t hint = *(uint16_t *)(file_buffer + hint_name_raw);
-                // Сразу за ними идет ASCII-строка с именем функции с нуль-терминатором
-                const char *func_name = (const char *)(file_buffer + hint_name_raw + 2);
-                
-                printf("\n       %d) Hint: %04d | Функция: %s", func_index++, hint, func_name);
-            }
-            
-            lookup_entry++; // Шагаем на следующие 8 байт (следующая функция)
-        }
-
-        descriptor++; // Двигаемся к следующему дескриптору DLL (следующие 20 байт)
-    }
-
-    printf("\n\n------------------------------------------------------------------------------------------");
-    printf("\n [ АНАЛИЗ ТАБЛИЦЫ ИМПОРТА УСПЕШНО ЗАВЕРШЕН ]");
-    printf("\n------------------------------------------------------------------------------------------\n");
-    // === №5 | SECTIONS RAW DATA STREAM ===
-    printf("\n ------------------------------------------------------------------------------------------");
-    printf("\n  _______________________________");
-    printf("\n /                               \\");
-    printf("\n   %c №5 | SECTIONS RAW DATA STREAM %c", 16, 17);
-    printf("\n \\_______________________________/");
-    printf("\n ------------------------------------------------------------------------------------------");
-    // === №6 | PROGRAM ENTRY POINT ===
-    // Вычисляем физическую точку входа на диске (RVA 4096 превращается в RAW 512)
-    uint32_t raw_entry_point =
-     AddressOfEntryPoint.value - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value
-    ;
-    if (offset == raw_entry_point)
-    {
-        printf("\n ------------------------------------------------------------------------------------------");
-        printf("\n  __________________________");
-        printf("\n /                          \\");
-        printf("\n   %c №6 | PROGRAM ENTRY POINT %c", 16, 17);
-        printf("\n \\__________________________/");
-        printf("\n ------------------------------------------------------------------------------------------");
-    }
-    // Буфер для накопления ровной строки (8 байт) Обычного потока
-    uint8_t local_buffer[8] = {0};
-    uint8_t buf_idx = 0;
-    uint32_t row_start_offset = offset;
-    // Массив для вытаскивания 20 байт дескриптора импорта
-    uint8_t id_bytes[20] = {0};
-    uint8_t id_idx = 0;
-    bool reading_import = false;
-    while (1)
-    {
-        int c = getc(descriptor);
-        if (c == EOF)
-        {
-            // Сбрасываем остатки строки на экран перед выходом
-            if (buf_idx > 0) console_log(buf_idx, row_start_offset, local_buffer, 0, "");
-            break;
-        }
-        // ТОЧКА ВХОДА В ИМПОРТ: Перехватываем поток строго на нужном байте
-        if (offset == raw_entry_point)
-        {
-            if (buf_idx > 0)
-            {
-                console_log(buf_idx, row_start_offset, local_buffer, 0, "");
-                buf_idx = 0;
-            }
-            reading_import = true;
-            id_idx = 0;
-            printf("\n\n ------------------------------------------------------------------------------------------");
-            printf("\n [ ОБНАРУЖЕНА ТАБЛИЦА ИМПОРТА (IMPORT DESCRIPTOR) ]");
-            printf("\n ------------------------------------------------------------------------------------------");
-        }
-        // РЕЖИМ 1: Мы внутри импорта. Копим 20 байт
-        if (reading_import == true)
-        {
-            id_bytes[id_idx] = (uint8_t) c;
-            id_idx++;
-            offset++;
-            if (id_idx == 20)
-            {
-                uint32_t ilt  = id_bytes[0]  | (id_bytes[1]  << 8) | (id_bytes[2]  << 16) | (id_bytes[3]  << 24);
-                uint32_t time = id_bytes[4]  | (id_bytes[5]  << 8) | (id_bytes[6]  << 16) | (id_bytes[7]  << 24);
-                uint32_t fwd  = id_bytes[8]  | (id_bytes[9]  << 8) | (id_bytes[10] << 16) | (id_bytes[11] << 24);
-                uint32_t name = id_bytes[12] | (id_bytes[13] << 8) | (id_bytes[14] << 16) | (id_bytes[15] << 24);
-                uint32_t iat  = id_bytes[16] | (id_bytes[17] << 8) | (id_bytes[18] << 16) | (id_bytes[19] << 24);
-                // === РАСЧЕТ RAW АДРЕСА ТАБЛИЦЫ ИМПОРТА ===
-                // Вытаскиваем RVA импорта (он равен 4160 в вашем билдере) и переводим в физический адрес
-                uint32_t import_raw = 4160 - section_header[0].VirtualAddress.value + section_header[0].PointerToRawData.value;
-                // Теперь вызываем вашу функцию — ошибка исчезнет!
-                console_log(4, import_raw,      &id_bytes[0],  ilt,  "ILT RVA");
-                console_log(4, import_raw + 4,  &id_bytes[4],  time, "TimeDateStamp");
-                console_log(4, import_raw + 8,  &id_bytes[8],  fwd,  "ForwarderChain");
-                console_log(4, import_raw + 12, &id_bytes[12], name, "DLL Name RVA");
-                console_log(4, import_raw + 16, &id_bytes[16], iat,  "IAT RVA");
-                printf("\n ------------------------------------------------------------------------------------------\n");
-                reading_import = false;
-                row_start_offset = offset;
-            }
-            continue;
-        }
-        // РЕЖИМ 2: Обычный вывод шеллкода, строк и поддона секции до конца файла
-        local_buffer[buf_idx] = (uint8_t) c;
-        buf_idx++;
-        offset++;
-        if (buf_idx == 8)
-        {
-            console_log(8, row_start_offset, local_buffer, 0, "");
-            buf_idx = 0;
-            row_start_offset = offset;
-        }
-    }
     printf("\n ------------------------------------------------------------------------------------------");
     printf("\n /!\\ Анализ PE-файла завершён.");
     printf("\n -----------------------------");
