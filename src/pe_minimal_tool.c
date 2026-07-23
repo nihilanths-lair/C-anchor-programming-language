@@ -53,33 +53,29 @@ void pe_minimal_builder(const char * file_name)
     file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
     fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // Записываем lfanew = 64 строго как 4 отдельных байта (60-63)
     fprintf(file_descriptor, "PE%c%c", 0, 0); // Записываем сигнатуру PE\0\0 строго как 4 отдельных байта (64-67)
+    // === БЛОК: IMAGE_FILE_HEADER ===
+    fprintf(file_descriptor, "%c%c", 0x64, 0x86); // 1. Поле Machine = 0x8664 (AMD64). В LE: сначала младший 0x64 (100), затем старший 0x86 (134)
+    fprintf(file_descriptor, "%c%c", 1, 0);       // 2. Поле NumberOfSections = 1. В LE: сначала 1, затем 0
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name)
 {
     FILE * file_descriptor;
-
     // 1. Открываем файл в бинарном режиме
     file_descriptor = fopen(file_name, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", file_name); return; }
-
     // 2. Измеряем точный физический размер файла на диске
     fseek(file_descriptor, 0, SEEK_END);
     long file_size = ftell(file_descriptor);
     fseek(file_descriptor, 0, SEEK_SET);
-
     if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", file_name); fclose(file_descriptor); return; }
-    
     // 3. Выделяем память под весь файл
     // Выделяем беззнаковую память (uint8_t вместо char)
     uint8_t * file = (uint8_t *) malloc(file_size);
     if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", file_name); fclose(file_descriptor); return; }
-
     // 4. Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
-
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
-
     printf(" --");
     printf("\n magic = %u :: %u", // Little-endian :: Big-endian
      (file[0])      | (file[1] <<  8), // Little-endian (склеиваем байты справа налево, реверсируем)
@@ -93,8 +89,7 @@ void pe_minimal_analyzer(const char * file_name)
     // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
     uint32_t lfanew = (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
     printf("\n lfanew = %u :: %u", lfanew,
-     //(file[60])       | (file[61] <<  8) | (file[62] << 16) | (file[63] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
-     (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63]      )  // Big-endian (склеиваем байты слева направо)
+     (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63])  // Big-endian (склеиваем байты слева направо)
     );
     printf("\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
     printf("\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
@@ -105,13 +100,17 @@ void pe_minimal_analyzer(const char * file_name)
     // Вычисляем смещения для 4 байт сигнатуры
     uint32_t signature = (file[lfanew]) | (file[lfanew+1] << 8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
     printf("\n signature = %u :: %u", signature,
-     //(file[lfanew])       | (file[lfanew+1] <<  8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
-     (file[lfanew]) << 24 | (file[lfanew+1] << 16) | (file[lfanew+2] <<  8) | (file[lfanew+3]      )  // Big-endian (склеиваем байты слева направо)
+     (file[lfanew]) << 24 | (file[lfanew+1] << 16) | (file[lfanew+2] <<  8) | (file[lfanew+3])  // Big-endian (склеиваем байты слева направо)
     );
     printf("\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
     printf("\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
     printf("\n %08llu: %03d | %02X | %c", lfanew+2, file[lfanew+2], file[lfanew+2], charf(file[lfanew+2]));
     printf("\n %08llu: %03d | %02X | %c", lfanew+3, file[lfanew+3], file[lfanew+3], charf(file[lfanew+3]));
+    printf("\n --");
+    uint16_t                        machine = (file[lfanew+4])      | (file[lfanew+5] << 8);
+    printf("\n machine = %u :: %u", machine,  (file[lfanew+4]) << 8 | (file[lfanew+5]    ));
+    printf("\n %08llu: %03d | %02X | %c", lfanew+4, file[lfanew+4], file[lfanew+4], charf(file[lfanew+4]));
+    printf("\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
     printf("\n --");
 }
 
