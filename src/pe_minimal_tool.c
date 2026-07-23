@@ -49,10 +49,12 @@ void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     fprintf(file_descriptor, "MZ"); // 2 байта (0-1)
-    // По спецификации: 60 байт до поля lfanew. 60 - 2 = 58 байт нулей.
     file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
-    // Записываем lfanew = 64 (0x00000040) в Little-Endian на байты 60, 61, 62, 63
-    fprintf( file_descriptor, "%c%c%c%c", 64, 0, 0, 0);
+    // Записываем lfanew = 64 в Little-Endian (60-63)
+    fprintf(file_descriptor, "%c\0\0\0", 64);
+    // === НОВЫЙ БЛОК: Запись сигнатуры PE\0\0 (64-67) ===
+    // В памяти Little-Endian символ 'P' (0x50), затем 'E' (0x45), затем два нуля
+    fprintf(file_descriptor, "PE\0\0");
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name)
@@ -91,14 +93,27 @@ void pe_minimal_analyzer(const char * file_name)
     for (long offset = 2; offset <= 59; offset++) printf("\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     printf("\n --");
     // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
-    printf("\n lfanew = %u :: %u", // Little-endian :: Big-endian
-     (file[60])       | (file[61] <<  8) | (file[62] << 16) | (file[63] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
+    uint32_t lfanew = (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
+    printf("\n lfanew = %u :: %u", lfanew,
+     //(file[60])       | (file[61] <<  8) | (file[62] << 16) | (file[63] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
      (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63]      )  // Big-endian (склеиваем байты слева направо)
     );
     printf("\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
     printf("\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
     printf("\n %08llu: %03d | %02X | %c", 62, file[62], file[62], charf(file[62]));
     printf("\n %08llu: %03d | %02X | %c", 63, file[63], file[63], charf(file[63]));
+    printf("\n --");
+    // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
+    // Вычисляем смещения для 4 байт сигнатуры
+    uint32_t signature = (file[lfanew]) | (file[lfanew+1] << 8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
+    printf("\n signature = %u :: %u", signature,
+     //(file[lfanew  ])       | (file[lfanew+1] <<  8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
+     (file[lfanew+3]) << 24 | (file[lfanew+2] << 16) | (file[lfanew+1] <<  8) | (file[lfanew  ]      )  // Big-endian (склеиваем байты слева направо)
+    );
+    printf("\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
+    printf("\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
+    printf("\n %08llu: %03d | %02X | %c", lfanew+2, file[lfanew+2], file[lfanew+2], charf(file[lfanew+2]));
+    printf("\n %08llu: %03d | %02X | %c", lfanew+3, file[lfanew+3], file[lfanew+3], charf(file[lfanew+3]));
     printf("\n --");
 }
 
