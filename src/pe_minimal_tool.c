@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <locale.h>
-//#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -58,7 +56,7 @@ void pe_minimal_builder(const char * file_name)
     fprintf(file_descriptor, "%c%c", 1, 0);       // 2. Поле NumberOfSections = 1. В LE: сначала 1, затем 0
     fclose(file_descriptor);
 }
-void pe_minimal_analyzer(const char * file_name)
+void pe_minimal_analyzer(const char * file_name, uint8_t stream)
 {
     FILE * file_descriptor;
     // 1. Открываем файл в бинарном режиме
@@ -113,14 +111,50 @@ void pe_minimal_analyzer(const char * file_name)
     printf("\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
     printf("\n --");
 }
-
+//#include <locale.h>
+#include <string.h>
+#include <windows.h>
 // Потоковый стрим?: Нет.
 // pe_minimal_tool.exe
 // pe_minimal_tool.exe > pe_minimal.dmp
-int main()
+int main(/*int argc, char * argv[]*/)
 {
-    setlocale(0, "");
-    pe_minimal_builder("__.exe");
-    pe_minimal_analyzer("__.exe");
+    //setlocale(0, "");
+    SetConsoleCP(1251);       // Кодировка ввода
+    SetConsoleOutputCP(1251); // Кодировка вывода
+    //pe_minimal_builder("__.exe");
+    //pe_minimal_analyzer("__.exe");
+    char buffer[128]; char buffer_2[64];
+    printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
+    fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    buffer[strcspn(buffer, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
+    __start:
+    printf("\n Куда бы вы хотели получить результат:\n В консоль\n В файл\n Оба варианта\n>>> ");
+    fgets(buffer_2, sizeof (buffer_2), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    buffer_2[strcspn(buffer_2, "\n")] = '\0';
+    //printf("```\n%s\n```", buffer_2);
+    if (!strcmp(buffer_2, "В консоль"))
+    {
+        printf("\n Анализ начат.");
+        pe_minimal_analyzer(buffer);
+        printf("\n Анализ окончен.\n");
+        system("pause");
+    }
+    else if (!strcmp(buffer_2, "В файл"))
+    {
+        FILE * file_descriptor = fopen("__.dmp", "wb");
+        if (!file_descriptor) return 0;
+        fprintf(file_descriptor, " Анализ начат.");
+        pe_minimal_analyzer(buffer);
+        fprintf(file_descriptor, "\n Анализ окончен.");
+        system("pause");
+    }
+    else
+    {
+        printf("\n /!\\ Временно недоступно, выберите другое...\n");
+        goto __start;
+    }
+    //printf("\n argc = %d", argc);
+    //for (int i = 0; i < argc; i++) printf("\n argv[%d] = %d", i+1, argv[i]);
     return 0;
 }
