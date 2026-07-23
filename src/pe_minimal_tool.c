@@ -111,6 +111,11 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+4, file[lfanew+4], file[lfanew+4], charf(file[lfanew+4]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
     fprintf(stream, "\n --");
+    uint16_t                                            number_of_sections = (file[lfanew+6])      | (file[lfanew+7] << 8);
+    fprintf(stream, "\n number_of_sections = %u :: %u", number_of_sections,  (file[lfanew+6]) << 8 | (file[lfanew+7]    ));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+6, file[lfanew+6], file[lfanew+6], charf(file[lfanew+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+7, file[lfanew+7], file[lfanew+7], charf(file[lfanew+7]));
+    fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
