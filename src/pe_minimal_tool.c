@@ -48,13 +48,11 @@ char charf(char ascii)
 void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
+    if (!file_descriptor) return;
     fprintf(file_descriptor, "MZ"); // 2 байта (0-1)
     file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
-    // Записываем lfanew = 64 в Little-Endian (60-63)
-    fprintf(file_descriptor, "%c\0\0\0", 64);
-    // === НОВЫЙ БЛОК: Запись сигнатуры PE\0\0 (64-67) ===
-    // В памяти Little-Endian символ 'P' (0x50), затем 'E' (0x45), затем два нуля
-    fprintf(file_descriptor, "PE\0\0");
+    fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // Записываем lfanew = 64 строго как 4 отдельных байта (60-63)
+    fprintf(file_descriptor, "PE%c%c", 0, 0); // Записываем сигнатуру PE\0\0 строго как 4 отдельных байта (64-67)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name)
@@ -107,8 +105,8 @@ void pe_minimal_analyzer(const char * file_name)
     // Вычисляем смещения для 4 байт сигнатуры
     uint32_t signature = (file[lfanew]) | (file[lfanew+1] << 8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
     printf("\n signature = %u :: %u", signature,
-     //(file[lfanew  ])       | (file[lfanew+1] <<  8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
-     (file[lfanew+3]) << 24 | (file[lfanew+2] << 16) | (file[lfanew+1] <<  8) | (file[lfanew  ]      )  // Big-endian (склеиваем байты слева направо)
+     //(file[lfanew])       | (file[lfanew+1] <<  8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
+     (file[lfanew]) << 24 | (file[lfanew+1] << 16) | (file[lfanew+2] <<  8) | (file[lfanew+3]      )  // Big-endian (склеиваем байты слева направо)
     );
     printf("\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
     printf("\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
