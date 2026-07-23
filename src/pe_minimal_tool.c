@@ -25,6 +25,20 @@ char charf(char ascii)
  default: putchar(pe_file[file_offset]); \
  }
 
+ // Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
+// (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24)
+#define macro__splicing_be32(_1, _2, _3, _4) ((_4) << 24) | ((_3) << 16) | ((_2) << 8) | (_1)
+#define macro__splicing_le32(_1, _2, _3, _4) (_1) | ((_2) << 8) | ((_3) << 16) | ((_4) << 24)
+
+//#define macro__left_to_right_byte_order()
+//#define macro__right_to_left_byte_order()
+
+//#define _using_left_to_right_notation()
+//#define _using_right_to_left_notation()
+//#define macro__converting_bytes_to_number_(_0, _1, _2, _3, _4) /* преобразование байтов в число */
+
+// macro__converting_number_to_bytes() // преобразование числа в байты
+
 // Замер точного физического размера файла на диске
 #define macro__file_size \
  fseek(file_descriptor, 0, SEEK_END); \
@@ -67,15 +81,19 @@ void pe_minimal_analyzer(const char * file_name)
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
 
     printf(" --");
-    printf("\n magic");
+    printf("\n magic = %u :: %u", // Little-endian :: Big-endian
+     (file[0])      | (file[1] <<  8), // Little-endian (склеиваем байты справа налево, реверсируем)
+     (file[0]) << 8 | (file[1]      )  // Big-endian (склеиваем байты слева направо)
+    );
     printf("\n %08llu: %03d | %02X | %c", 0, file[0], file[0], charf(file[0]));
     printf("\n %08llu: %03d | %02X | %c", 1, file[1], file[1], charf(file[1]));
     printf("\n --");
-    for (long offset = 2; offset <= 63; offset++) printf("\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    for (long offset = 2; offset <= 59; offset++) printf("\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     printf("\n --");
     // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
-    printf("\n lfanew = %u", // Little-endian
-     ((uint32_t) file[60]) | ((uint32_t) file[61] << 8) | ((uint32_t) file[62] << 16) | ((uint32_t) file[63] << 24)
+    printf("\n lfanew = %u :: %u", // Little-endian :: Big-endian
+     (file[60])       | (file[61] <<  8) | (file[62] << 16) | (file[63] << 24), // Little-endian (склеиваем байты справа налево, реверсируем)
+     (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63]      )  // Big-endian (склеиваем байты слева направо)
     );
     printf("\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
     printf("\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
