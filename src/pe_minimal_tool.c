@@ -3,10 +3,7 @@
 #include <stdint.h>
 
 // Заполнитель
-void file_aggregate(FILE * file_descriptor, const char ascii, int quantity)
-{
-    while (--quantity >= 0) putc(ascii, file_descriptor);
-}
+void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
 void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
 char charf(char ascii)
@@ -23,25 +20,11 @@ char charf(char ascii)
  default: putchar(pe_file[file_offset]); \
  }
 
- // Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
+// Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
 // (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24)
 #define macro__splicing_be32(_1, _2, _3, _4) ((_4) << 24) | ((_3) << 16) | ((_2) << 8) | (_1)
 #define macro__splicing_le32(_1, _2, _3, _4) (_1) | ((_2) << 8) | ((_3) << 16) | ((_4) << 24)
-
-//#define macro__left_to_right_byte_order()
-//#define macro__right_to_left_byte_order()
-
-//#define _using_left_to_right_notation()
-//#define _using_right_to_left_notation()
-//#define macro__converting_bytes_to_number_(_0, _1, _2, _3, _4) /* преобразование байтов в число */
-
 // macro__converting_number_to_bytes() // преобразование числа в байты
-
-// Замер точного физического размера файла на диске
-#define macro__file_size \
- fseek(file_descriptor, 0, SEEK_END); \
- long file_size = ftell(file_descriptor); \
- fseek(file_descriptor, 0, SEEK_SET);
 
 void pe_minimal_builder(const char * file_name)
 {
@@ -145,7 +128,8 @@ int main(/*int argc, char * argv[]*/)
     SetConsoleOutputCP(1251); // Кодировка вывода
     pe_minimal_builder("__.exe");
     //pe_minimal_analyzer("__.exe");
-    char buffer[128]; char buffer_2[64];
+    char buffer[128];
+    char buffer_2[64];
     printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
     fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
     buffer[strcspn(buffer, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
