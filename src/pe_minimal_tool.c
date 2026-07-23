@@ -52,8 +52,13 @@ void pe_minimal_builder(const char * file_name)
     fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // Записываем lfanew = 64 строго как 4 отдельных байта (60-63)
     fprintf(file_descriptor, "PE%c%c", 0, 0); // Записываем сигнатуру PE\0\0 строго как 4 отдельных байта (64-67)
     // === БЛОК: IMAGE_FILE_HEADER ===
-    fprintf(file_descriptor, "%c%c", 0x64, 0x86); // 1. Поле Machine = 0x8664 (AMD64). В LE: сначала младший 0x64 (100), затем старший 0x86 (134)
-    fprintf(file_descriptor, "%c%c", 1, 0);       // 2. Поле NumberOfSections = 1. В LE: сначала 1, затем 0
+    fprintf(file_descriptor, "%c%c", 0x64, 0x86);     // 1. Поле Machine = 0x8664 (AMD64). В LE: сначала младший 0x64 (100), затем старший 0x86 (134)
+    fprintf(file_descriptor, "%c%c", 1, 0);           // 2. Поле NumberOfSections = 1. В LE: сначала 1, затем 0
+    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 3. Поле TimeDateStamp = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 4. Поле PointerToSymbolTable = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 5. Поле NumberOfSymbols = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c", 0xF0, 0x00);     // 6. Поле SizeOfOptionalHeader = 0x00F0 (2 байта). В LE: сначала 0xF0, затем 0x00
+    fprintf(file_descriptor, "%c%c", 0x22, 0x00);     // 7. Поле Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта) , в LE: сначала 0x22, затем 0x00
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -116,6 +121,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+6, file[lfanew+6], file[lfanew+6], charf(file[lfanew+6]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+7, file[lfanew+7], file[lfanew+7], charf(file[lfanew+7]));
     fprintf(stream, "\n --");
+    fprintf(stream, "\n time_date_stamp = %u :: %u", // TimeDateStamp
+     (file[lfanew+8])       | (file[lfanew+9] <<  8) | (file[lfanew+10] << 16) | (file[lfanew+11] << 24),
+     (file[lfanew+8]) << 24 | (file[lfanew+9] << 16) | (file[lfanew+10] <<  8) | (file[lfanew+11]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 8, file[lfanew+ 8], file[lfanew+ 8], charf(file[lfanew+ 8]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 9, file[lfanew+ 9], file[lfanew+ 9], charf(file[lfanew+ 9]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+10, file[lfanew+10], file[lfanew+10], charf(file[lfanew+10]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+11, file[lfanew+11], file[lfanew+11], charf(file[lfanew+11]));
+    fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
@@ -129,7 +143,7 @@ int main(/*int argc, char * argv[]*/)
     //setlocale(0, "");
     SetConsoleCP(1251);       // Кодировка ввода
     SetConsoleOutputCP(1251); // Кодировка вывода
-    //pe_minimal_builder("__.exe");
+    pe_minimal_builder("__.exe");
     //pe_minimal_analyzer("__.exe");
     char buffer[128]; char buffer_2[64];
     printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
