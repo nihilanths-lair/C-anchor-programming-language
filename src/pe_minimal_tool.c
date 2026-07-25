@@ -26,7 +26,7 @@ void pe_minimal_builder(const char * file_name)
     if (!file_descriptor) return;
     fprintf(file_descriptor, "MZ"); // magic = MZ (2 байта)
     file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
-    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor); // lfanew = 64 (4 байта)
+    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor); // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
     fprintf(file_descriptor, "PE%c%c"  ,  0, 0); // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
     fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
@@ -36,6 +36,9 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 5. NumberOfSymbols      = 0 (4 байта)
     fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
     fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
+    // Начинается со смещения 88 (если lfanew = 64)
+    fwrite(&(uint16_t){0x020B}, sizeof (uint16_t), 1, file_descriptor); // 1. Magic = PE32+ (64-битный файл)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -138,6 +141,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+22, file[lfanew+22], file[lfanew+22], charf(file[lfanew+22]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+23, file[lfanew+23], file[lfanew+23], charf(file[lfanew+23]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n magic = %u :: %u",
+     (file[lfanew+24])      | (file[lfanew+25] << 8),
+     (file[lfanew+24]) << 8 | (file[lfanew+25]     )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+24, file[lfanew+24], file[lfanew+24], charf(file[lfanew+24]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+25, file[lfanew+25], file[lfanew+25], charf(file[lfanew+25]));
+    fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
