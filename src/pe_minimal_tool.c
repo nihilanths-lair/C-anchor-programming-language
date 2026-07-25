@@ -30,18 +30,18 @@ void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
-    fprintf(file_descriptor, "MZ"); // 2 байта (0-1)
-    file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
-    fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // Записываем lfanew = 64 строго как 4 отдельных байта (60-63)
-    fprintf(file_descriptor, "PE%c%c", 0, 0); // Записываем сигнатуру PE\0\0 строго как 4 отдельных байта (64-67)
+    fprintf(file_descriptor, "MZ"                   ); // magic = MZ (2 байта)
+    file_aggregate(file_descriptor, '\0', 58        ); // 58 байт (2-59)
+    fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // lfanew = 64 (4 байта)
+    fprintf(file_descriptor, "PE%c%c"  ,  0, 0      ); // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
-    fprintf(file_descriptor, "%c%c", 0x64, 0x86);     // 1. Поле Machine = 0x8664 (AMD64). В LE: сначала младший 0x64 (100), затем старший 0x86 (134)
-    fprintf(file_descriptor, "%c%c", 1, 0);           // 2. Поле NumberOfSections = 1. В LE: сначала 1, затем 0
-    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 3. Поле TimeDateStamp = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 4. Поле PointerToSymbolTable = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c%c%c", 0, 0, 0, 0); // 5. Поле NumberOfSymbols = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c", 0xF0, 0x00);     // 6. Поле SizeOfOptionalHeader = 0x00F0 (2 байта). В LE: сначала 0xF0, затем 0x00
-    fprintf(file_descriptor, "%c%c", 0x22, 0x00);     // 7. Поле Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта) , в LE: сначала 0x22, затем 0x00
+    fprintf(file_descriptor, "%c%c"    , 0x64, 0x86      ); // 1. Machine              = 0x8664 (2 байта) ; AMD64
+    fprintf(file_descriptor, "%c%c"    ,    1,    0      ); // 2. NumberOfSections     = 1 (2 байта)
+    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 3. TimeDateStamp        = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 4. PointerToSymbolTable = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 5. NumberOfSymbols      = 0 (4 байта)
+    fprintf(file_descriptor, "%c%c"    ,  240,    0      ); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
+    fprintf(file_descriptor, "%c%c"    , 0x22, 0x00      ); // 7. Characteristics      = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта) , в LE: сначала 0x22, затем 0x00
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -137,6 +137,13 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+20, file[lfanew+20], file[lfanew+20], charf(file[lfanew+20]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+21, file[lfanew+21], file[lfanew+21], charf(file[lfanew+21]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n characteristics = %u :: %u",
+     (file[lfanew+22])      | (file[lfanew+23] << 8),
+     (file[lfanew+22]) << 8 | (file[lfanew+23]     )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+22, file[lfanew+22], file[lfanew+22], charf(file[lfanew+22]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+23, file[lfanew+23], file[lfanew+23], charf(file[lfanew+23]));
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
