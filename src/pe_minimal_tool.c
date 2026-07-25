@@ -121,6 +121,16 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+13, file[lfanew+13], file[lfanew+13], charf(file[lfanew+13]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+14, file[lfanew+14], file[lfanew+14], charf(file[lfanew+14]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+15, file[lfanew+15], file[lfanew+15], charf(file[lfanew+15]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n number_of_symbols = %u :: %u", // NumberOfSymbols
+     (file[lfanew+16])       | (file[lfanew+17] <<  8) | (file[lfanew+18] << 16) | (file[lfanew+19] << 24),
+     (file[lfanew+16]) << 24 | (file[lfanew+17] << 16) | (file[lfanew+18] <<  8) | (file[lfanew+19]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+16, file[lfanew+16], file[lfanew+16], charf(file[lfanew+16]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+17, file[lfanew+17], file[lfanew+17], charf(file[lfanew+17]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+18, file[lfanew+18], file[lfanew+18], charf(file[lfanew+18]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+19, file[lfanew+19], file[lfanew+19], charf(file[lfanew+19]));
+    fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
