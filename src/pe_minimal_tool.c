@@ -24,18 +24,18 @@ void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
-    fprintf(file_descriptor, "MZ"                   ); // magic = MZ (2 байта)
-    file_aggregate(file_descriptor, '\0', 58        ); // 58 байт (2-59)
-    fprintf(file_descriptor, "%c%c%c%c", 64, 0, 0, 0); // lfanew = 64 (4 байта)
-    fprintf(file_descriptor, "PE%c%c"  ,  0, 0      ); // signature = PE\0\0 (4 байта)
+    fprintf(file_descriptor, "MZ"); // magic = MZ (2 байта)
+    file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
+    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor); // lfanew = 64 (4 байта)
+    fprintf(file_descriptor, "PE%c%c"  ,  0, 0); // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
-    fprintf(file_descriptor, "%c%c"    , 0x64, 0x86      ); // 1. Machine              = 0x8664 (2 байта) ; AMD64
-    fprintf(file_descriptor, "%c%c"    ,    1,    0      ); // 2. NumberOfSections     = 1 (2 байта)
-    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 3. TimeDateStamp        = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 4. PointerToSymbolTable = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 5. NumberOfSymbols      = 0 (4 байта)
-    fprintf(file_descriptor, "%c%c"    ,  240,    0      ); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
-    fprintf(file_descriptor, "%c%c"    , 0x22, 0x00      ); // 7. Characteristics      = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
+    fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
+    fwrite(&(uint16_t){1}, sizeof (uint16_t), 1, file_descriptor);   // 2. NumberOfSections     = 1 (2 байта)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 3. TimeDateStamp        = 0 (4 байта)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 4. PointerToSymbolTable = 0 (4 байта)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 5. NumberOfSymbols      = 0 (4 байта)
+    fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
+    fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
