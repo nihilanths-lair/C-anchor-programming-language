@@ -113,6 +113,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+10, file[lfanew+10], file[lfanew+10], charf(file[lfanew+10]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+11, file[lfanew+11], file[lfanew+11], charf(file[lfanew+11]));
     fprintf(stream, "\n --");
+    fprintf(stream, "\n pointer_to_symbol_table = %u :: %u", // PointerToSymbolTable
+     (file[lfanew+12])       | (file[lfanew+13] <<  8) | (file[lfanew+14] << 16) | (file[lfanew+15] << 24),
+     (file[lfanew+12]) << 24 | (file[lfanew+13] << 16) | (file[lfanew+14] <<  8) | (file[lfanew+15]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+12, file[lfanew+12], file[lfanew+12], charf(file[lfanew+12]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+13, file[lfanew+13], file[lfanew+13], charf(file[lfanew+13]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+14, file[lfanew+14], file[lfanew+14], charf(file[lfanew+14]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+15, file[lfanew+15], file[lfanew+15], charf(file[lfanew+15]));
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
