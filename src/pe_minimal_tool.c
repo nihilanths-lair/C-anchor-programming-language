@@ -20,12 +20,6 @@ char charf(char ascii)
  default: putchar(pe_file[file_offset]); \
  }
 
-// Для 4 символов (например, 'P', 'E', '\0', '\0') -> преобразует в uint32_t в Little-Endian
-// (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24)
-#define macro__splicing_be32(_1, _2, _3, _4) ((_4) << 24) | ((_3) << 16) | ((_2) << 8) | (_1)
-#define macro__splicing_le32(_1, _2, _3, _4) (_1) | ((_2) << 8) | ((_3) << 16) | ((_4) << 24)
-// macro__converting_number_to_bytes() // преобразование числа в байты
-
 void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
@@ -41,7 +35,7 @@ void pe_minimal_builder(const char * file_name)
     fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 4. PointerToSymbolTable = 0 (4 байта)
     fprintf(file_descriptor, "%c%c%c%c",    0,    0, 0, 0); // 5. NumberOfSymbols      = 0 (4 байта)
     fprintf(file_descriptor, "%c%c"    ,  240,    0      ); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
-    fprintf(file_descriptor, "%c%c"    , 0x22, 0x00      ); // 7. Characteristics      = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта) , в LE: сначала 0x22, затем 0x00
+    fprintf(file_descriptor, "%c%c"    , 0x22, 0x00      ); // 7. Characteristics      = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
