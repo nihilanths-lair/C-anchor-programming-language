@@ -9,7 +9,7 @@ void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) p
 char charf(char ascii)
 {
     switch (ascii){
-    case '\0': ascii = '.';
+    case '\0': ascii = ' ';
     }
     return ascii;
 }
@@ -50,6 +50,7 @@ void pe_minimal_builder(const char * file_name)
     // Начинается со смещения lfanew + 48 (112-й байт в файле)
     fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); // 8. ImageBase (8 байт)
     fwrite(&(uint32_t)      {4096}, sizeof (uint32_t), 1, file_descriptor); // 9. SectionAlignment = 4096 (4 байта)
+    fwrite(&(uint32_t)       {512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment = 512 (4 байта)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -236,6 +237,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+57, file[lfanew+57], file[lfanew+57], charf(file[lfanew+57]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+58, file[lfanew+58], file[lfanew+58], charf(file[lfanew+58]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+59, file[lfanew+59], file[lfanew+59], charf(file[lfanew+59]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n file_alignment = %lu :: %lu", // (4 байта)
+     (file[lfanew+60])       | (file[lfanew+61] <<  8) | (file[lfanew+62] << 16) | (file[lfanew+63] << 24),
+     (file[lfanew+60]) << 24 | (file[lfanew+61] << 16) | (file[lfanew+62] <<  8) | (file[lfanew+63]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+60, file[lfanew+60], file[lfanew+60], charf(file[lfanew+60]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+61, file[lfanew+61], file[lfanew+61], charf(file[lfanew+61]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+62, file[lfanew+62], file[lfanew+62], charf(file[lfanew+62]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+63, file[lfanew+63], file[lfanew+63], charf(file[lfanew+63]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
