@@ -373,7 +373,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+130, file[lfanew+130], file[lfanew+130], charf(file[lfanew+130]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+131, file[lfanew+131], file[lfanew+131], charf(file[lfanew+131]));
     fprintf(stream, "\n --");
-    // NumberOfRvaAndSizes 32
+    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", // (4 байта)
+     (file[lfanew+132]    ) | (file[lfanew+133]<<8 ) | (file[lfanew+134]<<16) | (file[lfanew+135]<<24),
+     (file[lfanew+132]<<24) | (file[lfanew+133]<<16) | (file[lfanew+134]<<8 ) | (file[lfanew+135]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+132, file[lfanew+132], file[lfanew+132], charf(file[lfanew+132]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+133, file[lfanew+133], file[lfanew+133], charf(file[lfanew+133]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+134, file[lfanew+134], file[lfanew+134], charf(file[lfanew+134]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+135, file[lfanew+135], file[lfanew+135], charf(file[lfanew+135]));
+    fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
