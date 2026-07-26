@@ -24,10 +24,10 @@ void pe_minimal_builder(const char * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
-    fprintf(file_descriptor, "MZ"); // magic = MZ (2 байта)
-    file_aggregate(file_descriptor, '\0', 58); // 58 байт (2-59)
-    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor); // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
-    fprintf(file_descriptor, "PE%c%c"  ,  0, 0); // signature = PE\0\0 (4 байта)
+    fprintf(file_descriptor, "MZ");                                  // magic = MZ (2 байта)
+    file_aggregate(file_descriptor, '\0', 58);                       // 58 байт (2-59)
+    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor);  // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
+    fprintf(file_descriptor, "PE%c%c"  ,  0, 0);                     // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
     fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
     fwrite(&(uint16_t){1}, sizeof (uint16_t), 1, file_descriptor);   // 2. NumberOfSections     = 1 (2 байта)
@@ -39,31 +39,29 @@ void pe_minimal_builder(const char * file_name)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
     // Начинается со смещения 88 (если lfanew = 64)
     fwrite(&(uint16_t){0x020B}, sizeof (uint16_t), 1, file_descriptor); // 1. Magic = PE32+ (64-битный файл)
+    fputc(1, file_descriptor);                                          // 2.1 MajorLinkerVersion
+    fputc(0, file_descriptor);                                          // 2.2 MinorLinkerVersion
+    fwrite(&(uint32_t){512}, sizeof (uint32_t), 1, file_descriptor);    // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
 {
     FILE * file_descriptor;
-    // 1. Открываем файл в бинарном режиме
-    file_descriptor = fopen(file_name, "rb");
+    file_descriptor = fopen(file_name, "rb"); // Открываем файл в бинарном режиме
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", file_name); return; }
-    // 2. Измеряем точный физический размер файла на диске
     fseek(file_descriptor, 0, SEEK_END);
-    long file_size = ftell(file_descriptor);
+    long file_size = ftell(file_descriptor); // Измеряем точный физический размер файла на диске
     fseek(file_descriptor, 0, SEEK_SET);
     if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", file_name); fclose(file_descriptor); return; }
-    // 3. Выделяем память под весь файл
-    // Выделяем беззнаковую память (uint8_t вместо char)
-    uint8_t * file = (uint8_t *) malloc(file_size);
+    uint8_t * file = (uint8_t *) malloc(file_size); // Выделяем беззнаковую память под весь файл
     if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", file_name); fclose(file_descriptor); return; }
-    // 4. Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
-    long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
+    long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor); // Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
     //printf(" Анализ начат.");
     fprintf(stream, " --");
-    fprintf(stream, "\n magic = %u :: %u", // Little-endian :: Big-endian
-     (file[0])      | (file[1] <<  8), // Little-endian (склеиваем байты справа налево, реверсируем)
-     (file[0]) << 8 | (file[1]      )  // Big-endian (склеиваем байты слева направо)
+    fprintf(stream, "\n magic = %u :: %u",
+     (file[0])      | (file[1] <<  8),
+     (file[0]) << 8 | (file[1]      )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 0, file[0], file[0], charf(file[0]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 1, file[1], file[1], charf(file[1]));
@@ -71,9 +69,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     for (long offset = 2; offset <= 59; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     fprintf(stream, "\n --");
     // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
-    uint32_t lfanew = (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
+    uint32_t lfanew = (file[60]) | (file[61] << 8) | (file[62] << 16) | (file[63] << 24);
     fprintf(stream, "\n lfanew = %u :: %u", lfanew,
-     (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63])  // Big-endian (склеиваем байты слева направо)
+     (file[60]) << 24 | (file[61] << 16) | (file[62] <<  8) | (file[63])
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
@@ -82,22 +80,26 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n --");
     // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
     // Вычисляем смещения для 4 байт сигнатуры
-    uint32_t signature = (file[lfanew]) | (file[lfanew+1] << 8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24); // Little-endian (склеиваем байты справа налево, реверсируем)
-    fprintf(stream, "\n signature = %u :: %u", signature,
-     (file[lfanew]) << 24 | (file[lfanew+1] << 16) | (file[lfanew+2] <<  8) | (file[lfanew+3])  // Big-endian (склеиваем байты слева направо)
+    fprintf(stream, "\n signature = %u :: %u",
+     (file[lfanew])       | (file[lfanew+1] <<  8) | (file[lfanew+2] << 16) | (file[lfanew+3] << 24),
+     (file[lfanew]) << 24 | (file[lfanew+1] << 16) | (file[lfanew+2] <<  8) | (file[lfanew+3])
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+2, file[lfanew+2], file[lfanew+2], charf(file[lfanew+2]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+3, file[lfanew+3], file[lfanew+3], charf(file[lfanew+3]));
     fprintf(stream, "\n --");
-    uint16_t                                 machine = (file[lfanew+4])      | (file[lfanew+5] << 8);
-    fprintf(stream, "\n machine = %u :: %u", machine,  (file[lfanew+4]) << 8 | (file[lfanew+5]    ));
+    fprintf(stream, "\n machine = %u :: %u",
+     (file[lfanew+4])      | (file[lfanew+5] << 8),
+     (file[lfanew+4]) << 8 | (file[lfanew+5]     )
+    );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+4, file[lfanew+4], file[lfanew+4], charf(file[lfanew+4]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
     fprintf(stream, "\n --");
-    uint16_t                                            number_of_sections = (file[lfanew+6])      | (file[lfanew+7] << 8);
-    fprintf(stream, "\n number_of_sections = %u :: %u", number_of_sections,  (file[lfanew+6]) << 8 | (file[lfanew+7]    ));
+    fprintf(stream, "\n number_of_sections = %u :: %u",
+     (file[lfanew+6])      | (file[lfanew+7] << 8),
+     (file[lfanew+6]) << 8 | (file[lfanew+7]     )
+    );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+6, file[lfanew+6], file[lfanew+6], charf(file[lfanew+6]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+7, file[lfanew+7], file[lfanew+7], charf(file[lfanew+7]));
     fprintf(stream, "\n --");
@@ -148,6 +150,21 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+24, file[lfanew+24], file[lfanew+24], charf(file[lfanew+24]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+25, file[lfanew+25], file[lfanew+25], charf(file[lfanew+25]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n major_linker_version = %u :: %u", (file[lfanew+26]), (file[lfanew+26]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+26, file[lfanew+26], file[lfanew+26], charf(file[lfanew+26]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n minor_linker_version = %u :: %u", (file[lfanew+27]), (file[lfanew+27]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+27, file[lfanew+27], file[lfanew+27], charf(file[lfanew+27]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_code = %u :: %u",
+     (file[lfanew+28])       | (file[lfanew+29] <<  8) | (file[lfanew+30] << 16) | (file[lfanew+31] << 24),
+     (file[lfanew+28]) << 24 | (file[lfanew+29] << 16) | (file[lfanew+30] <<  8) | (file[lfanew+31]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+28, file[lfanew+28], file[lfanew+28], charf(file[lfanew+28]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+29, file[lfanew+29], file[lfanew+29], charf(file[lfanew+29]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+30, file[lfanew+30], file[lfanew+30], charf(file[lfanew+30]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+31, file[lfanew+31], file[lfanew+31], charf(file[lfanew+31]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
