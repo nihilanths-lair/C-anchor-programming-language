@@ -45,6 +45,7 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 4. SizeOfInitializedData (4 байта)
     fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 6. AddressOfEntryPoint — укажем RVA = 4096 (0x1000). Это стандартное начало первой секции в памяти
+    fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 7. BaseOfCode (Обычно совпадает с началом кода)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -201,6 +202,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+41, file[lfanew+41], file[lfanew+41], charf(file[lfanew+41]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+42, file[lfanew+42], file[lfanew+42], charf(file[lfanew+42]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+43, file[lfanew+43], file[lfanew+43], charf(file[lfanew+43]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n base_of_code = %u :: %u", // (4 байта)
+     (file[lfanew+44])       | (file[lfanew+45] <<  8) | (file[lfanew+46] << 16) | (file[lfanew+47] << 24),
+     (file[lfanew+44]) << 24 | (file[lfanew+45] << 16) | (file[lfanew+46] <<  8) | (file[lfanew+47]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+44, file[lfanew+44], file[lfanew+44], charf(file[lfanew+44]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+45, file[lfanew+45], file[lfanew+45], charf(file[lfanew+45]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+46, file[lfanew+46], file[lfanew+46], charf(file[lfanew+46]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+47, file[lfanew+47], file[lfanew+47], charf(file[lfanew+47]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
