@@ -16,7 +16,7 @@ char charf(char ascii)
 
 #define macro__putcharf \
  switch (pe_file[file_offset]){ \
- case '\0': '.'; \
+ case '\0': ' '; \
  default: putchar(pe_file[file_offset]); \
  }
 
