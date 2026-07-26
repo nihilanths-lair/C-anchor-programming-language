@@ -1,0 +1,434 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+// Заполнитель
+void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
+void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
+
+char charf(char ascii)
+{
+    switch (ascii){
+    //case '\0': ascii = ' ';
+    case '\n': ascii = ' ';
+    }
+    return ascii;
+}
+
+void pe_minimal_builder(const char * file_name)
+{
+    FILE * file_descriptor = fopen(file_name, "wb");
+    if (!file_descriptor) return;
+    fprintf(file_descriptor, "MZ");                                  // magic = MZ (2 байта)
+    file_aggregate(file_descriptor, '\0', 58);                       // 58 байт (2-59)
+    fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor);  // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
+    fprintf(file_descriptor, "PE%c%c"  ,  0, 0);                     // signature = PE\0\0 (4 байта)
+    // === БЛОК: IMAGE_FILE_HEADER ===
+    fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
+    fwrite(&(uint16_t)  {1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections     = 1 (2 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 3. TimeDateStamp        = 0 (4 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 4. PointerToSymbolTable = 0 (4 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 5. NumberOfSymbols      = 0 (4 байта)
+    fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
+    fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
+    // Начинается со смещения 88 (если lfanew = 64)
+    fwrite(&(uint16_t){0x020B}, sizeof (uint16_t), 1, file_descriptor); // 1. Magic = PE32+ (64-битный файл)
+    fputc(1, file_descriptor);                                          // 2.1 MajorLinkerVersion
+    fputc(0, file_descriptor);                                          // 2.2 MinorLinkerVersion
+    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor);   // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
+    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 4. SizeOfInitializedData (4 байта)
+    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
+    fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 6. AddressOfEntryPoint — укажем RVA = 4096 (0x1000). Это стандартное начало первой секции в памяти
+    fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 7. BaseOfCode (Обычно совпадает с началом кода)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Windows-Specific Fields) ===
+    // Начинается со смещения lfanew + 48 (112-й байт в файле)
+    fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); // 8. ImageBase (8 байт)
+    fwrite(&(uint32_t)      {4096}, sizeof (uint32_t), 1, file_descriptor); // 9. SectionAlignment = 4096 (4 байта)
+    fwrite(&(uint32_t)       {512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment = 512 (4 байта)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Размеры и версии) ===
+    // Начинается со смещения lfanew + 64 (128-й байт в файле)
+    fwrite(&(uint16_t)   {6}, sizeof (uint16_t), 1, file_descriptor); // 11. MajorOperatingSystemVersion
+    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 12. MinorOperatingSystemVersion
+    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 13. MajorImageVersion
+    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 14. MinorImageVersion
+    fwrite(&(uint16_t)   {6}, sizeof (uint16_t), 1, file_descriptor); // 15. MajorSubsystemVersion
+    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 16. MinorSubsystemVersion
+    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
+    fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
+    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Подсистема и размеры памяти) ===
+    // Начинается со смещения lfanew + 88 (152-й байт в файле)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 20. CheckSum
+    fwrite(&(uint16_t){3}, sizeof (uint16_t), 1, file_descriptor); // 21. Subsystem = 3 (Консоль)
+    fwrite(&(uint16_t){0}, sizeof (uint16_t), 1, file_descriptor); // 22. DllCharacteristics
+    // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
+    for (int i = 0; i < 4; i++) fwrite(&(uint64_t){0}, sizeof (uint64_t), 1, file_descriptor); // 23~26. Память (забиваем нулями для дефолтов Windows)
+    fwrite(&(uint32_t) {0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
+    fwrite(&(uint32_t){16}, sizeof (uint32_t), 1, file_descriptor); // 28. NumberOfRvaAndSizes (количество каталогов)
+    fclose(file_descriptor);
+}
+void pe_minimal_analyzer(const char * file_name, FILE * stream)
+{
+    FILE * file_descriptor;
+    file_descriptor = fopen(file_name, "rb"); // Открываем файл в бинарном режиме
+    if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", file_name); return; }
+    fseek(file_descriptor, 0, SEEK_END);
+    long file_size = ftell(file_descriptor); // Измеряем точный физический размер файла на диске
+    fseek(file_descriptor, 0, SEEK_SET);
+    if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", file_name); fclose(file_descriptor); return; }
+    uint8_t * file = (uint8_t *) malloc(file_size); // Выделяем беззнаковую память под весь файл
+    if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", file_name); fclose(file_descriptor); return; }
+    long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor); // Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
+    if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
+    //printf(" Анализ начат.");
+    fprintf(stream, " --");
+    fprintf(stream, "\n magic = %u :: %u",
+     (file[0]   ) | (file[1]<<8),
+     (file[0]<<8) | (file[1]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 0, file[0], file[0], charf(file[0]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 1, file[1], file[1], charf(file[1]));
+    fprintf(stream, "\n --");
+    for (long offset = 2; offset <= 59; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    fprintf(stream, "\n --");
+    // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
+    uint32_t lfanew = (file[60]    ) | (file[61]<<8 ) | (file[62]<<16) | (file[63]<<24);
+    fprintf(stream, "\n lfanew = %u :: %u", lfanew, // (4 байта)
+                      (file[60]<<24) | (file[61]<<16) | (file[62]<<8 ) | (file[63]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62, file[62], file[62], charf(file[62]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63, file[63], file[63], charf(file[63]));
+    fprintf(stream, "\n --");
+    if (lfanew > 64)
+    {
+        for (uint32_t offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+        fprintf(stream, "\n --");
+    }
+    //uint64_t offset = lfanew;
+    //offset++ }
+    // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
+    // Вычисляем смещения для 4 байт сигнатуры
+    fprintf(stream, "\n signature = %u :: %u", // (4 байта)
+     (file[lfanew]    ) | (file[lfanew+1]<<8 ) | (file[lfanew+2]<<16) | (file[lfanew+3]<<24),
+     (file[lfanew]<<24) | (file[lfanew+1]<<16) | (file[lfanew+2]<<8 ) | (file[lfanew+3]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+2, file[lfanew+2], file[lfanew+2], charf(file[lfanew+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+3, file[lfanew+3], file[lfanew+3], charf(file[lfanew+3]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n machine = %u :: %u", // (2 байта)
+     (file[lfanew+4]   ) | (file[lfanew+5]<<8),
+     (file[lfanew+4]<<8) | (file[lfanew+5]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+4, file[lfanew+4], file[lfanew+4], charf(file[lfanew+4]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n number_of_sections = %u :: %u", // (2 байта)
+     (file[lfanew+6]   ) | (file[lfanew+7]<<8),
+     (file[lfanew+6]<<8) | (file[lfanew+7]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+6, file[lfanew+6], file[lfanew+6], charf(file[lfanew+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+7, file[lfanew+7], file[lfanew+7], charf(file[lfanew+7]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n time_date_stamp = %u :: %u", // (4 байта)
+     (file[lfanew+8]    ) | (file[lfanew+9]<<8 ) | (file[lfanew+10]<<16) | (file[lfanew+11]<<24),
+     (file[lfanew+8]<<24) | (file[lfanew+9]<<16) | (file[lfanew+10]<<8 ) | (file[lfanew+11]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 8, file[lfanew+ 8], file[lfanew+ 8], charf(file[lfanew+ 8]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 9, file[lfanew+ 9], file[lfanew+ 9], charf(file[lfanew+ 9]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+10, file[lfanew+10], file[lfanew+10], charf(file[lfanew+10]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+11, file[lfanew+11], file[lfanew+11], charf(file[lfanew+11]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n pointer_to_symbol_table = %u :: %u", // (4 байта)
+     (file[lfanew+12]    ) | (file[lfanew+13]<<8 ) | (file[lfanew+14]<<16) | (file[lfanew+15]<<24),
+     (file[lfanew+12]<<24) | (file[lfanew+13]<<16) | (file[lfanew+14]<<8 ) | (file[lfanew+15]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+12, file[lfanew+12], file[lfanew+12], charf(file[lfanew+12]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+13, file[lfanew+13], file[lfanew+13], charf(file[lfanew+13]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+14, file[lfanew+14], file[lfanew+14], charf(file[lfanew+14]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+15, file[lfanew+15], file[lfanew+15], charf(file[lfanew+15]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n number_of_symbols = %u :: %u", // (4 байта)
+     (file[lfanew+16]    ) | (file[lfanew+17]<<8 ) | (file[lfanew+18]<<16) | (file[lfanew+19]<<24),
+     (file[lfanew+16]<<24) | (file[lfanew+17]<<16) | (file[lfanew+18]<<8 ) | (file[lfanew+19]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+16, file[lfanew+16], file[lfanew+16], charf(file[lfanew+16]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+17, file[lfanew+17], file[lfanew+17], charf(file[lfanew+17]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+18, file[lfanew+18], file[lfanew+18], charf(file[lfanew+18]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+19, file[lfanew+19], file[lfanew+19], charf(file[lfanew+19]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_optional_header = %u :: %u", // (2 байта)
+     (file[lfanew+20]   ) | (file[lfanew+21]<<8),
+     (file[lfanew+20]<<8) | (file[lfanew+21]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+20, file[lfanew+20], file[lfanew+20], charf(file[lfanew+20]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+21, file[lfanew+21], file[lfanew+21], charf(file[lfanew+21]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n characteristics = %u :: %u", // (2 байта)
+     (file[lfanew+22]   ) | (file[lfanew+23]<<8),
+     (file[lfanew+22]<<8) | (file[lfanew+23]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+22, file[lfanew+22], file[lfanew+22], charf(file[lfanew+22]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+23, file[lfanew+23], file[lfanew+23], charf(file[lfanew+23]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n magic = %u :: %u", // (2 байта)
+     (file[lfanew+24]   ) | (file[lfanew+25]<<8),
+     (file[lfanew+24]<<8) | (file[lfanew+25]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+24, file[lfanew+24], file[lfanew+24], charf(file[lfanew+24]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+25, file[lfanew+25], file[lfanew+25], charf(file[lfanew+25]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n major_linker_version = %u :: %u", (file[lfanew+26]), (file[lfanew+26])); // (1 байт)
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+26, file[lfanew+26], file[lfanew+26], charf(file[lfanew+26]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n minor_linker_version = %u :: %u", (file[lfanew+27]), (file[lfanew+27])); // (1 байт)
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+27, file[lfanew+27], file[lfanew+27], charf(file[lfanew+27]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_code = %u :: %u", // (4 байта)
+     (file[lfanew+28]    ) | (file[lfanew+29]<<8 ) | (file[lfanew+30]<<16) | (file[lfanew+31]<<24),
+     (file[lfanew+28]<<24) | (file[lfanew+29]<<16) | (file[lfanew+30]<<8 ) | (file[lfanew+31]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+28, file[lfanew+28], file[lfanew+28], charf(file[lfanew+28]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+29, file[lfanew+29], file[lfanew+29], charf(file[lfanew+29]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+30, file[lfanew+30], file[lfanew+30], charf(file[lfanew+30]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+31, file[lfanew+31], file[lfanew+31], charf(file[lfanew+31]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_initialized_data = %u :: %u", // (4 байта)
+     (file[lfanew+32]    ) | (file[lfanew+33]<<8 ) | (file[lfanew+34]<<16) | (file[lfanew+35]<<24),
+     (file[lfanew+32]<<24) | (file[lfanew+33]<<16) | (file[lfanew+34]<<8 ) | (file[lfanew+35]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+32, file[lfanew+32], file[lfanew+32], charf(file[lfanew+32]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+33, file[lfanew+33], file[lfanew+33], charf(file[lfanew+33]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+34, file[lfanew+34], file[lfanew+34], charf(file[lfanew+34]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+35, file[lfanew+35], file[lfanew+35], charf(file[lfanew+35]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_uninitialized_data = %u :: %u", // (4 байта)
+     (file[lfanew+36]    ) | (file[lfanew+37]<<8 ) | (file[lfanew+38]<<16) | (file[lfanew+39]<<24),
+     (file[lfanew+36]<<24) | (file[lfanew+37]<<16) | (file[lfanew+38]<<8 ) | (file[lfanew+39]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+36, file[lfanew+36], file[lfanew+36], charf(file[lfanew+36]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+37, file[lfanew+37], file[lfanew+37], charf(file[lfanew+37]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+38, file[lfanew+38], file[lfanew+38], charf(file[lfanew+38]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+39, file[lfanew+39], file[lfanew+39], charf(file[lfanew+39]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n address_of_entry_point = %u :: %u", // (4 байта)
+     (file[lfanew+40]    ) | (file[lfanew+41]<<8 ) | (file[lfanew+42]<<16) | (file[lfanew+43]<<24),
+     (file[lfanew+40]<<24) | (file[lfanew+41]<<16) | (file[lfanew+42]<<8 ) | (file[lfanew+43]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+40, file[lfanew+40], file[lfanew+40], charf(file[lfanew+40]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+41, file[lfanew+41], file[lfanew+41], charf(file[lfanew+41]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+42, file[lfanew+42], file[lfanew+42], charf(file[lfanew+42]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+43, file[lfanew+43], file[lfanew+43], charf(file[lfanew+43]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n base_of_code = %u :: %u", // (4 байта)
+     (file[lfanew+44]    ) | (file[lfanew+45]<<8 ) | (file[lfanew+46]<<16) | (file[lfanew+47]<<24),
+     (file[lfanew+44]<<24) | (file[lfanew+45]<<16) | (file[lfanew+46]<<8 ) | (file[lfanew+47]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+44, file[lfanew+44], file[lfanew+44], charf(file[lfanew+44]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+45, file[lfanew+45], file[lfanew+45], charf(file[lfanew+45]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+46, file[lfanew+46], file[lfanew+46], charf(file[lfanew+46]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+47, file[lfanew+47], file[lfanew+47], charf(file[lfanew+47]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n image_base = %llu :: %llu", // (8 байт)
+     ((uint64_t) file[lfanew+48]    ) | ((uint64_t) file[lfanew+49]<<8 ) | ((uint64_t) file[lfanew+50]<<16) | ((uint64_t) file[lfanew+51]<<24)
+      |
+     ((uint64_t) file[lfanew+52]<<32) | ((uint64_t) file[lfanew+53]<<40) | ((uint64_t) file[lfanew+54]<<48) | ((uint64_t) file[lfanew+55]<<56),
+
+     ((uint64_t) file[lfanew+48]<<56) | ((uint64_t) file[lfanew+49]<<48) | ((uint64_t) file[lfanew+50]<<40) | ((uint64_t) file[lfanew+51]<<32)
+      |
+     ((uint64_t) file[lfanew+52]<<24) | ((uint64_t) file[lfanew+53]<<16) | ((uint64_t) file[lfanew+54]<<8 ) | ((uint64_t) file[lfanew+55]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+48, file[lfanew+48], file[lfanew+48], charf(file[lfanew+48]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+49, file[lfanew+49], file[lfanew+49], charf(file[lfanew+49]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+50, file[lfanew+50], file[lfanew+50], charf(file[lfanew+50]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+51, file[lfanew+51], file[lfanew+51], charf(file[lfanew+51]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+52, file[lfanew+52], file[lfanew+52], charf(file[lfanew+52]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+53, file[lfanew+53], file[lfanew+53], charf(file[lfanew+53]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+54, file[lfanew+54], file[lfanew+54], charf(file[lfanew+54]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+55, file[lfanew+55], file[lfanew+55], charf(file[lfanew+55]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n section_alignment = %u :: %u", // (4 байта)
+     (file[lfanew+56]    ) | (file[lfanew+57]<<8 ) | (file[lfanew+58]<<16) | (file[lfanew+59]<<24),
+     (file[lfanew+56]<<24) | (file[lfanew+57]<<16) | (file[lfanew+58]<<8 ) | (file[lfanew+59]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+56, file[lfanew+56], file[lfanew+56], charf(file[lfanew+56]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+57, file[lfanew+57], file[lfanew+57], charf(file[lfanew+57]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+58, file[lfanew+58], file[lfanew+58], charf(file[lfanew+58]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+59, file[lfanew+59], file[lfanew+59], charf(file[lfanew+59]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n file_alignment = %u :: %u", // (4 байта)
+     (file[lfanew+60]    ) | (file[lfanew+61]<<8 ) | (file[lfanew+62]<<16) | (file[lfanew+63]<<24),
+     (file[lfanew+60]<<24) | (file[lfanew+61]<<16) | (file[lfanew+62]<<8 ) | (file[lfanew+63]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+60, file[lfanew+60], file[lfanew+60], charf(file[lfanew+60]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+61, file[lfanew+61], file[lfanew+61], charf(file[lfanew+61]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+62, file[lfanew+62], file[lfanew+62], charf(file[lfanew+62]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+63, file[lfanew+63], file[lfanew+63], charf(file[lfanew+63]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n major_operating_system_version = %u :: %u", // (2 байта)
+     (file[lfanew+64]   ) | (file[lfanew+65]<<8),
+     (file[lfanew+64]<<8) | (file[lfanew+65]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+64, file[lfanew+64], file[lfanew+64], charf(file[lfanew+64]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+65, file[lfanew+65], file[lfanew+65], charf(file[lfanew+65]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n minor_operating_system_version = %u :: %u", // (2 байта)
+     (file[lfanew+66]   ) | (file[lfanew+67]<<8),
+     (file[lfanew+66]<<8) | (file[lfanew+67]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+66, file[lfanew+66], file[lfanew+66], charf(file[lfanew+66]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+67, file[lfanew+67], file[lfanew+67], charf(file[lfanew+67]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n major_image_version = %u :: %u", // (2 байта)
+     (file[lfanew+68]   ) | (file[lfanew+69]<<8),
+     (file[lfanew+68]<<8) | (file[lfanew+69]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+68, file[lfanew+68], file[lfanew+68], charf(file[lfanew+68]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+69, file[lfanew+69], file[lfanew+69], charf(file[lfanew+69]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n minor_image_version = %u :: %u", // (2 байта)
+     (file[lfanew+70]   ) | (file[lfanew+71]<<8),
+     (file[lfanew+70]<<8) | (file[lfanew+71]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+70, file[lfanew+70], file[lfanew+70], charf(file[lfanew+70]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+71, file[lfanew+71], file[lfanew+71], charf(file[lfanew+71]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n major_subsystem_version = %u :: %u", // (2 байта)
+     (file[lfanew+72]   ) | (file[lfanew+73]<<8),
+     (file[lfanew+72]<<8) | (file[lfanew+73]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+72, file[lfanew+72], file[lfanew+72], charf(file[lfanew+72]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+73, file[lfanew+73], file[lfanew+73], charf(file[lfanew+73]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n minor_subsystem_version = %u :: %u", // (2 байта)
+     (file[lfanew+74]   ) | (file[lfanew+75]<<8),
+     (file[lfanew+74]<<8) | (file[lfanew+75]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+74, file[lfanew+74], file[lfanew+74], charf(file[lfanew+74]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+75, file[lfanew+75], file[lfanew+75], charf(file[lfanew+75]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n win_32_version_value = %u :: %u", // (4 байта)
+     (file[lfanew+76]    ) | (file[lfanew+77]<<8 ) | (file[lfanew+78]<<16) | (file[lfanew+79]<<24),
+     (file[lfanew+76]<<24) | (file[lfanew+77]<<16) | (file[lfanew+78]<<8 ) | (file[lfanew+79]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+76, file[lfanew+76], file[lfanew+76], charf(file[lfanew+76]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+77, file[lfanew+77], file[lfanew+77], charf(file[lfanew+77]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+78, file[lfanew+78], file[lfanew+78], charf(file[lfanew+78]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+79, file[lfanew+79], file[lfanew+79], charf(file[lfanew+79]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_image = %u :: %u", // (4 байта)
+     (file[lfanew+80]    ) | (file[lfanew+81]<<8 ) | (file[lfanew+82]<<16) | (file[lfanew+83]<<24),
+     (file[lfanew+80]<<24) | (file[lfanew+81]<<16) | (file[lfanew+82]<<8 ) | (file[lfanew+83]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+80, file[lfanew+80], file[lfanew+80], charf(file[lfanew+80]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+81, file[lfanew+81], file[lfanew+81], charf(file[lfanew+81]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+82, file[lfanew+82], file[lfanew+82], charf(file[lfanew+82]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+83, file[lfanew+83], file[lfanew+83], charf(file[lfanew+83]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_headers = %u :: %u", // (4 байта)
+     (file[lfanew+84]    ) | (file[lfanew+85]<<8 ) | (file[lfanew+86]<<16) | (file[lfanew+87]<<24),
+     (file[lfanew+84]<<24) | (file[lfanew+85]<<16) | (file[lfanew+86]<<8 ) | (file[lfanew+87]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+84, file[lfanew+84], file[lfanew+84], charf(file[lfanew+84]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+85, file[lfanew+85], file[lfanew+85], charf(file[lfanew+85]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+86, file[lfanew+86], file[lfanew+86], charf(file[lfanew+86]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+87, file[lfanew+87], file[lfanew+87], charf(file[lfanew+87]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n check_sum = %u :: %u", // (4 байта)
+     (file[lfanew+88]    ) | (file[lfanew+89]<<8 ) | (file[lfanew+90]<<16) | (file[lfanew+91]<<24),
+     (file[lfanew+88]<<24) | (file[lfanew+89]<<16) | (file[lfanew+90]<<8 ) | (file[lfanew+91]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+88, file[lfanew+88], file[lfanew+88], charf(file[lfanew+88]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+89, file[lfanew+89], file[lfanew+89], charf(file[lfanew+89]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+90, file[lfanew+90], file[lfanew+90], charf(file[lfanew+90]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+91, file[lfanew+91], file[lfanew+91], charf(file[lfanew+91]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n sub_system = %u :: %u", // (2 байта)
+     (file[lfanew+92]   ) | (file[lfanew+93]<<8),
+     (file[lfanew+92]<<8) | (file[lfanew+93]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+92, file[lfanew+92], file[lfanew+92], charf(file[lfanew+92]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+93, file[lfanew+93], file[lfanew+93], charf(file[lfanew+93]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n dll_characteristics = %u :: %u", // (2 байта)
+     (file[lfanew+94]   ) | (file[lfanew+95]<<8),
+     (file[lfanew+94]<<8) | (file[lfanew+95]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+94, file[lfanew+94], file[lfanew+94], charf(file[lfanew+94]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+95, file[lfanew+95], file[lfanew+95], charf(file[lfanew+95]));
+    fprintf(stream, "\n --");
+    // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
+    for (int offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    fprintf(stream, "\n --"); // lfanew+96+32=lfanew+128
+    fprintf(stream, "\n loader_flags = %u :: %u", // (4 байта)
+     (file[lfanew+128]    ) | (file[lfanew+129]<<8 ) | (file[lfanew+130]<<16) | (file[lfanew+131]<<24),
+     (file[lfanew+128]<<24) | (file[lfanew+129]<<16) | (file[lfanew+130]<<8 ) | (file[lfanew+131]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+128, file[lfanew+128], file[lfanew+128], charf(file[lfanew+128]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+129, file[lfanew+129], file[lfanew+129], charf(file[lfanew+129]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+130, file[lfanew+130], file[lfanew+130], charf(file[lfanew+130]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+131, file[lfanew+131], file[lfanew+131], charf(file[lfanew+131]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", // (4 байта)
+     (file[lfanew+132]    ) | (file[lfanew+133]<<8 ) | (file[lfanew+134]<<16) | (file[lfanew+135]<<24),
+     (file[lfanew+132]<<24) | (file[lfanew+133]<<16) | (file[lfanew+134]<<8 ) | (file[lfanew+135]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+132, file[lfanew+132], file[lfanew+132], charf(file[lfanew+132]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+133, file[lfanew+133], file[lfanew+133], charf(file[lfanew+133]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+134, file[lfanew+134], file[lfanew+134], charf(file[lfanew+134]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+135, file[lfanew+135], file[lfanew+135], charf(file[lfanew+135]));
+    fprintf(stream, "\n --");
+    //printf("\n Конец анализа.");
+}
+//#include <locale.h>
+#include <string.h>
+#include <windows.h>
+// Потоковый стрим?: Нет.
+// gcc -s pe_mtool.c -o pe_mtool.exe / Strip (Удаление отладочной информации/лишнего мусора)
+// gcc -Os -s pe_mtool.c -o pe_mtool.exe
+// pe_mtool.exe
+// pe_mtool.exe > pe_mtool.dmp
+int main(/*int argc, char * argv[]*/)
+{
+    //setlocale(0, "");
+    SetConsoleCP(1251);       // Кодировка ввода
+    SetConsoleOutputCP(1251); // Кодировка вывода
+    pe_minimal_builder("__.exe");
+    //pe_minimal_analyzer("__.exe");
+    char buffer[128];
+    char buffer_2[64];
+    printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
+    fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    buffer[strcspn(buffer, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
+    __start:
+    printf("\n Куда бы вы хотели получить результат?\n  В консоль\n  В файл\n  Оба варианта\n>>> ");
+    fgets(buffer_2, sizeof (buffer_2), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    buffer_2[strcspn(buffer_2, "\n")] = '\0';
+    //printf("```\n%s\n```", buffer_2);
+    if (!strcmp(buffer_2, "В консоль")) 
+    {
+        pe_minimal_analyzer(buffer, stdout); // Вывод в консоль
+        putchar('\n');
+        system("pause");
+    }
+    else if (!strcmp(buffer_2, "В файл"))
+    {
+        FILE * file_descriptor = fopen("__.dmp", "wb");
+        if (!file_descriptor) return 0;
+        pe_minimal_analyzer(buffer, file_descriptor); // Вывод в файл
+        fclose(file_descriptor);
+        system("pause");
+    }
+    else
+    {
+        printf("\n /!\\ Временно недоступно, выберите другое...\n");
+        goto __start;
+    }
+    //printf("\n argc = %d", argc);
+    //for (int i = 0; i < argc; i++) printf("\n argv[%d] = %d", i+1, argv[i]);
+    return 0;
+}
