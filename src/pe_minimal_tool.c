@@ -9,16 +9,11 @@ void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) p
 char charf(char ascii)
 {
     switch (ascii){
-    case '\0': ascii = ' ';
+    //case '\0': ascii = ' ';
+    case '\n': ascii = ' ';
     }
     return ascii;
 }
-
-#define macro__putcharf \
- switch (pe_file[file_offset]){ \
- case '\0': ' '; \
- default: putchar(pe_file[file_offset]); \
- }
 
 void pe_minimal_builder(const char * file_name)
 {
@@ -69,7 +64,8 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint16_t){0}, sizeof (uint16_t), 1, file_descriptor); // 22. DllCharacteristics
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
     for (int i = 0; i < 4; i++) fwrite(&(uint64_t){0}, sizeof (uint64_t), 1, file_descriptor); // 23~26. Память (забиваем нулями для дефолтов Windows)
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
+    fwrite(&(uint32_t) {0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
+    fwrite(&(uint32_t){16}, sizeof (uint32_t), 1, file_descriptor); // 28. NumberOfRvaAndSizes (количество каталогов)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -106,6 +102,13 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 62, file[62], file[62], charf(file[62]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 63, file[63], file[63], charf(file[63]));
     fprintf(stream, "\n --");
+    if (lfanew > 64)
+    {
+        for (uint32_t offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+        fprintf(stream, "\n --");
+    }
+    //uint64_t offset = lfanew;
+    //offset++ }
     // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
     // Вычисляем смещения для 4 байт сигнатуры
     fprintf(stream, "\n signature = %u :: %u", // (4 байта)
@@ -359,7 +362,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+95, file[lfanew+95], file[lfanew+95], charf(file[lfanew+95]));
     fprintf(stream, "\n --");
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
-    for (int loop = 0, offset = lfanew+96; loop < (4*8); loop++, offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    for (int offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     fprintf(stream, "\n --"); // lfanew+96+32=lfanew+128
     fprintf(stream, "\n loader_flags = %u :: %u", // (4 байта)
      (file[lfanew+128]    ) | (file[lfanew+129]<<8 ) | (file[lfanew+130]<<16) | (file[lfanew+131]<<24),
@@ -370,6 +373,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+130, file[lfanew+130], file[lfanew+130], charf(file[lfanew+130]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+131, file[lfanew+131], file[lfanew+131], charf(file[lfanew+131]));
     fprintf(stream, "\n --");
+    // NumberOfRvaAndSizes 32
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
