@@ -166,7 +166,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n minor_linker_version = %u :: %u", (file[lfanew+27]), (file[lfanew+27])); // (1 байт)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+27, file[lfanew+27], file[lfanew+27], charf(file[lfanew+27]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n size_of_code = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n size_of_code = %u :: %u", // (4 байта)
      (file[lfanew+28])       | (file[lfanew+29] <<  8) | (file[lfanew+30] << 16) | (file[lfanew+31] << 24),
      (file[lfanew+28]) << 24 | (file[lfanew+29] << 16) | (file[lfanew+30] <<  8) | (file[lfanew+31]      )
     );
@@ -175,7 +175,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+30, file[lfanew+30], file[lfanew+30], charf(file[lfanew+30]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+31, file[lfanew+31], file[lfanew+31], charf(file[lfanew+31]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n size_of_initialized_data = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n size_of_initialized_data = %u :: %u", // (4 байта)
      (file[lfanew+32])       | (file[lfanew+33] <<  8) | (file[lfanew+34] << 16) | (file[lfanew+35] << 24),
      (file[lfanew+32]) << 24 | (file[lfanew+33] << 16) | (file[lfanew+34] <<  8) | (file[lfanew+35]      )
     );
@@ -184,7 +184,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+34, file[lfanew+34], file[lfanew+34], charf(file[lfanew+34]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+35, file[lfanew+35], file[lfanew+35], charf(file[lfanew+35]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n size_of_uninitialized_data = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n size_of_uninitialized_data = %u :: %u", // (4 байта)
      (file[lfanew+36])       | (file[lfanew+37] <<  8) | (file[lfanew+38] << 16) | (file[lfanew+39] << 24),
      (file[lfanew+36]) << 24 | (file[lfanew+37] << 16) | (file[lfanew+38] <<  8) | (file[lfanew+39]      )
     );
@@ -193,7 +193,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+38, file[lfanew+38], file[lfanew+38], charf(file[lfanew+38]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+39, file[lfanew+39], file[lfanew+39], charf(file[lfanew+39]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n address_of_entry_point = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n address_of_entry_point = %u :: %u", // (4 байта)
      (file[lfanew+40])       | (file[lfanew+41] <<  8) | (file[lfanew+42] << 16) | (file[lfanew+43] << 24),
      (file[lfanew+40]) << 24 | (file[lfanew+41] << 16) | (file[lfanew+42] <<  8) | (file[lfanew+43]      )
     );
@@ -202,7 +202,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+42, file[lfanew+42], file[lfanew+42], charf(file[lfanew+42]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+43, file[lfanew+43], file[lfanew+43], charf(file[lfanew+43]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n base_of_code = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n base_of_code = %u :: %u", // (4 байта)
      (file[lfanew+44])       | (file[lfanew+45] <<  8) | (file[lfanew+46] << 16) | (file[lfanew+47] << 24),
      (file[lfanew+44]) << 24 | (file[lfanew+45] << 16) | (file[lfanew+46] <<  8) | (file[lfanew+47]      )
     );
@@ -212,13 +212,13 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+47, file[lfanew+47], file[lfanew+47], charf(file[lfanew+47]));
     fprintf(stream, "\n --");
     fprintf(stream, "\n image_base = %llu :: %llu", // (8 байт)
-     (file[lfanew+48])       | (file[lfanew+49] <<  8) | (file[lfanew+50] << 16) | (file[lfanew+51] << 24)
+     ((uint64_t) file[lfanew+48]    ) | ((uint64_t) file[lfanew+49]<<8 ) | ((uint64_t) file[lfanew+50]<<16) | ((uint64_t) file[lfanew+51]<<24)
       |
-     ((uint64_t) file[lfanew+52] << 32) | ((uint64_t) file[lfanew+53] << 40) | ((uint64_t) file[lfanew+54] << 48) | ((uint64_t) file[lfanew+55] << 56),
+     ((uint64_t) file[lfanew+52]<<32) | ((uint64_t) file[lfanew+53]<<40) | ((uint64_t) file[lfanew+54]<<48) | ((uint64_t) file[lfanew+55]<<56),
 
-     ((uint64_t) file[lfanew+48] << 56) | ((uint64_t) file[lfanew+49] << 48) | ((uint64_t) file[lfanew+50] << 40) | ((uint64_t) file[lfanew+51] << 32)
+     ((uint64_t) file[lfanew+48]<<56) | ((uint64_t) file[lfanew+49]<<48) | ((uint64_t) file[lfanew+50]<<40) | ((uint64_t) file[lfanew+51]<<32)
       |
-     (file[lfanew+52] << 24) | (file[lfanew+53] << 16) | (file[lfanew+54] <<  8) | (file[lfanew+55]      )
+     ((uint64_t) file[lfanew+52]<<24) | ((uint64_t) file[lfanew+53]<<16) | ((uint64_t) file[lfanew+54]<<8 ) | ((uint64_t) file[lfanew+55]    )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+48, file[lfanew+48], file[lfanew+48], charf(file[lfanew+48]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+49, file[lfanew+49], file[lfanew+49], charf(file[lfanew+49]));
@@ -229,7 +229,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+54, file[lfanew+54], file[lfanew+54], charf(file[lfanew+54]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+55, file[lfanew+55], file[lfanew+55], charf(file[lfanew+55]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n section_alignment = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n section_alignment = %u :: %u", // (4 байта)
      (file[lfanew+56])       | (file[lfanew+57] <<  8) | (file[lfanew+58] << 16) | (file[lfanew+59] << 24),
      (file[lfanew+56]) << 24 | (file[lfanew+57] << 16) | (file[lfanew+58] <<  8) | (file[lfanew+59]      )
     );
@@ -238,7 +238,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+58, file[lfanew+58], file[lfanew+58], charf(file[lfanew+58]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+59, file[lfanew+59], file[lfanew+59], charf(file[lfanew+59]));
     fprintf(stream, "\n --");
-    fprintf(stream, "\n file_alignment = %lu :: %lu", // (4 байта)
+    fprintf(stream, "\n file_alignment = %u :: %u", // (4 байта)
      (file[lfanew+60])       | (file[lfanew+61] <<  8) | (file[lfanew+62] << 16) | (file[lfanew+63] << 24),
      (file[lfanew+60]) << 24 | (file[lfanew+61] << 16) | (file[lfanew+62] <<  8) | (file[lfanew+63]      )
     );
