@@ -9,7 +9,7 @@ void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) p
 char charf(char ascii)
 {
     switch (ascii){
-    //case '\0': ascii = ' ';
+    case '\0': ascii = ' '; // [!]
     case '\n': ascii = ' ';
     }
     return ascii;
@@ -66,6 +66,13 @@ void pe_minimal_builder(const char * file_name)
     for (int i = 0; i < 4; i++) fwrite(&(uint64_t){0}, sizeof (uint64_t), 1, file_descriptor); // 23~26. Память (забиваем нулями для дефолтов Windows)
     fwrite(&(uint32_t) {0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
     fwrite(&(uint32_t){16}, sizeof (uint32_t), 1, file_descriptor); // 28. NumberOfRvaAndSizes (количество каталогов)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (DATA DIRECTORIES) ===
+    // Начинается со смещения lfanew + 136. Всего 16 директорий по 8 байт = 128 байт.
+    for (int i = 0; i < 16; i++)
+    {
+        fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // VirtualAddress = 0
+        fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // Size = 0
+    }
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -381,6 +388,19 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+133, file[lfanew+133], file[lfanew+133], charf(file[lfanew+133]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+134, file[lfanew+134], file[lfanew+134], charf(file[lfanew+134]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+135, file[lfanew+135], file[lfanew+135], charf(file[lfanew+135]));
+    fprintf(stream, "\n --");
+    for (int offset = lfanew+136; offset < lfanew+136+128; offset+=8) // lfanew+136+16*8=lfanew+136+128=lfanew+264
+    {
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        fputc('\n', file_descriptor);
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+    }
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
