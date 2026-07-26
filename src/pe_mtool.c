@@ -388,20 +388,23 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+133, file[lfanew+133], file[lfanew+133], charf(file[lfanew+133]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+134, file[lfanew+134], file[lfanew+134], charf(file[lfanew+134]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+135, file[lfanew+135], file[lfanew+135], charf(file[lfanew+135]));
-    fprintf(stream, "\n --");
-    for (int offset = lfanew+136; offset < lfanew+136+128; offset+=8) // lfanew+136+16*8=lfanew+136+128=lfanew+264
+    fprintf(stream, "\n --\n");
+    for (int offset = lfanew+136, i = 1; offset < lfanew+136+128; offset+=8, i++) // lfanew+136+16*8=lfanew+136+128=lfanew+264
     {
+        fprintf(stream, "\n");
+        fprintf(stream, "\n | №%d |", i);
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
-        fputc('\n', file_descriptor);
+        fprintf(stream, "\n");
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+        fprintf(stream, "\n");
     }
-    fprintf(stream, "\n --");
+    fprintf(stream, "\n\n --");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
