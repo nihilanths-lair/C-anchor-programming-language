@@ -61,6 +61,7 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 16. MinorSubsystemVersion
     fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
     fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
+    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -316,6 +317,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+81, file[lfanew+81], file[lfanew+81], charf(file[lfanew+81]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+82, file[lfanew+82], file[lfanew+82], charf(file[lfanew+82]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+83, file[lfanew+83], file[lfanew+83], charf(file[lfanew+83]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_headers = %u :: %u", // (4 байта)
+     (file[lfanew+84]    ) | (file[lfanew+85]<<8 ) | (file[lfanew+86]<<16) | (file[lfanew+87]<<24),
+     (file[lfanew+84]<<24) | (file[lfanew+85]<<16) | (file[lfanew+86]<<8 ) | (file[lfanew+87]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+84, file[lfanew+84], file[lfanew+84], charf(file[lfanew+84]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+85, file[lfanew+85], file[lfanew+85], charf(file[lfanew+85]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+86, file[lfanew+86], file[lfanew+86], charf(file[lfanew+86]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+87, file[lfanew+87], file[lfanew+87], charf(file[lfanew+87]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
