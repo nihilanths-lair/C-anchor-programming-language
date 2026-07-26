@@ -30,10 +30,10 @@ void pe_minimal_builder(const char * file_name)
     fprintf(file_descriptor, "PE%c%c"  ,  0, 0);                     // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
     fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
-    fwrite(&(uint16_t){1}, sizeof (uint16_t), 1, file_descriptor);   // 2. NumberOfSections     = 1 (2 байта)
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 3. TimeDateStamp        = 0 (4 байта)
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 4. PointerToSymbolTable = 0 (4 байта)
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);   // 5. NumberOfSymbols      = 0 (4 байта)
+    fwrite(&(uint16_t)  {1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections     = 1 (2 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 3. TimeDateStamp        = 0 (4 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 4. PointerToSymbolTable = 0 (4 байта)
+    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 5. NumberOfSymbols      = 0 (4 байта)
     fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
     fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
@@ -46,6 +46,9 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 6. AddressOfEntryPoint — укажем RVA = 4096 (0x1000). Это стандартное начало первой секции в памяти
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 7. BaseOfCode (Обычно совпадает с началом кода)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Windows-Specific Fields) ===
+    // Начинается со смещения lfanew + 48 (112-й байт в файле)
+    fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); // 8. ImageBase (8 байт)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -211,6 +214,24 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+45, file[lfanew+45], file[lfanew+45], charf(file[lfanew+45]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+46, file[lfanew+46], file[lfanew+46], charf(file[lfanew+46]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+47, file[lfanew+47], file[lfanew+47], charf(file[lfanew+47]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n image_base = %u :: %u", // (8 байт)
+     (file[lfanew+48])       | (file[lfanew+49] <<  8) | (file[lfanew+50] << 16) | (file[lfanew+51] << 24)
+      |
+     ((uint64_t) file[lfanew+52] << 32) | ((uint64_t) file[lfanew+53] << 40) | ((uint64_t) file[lfanew+54] << 48) | ((uint64_t) file[lfanew+55] << 56),
+
+     ((uint64_t) file[lfanew+48] << 56) | ((uint64_t) file[lfanew+49] << 48) | ((uint64_t) file[lfanew+50] << 40) | ((uint64_t) file[lfanew+51] << 32)
+      |
+     (file[lfanew+52] << 24) | (file[lfanew+53] << 16) | (file[lfanew+54] <<  8) | (file[lfanew+55]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+48, file[lfanew+48], file[lfanew+48], charf(file[lfanew+48]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+49, file[lfanew+49], file[lfanew+49], charf(file[lfanew+49]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+50, file[lfanew+50], file[lfanew+50], charf(file[lfanew+50]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+51, file[lfanew+51], file[lfanew+51], charf(file[lfanew+51]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+52, file[lfanew+52], file[lfanew+52], charf(file[lfanew+52]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+53, file[lfanew+53], file[lfanew+53], charf(file[lfanew+53]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+54, file[lfanew+54], file[lfanew+54], charf(file[lfanew+54]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+55, file[lfanew+55], file[lfanew+55], charf(file[lfanew+55]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
