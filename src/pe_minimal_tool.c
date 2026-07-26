@@ -62,6 +62,14 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
     fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
     fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
+    // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Подсистема и размеры памяти) ===
+    // Начинается со смещения lfanew + 88 (152-й байт в файле)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 20. CheckSum
+    fwrite(&(uint16_t){3}, sizeof (uint16_t), 1, file_descriptor); // 21. Subsystem = 3 (Консоль)
+    fwrite(&(uint16_t){0}, sizeof (uint16_t), 1, file_descriptor); // 22. DllCharacteristics
+    // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
+    for (int i = 0; i < 4; i++) fwrite(&(uint64_t){0}, sizeof (uint64_t), 1, file_descriptor); // 23~26. Память (забиваем нулями для дефолтов Windows)
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -326,6 +334,41 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+85, file[lfanew+85], file[lfanew+85], charf(file[lfanew+85]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+86, file[lfanew+86], file[lfanew+86], charf(file[lfanew+86]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+87, file[lfanew+87], file[lfanew+87], charf(file[lfanew+87]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n check_sum = %u :: %u", // (4 байта)
+     (file[lfanew+88]    ) | (file[lfanew+89]<<8 ) | (file[lfanew+90]<<16) | (file[lfanew+91]<<24),
+     (file[lfanew+88]<<24) | (file[lfanew+89]<<16) | (file[lfanew+90]<<8 ) | (file[lfanew+91]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+88, file[lfanew+88], file[lfanew+88], charf(file[lfanew+88]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+89, file[lfanew+89], file[lfanew+89], charf(file[lfanew+89]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+90, file[lfanew+90], file[lfanew+90], charf(file[lfanew+90]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+91, file[lfanew+91], file[lfanew+91], charf(file[lfanew+91]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n sub_system = %u :: %u", // (2 байта)
+     (file[lfanew+92]   ) | (file[lfanew+93]<<8),
+     (file[lfanew+92]<<8) | (file[lfanew+93]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+92, file[lfanew+92], file[lfanew+92], charf(file[lfanew+92]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+93, file[lfanew+93], file[lfanew+93], charf(file[lfanew+93]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n dll_characteristics = %u :: %u", // (2 байта)
+     (file[lfanew+94]   ) | (file[lfanew+95]<<8),
+     (file[lfanew+94]<<8) | (file[lfanew+95]   )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+94, file[lfanew+94], file[lfanew+94], charf(file[lfanew+94]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+95, file[lfanew+95], file[lfanew+95], charf(file[lfanew+95]));
+    fprintf(stream, "\n --");
+    // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
+    for (int loop = 0, offset = lfanew+96; loop < (4*8); loop++, offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    fprintf(stream, "\n --"); // lfanew+96+32=lfanew+128
+    fprintf(stream, "\n loader_flags = %u :: %u", // (4 байта)
+     (file[lfanew+128]    ) | (file[lfanew+129]<<8 ) | (file[lfanew+130]<<16) | (file[lfanew+131]<<24),
+     (file[lfanew+128]<<24) | (file[lfanew+129]<<16) | (file[lfanew+130]<<8 ) | (file[lfanew+131]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+128, file[lfanew+128], file[lfanew+128], charf(file[lfanew+128]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+129, file[lfanew+129], file[lfanew+129], charf(file[lfanew+129]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+130, file[lfanew+130], file[lfanew+130], charf(file[lfanew+130]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+131, file[lfanew+131], file[lfanew+131], charf(file[lfanew+131]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
