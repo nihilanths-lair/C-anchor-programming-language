@@ -41,9 +41,10 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint16_t){0x020B}, sizeof (uint16_t), 1, file_descriptor); // 1. Magic = PE32+ (64-битный файл)
     fputc(1, file_descriptor);                                          // 2.1 MajorLinkerVersion
     fputc(0, file_descriptor);                                          // 2.2 MinorLinkerVersion
-    fwrite(&(uint32_t){512}, sizeof (uint32_t), 1, file_descriptor);    // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);      // 4. SizeOfInitializedData
-    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);      // 5. SizeOfUninitializedData
+    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor);   // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
+    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 4. SizeOfInitializedData (4 байта)
+    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
+    fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 6. AddressOfEntryPoint — укажем RVA = 4096 (0x1000). Это стандартное начало первой секции в памяти
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -191,6 +192,15 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+37, file[lfanew+37], file[lfanew+37], charf(file[lfanew+37]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+38, file[lfanew+38], file[lfanew+38], charf(file[lfanew+38]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+39, file[lfanew+39], file[lfanew+39], charf(file[lfanew+39]));
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n address_of_entry_point = %u :: %u", // (4 байта)
+     (file[lfanew+40])       | (file[lfanew+41] <<  8) | (file[lfanew+42] << 16) | (file[lfanew+43] << 24),
+     (file[lfanew+40]) << 24 | (file[lfanew+41] << 16) | (file[lfanew+42] <<  8) | (file[lfanew+43]      )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+40, file[lfanew+40], file[lfanew+40], charf(file[lfanew+40]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+41, file[lfanew+41], file[lfanew+41], charf(file[lfanew+41]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+42, file[lfanew+42], file[lfanew+42], charf(file[lfanew+42]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+43, file[lfanew+43], file[lfanew+43], charf(file[lfanew+43]));
     fprintf(stream, "\n --");
     //printf("\n Конец анализа.");
 }
