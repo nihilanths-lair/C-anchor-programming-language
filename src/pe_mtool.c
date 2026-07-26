@@ -369,7 +369,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+95, file[lfanew+95], file[lfanew+95], charf(file[lfanew+95]));
     fprintf(stream, "\n --");
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
-    for (int offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    for (uint64_t offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     fprintf(stream, "\n --"); // lfanew+96+32=lfanew+128
     fprintf(stream, "\n loader_flags = %u :: %u", // (4 байта)
      (file[lfanew+128]    ) | (file[lfanew+129]<<8 ) | (file[lfanew+130]<<16) | (file[lfanew+131]<<24),
@@ -389,7 +389,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+134, file[lfanew+134], file[lfanew+134], charf(file[lfanew+134]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+135, file[lfanew+135], file[lfanew+135], charf(file[lfanew+135]));
     fprintf(stream, "\n --");
-    for (int offset = lfanew+136, i = 1; offset < lfanew+136+128; offset+=8, i++) // lfanew+136+16*8=lfanew+136+128=lfanew+264
+    for (uint64_t offset = lfanew+136, i = 1; offset < lfanew+136+128; offset+=8, i++) // lfanew+136+16*8=lfanew+136+128=lfanew+264
     {
         //fprintf(stream, "\n");
         fprintf(stream, "\n virtual_address[%d] = %u :: %u", i, // (4 байта)
