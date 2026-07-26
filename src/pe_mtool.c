@@ -101,16 +101,16 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 62, file[62], file[62], charf(file[62]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 63, file[63], file[63], charf(file[63]));
-    fprintf(stream, "\n --");
     if (lfanew > 64)
     {
-        for (uint32_t offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
         fprintf(stream, "\n --");
+        for (uint32_t offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     }
     //uint64_t offset = lfanew;
     //offset++ }
     // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
     // Вычисляем смещения для 4 байт сигнатуры
+    fprintf(stream, "\n --");
     fprintf(stream, "\n signature = %u :: %u", // (4 байта)
      (file[lfanew]    ) | (file[lfanew+1]<<8 ) | (file[lfanew+2]<<16) | (file[lfanew+3]<<24),
      (file[lfanew]<<24) | (file[lfanew+1]<<16) | (file[lfanew+2]<<8 ) | (file[lfanew+3]    )
