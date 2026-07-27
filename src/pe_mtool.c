@@ -164,22 +164,24 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n pointer_to_symbol_table = %u :: %u", // (4 байта)
-     (file[lfanew+12]    ) | (file[lfanew+13]<<8 ) | (file[lfanew+14]<<16) | (file[lfanew+15]<<24),
-     (file[lfanew+12]<<24) | (file[lfanew+13]<<16) | (file[lfanew+14]<<8 ) | (file[lfanew+15]    )
+     ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+     ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+12, file[lfanew+12], file[lfanew+12], charf(file[lfanew+12]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+13, file[lfanew+13], file[lfanew+13], charf(file[lfanew+13]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+14, file[lfanew+14], file[lfanew+14], charf(file[lfanew+14]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+15, file[lfanew+15], file[lfanew+15], charf(file[lfanew+15]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n number_of_symbols = %u :: %u", // (4 байта)
-     (file[lfanew+16]    ) | (file[lfanew+17]<<8 ) | (file[lfanew+18]<<16) | (file[lfanew+19]<<24),
-     (file[lfanew+16]<<24) | (file[lfanew+17]<<16) | (file[lfanew+18]<<8 ) | (file[lfanew+19]    )
+     ((uint32_t) file[lfanew+16]    ) | ((uint32_t) file[lfanew+17]<<8 ) | ((uint32_t) file[lfanew+18]<<16) | ((uint32_t) file[lfanew+19]<<24),
+     ((uint32_t) file[lfanew+16]<<24) | ((uint32_t) file[lfanew+17]<<16) | ((uint32_t) file[lfanew+18]<<8 ) | ((uint32_t) file[lfanew+19]    )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+16, file[lfanew+16], file[lfanew+16], charf(file[lfanew+16]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+17, file[lfanew+17], file[lfanew+17], charf(file[lfanew+17]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+18, file[lfanew+18], file[lfanew+18], charf(file[lfanew+18]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+19, file[lfanew+19], file[lfanew+19], charf(file[lfanew+19]));
+    offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_optional_header = %u :: %u", // (2 байта)
      (file[lfanew+20]   ) | (file[lfanew+21]<<8),
