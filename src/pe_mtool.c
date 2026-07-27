@@ -9,8 +9,13 @@
 char charf(char ascii)
 {
     switch (ascii){
-    case '\0': ascii = ' '; // [!]
-    case '\n': ascii = ' ';
+    case '\0': ascii = ' '; // [NUL]
+    case '\1': ascii = ' '; // 
+    case '\2': ascii = ' '; // 
+    case '\3': ascii = ' '; // 
+    case '\6': ascii = ' '; // 
+    case '\v': ascii = ' '; // 
+    case   16: ascii = ' '; // 
     }
     return ascii;
 }
@@ -200,8 +205,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n magic = %u :: %u", // (2 байта)
-     (file[lfanew+24]   ) | (file[lfanew+25]<<8),
-     (file[lfanew+24]<<8) | (file[lfanew+25]   )
+     ((uint16_t) file[lfanew+24]   ) | ((uint16_t) file[lfanew+25]<<8),
+     ((uint16_t) file[lfanew+24]<<8) | ((uint16_t) file[lfanew+25]   )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+24, file[lfanew+24], file[lfanew+24], charf(file[lfanew+24]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+25, file[lfanew+25], file[lfanew+25], charf(file[lfanew+25]));
