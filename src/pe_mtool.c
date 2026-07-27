@@ -1,3 +1,4 @@
+// <!-- Encoding: Windows-1251 -->
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,10 +11,10 @@ char charf(uint8_t ascii)
 {
     switch (ascii){
     case '\0': ascii = ' '; // [NUL]
-    case '\1': ascii = ' '; // [SOH]
-    case '\2': ascii = ' '; // [STX]
-    case '\3': ascii = ' '; // [ETX]
-    case '\6': ascii = ' '; // [ACK]
+    case    1: ascii = ' '; // [SOH]
+    case    2: ascii = ' '; // [STX]
+    case    3: ascii = ' '; // [ETX]
+    case    6: ascii = ' '; // [ACK]
     case '\v': ascii = ' '; //  [VT]
     case   16: ascii = ' '; // [DLE]
     case  134: ascii = ' '; // †
@@ -110,9 +111,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
     //printf(" Анализ начат.");
     fprintf(stream, " --");
-    fprintf(stream, "\n magic = %u :: %u",
-     (file[0]   ) | (file[1]<<8),
-     (file[0]<<8) | (file[1]   )
+    fprintf(stream, "\n magic = %u :: %u", // (2 байта)
+     ((uint16_t) file[0]   ) | ((uint16_t) file[1]<<8),
+     ((uint16_t) file[0]<<8) | ((uint16_t) file[1]   )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 0ULL, file[0], file[0], charf(file[0]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", 1ULL, file[1], file[1], charf(file[1]));
