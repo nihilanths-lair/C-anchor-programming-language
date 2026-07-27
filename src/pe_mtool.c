@@ -184,18 +184,20 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_optional_header = %u :: %u", // (2 байта)
-     (file[lfanew+20]   ) | (file[lfanew+21]<<8),
-     (file[lfanew+20]<<8) | (file[lfanew+21]   )
+     ((uint16_t) file[lfanew+20]   ) | ((uint16_t) file[lfanew+21]<<8),
+     ((uint16_t) file[lfanew+20]<<8) | ((uint16_t) file[lfanew+21]   )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+20, file[lfanew+20], file[lfanew+20], charf(file[lfanew+20]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+21, file[lfanew+21], file[lfanew+21], charf(file[lfanew+21]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n characteristics = %u :: %u", // (2 байта)
-     (file[lfanew+22]   ) | (file[lfanew+23]<<8),
-     (file[lfanew+22]<<8) | (file[lfanew+23]   )
+     ((uint16_t) file[lfanew+22]   ) | ((uint16_t) file[lfanew+23]<<8),
+     ((uint16_t) file[lfanew+22]<<8) | ((uint16_t) file[lfanew+23]   )
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+22, file[lfanew+22], file[lfanew+22], charf(file[lfanew+22]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+23, file[lfanew+23], file[lfanew+23], charf(file[lfanew+23]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n magic = %u :: %u", // (2 байта)
      (file[lfanew+24]   ) | (file[lfanew+25]<<8),
