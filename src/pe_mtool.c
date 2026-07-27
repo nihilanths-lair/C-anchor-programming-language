@@ -82,9 +82,11 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 4. SizeOfRawData = 512 (4 байта) — Физический размер кода на диске
     fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 5. PointerToRawData = 512 (4 байта) — Физическое смещение кода в файле
     // 6. Оставшиеся указатели и счетчики релокаций (12 байт нулей)
-    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
-    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
-    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);
+    fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);
+    //
+    fwrite(&(uint32_t){0xE0000020}, sizeof (uint32_t), 1, file_descriptor); // 7. Characteristics = 0xE0000020 (CODE | EXECUTE | READ | WRITE) (4 байта)
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
