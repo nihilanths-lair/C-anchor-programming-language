@@ -108,52 +108,50 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
      (file[0]   ) | (file[1]<<8),
      (file[0]<<8) | (file[1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 0, file[0], file[0], charf(file[0]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 1, file[1], file[1], charf(file[1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 0ULL, file[0], file[0], charf(file[0]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 1ULL, file[1], file[1], charf(file[1]));
     fprintf(stream, "\n --");
-    for (long offset = 2; offset <= 59; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    for (uint8_t offset = 2; offset <= 59; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     fprintf(stream, "\n --");
-    // Читаем lfanew из ПРАВИЛЬНЫХ ячеек (60, 61, 62, 63)
-    uint32_t lfanew = (file[60]    ) | (file[61]<<8 ) | (file[62]<<16) | (file[63]<<24);
-    fprintf(stream, "\n lfanew = %u :: %u", lfanew, // (4 байта)
-                      (file[60]<<24) | (file[61]<<16) | (file[62]<<8 ) | (file[63]    )
-    );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60, file[60], file[60], charf(file[60]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61, file[61], file[61], charf(file[61]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62, file[62], file[62], charf(file[62]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63, file[63], file[63], charf(file[63]));
-    if (lfanew > 64)
+    uint32_t lfanew =                               ((uint32_t) file[60]    ) | ((uint32_t) file[61]<<8 ) | ((uint32_t) file[62]<<16) | ((uint32_t) file[63]<<24); // (4 байта)
+    fprintf(stream, "\n lfanew = %u :: %u", lfanew, ((uint32_t) file[60]<<24) | ((uint32_t) file[61]<<16) | ((uint32_t) file[62]<<8 ) | ((uint32_t) file[63]    ));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60ULL, file[60], file[60], charf(file[60]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61ULL, file[61], file[61], charf(file[61]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62ULL, file[62], file[62], charf(file[62]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63ULL, file[63], file[63], charf(file[63]));
+    uint64_t offset;
+    if (lfanew > 64) // Если lfanew > 64, значит между DOS-заголовком и NT-заголовком есть зазор (DOS STUB / Заглушка)
     {
         fprintf(stream, "\n --");
-        for (uint32_t offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+        for (offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     }
-    //uint64_t offset = lfanew;
-    //offset++ }
-    // --- ЧИТАЕМ СИГНАТУРУ NT_HEADER (Начиная со смещения lfanew) ---
-    // Вычисляем смещения для 4 байт сигнатуры
+    offset = lfanew; // Принудительно ставим offset на начало NT-заголовка
     fprintf(stream, "\n --");
     fprintf(stream, "\n signature = %u :: %u", // (4 байта)
-     (file[lfanew]    ) | (file[lfanew+1]<<8 ) | (file[lfanew+2]<<16) | (file[lfanew+3]<<24),
-     (file[lfanew]<<24) | (file[lfanew+1]<<16) | (file[lfanew+2]<<8 ) | (file[lfanew+3]    )
+     ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+     ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew  , file[lfanew  ], file[lfanew  ], charf(file[lfanew  ]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+1, file[lfanew+1], file[lfanew+1], charf(file[lfanew+1]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+2, file[lfanew+2], file[lfanew+2], charf(file[lfanew+2]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+3, file[lfanew+3], file[lfanew+3], charf(file[lfanew+3]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    offset += 4; // Теперь offset указывает СТРОГО на первый байт IMAGE_FILE_HEADER (COFF)
     fprintf(stream, "\n --");
     fprintf(stream, "\n machine = %u :: %u", // (2 байта)
-     (file[lfanew+4]   ) | (file[lfanew+5]<<8),
-     (file[lfanew+4]<<8) | (file[lfanew+5]   )
+     ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
+     ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+4, file[lfanew+4], file[lfanew+4], charf(file[lfanew+4]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+5, file[lfanew+5], file[lfanew+5], charf(file[lfanew+5]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2; // Сдвинулись на NumberOfSections
     fprintf(stream, "\n --");
     fprintf(stream, "\n number_of_sections = %u :: %u", // (2 байта)
-     (file[lfanew+6]   ) | (file[lfanew+7]<<8),
-     (file[lfanew+6]<<8) | (file[lfanew+7]   )
+     ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
+     ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+6, file[lfanew+6], file[lfanew+6], charf(file[lfanew+6]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+7, file[lfanew+7], file[lfanew+7], charf(file[lfanew+7]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2; // Теперь offset стоит на поле TimeDateStamp
     fprintf(stream, "\n --");
     fprintf(stream, "\n time_date_stamp = %u :: %u", // (4 байта)
      (file[lfanew+8]    ) | (file[lfanew+9]<<8 ) | (file[lfanew+10]<<16) | (file[lfanew+11]<<24),
