@@ -10,12 +10,12 @@ char charf(uint8_t ascii)
 {
     switch (ascii){
     case '\0': ascii = ' '; // [NUL]
-    case '\1': ascii = ' '; // 
-    case '\2': ascii = ' '; // 
-    case '\3': ascii = ' '; // 
-    case '\6': ascii = ' '; // 
-    case '\v': ascii = ' '; // 
-    case   16: ascii = ' '; // 
+    case '\1': ascii = ' '; // [SOH]
+    case '\2': ascii = ' '; // [STX]
+    case '\3': ascii = ' '; // [ETX]
+    case '\6': ascii = ' '; // [ACK]
+    case '\v': ascii = ' '; //  [VT]
+    case   16: ascii = ' '; // [DLE]
     case  134: ascii = ' '; // †
     }
     return ascii;
