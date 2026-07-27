@@ -154,13 +154,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2; // Теперь offset стоит на поле TimeDateStamp
     fprintf(stream, "\n --");
     fprintf(stream, "\n time_date_stamp = %u :: %u", // (4 байта)
-     (file[lfanew+8]    ) | (file[lfanew+9]<<8 ) | (file[lfanew+10]<<16) | (file[lfanew+11]<<24),
-     (file[lfanew+8]<<24) | (file[lfanew+9]<<16) | (file[lfanew+10]<<8 ) | (file[lfanew+11]    )
+     ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+     ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 8, file[lfanew+ 8], file[lfanew+ 8], charf(file[lfanew+ 8]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+ 9, file[lfanew+ 9], file[lfanew+ 9], charf(file[lfanew+ 9]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+10, file[lfanew+10], file[lfanew+10], charf(file[lfanew+10]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+11, file[lfanew+11], file[lfanew+11], charf(file[lfanew+11]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n pointer_to_symbol_table = %u :: %u", // (4 байта)
      (file[lfanew+12]    ) | (file[lfanew+13]<<8 ) | (file[lfanew+14]<<16) | (file[lfanew+15]<<24),
