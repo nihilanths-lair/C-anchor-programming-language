@@ -6,7 +6,7 @@
 //void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
 //void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
-char charf(char ascii)
+char charf(uint8_t ascii)
 {
     switch (ascii){
     case '\0': ascii = ' '; // [NUL]
@@ -16,6 +16,7 @@ char charf(char ascii)
     case '\6': ascii = ' '; // 
     case '\v': ascii = ' '; // 
     case   16: ascii = ' '; // 
+    case  134: ascii = ' '; // †
     }
     return ascii;
 }
