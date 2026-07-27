@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 // Заполнитель
-void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
-void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
+//void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
+//void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
 char charf(char ascii)
 {
@@ -20,15 +20,16 @@ void pe_minimal_builder(const char * file_name)
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
     fprintf(file_descriptor, "MZ");                                  // magic = MZ (2 байта)
-    file_aggregate(file_descriptor, '\0', 58);                       // 58 байт (2-59)
+    //file_aggregate(file_descriptor, '\0', 58);                     // 58 байт (2-59)
+    for (int i = 0; i < 58; i++) fputc('\0', file_descriptor);
     fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor);  // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
     fprintf(file_descriptor, "PE%c%c"  ,  0, 0);                     // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
     fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
-    fwrite(&(uint16_t)  {1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections     = 1 (2 байта)
-    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 3. TimeDateStamp        = 0 (4 байта)
-    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 4. PointerToSymbolTable = 0 (4 байта)
-    fwrite(&(uint32_t)  {0}, sizeof (uint32_t), 1, file_descriptor); // 5. NumberOfSymbols      = 0 (4 байта)
+    fwrite(&(uint16_t){  1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections     = 1 (2 байта)
+    fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 3. TimeDateStamp        = 0 (4 байта)
+    fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 4. PointerToSymbolTable = 0 (4 байта)
+    fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 5. NumberOfSymbols      = 0 (4 байта)
     fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
     fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
@@ -36,27 +37,27 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint16_t){0x020B}, sizeof (uint16_t), 1, file_descriptor); // 1. Magic = PE32+ (64-битный файл)
     fputc(1, file_descriptor);                                          // 2.1 MajorLinkerVersion
     fputc(0, file_descriptor);                                          // 2.2 MinorLinkerVersion
-    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor);   // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
-    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 4. SizeOfInitializedData (4 байта)
-    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor);   // 3. SizeOfCode (4 байта) ; Выровнен по FileAlignment
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);   // 4. SizeOfInitializedData (4 байта)
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);   // 5. SizeOfUninitializedData (4 байта)
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 6. AddressOfEntryPoint — укажем RVA = 4096 (0x1000). Это стандартное начало первой секции в памяти
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 7. BaseOfCode (Обычно совпадает с началом кода)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Windows-Specific Fields) ===
     // Начинается со смещения lfanew + 48 (112-й байт в файле)
     fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); // 8. ImageBase (8 байт)
-    fwrite(&(uint32_t)      {4096}, sizeof (uint32_t), 1, file_descriptor); // 9. SectionAlignment = 4096 (4 байта)
-    fwrite(&(uint32_t)       {512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment = 512 (4 байта)
+    fwrite(&(uint32_t){      4096}, sizeof (uint32_t), 1, file_descriptor); // 9. SectionAlignment = 4096 (4 байта)
+    fwrite(&(uint32_t){       512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment = 512 (4 байта)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Размеры и версии) ===
     // Начинается со смещения lfanew + 64 (128-й байт в файле)
-    fwrite(&(uint16_t)   {6}, sizeof (uint16_t), 1, file_descriptor); // 11. MajorOperatingSystemVersion
-    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 12. MinorOperatingSystemVersion
-    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 13. MajorImageVersion
-    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 14. MinorImageVersion
-    fwrite(&(uint16_t)   {6}, sizeof (uint16_t), 1, file_descriptor); // 15. MajorSubsystemVersion
-    fwrite(&(uint16_t)   {0}, sizeof (uint16_t), 1, file_descriptor); // 16. MinorSubsystemVersion
-    fwrite(&(uint32_t)   {0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
+    fwrite(&(uint16_t){   6}, sizeof (uint16_t), 1, file_descriptor); // 11. MajorOperatingSystemVersion
+    fwrite(&(uint16_t){   0}, sizeof (uint16_t), 1, file_descriptor); // 12. MinorOperatingSystemVersion
+    fwrite(&(uint16_t){   0}, sizeof (uint16_t), 1, file_descriptor); // 13. MajorImageVersion
+    fwrite(&(uint16_t){   0}, sizeof (uint16_t), 1, file_descriptor); // 14. MinorImageVersion
+    fwrite(&(uint16_t){   6}, sizeof (uint16_t), 1, file_descriptor); // 15. MajorSubsystemVersion
+    fwrite(&(uint16_t){   0}, sizeof (uint16_t), 1, file_descriptor); // 16. MinorSubsystemVersion
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
     fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
-    fwrite(&(uint32_t) {512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Подсистема и размеры памяти) ===
     // Начинается со смещения lfanew + 88 (152-й байт в файле)
     fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 20. CheckSum
@@ -64,7 +65,7 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint16_t){0}, sizeof (uint16_t), 1, file_descriptor); // 22. DllCharacteristics
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
     for (int i = 0; i < 4; i++) fwrite(&(uint64_t){0}, sizeof (uint64_t), 1, file_descriptor); // 23~26. Память (забиваем нулями для дефолтов Windows)
-    fwrite(&(uint32_t) {0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
+    fwrite(&(uint32_t){ 0}, sizeof (uint32_t), 1, file_descriptor); // 27. LoaderFlags
     fwrite(&(uint32_t){16}, sizeof (uint32_t), 1, file_descriptor); // 28. NumberOfRvaAndSizes (количество каталогов)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (DATA DIRECTORIES) ===
     // Начинается со смещения lfanew + 136. Всего 16 директорий по 8 байт = 128 байт.
@@ -73,6 +74,17 @@ void pe_minimal_builder(const char * file_name)
         fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // VirtualAddress = 0
         fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // Size = 0
     }
+    // === БЛОК №3: IMAGE_SECTION_HEADER (Секция .text) ===
+    // Начинается со смещения lfanew + 264 (328-й байт в файле)
+    fprintf(file_descriptor, ".text%c%c%c", 0, 0, 0);                 // 1. Name = ".text" (8 байт)
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 2. VirtualSize = 512 (4 байта)
+    fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor); // 3. VirtualAddress (RVA) = 4096 (4 байта) — Точка привязки EntryPoint в памяти
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 4. SizeOfRawData = 512 (4 байта) — Физический размер кода на диске
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 5. PointerToRawData = 512 (4 байта) — Физическое смещение кода в файле
+    // 6. Оставшиеся указатели и счетчики релокаций (12 байт нулей)
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
+    fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor);
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
