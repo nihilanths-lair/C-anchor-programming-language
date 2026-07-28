@@ -206,10 +206,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n magic = %u :: %u", // (2 байта)
-     ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
-     ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
-    );
+    uint16_t magic = ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8);
+    fprintf(stream, "\n magic = %u :: %u", magic, magic); // (2 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
@@ -278,23 +276,42 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
     offset += 4;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n image_base = %llu :: %llu", // (8 байт)
-     ((uint64_t) file[lfanew+48]    ) | ((uint64_t) file[lfanew+49]<<8 ) | ((uint64_t) file[lfanew+50]<<16) | ((uint64_t) file[lfanew+51]<<24)
-      |
-     ((uint64_t) file[lfanew+52]<<32) | ((uint64_t) file[lfanew+53]<<40) | ((uint64_t) file[lfanew+54]<<48) | ((uint64_t) file[lfanew+55]<<56),
+    // === РАЗВИЛКА АРХИТЕКТУР (PE32 vs PE32+) ===
+    uint64_t image_base = 0;
+    if (magic == 0x010B) // PE32 (32-бит)
+    {
+        offset += 4; // Пропускаем BaseOfData
+        image_base = // Читаем 4 байта
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        ;
+        fprintf(stream, "\n image_base = %u :: %u", image_base, image_base); // (4 байта)
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+    } 
+    else if (magic == 0x020B) // PE32+ (64-бит)
+    {
+        image_base = // Читаем 8 байт
+         ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+         ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
 
-     ((uint64_t) file[lfanew+48]<<56) | ((uint64_t) file[lfanew+49]<<48) | ((uint64_t) file[lfanew+50]<<40) | ((uint64_t) file[lfanew+51]<<32)
-      |
-     ((uint64_t) file[lfanew+52]<<24) | ((uint64_t) file[lfanew+53]<<16) | ((uint64_t) file[lfanew+54]<<8 ) | ((uint64_t) file[lfanew+55]    )
-    );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+48, file[lfanew+48], file[lfanew+48], charf(file[lfanew+48]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+49, file[lfanew+49], file[lfanew+49], charf(file[lfanew+49]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+50, file[lfanew+50], file[lfanew+50], charf(file[lfanew+50]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+51, file[lfanew+51], file[lfanew+51], charf(file[lfanew+51]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+52, file[lfanew+52], file[lfanew+52], charf(file[lfanew+52]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+53, file[lfanew+53], file[lfanew+53], charf(file[lfanew+53]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+54, file[lfanew+54], file[lfanew+54], charf(file[lfanew+54]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+55, file[lfanew+55], file[lfanew+55], charf(file[lfanew+55]));
+         ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+         ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+        ;
+        fprintf(stream, "\n image_base = %llu :: %llu", image_base, image_base); // (8 байт)
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+        offset += 8;
+    }
     fprintf(stream, "\n --");
     fprintf(stream, "\n section_alignment = %u :: %u", // (4 байта)
      (file[lfanew+56]    ) | (file[lfanew+57]<<8 ) | (file[lfanew+58]<<16) | (file[lfanew+59]<<24),
