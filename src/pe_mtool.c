@@ -214,20 +214,29 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n major_linker_version = %u :: %u", (file[lfanew+26]), (file[lfanew+26])); // (1 байт)
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+26, file[lfanew+26], file[lfanew+26], charf(file[lfanew+26]));
+    fprintf(stream, "\n major_linker_version = %u :: %u", // (1 байт)
+     ((uint8_t) file[offset]),
+     ((uint8_t) file[offset])
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    offset += 1;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n minor_linker_version = %u :: %u", (file[lfanew+27]), (file[lfanew+27])); // (1 байт)
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+27, file[lfanew+27], file[lfanew+27], charf(file[lfanew+27]));
+    fprintf(stream, "\n minor_linker_version = %u :: %u", // (1 байт)
+     ((uint8_t) file[offset]),
+     ((uint8_t) file[offset])
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    offset += 1;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_code = %u :: %u", // (4 байта)
-     (file[lfanew+28]    ) | (file[lfanew+29]<<8 ) | (file[lfanew+30]<<16) | (file[lfanew+31]<<24),
-     (file[lfanew+28]<<24) | (file[lfanew+29]<<16) | (file[lfanew+30]<<8 ) | (file[lfanew+31]    )
+     (file[offset]    ) | (file[offset+1]<<8 ) | (file[offset+2]<<16) | (file[offset+3]<<24),
+     (file[offset]<<24) | (file[offset+1]<<16) | (file[offset+2]<<8 ) | (file[offset+3]    )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+28, file[lfanew+28], file[lfanew+28], charf(file[lfanew+28]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+29, file[lfanew+29], file[lfanew+29], charf(file[lfanew+29]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+30, file[lfanew+30], file[lfanew+30], charf(file[lfanew+30]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+31, file[lfanew+31], file[lfanew+31], charf(file[lfanew+31]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_initialized_data = %u :: %u", // (4 байта)
      (file[lfanew+32]    ) | (file[lfanew+33]<<8 ) | (file[lfanew+34]<<16) | (file[lfanew+35]<<24),
