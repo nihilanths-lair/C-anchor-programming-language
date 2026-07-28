@@ -363,18 +363,20 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n major_operating_system_version = %u :: %u", // (2 байта)
-     (file[lfanew+64]   ) | (file[lfanew+65]<<8),
-     (file[lfanew+64]<<8) | (file[lfanew+65]   )
+     (file[offset]   ) | (file[offset+1]<<8),
+     (file[offset]<<8) | (file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+64, file[lfanew+64], file[lfanew+64], charf(file[lfanew+64]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+65, file[lfanew+65], file[lfanew+65], charf(file[lfanew+65]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n minor_operating_system_version = %u :: %u", // (2 байта)
-     (file[lfanew+66]   ) | (file[lfanew+67]<<8),
-     (file[lfanew+66]<<8) | (file[lfanew+67]   )
+     (file[offset]   ) | (file[offset+1]<<8),
+     (file[offset]<<8) | (file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+66, file[lfanew+66], file[lfanew+66], charf(file[lfanew+66]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+67, file[lfanew+67], file[lfanew+67], charf(file[lfanew+67]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n major_image_version = %u :: %u", // (2 байта)
      (file[lfanew+68]   ) | (file[lfanew+69]<<8),
