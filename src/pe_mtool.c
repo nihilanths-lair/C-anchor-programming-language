@@ -459,11 +459,12 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n dll_characteristics = %u :: %u", // (2 байта)
-     (file[lfanew+94]   ) | (file[lfanew+95]<<8),
-     (file[lfanew+94]<<8) | (file[lfanew+95]   )
+     (file[offset]   ) | (file[offset+1]<<8),
+     (file[offset]<<8) | (file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+94, file[lfanew+94], file[lfanew+94], charf(file[lfanew+94]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+95, file[lfanew+95], file[lfanew+95], charf(file[lfanew+95]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2;
     fprintf(stream, "\n --");
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
     for (uint64_t offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
