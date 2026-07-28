@@ -163,7 +163,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
-    offset += 4; // Теперь offset указывает СТРОГО на первый байт IMAGE_FILE_HEADER (COFF)
+    offset += 4; // IMAGE_FILE_HEADER (COFF)
     fprintf(stream, "\n --");
     fprintf(stream, "\n machine = %u :: %u", // (2 байта)
      ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
@@ -171,7 +171,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
-    offset += 2; // Сдвинулись на NumberOfSections
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n number_of_sections = %u :: %u", // (2 байта)
      ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
@@ -179,7 +179,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     );
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
-    offset += 2; // Теперь offset стоит на поле TimeDateStamp
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n time_date_stamp = %u :: %u", // (4 байта)
      ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
@@ -301,8 +301,16 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     uint64_t image_base = 0;
     if (magic == 0x010B) // PE32 (32-бит)
     {
-        offset += 4; // Пропускаем BaseOfData
-        image_base = // Читаем 4 байта
+        fprintf(stream, "\n base_of_data = %u :: %u", // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+        image_base =
          ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
          ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
         ;
@@ -315,7 +323,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     } 
     else if (magic == 0x020B) // PE32+ (64-бит)
     {
-        image_base = // Читаем 8 байт
+        image_base =
          ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
          ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
 
