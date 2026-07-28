@@ -4,6 +4,13 @@
 #include <stdint.h>
 
 #define macro__reverse_16_bit_number(value) (uint16_t) (((value)>>8) | ((value)<<8))
+#define macro__reverse_32_bit_number(value) \
+ (uint32_t) ( \
+ (((value)>>24)&0x000000FFu) | \
+ (((value)>>8 )&0x0000FF00u) | \
+ (((value)<<8 )&0x00FF0000u) | \
+ (((value)<<24)&0xFF000000u)   \
+)
 #define macro__reverse_64_bit_number(value) \
  (uint64_t) ( \
  (((value)>>56)&0x00000000000000FFull) | \
@@ -298,7 +305,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
          ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
          ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
         ;
-        fprintf(stream, "\n image_base = %u :: %u", image_base, image_base); // (4 байта)
+        fprintf(stream, "\n image_base = %u :: %u", image_base, macro__reverse_32_bit_number(image_base)); // (4 байта)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
