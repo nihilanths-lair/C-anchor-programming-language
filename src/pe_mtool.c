@@ -573,6 +573,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+        offset += 8;
         //fprintf(stream, "\n");
     }
     fprintf(stream, "\n --");
