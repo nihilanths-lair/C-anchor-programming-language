@@ -676,7 +676,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n number_of_relocations = %u :: %u", // (2 байта)
+        fprintf(stream, "\n number_of_relocations[%d] = %u :: %u", i+1, // (2 байта)
          ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
          ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
         );
@@ -684,7 +684,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         offset += 2;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n number_of_line_numbers = %u :: %u", // (2 байта)
+        fprintf(stream, "\n number_of_line_numbers[%d] = %u :: %u", i+1, // (2 байта)
          ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
          ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
         );
