@@ -599,7 +599,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         //section_heading[i][8] = '\0';
         //fprintf(stream, "\n Заголовок раздела: %s", section_heading[i]);
         fprintf(stream, "\n --");
-        fprintf(stream, "\n section_heading[%d] = %llu :: %llu", i+1, // (8 байт)
+        fprintf(stream, "\n name[%d] = %llu :: %llu", i+1, // (8 байт)
          ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
          ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
 
