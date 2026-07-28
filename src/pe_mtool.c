@@ -545,17 +545,16 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
     offset += 4;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", // (4 байта)
-     (file[offset]    ) | (file[offset+1]<<8 ) | (file[offset+2]<<16) | (file[offset+3]<<24),
-     (file[offset]<<24) | (file[offset+1]<<16) | (file[offset+2]<<8 ) | (file[offset+3]    )
-    );
+    uint32_t number_of_rva_and_sizes = (file[offset]) | (file[offset+1]<<8) | (file[offset+2]<<16) | (file[offset+3]<<24);
+    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", number_of_rva_and_sizes, /*macro__reverse_32_bit_number(*/number_of_rva_and_sizes/*)*/); // (4 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
     offset += 4;
     fprintf(stream, "\n --");
-    for (uint64_t offset = lfanew+136, i = 1; offset < lfanew+136+128; offset+=8, i++) // lfanew+136+16*8=lfanew+136+128=lfanew+264
+    // === ФИНАЛ: ЧТЕНИЕ КАТАЛОГОВ ДАННЫХ (DATA DIRECTORIES) ===
+    for (uint32_t i = 1; i <= number_of_rva_and_sizes; i++)
     {
         //fprintf(stream, "\n");
         fprintf(stream, "\n virtual_address[%d] = %u :: %u", i, // (4 байта)
