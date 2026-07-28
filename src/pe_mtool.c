@@ -546,7 +546,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     uint32_t number_of_rva_and_sizes = (file[offset]) | (file[offset+1]<<8) | (file[offset+2]<<16) | (file[offset+3]<<24);
-    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", number_of_rva_and_sizes, /*macro__reverse_32_bit_number(*/number_of_rva_and_sizes/*)*/); // (4 байта)
+    fprintf(stream, "\n number_of_rva_and_sizes = %u :: %u", number_of_rva_and_sizes, macro__reverse_32_bit_number(number_of_rva_and_sizes)); // (4 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
