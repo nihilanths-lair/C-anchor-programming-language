@@ -131,7 +131,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor); // Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
     //printf(" Анализ начат.");
-    fprintf(stream, " --");
+    fprintf(stream, " --------------------------");
+    fprintf(stream, "\n /!\\ Анализ PE-файла начат.");
+    fprintf(stream, "\n --------------------------");
     fprintf(stream, "\n magic = %u :: %u", // (2 байта)
      ((uint16_t) file[0]   ) | ((uint16_t) file[1]<<8),
      ((uint16_t) file[0]<<8) | ((uint16_t) file[1]   )
@@ -173,10 +175,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n number_of_sections = %u :: %u", // (2 байта)
-     ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
-     ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
-    );
+    uint16_t number_of_sections = ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8);
+    fprintf(stream, "\n number_of_sections = %u :: %u", number_of_sections, number_of_sections); // (2 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
@@ -576,7 +576,98 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 8;
         //fprintf(stream, "\n");
     }
-    fprintf(stream, "\n --");
+    //fprintf(stream, "\n --");
+    fprintf(stream, "\n   __________________");
+    fprintf(stream, "\n  /                  \\");
+    fprintf(stream, "\n [%c] SECTION HEADER [%c]", 135, 135); // БЛОК №3: ТАБЛИЦА СЕКЦИЙ
+    fprintf(stream, "\n  \\__________________/");
+    fprintf(stream, "\n");
+    fprintf(stream, "\n Количество секций: %u", number_of_sections);
+    // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше
+    // для борьбы с хаосом. Мы сохраним физические и виртуальные адреса секций.
+    // Для универсальности выделим память под максимум 96 секций (ограничение PE спецификации)
+    uint64_t section_heading[96][8+1] = {'\0'}; // Заголовок раздела
+    uint32_t virtual_size[96] = {0};
+    uint32_t virtual_address[96] = {0};
+    uint32_t size_of_raw_data[96] = {0};
+    uint32_t pointer_to_raw_data[96] = {0};
+    uint32_t characteristics[96] = {0};
+    for (int i = 0; i < number_of_sections; i++)
+    {
+        //for (int j = 0; j < 8; j++) section_heading[i][j] = file[offset+j];
+        //section_heading[i][8] = '\0';
+        //fprintf(stream, "\n Заголовок раздела: %s", section_heading[i]);
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n section_heading[%d] = %llu :: %llu", i+1, // (8 байт)
+         ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+         ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
+
+         ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+         ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+        offset += 8;
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n virtual_size[%d] = %u :: %u", i+1, // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n virtual_address[%d] = %u :: %u", i+1, // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n size_of_raw_data[%d] = %u :: %u", i+1, // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n pointer_to_raw_data[%d] = %u :: %u", i+1, // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+        fprintf(stream, "\n --");
+        fprintf(stream, "\n characteristics[%d] = %u :: %u", i+1, // (4 байта)
+         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        );
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+        offset += 4;
+    }
+    fprintf(stream, "\n -----------------------------");
+    fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
+    fprintf(stream, "\n -----------------------------");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
