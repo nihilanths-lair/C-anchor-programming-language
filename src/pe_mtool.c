@@ -3,6 +3,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define macro__reverse_16_bit_number(value) (uint16_t) (((value)>>8) | ((value)<<8))
+#define macro__reverse_64_bit_number(value) \
+ (uint64_t) ( \
+ (((value)>>56)&0x00000000000000FFull) | \
+ (((value)>>40)&0x000000000000FF00ull) | \
+ (((value)>>24)&0x0000000000FF0000ull) | \
+ (((value)>>8 )&0x00000000FF000000ull) | \
+ (((value)<<8 )&0x000000FF00000000ull) | \
+ (((value)<<24)&0x0000FF0000000000ull) | \
+ (((value)<<40)&0x00FF000000000000ull) | \
+ (((value)<<56)&0xFF00000000000000ull)   \
+)
+ 
 // Заполнитель
 //void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
 //void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
@@ -301,7 +314,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
          ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
          ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
         ;
-        fprintf(stream, "\n image_base = %llu :: %llu", image_base, image_base); // (8 байт)
+        fprintf(stream, "\n image_base = %llu :: %llu", image_base, macro__reverse_64_bit_number(image_base)); // (8 байт)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
