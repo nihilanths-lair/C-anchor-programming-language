@@ -451,11 +451,12 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n sub_system = %u :: %u", // (2 байта)
-     (file[lfanew+92]   ) | (file[lfanew+93]<<8),
-     (file[lfanew+92]<<8) | (file[lfanew+93]   )
+     (file[offset]   ) | (file[offset+1]<<8),
+     (file[offset]<<8) | (file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+92, file[lfanew+92], file[lfanew+92], charf(file[lfanew+92]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+93, file[lfanew+93], file[lfanew+93], charf(file[lfanew+93]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n dll_characteristics = %u :: %u", // (2 байта)
      (file[lfanew+94]   ) | (file[lfanew+95]<<8),
