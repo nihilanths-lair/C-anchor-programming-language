@@ -135,17 +135,17 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
      ((uint16_t) file[0]   ) | ((uint16_t) file[1]<<8),
      ((uint16_t) file[0]<<8) | ((uint16_t) file[1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 0ULL, file[0], file[0], charf(file[0]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 1ULL, file[1], file[1], charf(file[1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 0ull, file[0], file[0], charf(file[0]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 1ull, file[1], file[1], charf(file[1]));
     fprintf(stream, "\n --");
     for (uint8_t offset = 2; offset <= 59; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     fprintf(stream, "\n --");
     uint32_t lfanew =                               ((uint32_t) file[60]    ) | ((uint32_t) file[61]<<8 ) | ((uint32_t) file[62]<<16) | ((uint32_t) file[63]<<24); // (4 байта)
     fprintf(stream, "\n lfanew = %u :: %u", lfanew, ((uint32_t) file[60]<<24) | ((uint32_t) file[61]<<16) | ((uint32_t) file[62]<<8 ) | ((uint32_t) file[63]    ));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60ULL, file[60], file[60], charf(file[60]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61ULL, file[61], file[61], charf(file[61]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62ULL, file[62], file[62], charf(file[62]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63ULL, file[63], file[63], charf(file[63]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60ull, file[60], file[60], charf(file[60]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61ull, file[61], file[61], charf(file[61]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62ull, file[62], file[62], charf(file[62]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63ull, file[63], file[63], charf(file[63]));
     uint64_t offset;
     if (lfanew > 64) // Если lfanew > 64, значит между DOS-заголовком и NT-заголовком есть зазор (DOS STUB / Заглушка)
     {
@@ -227,7 +227,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     uint16_t magic = ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8);
-    fprintf(stream, "\n magic = %u :: %u", magic, magic); // (2 байта)
+    fprintf(stream, "\n magic = %u :: %u", magic, macro__reverse_16_bit_number(magic)); // (2 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
