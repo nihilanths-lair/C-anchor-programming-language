@@ -467,8 +467,74 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     // SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve, SizeOfHeapCommit
-    for (uint64_t offset = lfanew+96; offset < lfanew+128; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
-    fprintf(stream, "\n --"); // lfanew+96+32=lfanew+128
+    fprintf(stream, "\n size_of_stack_reserve = %llu :: %llu", // (8 байт)
+     ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
+
+     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+    offset += 8;
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_stack_commit = %llu :: %llu", // (8 байт)
+     ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
+
+     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+    offset += 8;
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_heap_reserve = %llu :: %llu", // (8 байт)
+     ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
+
+     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+    offset += 8;
+    fprintf(stream, "\n --");
+    fprintf(stream, "\n size_of_heap_commit = %llu :: %llu", // (8 байт)
+     ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
+
+     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
+     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+    );
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+    offset += 8;
+    fprintf(stream, "\n --");
     fprintf(stream, "\n loader_flags = %u :: %u", // (4 байта)
      (file[lfanew+128]    ) | (file[lfanew+129]<<8 ) | (file[lfanew+130]<<16) | (file[lfanew+131]<<24),
      (file[lfanew+128]<<24) | (file[lfanew+129]<<16) | (file[lfanew+130]<<8 ) | (file[lfanew+131]    )
