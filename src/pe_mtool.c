@@ -207,11 +207,12 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n magic = %u :: %u", // (2 байта)
-     ((uint16_t) file[lfanew+24]   ) | ((uint16_t) file[lfanew+25]<<8),
-     ((uint16_t) file[lfanew+24]<<8) | ((uint16_t) file[lfanew+25]   )
+     ((uint16_t) file[offset]   ) | ((uint16_t) file[offset+1]<<8),
+     ((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1]   )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+24, file[lfanew+24], file[lfanew+24], charf(file[lfanew+24]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+25, file[lfanew+25], file[lfanew+25], charf(file[lfanew+25]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    offset += 2;
     fprintf(stream, "\n --");
     fprintf(stream, "\n major_linker_version = %u :: %u", (file[lfanew+26]), (file[lfanew+26])); // (1 байт)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+26, file[lfanew+26], file[lfanew+26], charf(file[lfanew+26]));
