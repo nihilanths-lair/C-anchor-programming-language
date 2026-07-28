@@ -576,13 +576,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 8;
         //fprintf(stream, "\n");
     }
-    //fprintf(stream, "\n --");
+    /*
     fprintf(stream, "\n   __________________");
     fprintf(stream, "\n  /                  \\");
     fprintf(stream, "\n [%c] SECTION HEADER [%c]", 135, 135); // БЛОК №3: ТАБЛИЦА СЕКЦИЙ
     fprintf(stream, "\n  \\__________________/");
     fprintf(stream, "\n");
     fprintf(stream, "\n Количество секций: %u", number_of_sections);
+    */
     // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше
     // для борьбы с хаосом. Мы сохраним физические и виртуальные адреса секций.
     // Для универсальности выделим память под максимум 96 секций (ограничение PE спецификации)
