@@ -421,13 +421,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_image = %u :: %u", // (4 байта)
-     (file[lfanew+80]    ) | (file[lfanew+81]<<8 ) | (file[lfanew+82]<<16) | (file[lfanew+83]<<24),
-     (file[lfanew+80]<<24) | (file[lfanew+81]<<16) | (file[lfanew+82]<<8 ) | (file[lfanew+83]    )
+     (file[offset]    ) | (file[offset+1]<<8 ) | (file[offset+2]<<16) | (file[offset+3]<<24),
+     (file[offset]<<24) | (file[offset+1]<<16) | (file[offset+2]<<8 ) | (file[offset+3]    )
     );
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+80, file[lfanew+80], file[lfanew+80], charf(file[lfanew+80]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+81, file[lfanew+81], file[lfanew+81], charf(file[lfanew+81]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+82, file[lfanew+82], file[lfanew+82], charf(file[lfanew+82]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", lfanew+83, file[lfanew+83], file[lfanew+83], charf(file[lfanew+83]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
+    offset += 4;
     fprintf(stream, "\n --");
     fprintf(stream, "\n size_of_headers = %u :: %u", // (4 байта)
      (file[lfanew+84]    ) | (file[lfanew+85]<<8 ) | (file[lfanew+86]<<16) | (file[lfanew+87]<<24),
