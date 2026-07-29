@@ -202,7 +202,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     offset += 2;
     fprintf(stream, "\n --");
     uint16_t number_of_sections = ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8);
-    fprintf(stream, "\n number_of_sections = %u :: %u", number_of_sections, number_of_sections); // (2 байта)
+    fprintf(stream, "\n number_of_sections = %u :: %u", number_of_sections, macro__reverse_16_bit_number(number_of_sections)); // (2 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
