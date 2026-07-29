@@ -25,10 +25,10 @@
 )
  
 // Заполнитель
-void file_aggregate(FILE * file_descriptor, const char ascii, int16_t quantity) { while (--quantity >= 0) fprintf(file_descriptor, "%c", ascii); }
+void file_aggregate(FILE * file_descriptor, const uint8_t ascii, int16_t quantity) { while (--quantity >= 0) fprintf(file_descriptor, "%c", ascii); }
 //void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
-char charf(uint8_t ascii)
+int8_t charf(uint8_t ascii)
 {
     switch (ascii){
     case '\0': ascii = ' '; // [NUL]
@@ -41,6 +41,23 @@ char charf(uint8_t ascii)
     case  134: ascii = ' '; // †
     }
     return ascii;
+}
+
+uint32_t rva_to_raw(uint32_t number_of_sections, uint32_t address_of_entry_point, const uint32_t * virtual_size, const uint32_t * virtual_address, const uint32_t * pointer_to_raw_data)
+{
+    for (uint32_t i = 0; i < number_of_sections; i++)
+    {
+        uint32_t _virtual_address = virtual_address[i];
+        uint32_t _virtual_size = virtual_size[i];
+        // Проверяем, попадает ли искомый RVA в диапазон текущей секции
+        if (
+            address_of_entry_point >= _virtual_address
+            &&
+            address_of_entry_point < (_virtual_address + _virtual_size)
+        )
+        { return address_of_entry_point - _virtual_address + pointer_to_raw_data[i]; }
+    }
+    return 0; // Если адрес указывает на заголовки или поврежден
 }
 
 void pe_minimal_builder(const char * file_name)
@@ -286,10 +303,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
     offset += 4;
     fprintf(stream, "\n --");
-    fprintf(stream, "\n address_of_entry_point = %u :: %u", // (4 байта)
-     ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
-     ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
-    );
+    uint32_t address_of_entry_point = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
+    fprintf(stream, "\n address_of_entry_point = %u :: %u", address_of_entry_point, address_of_entry_point); // (4 байта)
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
@@ -712,6 +727,14 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 4;
     }
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
+    // entry_point у нас равен 4096. Переводим его в физическое смещение в файле:
+    // Передаем значение, количество секций и наши массивы-карты
+    uint32_t entry_point_raw = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
+    if (entry_point_raw != 0)
+    {
+        fprintf(stream, "\n Точка входа AddressOfEntryPoint (RVA): 0x%08X", address_of_entry_point);
+        fprintf(stream, "\n Найдено физическое смещение в файле (RAW): %u (0x%08X)", entry_point_raw, entry_point_raw);
+    }
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
