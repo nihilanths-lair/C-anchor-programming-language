@@ -25,7 +25,7 @@
 )
  
 // Заполнитель
-//void file_aggregate(FILE * file_descriptor, const char ascii, int quantity) { while (--quantity >= 0) putc(ascii, file_descriptor); }
+void file_aggregate(FILE * file_descriptor, const char ascii, int16_t quantity) { while (--quantity >= 0) fprintf(file_descriptor, "%c", ascii); }
 //void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
 char charf(uint8_t ascii)
@@ -115,6 +115,15 @@ void pe_minimal_builder(const char * file_name)
     fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor);
     //
     fwrite(&(uint32_t){0xE0000020}, sizeof (uint32_t), 1, file_descriptor); // 7. Characteristics = 0xE0000020 (CODE | EXECUTE | READ | WRITE) (4 байта)
+    // К этому моменту записано ровно 368 байт.
+    // 1. ПАДДИНГ ЗАГОЛОВКОВ: Добиваем нулями до 512 байт (512 - 368 = 144 байта)
+    file_aggregate(file_descriptor, '\0', 144);
+    // === СМЕЩЕНИЕ 512: НАЧАЛО СЕКЦИИ .text (RAW DATA) ===
+    // Записываем ассемблерную инструкцию 'ret' (0xC3) — это код нашей программы!
+    fprintf(file_descriptor, "%c", 0xC3);
+    // 2. ПАДДИНГ СЕКЦИИ: Секция на диске должна занимать строго 512 байт.
+    // Мы записали 1 байт кода, значит добиваем еще 511 байт нулями
+    file_aggregate(file_descriptor, '\0', 511);
     fclose(file_descriptor);
 }
 void pe_minimal_analyzer(const char * file_name, FILE * stream)
@@ -584,8 +593,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     fprintf(stream, "\n");
     fprintf(stream, "\n Количество секций: %u", number_of_sections);
     */
-    // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше
-    // для борьбы с хаосом. Мы сохраним физические и виртуальные адреса секций.
+    // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше для борьбы с хаосом.
+    // Мы сохраним физические и виртуальные адреса секций.
     // Для универсальности выделим память под максимум 96 секций (ограничение PE спецификации)
     uint64_t section_heading[96][8+1] = {'\0'}; // Заголовок раздела
     uint32_t virtual_size[96] = {0};
@@ -702,6 +711,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
     }
+    // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
