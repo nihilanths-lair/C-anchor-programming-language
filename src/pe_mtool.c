@@ -604,7 +604,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     //uint64_t section_heading[96][8+1] = {'\0'}; // Заголовок раздела
     uint32_t virtual_size[96] = {0};
     uint32_t virtual_address[96] = {0};
-    //uint32_t size_of_raw_data[96] = {0};
+    uint32_t size_of_raw_data[96] = {0};
     uint32_t pointer_to_raw_data[96] = {0};
     //uint32_t characteristics[96] = {0};
     for (int i = 0; i < number_of_sections; i++)
@@ -646,9 +646,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n size_of_raw_data[%d] = %u :: %u", i+1, // (4 байта)
-         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        /*uint32_t*/size_of_raw_data[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
+        fprintf(stream, "\n size_of_raw_data[%d] = %u :: %u", i+1, size_of_raw_data[i], // (4 байта)
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8) | ((uint32_t) file[offset+3])
         );
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
@@ -722,15 +722,27 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     // entry_point у нас равен 4096. Переводим его в физическое смещение в файле:
     // Передаем значение, количество секций и наши массивы-карты
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
-    uint32_t entry_point_raw = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
-    if (entry_point_raw != 0)
+    uint32_t raw__address_of_entry_point = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
+    if (raw__address_of_entry_point != 0)
     {
         fprintf(stream, "\n Точка входа в программу (RVA): %u = 0x%08X", address_of_entry_point, address_of_entry_point);
-        fprintf(stream, "\n Физическое смещение в файле (RAW): %u = 0x%08X", entry_point_raw, entry_point_raw);
+        fprintf(stream, "\n Физическое смещение в файле (RAW): %u = 0x%08X", raw__address_of_entry_point, raw__address_of_entry_point);
         fprintf(stream, "\n --");
     }
-    // В нашем случае первая инструкция машинного кода
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    // 1. Находим, какой именно секции принадлежит этот RAW адрес, чтобы забрать её VirtualSize и SizeOfRawData
+    for (uint32_t i = 0; i < number_of_sections; i++)
+    {
+        if (raw__address_of_entry_point >= pointer_to_raw_data[i] && raw__address_of_entry_point < (pointer_to_raw_data[i] + size_of_raw_data[i]))
+        {
+            // Вычисляем точные физические границы внутри файла
+            uint64_t code_end_offset = pointer_to_raw_data[i] + virtual_size[i];
+            uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
+            // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
+            fprintf(stream, "\n Размер кода (VirtualSize): %u байт", virtual_size[i]);
+            for (uint64_t pos = pointer_to_raw_data[i]; pos < code_end_offset; pos++) fprintf(stream, "\n %08llu: %03d | %02X | %c", pos, file[pos], file[pos], charf(file[pos]));
+            break;
+        }
+    }
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
