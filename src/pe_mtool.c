@@ -600,14 +600,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 8;
         //fprintf(stream, "\n");
     }
-    /*
-    fprintf(stream, "\n   __________________");
-    fprintf(stream, "\n  /                  \\");
-    fprintf(stream, "\n [%c] SECTION HEADER [%c]", 135, 135); // БЛОК №3: ТАБЛИЦА СЕКЦИЙ
-    fprintf(stream, "\n  \\__________________/");
-    fprintf(stream, "\n");
-    fprintf(stream, "\n Количество секций: %u", number_of_sections);
-    */
+    //fprintf(stream, "\n Количество секций: %u", number_of_sections);
     // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше для борьбы с хаосом.
     // Мы сохраним физические и виртуальные адреса секций.
     // Для универсальности выделим память под максимум 96 секций (ограничение PE спецификации)
@@ -640,9 +633,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
         offset += 8;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n virtual_size[%d] = %u :: %u", i+1, // (4 байта)
-         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        /*uint32_t*/virtual_size[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
+        fprintf(stream, "\n virtual_size[%d] = %u :: %u", i+1, virtual_size[i], /*virtual_size[i]);*/ // (4 байта)
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
         );
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
@@ -650,9 +643,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n virtual_address[%d] = %u :: %u", i+1, // (4 байта)
-         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        /*uint32_t*/virtual_address[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
+        fprintf(stream, "\n virtual_address[%d] = %u :: %u", i+1, virtual_address[i], /*virtual_address[i]);*/ // (4 байта)
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
         );
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
@@ -670,9 +663,9 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
         fprintf(stream, "\n --");
-        fprintf(stream, "\n pointer_to_raw_data[%d] = %u :: %u", i+1, // (4 байта)
-         ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
+        /*uint32_t*/pointer_to_raw_data[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
+        fprintf(stream, "\n pointer_to_raw_data[%d] = %u :: %u", i+1, pointer_to_raw_data[i], /*pointer_to_raw_data[i]);*/ // (4 байта)
+         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
         );
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
@@ -725,6 +718,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
+        fprintf(stream, "\n --");
     }
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     // entry_point у нас равен 4096. Переводим его в физическое смещение в файле:
@@ -732,8 +726,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     uint32_t entry_point_raw = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
     if (entry_point_raw != 0)
     {
-        fprintf(stream, "\n Точка входа AddressOfEntryPoint (RVA): 0x%08X", address_of_entry_point);
-        fprintf(stream, "\n Найдено физическое смещение в файле (RAW): %u (0x%08X)", entry_point_raw, entry_point_raw);
+        fprintf(stream, "\n Точка входа в программу (RVA): %u = 0x%08X", address_of_entry_point, address_of_entry_point);
+        fprintf(stream, "\n Физическое смещение в файле (RAW): %u = 0x%08X", entry_point_raw, entry_point_raw);
     }
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
