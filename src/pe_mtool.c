@@ -634,9 +634,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 8;
         fprintf(stream, "\n --");
         /*uint32_t*/virtual_size[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
-        fprintf(stream, "\n virtual_size[%d] = %u :: %u", i+1, virtual_size[i], /*virtual_size[i]);*/ // (4 байта)
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
-        );
+        fprintf(stream, "\n virtual_size[%d] = %u :: %u", i+1, virtual_size[i], /*macro__reverse_32_bit_number(*/virtual_size[i]); // (4 байта)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
@@ -644,9 +642,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 4;
         fprintf(stream, "\n --");
         /*uint32_t*/virtual_address[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
-        fprintf(stream, "\n virtual_address[%d] = %u :: %u", i+1, virtual_address[i], /*virtual_address[i]);*/ // (4 байта)
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
-        );
+        fprintf(stream, "\n virtual_address[%d] = %u :: %u", i+1, virtual_address[i], /*macro__reverse_32_bit_number(*/virtual_address[i]); // (4 байта)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
@@ -664,9 +660,7 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 4;
         fprintf(stream, "\n --");
         /*uint32_t*/pointer_to_raw_data[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
-        fprintf(stream, "\n pointer_to_raw_data[%d] = %u :: %u", i+1, pointer_to_raw_data[i], /*pointer_to_raw_data[i]);*/ // (4 байта)
-         ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3])
-        );
+        fprintf(stream, "\n pointer_to_raw_data[%d] = %u :: %u", i+1, pointer_to_raw_data[i], /*macro__reverse_32_bit_number(*/pointer_to_raw_data[i]); // (4 байта)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
