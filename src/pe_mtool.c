@@ -719,8 +719,6 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
     }
     fprintf(stream, "\n --");
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
-    // entry_point у нас равен 4096. Переводим его в физическое смещение в файле:
-    // Передаем значение, количество секций и наши массивы-карты
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
     uint32_t raw__address_of_entry_point = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
     if (raw__address_of_entry_point != 0)
@@ -739,7 +737,12 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
             uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
             // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
             fprintf(stream, "\n Размер кода (VirtualSize): %u байт", virtual_size[i]);
-            for (uint64_t pos = pointer_to_raw_data[i]; pos < code_end_offset; pos++) fprintf(stream, "\n %08llu: %03d | %02X | %c", pos, file[pos], file[pos], charf(file[pos]));
+            offset = pointer_to_raw_data[i]; // нужно ли? если скользящий offset уже стоит на нужном нам месте...
+            while (offset < code_end_offset) // цикл выводит и машинный код и зазор (паддинг), что не совсем корректно...
+            {
+                fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+                offset++;
+            }
             break;
         }
     }
