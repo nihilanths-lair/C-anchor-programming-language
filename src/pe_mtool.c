@@ -712,6 +712,12 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         offset += 4;
         fprintf(stream, "\n --");
     }
+    // Переменная size_of_headers у нас прочитана ранее (она равна 512)
+    for (uint64_t i = offset; i < size_of_headers; i++, offset++)
+    {
+        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+    }
+    fprintf(stream, "\n --");
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     // entry_point у нас равен 4096. Переводим его в физическое смещение в файле:
     // Передаем значение, количество секций и наши массивы-карты
