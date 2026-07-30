@@ -28,18 +28,55 @@
 void file_aggregate(FILE * file_descriptor, const uint8_t ascii, int16_t quantity) { while (--quantity >= 0) fprintf(file_descriptor, "%c", ascii); }
 //void print_aggregate(const char ascii, int quantity) { while (--quantity >= 0) putchar(ascii); }
 
+#define case_on {
+#define case_off }
 int8_t charf(uint8_t ascii)
 {
-    switch (ascii){
-    case '\0': ascii = ' '; // [NUL]
-    case    1: ascii = ' '; // [SOH]
-    case    2: ascii = ' '; // [STX]
-    case    3: ascii = ' '; // [ETX]
-    case    6: ascii = ' '; // [ACK]
-    case '\v': ascii = ' '; //  [VT]
-    case   16: ascii = ' '; // [DLE]
-    case  134: ascii = ' '; // †
-    }
+    switch (ascii) case_on
+
+    case '\0': // [NUL]
+    case    1: // [SOH]
+    case    2: // [STX]
+    case    3: // [ETX]
+    case    4: // [EOT]
+    case    5: // [ENQ]
+    case    6: // [ACK]
+    case '\a': // [BEL]
+    case '\b': // [BS]
+    { ascii = ' '; } break;
+    // '\t'
+    case '\n': // [?]
+    case '\v': // [VT]
+    case '\f': // [FF]
+    { ascii = ' '; } break;
+    // '\r'
+    case   14: // [SO]
+    case   15: // [SI]
+    case   16: // [DLE]
+    case   17: // [DC1]
+    case   18: // [DC2]
+    case   19: // [DC3]
+    case   20: // [DC4]
+    case   21: // [NAK]
+    case   22: // [SYN]
+    case   23: // [ETB]
+    case   24: // [CAN]
+    case   25: // [EM]
+    case   26: // [SUB]
+    case '\e': // [ESC]
+    case   28: // [FS]
+    case   29: // [GS]
+    case   30: // [RS]
+    case   31: // [US]
+    { ascii = ' '; } break;
+    // '\x'
+    case  127: // [DEL]
+    { ascii = ' '; } break;
+
+    case  134: // †
+    { ascii = ' '; } break;
+
+    case_off
     return ascii;
 }
 
@@ -707,8 +744,8 @@ void pe_minimal_analyzer(const char * file_name, FILE * stream)
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
-        fprintf(stream, "\n --");
     }
+    fprintf(stream, "\n --");
     // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
     while (offset < size_of_headers)
     {
