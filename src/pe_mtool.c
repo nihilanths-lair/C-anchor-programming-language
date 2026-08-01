@@ -182,7 +182,6 @@ void pe_minimal_builder(const int8_t * file_name)
 }
 void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * path_output_dump_file/*FILE * stream*/)
 {
-    printf("\n path_output_dump_file = \"%s\"\n", path_output_dump_file);
     FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
     fseek(file_descriptor, 0, SEEK_END);
@@ -795,6 +794,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
+    if (path_output_dump_file[0] != '\0') fclose(stream);
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
@@ -825,8 +825,9 @@ int main(/*int argc, char * argv[]*/)
     //printf("```\n%s\n```", buffer_2);
     if (!strcmp(buffer, "В консоль"))
     {
-        pe_minimal_analyzer(path_file_being_analyzed, ""); // Вывод в консоль
         putchar('\n');
+        pe_minimal_analyzer(path_file_being_analyzed, ""); // Вывод в консоль
+        printf("\n\n");
         system("pause");
     }
     else if (!strcmp(buffer, "В файл"))
@@ -838,8 +839,9 @@ int main(/*int argc, char * argv[]*/)
         path_output_dump_file[size_buffer-2] = 'm';
         path_output_dump_file[size_buffer-1] = 'p';
         path_output_dump_file[size_buffer  ] = '\0'; // ?
-        printf("\n --");
         pe_minimal_analyzer(path_file_being_analyzed, path_output_dump_file); // Вывод в файл
+        printf("\n Файл %s был подготовлен.\n\n", path_output_dump_file);
+        //printf("\n Готово.\n");
         system("pause");
     }
     else
