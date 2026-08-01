@@ -182,13 +182,14 @@ void pe_minimal_builder(const int8_t * file_name)
 }
 void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * path_output_dump_file/*FILE * stream*/)
 {
+    printf("\n path_output_dump_file = \"%s\"\n", path_output_dump_file);
     FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
     fseek(file_descriptor, 0, SEEK_END);
     long file_size = ftell(file_descriptor);
     fseek(file_descriptor, 0, SEEK_SET);
     if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", path_file_being_analyzed); fclose(file_descriptor); return; }
-    char * file = (char *) malloc(file_size);
+    uint8_t * file = (uint8_t *) malloc(file_size);
     if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", path_file_being_analyzed); fclose(file_descriptor); return; }
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", path_file_being_analyzed); free(file); return; }
@@ -831,7 +832,8 @@ int main(/*int argc, char * argv[]*/)
     else if (!strcmp(buffer, "В файл"))
     {
         //int8_t output_dump_file[128] = {0};
-        char size_buffer = strlen(path_file_being_analyzed);
+        uint8_t size_buffer = (uint8_t) strlen(path_file_being_analyzed);
+        strcpy(path_output_dump_file, path_file_being_analyzed);
         path_output_dump_file[size_buffer-3] = 'd';
         path_output_dump_file[size_buffer-2] = 'm';
         path_output_dump_file[size_buffer-1] = 'p';
