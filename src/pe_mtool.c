@@ -97,7 +97,7 @@ uint32_t rva_to_raw(uint32_t number_of_sections, uint32_t address_of_entry_point
     return 0; // Если адрес указывает на заголовки или поврежден
 }
 
-void pe_minimal_builder(const char * file_name)
+void pe_minimal_builder(const int8_t * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
@@ -180,19 +180,25 @@ void pe_minimal_builder(const char * file_name)
     file_aggregate(file_descriptor, '\0', 511);
     fclose(file_descriptor);
 }
-void pe_minimal_analyzer(const char * file_name, FILE * stream)
+void pe_minimal_analyzer(const uint8_t * path_file_being_analyzed, const uint8_t path_output_dump_file/*FILE * stream*/)
 {
-    FILE * file_descriptor;
-    file_descriptor = fopen(file_name, "rb"); // Открываем файл в бинарном режиме
-    if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", file_name); return; }
+    FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
+    if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
     fseek(file_descriptor, 0, SEEK_END);
-    long file_size = ftell(file_descriptor); // Измеряем точный физический размер файла на диске
+    long file_size = ftell(file_descriptor);
     fseek(file_descriptor, 0, SEEK_SET);
-    if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", file_name); fclose(file_descriptor); return; }
-    uint8_t * file = (uint8_t *) malloc(file_size); // Выделяем беззнаковую память под весь файл
-    if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", file_name); fclose(file_descriptor); return; }
-    long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor); // Считываем весь файл в память одним монолитным блоком и закрываем дескриптор
-    if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", file_name); free(file); return; }
+    if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", path_file_being_analyzed); fclose(file_descriptor); return; }
+    uint8_t * file = (uint8_t *) malloc(file_size);
+    if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", path_file_being_analyzed); fclose(file_descriptor); return; }
+    long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
+    if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", path_file_being_analyzed); free(file); return; }
+    FILE * stream;
+    if (!path_output_dump_file[0]) stream = stdout;
+    else
+    {
+        FILE * stream = fopen(path_output_dump_file, "wb");
+        if (!stream) return;
+    }
     //printf(" Анализ начат.");
     fprintf(stream, " --------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла начат.");
@@ -801,28 +807,34 @@ int main(/*int argc, char * argv[]*/)
     SetConsoleOutputCP(1251); // Кодировка вывода
     pe_minimal_builder("__.exe");
     //pe_minimal_analyzer("__.exe");
-    char buffer[128];
-    char buffer_2[64];
+    uint8_t path_file_being_analyzed[128] = {0};
+    uint8_t path_output_dump_file[128] = {0};
+    int8_t buffer[64];
     printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
-    fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
-    buffer[strcspn(buffer, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
+    fgets(path_file_being_analyzed, sizeof (path_file_being_analyzed), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    path_file_being_analyzed[strcspn(path_file_being_analyzed, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
     __start:
-    printf("\n Куда бы вы хотели получить результат?\n  В консоль\n  В файл\n  Оба варианта\n>>> ");
-    fgets(buffer_2, sizeof (buffer_2), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
-    buffer_2[strcspn(buffer_2, "\n")] = '\0';
+    printf("\n Куда хотите получить результат?\n  В консоль\n  В файл\n  Оба варианта [Недоступно]\n>>> ");
+    fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
+    buffer[strcspn(buffer, "\n")] = '\0';
     //printf("```\n%s\n```", buffer_2);
-    if (!strcmp(buffer_2, "В консоль")) 
+    if (!strcmp(buffer, "В консоль"))
     {
-        pe_minimal_analyzer(buffer, stdout); // Вывод в консоль
+        path_output_dump_file[0] = '\0';
+        pe_minimal_analyzer(buffer, path_output_dump_file); // Вывод в консоль
         putchar('\n');
         system("pause");
     }
-    else if (!strcmp(buffer_2, "В файл"))
+    else if (!strcmp(buffer, "В файл"))
     {
-        FILE * file_descriptor = fopen("__.dmp", "wb");
-        if (!file_descriptor) return 0;
-        pe_minimal_analyzer(buffer, file_descriptor); // Вывод в файл
-        fclose(file_descriptor);
+        //int8_t output_dump_file[128] = {0};
+        uint8_t size_buffer = strlen(path_file_being_analyzed);
+        path_output_dump_file[size_buffer-3] = 'd';
+        path_output_dump_file[size_buffer-2] = 'm';
+        path_output_dump_file[size_buffer-1] = 'p';
+        path_output_dump_file[size_buffer  ] = '\0'; // ?
+        printf("\n --");
+        pe_minimal_analyzer(path_file_being_analyzed, path_output_dump_file); // Вывод в файл
         system("pause");
     }
     else
