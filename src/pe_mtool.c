@@ -180,7 +180,7 @@ void pe_minimal_builder(const int8_t * file_name)
     file_aggregate(file_descriptor, '\0', 511);
     fclose(file_descriptor);
 }
-void pe_minimal_analyzer(const int8_t * path_file_being_analyzed, const int8_t path_output_dump_file/*FILE * stream*/)
+void pe_minimal_analyzer(const char * path_file_being_analyzed, const char path_output_dump_file/*FILE * stream*/)
 {
     FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
@@ -193,7 +193,7 @@ void pe_minimal_analyzer(const int8_t * path_file_being_analyzed, const int8_t p
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", path_file_being_analyzed); free(file); return; }
     FILE * stream = NULL;
-    if (path_output_dump_file[0] == NULL || path_output_dump_file[0] == '\0') stream = stdout;
+    if (path_output_dump_file[0] == '\0') stream = stdout;
     else
     {
         stream = fopen(path_output_dump_file, "wb");
@@ -811,11 +811,12 @@ int main(/*int argc, char * argv[]*/)
     SetConsoleOutputCP(1251); // Кодировка вывода
     pe_minimal_builder("__.exe");
     //pe_minimal_analyzer("__.exe");
-    int8_t path_file_being_analyzed[128];
+    char path_file_being_analyzed[128];
+    char path_output_dump_file[128];
+    char buffer[64];
     printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
     fgets(path_file_being_analyzed, sizeof (path_file_being_analyzed), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
     path_file_being_analyzed[strcspn(path_file_being_analyzed, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
-    int8_t buffer[64];
     __start:
     printf("\n Куда хотите получить результат?\n  В консоль\n  В файл\n  Оба варианта [Недоступно]\n>>> ");
     fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
@@ -830,8 +831,7 @@ int main(/*int argc, char * argv[]*/)
     else if (!strcmp(buffer, "В файл"))
     {
         //int8_t output_dump_file[128] = {0};
-        uint8_t size_buffer = strlen(path_file_being_analyzed);
-        int8_t path_output_dump_file[128] = {0};
+        char size_buffer = strlen(path_file_being_analyzed);
         path_output_dump_file[size_buffer-3] = 'd';
         path_output_dump_file[size_buffer-2] = 'm';
         path_output_dump_file[size_buffer-1] = 'p';
