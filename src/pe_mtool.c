@@ -180,7 +180,7 @@ void pe_minimal_builder(const int8_t * file_name)
     file_aggregate(file_descriptor, '\0', 511);
     fclose(file_descriptor);
 }
-void pe_minimal_analyzer(const char * path_file_being_analyzed, const char path_output_dump_file/*FILE * stream*/)
+void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * path_output_dump_file/*FILE * stream*/)
 {
     FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
@@ -188,7 +188,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char path_
     long file_size = ftell(file_descriptor);
     fseek(file_descriptor, 0, SEEK_SET);
     if (!file_size) { printf("\n /!\\: Размер файла %s не определён (пуст)", path_file_being_analyzed); fclose(file_descriptor); return; }
-    uint8_t * file = (uint8_t *) malloc(file_size);
+    char * file = (char *) malloc(file_size);
     if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", path_file_being_analyzed); fclose(file_descriptor); return; }
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", path_file_being_analyzed); free(file); return; }
