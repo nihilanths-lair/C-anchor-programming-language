@@ -180,7 +180,7 @@ void pe_minimal_builder(const int8_t * file_name)
     file_aggregate(file_descriptor, '\0', 511);
     fclose(file_descriptor);
 }
-void pe_minimal_analyzer(const uint8_t * path_file_being_analyzed, const uint8_t path_output_dump_file/*FILE * stream*/)
+void pe_minimal_analyzer(const int8_t * path_file_being_analyzed, const int8_t path_output_dump_file/*FILE * stream*/)
 {
     FILE * file_descriptor = fopen(path_file_being_analyzed, "rb");
     if (!file_descriptor) { printf("\n /!\\: Файл %s не был открыт", path_file_being_analyzed); return; }
@@ -192,12 +192,16 @@ void pe_minimal_analyzer(const uint8_t * path_file_being_analyzed, const uint8_t
     if (!file) { printf("\n /!\\: Недостаточно памяти под буфер файла %s", path_file_being_analyzed); fclose(file_descriptor); return; }
     long bytes_read = fread(file, 1, file_size, file_descriptor); fclose(file_descriptor);
     if (bytes_read != file_size) { printf("\n /!\\: Файл %s не был прочитан полностью", path_file_being_analyzed); free(file); return; }
-    FILE * stream;
-    if (!path_output_dump_file[0]) stream = stdout;
+    FILE * stream = NULL;
+    if (path_output_dump_file[0] == NULL || path_output_dump_file[0] == '\0') stream = stdout;
     else
     {
-        FILE * stream = fopen(path_output_dump_file, "wb");
-        if (!stream) return;
+        stream = fopen(path_output_dump_file, "wb");
+        if (!stream)
+        {
+            free(file);
+            return;
+        }
     }
     //printf(" Анализ начат.");
     fprintf(stream, " --------------------------");
@@ -807,12 +811,11 @@ int main(/*int argc, char * argv[]*/)
     SetConsoleOutputCP(1251); // Кодировка вывода
     pe_minimal_builder("__.exe");
     //pe_minimal_analyzer("__.exe");
-    uint8_t path_file_being_analyzed[128] = {0};
-    uint8_t path_output_dump_file[128] = {0};
-    int8_t buffer[64];
+    int8_t path_file_being_analyzed[128];
     printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
     fgets(path_file_being_analyzed, sizeof (path_file_being_analyzed), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
     path_file_being_analyzed[strcspn(path_file_being_analyzed, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
+    int8_t buffer[64];
     __start:
     printf("\n Куда хотите получить результат?\n  В консоль\n  В файл\n  Оба варианта [Недоступно]\n>>> ");
     fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
@@ -820,8 +823,7 @@ int main(/*int argc, char * argv[]*/)
     //printf("```\n%s\n```", buffer_2);
     if (!strcmp(buffer, "В консоль"))
     {
-        path_output_dump_file[0] = '\0';
-        pe_minimal_analyzer(buffer, path_output_dump_file); // Вывод в консоль
+        pe_minimal_analyzer(path_file_being_analyzed, ""); // Вывод в консоль
         putchar('\n');
         system("pause");
     }
@@ -829,6 +831,7 @@ int main(/*int argc, char * argv[]*/)
     {
         //int8_t output_dump_file[128] = {0};
         uint8_t size_buffer = strlen(path_file_being_analyzed);
+        int8_t path_output_dump_file[128] = {0};
         path_output_dump_file[size_buffer-3] = 'd';
         path_output_dump_file[size_buffer-2] = 'm';
         path_output_dump_file[size_buffer-1] = 'p';
