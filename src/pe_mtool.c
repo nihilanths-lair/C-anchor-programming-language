@@ -160,7 +160,9 @@ void pe_minimal_builder(const int8_t * file_name)
     // === БЛОК №3: IMAGE_SECTION_HEADER (Секция .text) ===
     // Начинается со смещения lfanew + 264 (328-й байт в файле)
     fprintf(file_descriptor, ".text%c%c%c", 0, 0, 0);                 // 1. Name = ".text" (8 байт)
-    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 2. VirtualSize = 512 (4 байта)
+    const char machine_code[] = {0xC3}; // сюда пишем наши машинные инструкции
+    printf("\n size_machine_code = %lld\n", sizeof (machine_code));
+    fwrite(&(uint32_t){sizeof (machine_code)}, sizeof (uint32_t), 1, file_descriptor); // 2. VirtualSize = 1 (4 байта) ; Кол-во байт машинного кода (без округления)
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor); // 3. VirtualAddress (RVA) = 4096 (4 байта) — Точка привязки EntryPoint в памяти
     fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 4. SizeOfRawData = 512 (4 байта) — Физический размер кода на диске
     fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 5. PointerToRawData = 512 (4 байта) — Физическое смещение кода в файле
@@ -174,8 +176,7 @@ void pe_minimal_builder(const int8_t * file_name)
     // 1. ПАДДИНГ ЗАГОЛОВКОВ: Добиваем нулями до 512 байт (512 - 368 = 144 байта)
     file_aggregate(file_descriptor, '\0', 144);
     // === СМЕЩЕНИЕ 512: НАЧАЛО СЕКЦИИ .text (RAW DATA) ===
-    // Записываем ассемблерную инструкцию 'ret' (0xC3) — это код нашей программы!
-    fprintf(file_descriptor, "%c", 0xC3);
+    fprintf(file_descriptor, "%c", machine_code[0]); // Ассемблерная инструкция 'ret' (0xC3) — код программы!
     // 2. ПАДДИНГ СЕКЦИИ: Секция на диске должна занимать строго 512 байт.
     // Мы записали 1 байт кода, значит добиваем еще 511 байт нулями
     file_aggregate(file_descriptor, '\0', 511);
@@ -795,10 +796,14 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
-    if (path_output_dump_file[0] != '\0') fclose(stream);
-    printf("\n Результат сохранён в файл %s", path_output_dump_file);
-    printf("\n\n Это окно автоматически закроется через 15 секунд. Никаких дополнительных действий не требуется.");
-    Sleep(15000); // Ждем 15000 миллисекунд (15 секунд)
+    if (path_output_dump_file[0] != '\0')
+    {
+        fclose(stream);
+        printf("\n Результат сохранён в файл %s", path_output_dump_file);
+        printf("\n\n Это окно автоматически закроется через 15 секунд. Никаких дополнительных действий не требуется.");
+        Sleep(15000); // Ждем 15000 миллисекунд (15 секунд)
+    }
+    else printf("\n\n Нажмите любую клавишу для выхода из приложения ...");
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
@@ -836,9 +841,6 @@ int main(/*int argc, char * argv[]*/)
     {
         putchar('\n');
         pe_minimal_analyzer(path_file_being_analyzed, ""); // Вывод в консоль
-        printf("\n\n");
-        //system("pause");
-        printf("\n%c", 151);
         _getch();
     }
     else if (!strcmp(buffer, "В файл")) // Для полной (развёрнутой/большой/подробной) информации
