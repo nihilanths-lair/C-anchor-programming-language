@@ -153,6 +153,7 @@ void pe_minimal_builder(const int8_t * file_name)
     fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
     fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
 
+    // SizeOfHeaders — это не фиксированное значение, а размер всех заголовков PE-файла, округлённый вверх до ближайшей границы FileAlignment
     uint32_t size_of_headers =
      /*lfanew={*/64/*}*/+
      /*signature={*/4/**/+
@@ -673,6 +674,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     // Мы сохраним физические и виртуальные адреса секций.
     // Для универсальности выделим память под максимум 96 секций (ограничение PE спецификации)
     //uint64_t section_heading[96][8+1] = {'\0'}; // Заголовок раздела
+    uint64_t name[96] = {0};
+    uint8_t b_name[96][8] = {0};
     uint32_t virtual_size[96] = {0};
     uint32_t virtual_address[96] = {0};
     uint32_t size_of_raw_data[96] = {0};
@@ -683,22 +686,24 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         //for (int j = 0; j < 8; j++) section_heading[i][j] = file[offset+j];
         //section_heading[i][8] = '\0';
         //fprintf(stream, "\n Заголовок раздела: %s", section_heading[i]);
-        fprintf(stream, "\n --");
-        fprintf(stream, "\n name[%d] = %llu :: %llu", i+1, // (8 байт)
+        fprintf(stream, "\n  ___________________");
+        /*uint64_t*/name[i] =
          ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
-         ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
-
+         ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
+        ;
+        for (uint8_t j = 0; j < 8; j++)
+        {
+            //printf("\n--< Дамп лог [Начало] >--"); printf("\n file[offset+j=%d+%d=%d] = %c", offset, j, offset+j, file[offset+j]);
+            b_name[i][j] = file[offset+j];
+            //printf("\n         b_name[i=%d][j=%d] = %02X = %c", i, j, b_name[i][j], charf(b_name[i][j])); printf("\n--< Дамп лог [Конец] >--\n");
+        }
+        fprintf(stream, "\n / name[%d] = %s = ", i+1, b_name[i]);
+        //for (uint8_t j = 0; j < 8; j++) fprintf(stream, "%c", i+1, charf(b_name[i][j]));
+        fprintf(stream, "%llu :: %llu", name[i], // (8 байт)
          ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
          ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
         );
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset  , file[offset  ], file[offset  ], charf(file[offset  ]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+2, file[offset+2], file[offset+2], charf(file[offset+2]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+4, file[offset+4], file[offset+4], charf(file[offset+4]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+5, file[offset+5], file[offset+5], charf(file[offset+5]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+6, file[offset+6], file[offset+6], charf(file[offset+6]));
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+7, file[offset+7], file[offset+7], charf(file[offset+7]));
+        for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
         offset += 8;
         fprintf(stream, "\n --");
         /*uint32_t*/virtual_size[i] = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
@@ -779,8 +784,16 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+3, file[offset+3], file[offset+3], charf(file[offset+3]));
         offset += 4;
     }
-    fprintf(stream, "\n --");
-    printf("\n size_of_headers = %u |%c| Размер заголовков\n", size_of_headers, 149);
+    for (int i = 0; i < number_of_sections; i++)
+    {
+        fprintf(stream, "\n");
+        fprintf(stream, "\n                name[%d] = %s", i, b_name[i]);
+        fprintf(stream, "\n        virtual_size[%d] = %u", i, virtual_size[i]); // макс. 4'294'967'295
+        fprintf(stream, "\n     virtual_address[%d] = %u", i, virtual_address[i]); // макс. 4'294'967'295
+        fprintf(stream, "\n    size_of_raw_data[%d] = %u", i, size_of_raw_data[i]); // макс. 4'294'967'295
+        fprintf(stream, "\n pointer_to_raw_data[%d] = %u", i, pointer_to_raw_data[i]); // макс. 4'294'967'295
+    }
+    fprintf(stream, "\n");
     // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
     offset++; size_of_headers--; // закомментировать для полноценного анализатора
@@ -791,6 +804,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     }
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
     offset++; size_of_headers++; // закомментировать для полноценного анализатора
+    printf("\n size_of_headers = %u |%c| Размер заголовков\n", size_of_headers, 149);
     fprintf(stream, "\n --");
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     /*
@@ -829,7 +843,9 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         if (raw__address_of_entry_point >= pointer_to_raw_data[i] && raw__address_of_entry_point < (pointer_to_raw_data[i] + size_of_raw_data[i]))
         {
-            fprintf(stream, "\n virtual_size = %u |%c| Размер машинного кода", virtual_size[i], 149);
+            //fprintf(stream, "\n pointer_to_raw_data[%d] = %+10u |...| Точка входа на диске в секцию данных", i, pointer_to_raw_data[i]); // макс. 4'294'967'295
+            //fprintf(stream, "\n virtual_size[%d]        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]); // макс. 4'294'967'295
+            //fprintf(stream, "\n выравнивание        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]); // макс. 4'294'967'295
             // Вычисляем точные физические границы внутри файла
             uint64_t size_machine_code = pointer_to_raw_data[i] + virtual_size[i];
             // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
@@ -839,6 +855,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
                 fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
                 offset++;
             }
+            fprintf(stream, "\n --");
             uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
             break;
         }
