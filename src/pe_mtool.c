@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <windows.h>
 
 #define macro__reverse_16_bit_number(value) (uint16_t) (((value)>>8) | ((value)<<8))
 #define macro__reverse_32_bit_number(value) \
@@ -795,11 +796,14 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
     fprintf(stream, "\n -----------------------------");
     if (path_output_dump_file[0] != '\0') fclose(stream);
+    printf("\n Результат сохранён в файл %s", path_output_dump_file);
+    printf("\n\n Это окно автоматически закроется через 15 секунд. Никаких дополнительных действий не требуется.");
+    Sleep(15000); // Ждем 15000 миллисекунд (15 секунд)
     //printf("\n Конец анализа.");
 }
 //#include <locale.h>
 #include <string.h>
-#include <windows.h>
+#include <conio.h>
 // Потоковый стрим?: Нет.
 // gcc -s pe_mtool.c -o pe_mtool.exe / Strip (Удаление отладочной информации/лишнего мусора)
 // gcc -Os -s pe_mtool.c -o pe_mtool.exe
@@ -815,34 +819,41 @@ int main(/*int argc, char * argv[]*/)
     char path_file_being_analyzed[128];
     char path_output_dump_file[128];
     char buffer[64];
-    printf("\n Введите путь к файлу, который необходимо проанализировать!\n>>> ");
+    printf("\n Укажите путь к PE-файлу (.exe/.dll/.efi), который необходимо проанализировать!\n>>> ");
     fgets(path_file_being_analyzed, sizeof (path_file_being_analyzed), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
-    path_file_being_analyzed[strcspn(path_file_being_analyzed, "\n")] = '\0'; // fgets сохраняет символ переноса строки '\n' в конце, удаляем его, если он мешает
+    path_file_being_analyzed[strcspn(path_file_being_analyzed, "\n")] = '\0';  // Сохраняет символ переноса строки '\n' в конце, удаляем его, если мешает
+    uint8_t size_buffer = (uint8_t) strlen(path_file_being_analyzed);
+    if (!size_buffer)
+    {
+        printf(" /!\\: Слишком короткое (недопустимое) имя файла ...");
+        return 0;
+    }
     __start:
     printf("\n Куда хотите получить результат?\n  В консоль\n  В файл\n  Оба варианта [Недоступно]\n>>> ");
     fgets(buffer, sizeof (buffer), stdin); // Считывает строку вместе с пробелами (максимум 99 символов + '\0')
-    buffer[strcspn(buffer, "\n")] = '\0';
-    //printf("```\n%s\n```", buffer_2);
-    if (!strcmp(buffer, "В консоль"))
+    buffer[strcspn(buffer, "\n")] = '\0';  // Сохраняет символ переноса строки '\n' в конце, удаляем его, если мешает
+    if (!strcmp(buffer, "В консоль")) // Для краткой, но важной (конкретной) информации
     {
         putchar('\n');
         pe_minimal_analyzer(path_file_being_analyzed, ""); // Вывод в консоль
         printf("\n\n");
-        system("pause");
+        //system("pause");
+        printf("\n%c", 151);
+        _getch();
     }
-    else if (!strcmp(buffer, "В файл"))
+    else if (!strcmp(buffer, "В файл")) // Для полной (развёрнутой/большой/подробной) информации
     {
-        //int8_t output_dump_file[128] = {0};
-        uint8_t size_buffer = (uint8_t) strlen(path_file_being_analyzed);
+        //if (size_buffer < 1 || (size_buffer+1) > 128) return 0; // или exit(1);
+        // Находим точку с конца строки. Если точки нет, берем конец строки.
+        //char * dot = strrchr(path_output_dump_file, '.');
+        //strcpy(dot ? dot : path_output_dump_file + size_buffer, ".dmp");
         strcpy(path_output_dump_file, path_file_being_analyzed);
-        path_output_dump_file[size_buffer-3] = 'd';
-        path_output_dump_file[size_buffer-2] = 'm';
-        path_output_dump_file[size_buffer-1] = 'p';
-        path_output_dump_file[size_buffer  ] = '\0'; // ?
+        memcpy(&path_output_dump_file[size_buffer-3], "dmp", 4);
         pe_minimal_analyzer(path_file_being_analyzed, path_output_dump_file); // Вывод в файл
-        printf("\n Файл %s был подготовлен.\n\n", path_output_dump_file);
         //printf("\n Готово.\n");
-        system("pause");
+        //system("pause");
+        putchar('\n');
+        //_getch();
     }
     else
     {
