@@ -759,13 +759,40 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     }
     fprintf(stream, "\n --");
     // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
+    offset++; size_of_headers--; // закомментировать для полноценного анализатора
     while (offset < size_of_headers)
     {
-        fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+        //fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // расскомментировать для полноценного анализатора
         offset++;
     }
+    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
+    offset++; size_of_headers++; // закомментировать для полноценного анализатора
     fprintf(stream, "\n --");
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
+    /*
+        Что идёт после секции данных — определяется только таблицей секций. Это может быть:
+
+        .rdata
+        .data
+        .pdata
+        .rsrc
+        .reloc
+        TLS-данные
+        оверлей
+        цифровая подпись
+        или вообще конец файла
+
+        Причём порядок секций в файле может отличаться от привычного .text → .rdata → .data, а имена секций вообще необязательны. Поэтому всеядный анализатор должен ориентироваться на:
+
+        VirtualAddress
+        VirtualSize
+        PointerToRawData
+        SizeOfRawData
+        Characteristics
+
+        а не на имя .text или .data.
+    */
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
     uint32_t raw__address_of_entry_point = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
     if (raw__address_of_entry_point != 0)
@@ -783,7 +810,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
             uint64_t code_end_offset = pointer_to_raw_data[i] + virtual_size[i];
             uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
             // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
-            fprintf(stream, "\n Размер кода (VirtualSize): %u байт", virtual_size[i]);
+            fprintf(stream, "\n virtual_size = %u |%c| Размер машинного кода", virtual_size[i], 149);
             offset = pointer_to_raw_data[i]; // нужно ли? если скользящий offset уже стоит на нужном нам месте...
             while (offset < code_end_offset) // цикл выводит и машинный код и зазор (паддинг), что не совсем корректно...
             {
