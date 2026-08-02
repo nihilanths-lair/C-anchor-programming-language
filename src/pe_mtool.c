@@ -98,22 +98,33 @@ uint32_t rva_to_raw(uint32_t number_of_sections, uint32_t address_of_entry_point
     return 0; // Если адрес указывает на заголовки или поврежден
 }
 
+// Использовать только в том случае, если alignment является степенью двойки
+//uint32_t align(uint32_t value, uint32_t alignment) { return (value + alignment - 1) & ~(alignment - 1); }
+// Универсальная, подходит под любой alignment
+uint32_t align(uint32_t value, uint32_t alignment) { return ((value + alignment - 1) / alignment) * alignment; }
+
 void pe_minimal_builder(const int8_t * file_name)
 {
     FILE * file_descriptor = fopen(file_name, "wb");
     if (!file_descriptor) return;
+    // === БЛОК: IMAGE_DOS_HEADER ===
     fprintf(file_descriptor, "MZ");                                  // magic = MZ (2 байта)
     //file_aggregate(file_descriptor, '\0', 58);                     // 58 байт (2-59)
     for (int i = 0; i < 58; i++) fputc('\0', file_descriptor);
+    //uint32_t lfanew = 64;
     fwrite(&(uint32_t){64}, sizeof (uint32_t), 1, file_descriptor);  // lfanew = 64 (4 байта) ; влияет на последующее смещение в файле
+    // === БЛОК: DOS_STUB (в нашем случае отсутствует) ===
+    // --
     fprintf(file_descriptor, "PE%c%c"  ,  0, 0);                     // signature = PE\0\0 (4 байта)
     // === БЛОК: IMAGE_FILE_HEADER ===
     fprintf(file_descriptor, "%c%c"    , 0x64, 0x86);                // 1. Machine = 0x8664 (2 байта) ; AMD64
-    fwrite(&(uint16_t){  1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections     = 1 (2 байта)
+    //uint16_t number_of_sections = 1;                                 // 2. NumberOfSections (2 байта) = 1
+    fwrite(&(uint16_t){  1}, sizeof (uint16_t), 1, file_descriptor); // 2. NumberOfSections (2 байта) = 1
     fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 3. TimeDateStamp        = 0 (4 байта)
     fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 4. PointerToSymbolTable = 0 (4 байта)
     fwrite(&(uint32_t){  0}, sizeof (uint32_t), 1, file_descriptor); // 5. NumberOfSymbols      = 0 (4 байта)
-    fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader = 0x00F0 (2 байта)
+    //uint16_t size_of_optional_header = 240;                          // 6. SizeOfOptionalHeader (2 байта) = 240 ; 224 (PE32) или 240 = 0x00F0 (PE32+)
+    fwrite(&(uint16_t){240}, sizeof (uint16_t), 1, file_descriptor); // 6. SizeOfOptionalHeader (2 байта) = 240 ; 224 (PE32) или 240 = 0x00F0 (PE32+)
     fprintf(file_descriptor, "%c%c", 0x22, 0x00);                    // 7. Characteristics = 0x0022 (EXECUTABLE_IMAGE | LARGE_ADDRESS_AWARE) (2 байта)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Стандартные поля) ===
     // Начинается со смещения 88 (если lfanew = 64)
@@ -127,9 +138,10 @@ void pe_minimal_builder(const int8_t * file_name)
     fwrite(&(uint32_t){4096}, sizeof (uint32_t), 1, file_descriptor);   // 7. BaseOfCode (Обычно совпадает с началом кода)
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Windows-Specific Fields) ===
     // Начинается со смещения lfanew + 48 (112-й байт в файле)
-    fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); // 8. ImageBase (8 байт)
-    fwrite(&(uint32_t){      4096}, sizeof (uint32_t), 1, file_descriptor); // 9. SectionAlignment = 4096 (4 байта)
-    fwrite(&(uint32_t){       512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment = 512 (4 байта)
+    fwrite(&(uint64_t){0x00400000}, sizeof (uint64_t), 1, file_descriptor); //  8. ImageBase        (8 байт)  = 0x00400000
+    fwrite(&(uint32_t){      4096}, sizeof (uint32_t), 1, file_descriptor); //  9. SectionAlignment (4 байта) = 4096
+    //uint32_t file_alignment = 512;                                          // 10. FileAlignment    (4 байта) = 512
+    fwrite(&(uint32_t){       512}, sizeof (uint32_t), 1, file_descriptor); // 10. FileAlignment    (4 байта) = 512
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Размеры и версии) ===
     // Начинается со смещения lfanew + 64 (128-й байт в файле)
     fwrite(&(uint16_t){   6}, sizeof (uint16_t), 1, file_descriptor); // 11. MajorOperatingSystemVersion
@@ -140,7 +152,17 @@ void pe_minimal_builder(const int8_t * file_name)
     fwrite(&(uint16_t){   0}, sizeof (uint16_t), 1, file_descriptor); // 16. MinorSubsystemVersion
     fwrite(&(uint32_t){   0}, sizeof (uint32_t), 1, file_descriptor); // 17. Win32VersionValue (Всегда 0)
     fwrite(&(uint32_t){8192}, sizeof (uint32_t), 1, file_descriptor); // 18. SizeOfImage = 8192 (Размер в памяти, кратен SectionAlignment)
-    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders = 512 (Размер заголовков на диске, кратен FileAlignment)
+
+    uint32_t size_of_headers =
+     /*lfanew={*/64/*}*/+
+     /*signature={*/4/**/+
+     20 +
+     /*size_of_optional_header={*/240/*}*/+
+     /*number_of_sections={*/1*40/*}*/
+    ;
+    //uint32_t size_of_headers_after_rounding = align(size_of_headers, 512); /// final_size_of_headers
+    printf("\n size_of_headers (без округления) = %u | (с округлением)  = %u\n", size_of_headers, align(size_of_headers, 512)); // Размер заголовков на диске, кратен FileAlignment
+    fwrite(&(uint32_t){ 512}, sizeof (uint32_t), 1, file_descriptor); // 19. SizeOfHeaders (4 байта) = 512
     // === БЛОК: IMAGE_OPTIONAL_HEADER64 (Подсистема и размеры памяти) ===
     // Начинается со смещения lfanew + 88 (152-й байт в файле)
     fwrite(&(uint32_t){0}, sizeof (uint32_t), 1, file_descriptor); // 20. CheckSum
@@ -758,6 +780,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         offset += 4;
     }
     fprintf(stream, "\n --");
+    printf("\n size_of_headers = %u |%c| Размер заголовков\n", size_of_headers, 149);
     // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
     offset++; size_of_headers--; // закомментировать для полноценного анализатора
@@ -806,17 +829,17 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         if (raw__address_of_entry_point >= pointer_to_raw_data[i] && raw__address_of_entry_point < (pointer_to_raw_data[i] + size_of_raw_data[i]))
         {
-            // Вычисляем точные физические границы внутри файла
-            uint64_t code_end_offset = pointer_to_raw_data[i] + virtual_size[i];
-            uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
-            // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
             fprintf(stream, "\n virtual_size = %u |%c| Размер машинного кода", virtual_size[i], 149);
+            // Вычисляем точные физические границы внутри файла
+            uint64_t size_machine_code = pointer_to_raw_data[i] + virtual_size[i];
+            // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
             offset = pointer_to_raw_data[i]; // нужно ли? если скользящий offset уже стоит на нужном нам месте...
-            while (offset < code_end_offset) // цикл выводит и машинный код и зазор (паддинг), что не совсем корректно...
+            while (offset < size_machine_code) // цикл выводит и машинный код и зазор (паддинг), что не совсем корректно...
             {
                 fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
                 offset++;
             }
+            uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
             break;
         }
     }
