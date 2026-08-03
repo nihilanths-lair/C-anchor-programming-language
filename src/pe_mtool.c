@@ -231,6 +231,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     fprintf(stream, " --------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла начат."); //printf(" Анализ начат.");
     fprintf(stream, "\n --------------------------");
+    fprintf(stream, "\n    ____________");
+    fprintf(stream, "\n __| DOS_HEADER |__");
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / magic (2 байта) = %u :: %u", ((uint16_t) file[0]) | ((uint16_t) file[1]<<8),/*:*/((uint16_t) file[0]<<8) | ((uint16_t) file[1]));
@@ -248,11 +250,14 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     uint64_t offset;
     if (lfanew > 64) // Если lfanew > 64, значит между DOS-заголовком и NT-заголовком есть зазор (DOS STUB / Заглушка)
     {
-        fprintf(stream, "\n --");
+        fprintf(stream, "\n    __________");
+        fprintf(stream, "\n __| DOS STUB |__");
         for (offset = 64; offset < lfanew; offset++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
     }
     offset = lfanew; // Принудительно ставим offset на начало NT-заголовка
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    fprintf(stream, "\n    ___________");
+    fprintf(stream, "\n __| NT HEADER |__");
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / signature (4 байта) = %u :: %u",
      ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
@@ -262,6 +267,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     offset += 4;
     // IMAGE_FILE_HEADER (COFF) //
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    fprintf(stream, "\n    _________________________");
+    fprintf(stream, "\n __| NT HEADER / FILE HEADER |__");
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / machine (2 байта) = %u :: %u",
      ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8),/*:*/((uint16_t) file[offset]<<8) | ((uint16_t) file[offset+1])
@@ -317,6 +324,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+1, file[offset+1], file[offset+1], charf(file[offset+1]));
     offset += 2;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Часть 1: Стандартные поля COFF (Standard Fields) — одинаковые для 32/64 бит
     uint16_t magic = ((uint16_t) file[offset]) | ((uint16_t) file[offset+1]<<8);
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / magic (2 байта) = %u :: %u", magic, macro__reverse_16_bit_number(magic));
@@ -372,11 +380,12 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     for (uint8_t j = 0; j < 4; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 4-х байт подряд
     offset += 4;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    fprintf(stream, "\n --");
     // === РАЗВИЛКА АРХИТЕКТУР (PE32 vs PE32+) ===
     uint64_t image_base = 0;
-    if (magic == 0x010B) // PE32 (32-бит)
+    if (magic == 0x010B)
     {
+        fprintf(stream, "\n    _____________________________________________");
+        fprintf(stream, "\n __| NT HEADER / OPTIONAL HEADER (PE32 / 32-bit) |__");
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         fprintf(stream, "\n  ___________________");
         fprintf(stream, "\n / base_of_data (4 байта) = %u :: %u",
@@ -393,18 +402,27 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         offset += 4;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     } 
-    else if (magic == 0x020B) // PE32+ (64-бит)
+    else if (magic == 0x020B)
     {
+        fprintf(stream, "\n    ______________________________________________");
+        fprintf(stream, "\n __| NT HEADER / OPTIONAL HEADER (PE32+ / 64-bit) |__");
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         image_base =
          ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
          ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
         ;
         fprintf(stream, "\n  ___________________");
-        fprintf(stream, "\n / image_base (8 байт) = %llu :: %llu", image_base, macro__reverse_64_bit_number(image_base));
+        fprintf(stream, "\n / image_base (8 байт) = %llu", image_base);
         for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
         offset += 8;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
+    else
+    {
+        fprintf(stream, "\n    _____________________________");
+        fprintf(stream, "\n __| NT HEADER / OPTIONAL HEADER |__");
+    }
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / section_alignment (4 байта) = %u :: %u",
      ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
@@ -561,6 +579,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     for (uint8_t j = 0; j < 4; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 4-х байт подряд
     offset += 4;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    fprintf(stream, "\n    ______________________________________________");
+    fprintf(stream, "\n __| NT HEADER / OPTIONAL HEADER / DATA DIRECTORY |__");
     // === ФИНАЛ: ЧТЕНИЕ КАТАЛОГОВ ДАННЫХ (DATA DIRECTORIES) ===
     for (uint32_t i = 0; i < number_of_rva_and_sizes; i++)
     {
@@ -582,6 +602,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         offset += 4;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
+    fprintf(stream, "\n    ________________");
+    fprintf(stream, "\n __| SECTION HEADER |__");
     //fprintf(stream, "\n Количество секций: %u", number_of_sections);
     // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше для борьбы с хаосом.
     // Мы сохраним физические и виртуальные адреса секций.
@@ -608,10 +630,12 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         fprintf(stream, "\n  ___________________");
         fprintf(stream, "\n / name[%d] (8 байт) = %s = ", i+1, b_name[i]);
         //for (uint8_t j = 0; j < 8; j++) fprintf(stream, "%c", i+1, charf(b_name[i][j]));
-        fprintf(stream, "%llu :: %llu", name[i],
+        fprintf(stream, "%llu", name[i]);
+        /* :: %llu", name[i],
          ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
          ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
         );
+        */
         for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
         offset += 8;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
