@@ -243,10 +243,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     uint32_t lfanew = ((uint32_t) file[60]) | ((uint32_t) file[61]<<8) | ((uint32_t) file[62]<<16) | ((uint32_t) file[63]<<24);
     fprintf(stream, "\n  ___________________");
     fprintf(stream, "\n / lfanew (4 байта) = %u :: %u", lfanew, macro__reverse_32_bit_number(lfanew));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 60ull, file[60], file[60], charf(file[60]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 61ull, file[61], file[61], charf(file[61]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 62ull, file[62], file[62], charf(file[62]));
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", 63ull, file[63], file[63], charf(file[63]));
+    for (uint8_t offset = 60, j = 0; j < 4; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 4-х байт подряд
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     uint64_t offset;
     if (lfanew > 64) // Если lfanew > 64, значит между DOS-заголовком и NT-заголовком есть зазор (DOS STUB / Заглушка)
@@ -584,7 +581,6 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         for (uint8_t j = 0; j < 4; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 4-х байт подряд
         offset += 4;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //fprintf(stream, "\n");
     }
     //fprintf(stream, "\n Количество секций: %u", number_of_sections);
     // Заводим массивы (или переменные), которые нам ЖИЗНЕННО НЕОБХОДИМЫ дальше для борьбы с хаосом.
@@ -727,9 +723,9 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         if (raw__address_of_entry_point >= pointer_to_raw_data[i] && raw__address_of_entry_point < (pointer_to_raw_data[i] + size_of_raw_data[i]))
         {
-            //fprintf(stream, "\n pointer_to_raw_data[%d] = %+10u |...| Точка входа на диске в секцию данных", i, pointer_to_raw_data[i]); // макс. 4'294'967'295
-            //fprintf(stream, "\n virtual_size[%d]        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]); // макс. 4'294'967'295
-            //fprintf(stream, "\n выравнивание        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]); // макс. 4'294'967'295
+            //fprintf(stream, "\n pointer_to_raw_data[%d] = %+10u |...| Точка входа на диске в секцию данных", i, pointer_to_raw_data[i]);
+            //fprintf(stream, "\n virtual_size[%d]        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]);
+            //fprintf(stream, "\n выравнивание        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]);
             // Вычисляем точные физические границы внутри файла
             uint64_t size_machine_code = pointer_to_raw_data[i] + virtual_size[i];
             // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
@@ -745,7 +741,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         }
     }
     fprintf(stream, "\n -----------------------------");
-    fprintf(stream, "\n /!\\ Анализ PE-файла завершён.");
+    fprintf(stream, "\n /!\\ Анализ PE-файла завершён."); //printf("\n Конец анализа.");
     fprintf(stream, "\n -----------------------------");
     if (path_output_dump_file[0] != '\0')
     {
@@ -755,7 +751,6 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         Sleep(15000); // Ждем 15000 миллисекунд (15 секунд)
     }
     else printf("\n\n Нажмите любую клавишу для выхода из приложения ...");
-    //printf("\n Конец анализа.");
 }
 //#include <locale.h>
 #include <string.h>
