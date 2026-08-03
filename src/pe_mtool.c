@@ -402,7 +402,8 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
          ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
          ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
         ;
-        fprintf(stream, "\n image_base (8 байт) = %llu :: %llu", image_base, macro__reverse_64_bit_number(image_base));
+        fprintf(stream, "\n  ___________________");
+        fprintf(stream, "\n / image_base (8 байт) = %llu :: %llu", image_base, macro__reverse_64_bit_number(image_base));
         for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
         offset += 8;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -571,7 +572,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     uint32_t number_of_rva_and_sizes = ((uint32_t) file[offset]) | ((uint32_t) file[offset+1]<<8) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24);
     fprintf(stream, "\n  ___________________");
-    fprintf(stream, "\n / number_of_rva_and_sizes = %u :: %u", number_of_rva_and_sizes, macro__reverse_32_bit_number(number_of_rva_and_sizes)); // (4 байта)
+    fprintf(stream, "\n / number_of_rva_and_sizes (4 байта) = %u :: %u", number_of_rva_and_sizes, macro__reverse_32_bit_number(number_of_rva_and_sizes));
     for (uint8_t j = 0; j < 4; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 4-х байт подряд
     offset += 4;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
