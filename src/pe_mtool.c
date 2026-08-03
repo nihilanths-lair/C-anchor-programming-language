@@ -519,45 +519,33 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     offset += 2;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
-    fprintf(stream, "\n / size_of_stack_reserve (8 байт) = %llu :: %llu",
+    fprintf(stream, "\n / size_of_stack_reserve (8 байт) = %llu",
      ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
-     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
-
-     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
-     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
     );
     for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
     offset += 8;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
-    fprintf(stream, "\n / size_of_stack_commit (8 байт) = %llu :: %llu",
+    fprintf(stream, "\n / size_of_stack_commit (8 байт) = %llu",
      ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
-     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
-
-     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
-     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
     );
     for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
     offset += 8;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
-    fprintf(stream, "\n / size_of_heap_reserve (8 байт) = %llu :: %llu",
+    fprintf(stream, "\n / size_of_heap_reserve (8 байт) = %llu",
      ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
-     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
-
-     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
-     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
     );
     for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
     offset += 8;
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stream, "\n  ___________________");
-    fprintf(stream, "\n / size_of_heap_commit (8 байт) = %llu :: %llu",
+    fprintf(stream, "\n / size_of_heap_commit (8 байт) = %llu",
      ((uint64_t) file[offset  ]    ) | ((uint64_t) file[offset+1]<<8 ) | ((uint64_t) file[offset+2]<<16) | ((uint64_t) file[offset+3]<<24) |
-     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56),
-
-     ((uint64_t) file[offset  ]<<56) | ((uint64_t) file[offset+1]<<48) | ((uint64_t) file[offset+2]<<40) | ((uint64_t) file[offset+3]<<32) |
-     ((uint64_t) file[offset+4]<<24) | ((uint64_t) file[offset+5]<<16) | ((uint64_t) file[offset+6]<<8 ) | ((uint64_t) file[offset+7]    )
+     ((uint64_t) file[offset+4]<<32) | ((uint64_t) file[offset+5]<<40) | ((uint64_t) file[offset+6]<<48) | ((uint64_t) file[offset+7]<<56)
     );
     for (uint8_t j = 0; j < 8; j++) fprintf(stream, "\n %08llu: %03d | %02X | %c", offset+j, file[offset+j], file[offset+j], charf(file[offset+j])); // вывод 8-ми байт подряд
     offset += 8;
@@ -581,7 +569,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         fprintf(stream, "\n  ___________________");
-        fprintf(stream, "\n / virtual_address %d (4 байта) = %u :: %u", i+1,
+        fprintf(stream, "\n / virtual_address_%d (4 байта) = %u :: %u", i+1,
          ((uint32_t) file[offset]    ) | ((uint32_t) file[offset+1]<<8 ) | ((uint32_t) file[offset+2]<<16) | ((uint32_t) file[offset+3]<<24),
          ((uint32_t) file[offset]<<24) | ((uint32_t) file[offset+1]<<16) | ((uint32_t) file[offset+2]<<8 ) | ((uint32_t) file[offset+3]    )
         );
@@ -589,7 +577,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         offset += 4;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         fprintf(stream, "\n  ___________________");
-        fprintf(stream, "\n / size %d (4 байта) = %u :: %u", i+1,
+        fprintf(stream, "\n / size_%d (4 байта) = %u :: %u", i+1,
          ((uint32_t) file[offset+4]    ) | ((uint32_t) file[offset+5]<<8 ) | ((uint32_t) file[offset+6]<<16) | ((uint32_t) file[offset+7]<<24),
          ((uint32_t) file[offset+4]<<24) | ((uint32_t) file[offset+5]<<16) | ((uint32_t) file[offset+6]<<8 ) | ((uint32_t) file[offset+7]    )
         );
@@ -700,10 +688,11 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         fprintf(stream, "\n");
         fprintf(stream, "\n                name[%d] = %s", i, b_name[i]);
-        fprintf(stream, "\n        virtual_size[%d] = %u", i, virtual_size[i]); // макс. 4'294'967'295
-        fprintf(stream, "\n     virtual_address[%d] = %u", i, virtual_address[i]); // макс. 4'294'967'295
-        fprintf(stream, "\n    size_of_raw_data[%d] = %u", i, size_of_raw_data[i]); // макс. 4'294'967'295
-        fprintf(stream, "\n pointer_to_raw_data[%d] = %u", i, pointer_to_raw_data[i]); // макс. 4'294'967'295
+        // макс. 4'294'967'295
+        fprintf(stream, "\n        virtual_size[%d] = %u", i, virtual_size[i]);
+        fprintf(stream, "\n     virtual_address[%d] = %u", i, virtual_address[i]);
+        fprintf(stream, "\n    size_of_raw_data[%d] = %u", i, size_of_raw_data[i]);
+        fprintf(stream, "\n pointer_to_raw_data[%d] = %u", i, pointer_to_raw_data[i]);
     }
     fprintf(stream, "\n");
     // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
@@ -721,26 +710,9 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     /*
         Что идёт после секции данных — определяется только таблицей секций. Это может быть:
-
-        .rdata
-        .data
-        .pdata
-        .rsrc
-        .reloc
-        TLS-данные
-        оверлей
-        цифровая подпись
-        или вообще конец файла
-
+         .rdata,  .data,  .pdata,  .rsrc,  .reloc, TLS-данные, оверлей, цифровая подпись или вообще конец файла
         Причём порядок секций в файле может отличаться от привычного .text → .rdata → .data, а имена секций вообще необязательны. Поэтому всеядный анализатор должен ориентироваться на:
-
-        VirtualAddress
-        VirtualSize
-        PointerToRawData
-        SizeOfRawData
-        Characteristics
-
-        а не на имя .text или .data.
+         VirtualAddress, VirtualSize, PointerToRawData, SizeOfRawData, Characteristics; а не на имя .text или .data.
     */
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
     uint32_t raw__address_of_entry_point = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
