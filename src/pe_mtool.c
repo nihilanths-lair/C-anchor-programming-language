@@ -704,28 +704,25 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         offset += 4;
         //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
-    for (int i = 0; i < number_of_sections; i++)
-    {
-        fprintf(stream, "\n");
-        fprintf(stream, "\n                name[%d] = %s", i, b_name[i]);
-        // макс. 4'294'967'295
-        fprintf(stream, "\n        virtual_size[%d] = %u", i, virtual_size[i]);
-        fprintf(stream, "\n     virtual_address[%d] = %u", i, virtual_address[i]);
-        fprintf(stream, "\n    size_of_raw_data[%d] = %u", i, size_of_raw_data[i]);
-        fprintf(stream, "\n pointer_to_raw_data[%d] = %u", i, pointer_to_raw_data[i]);
-    }
     fprintf(stream, "\n");
-    // === 1. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД ПАДДИНГА ЗАГОЛОВКОВ (в нашем случае от 368 до 512) ===
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
-    offset++; size_of_headers--; // закомментировать для полноценного анализатора
-    while (offset < size_of_headers)
+    fprintf(stream, " --");
+    uint64_t number_of_zeros = 0;
+    uint64_t checkpoint_offset = offset;
+    //fprintf(stream, "\n %08llu", offset); // base_offset = 368;
+    while (offset < size_of_headers-1)
     {
-        //fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // расскомментировать для полноценного анализатора
+        if (file[offset] != '\0')
+        {
+            fprintf(stream, "\n %08llu~%08llu (%llu): 000 | 00 |  ", checkpoint_offset, offset, number_of_zeros);
+            number_of_zeros = 0;
+            checkpoint_offset = offset;
+            fprintf(stream, "\n %08llu: %03d | %02X | %c | /!\\: Структура PE-файла возможно повреждена ...", offset, file[offset], file[offset], charf(file[offset]));
+        }
+        else number_of_zeros++;
         offset++;
     }
-    fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset])); // закомментировать для полноценного анализатора
-    offset++; size_of_headers++; // закомментировать для полноценного анализатора
-    printf("\n size_of_headers = %u |%c| Размер заголовков\n", size_of_headers, 149);
+    fprintf(stream, "\n %08llu~%08llu (%llu): 000 | 00 |  ", checkpoint_offset, offset, number_of_zeros);
+    offset++;
     fprintf(stream, "\n --");
     // === БЛОК №4: ПЕРВЫЙ ПРЫЖОК В ХАОС ДАННЫХ ===
     /*
@@ -734,6 +731,34 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
         Причём порядок секций в файле может отличаться от привычного .text → .rdata → .data, а имена секций вообще необязательны. Поэтому всеядный анализатор должен ориентироваться на:
          VirtualAddress, VirtualSize, PointerToRawData, SizeOfRawData, Characteristics; а не на имя .text или .data.
     */
+    uint64_t size_of_code_section = 0;
+    for (uint8_t i = 0; i < number_of_sections; i++)
+    {
+        size_of_code_section = pointer_to_raw_data[i] + virtual_size[i];
+        while (offset < size_of_code_section)
+        {
+            fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+            offset++;
+        }
+        fprintf(stream, "\n --");
+        size_of_code_section = pointer_to_raw_data[i] + size_of_raw_data[i];
+        number_of_zeros = 0;
+        checkpoint_offset = offset;
+        while (offset < size_of_code_section) // Добиваем секцию с кодом нулями (выравнивание до верхней границы кратной file_aligment)
+        {
+            if (file[offset] != '\0')
+            {
+                fprintf(stream, "\n %08llu~%08llu (%llu): 000 | 00 |  ", checkpoint_offset, offset, number_of_zeros);
+                number_of_zeros = 0;
+                checkpoint_offset = offset;
+                fprintf(stream, "\n %08llu: %03d | %02X | %c | /!\\: Структура PE-файла возможно повреждена ...", offset, file[offset], file[offset], charf(file[offset]));
+            }
+            else number_of_zeros++;
+            offset++;
+        }
+        fprintf(stream, "\n %08llu~%08llu (%llu): 000 | 00 |  ", checkpoint_offset, offset, number_of_zeros);
+    }
+    /*
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
     uint32_t raw__address_of_entry_point = rva_to_raw(number_of_sections, address_of_entry_point, virtual_size, virtual_address, pointer_to_raw_data);
     if (raw__address_of_entry_point != 0)
@@ -747,26 +772,39 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
     {
         if (raw__address_of_entry_point >= pointer_to_raw_data[i] && raw__address_of_entry_point < (pointer_to_raw_data[i] + size_of_raw_data[i]))
         {
-            //fprintf(stream, "\n pointer_to_raw_data[%d] = %+10u |...| Точка входа на диске в секцию данных", i, pointer_to_raw_data[i]);
-            //fprintf(stream, "\n virtual_size[%d]        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]);
-            //fprintf(stream, "\n выравнивание        = %+10u |...| Размер машинного кода"               , i,        virtual_size[i]);
             // Вычисляем точные физические границы внутри файла
             uint64_t size_machine_code = pointer_to_raw_data[i] + virtual_size[i];
             // 2. ПОСЛЕДОВАТЕЛЬНЫЙ ВЫВОД РЕАЛЬНОГО МАШИННОГО КОДА
-            offset = pointer_to_raw_data[i]; // нужно ли? если скользящий offset уже стоит на нужном нам месте...
+            //offset = pointer_to_raw_data[i]; // нужно ли? если скользящий offset уже стоит на нужном нам месте...
             while (offset < size_machine_code) // цикл выводит и машинный код и зазор (паддинг), что не совсем корректно...
             {
-                fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+                if (file[offset] != '\0') fprintf(stream, "\n %08llu: %03d | %02X | %c | /!\\: Возможно битый файл ...", offset, file[offset], file[offset], charf(file[offset]));
                 offset++;
             }
             fprintf(stream, "\n --");
             uint64_t padding_end_offset = pointer_to_raw_data[i] + size_of_raw_data[i];
+            while (offset < padding_end_offset)
+            {
+                fprintf(stream, "\n %08llu: %03d | %02X | %c", offset, file[offset], file[offset], charf(file[offset]));
+                offset++;
+            }
             break;
         }
     }
+    */
     fprintf(stream, "\n -----------------------------");
     fprintf(stream, "\n /!\\ Анализ PE-файла завершён."); //printf("\n Конец анализа.");
     fprintf(stream, "\n -----------------------------");
+    for (int i = 0; i < number_of_sections; i++)
+    {
+        fprintf(stream, "\n");
+        fprintf(stream, "\n                name_%d = %s", i+1, b_name[i]);
+        // макс. 4'294'967'295
+        fprintf(stream, "\n        virtual_size_%d = %u ; размер секции с кодом (RVA)", i+1, virtual_size[i]);
+        fprintf(stream, "\n     virtual_address_%d = %u ; точка входа в секцию с кодом (RVA)", i+1, virtual_address[i]);
+        fprintf(stream, "\n    size_of_raw_data_%d = %u ; размер секции сырых данных (RAW)", i+1, size_of_raw_data[i]);
+        fprintf(stream, "\n pointer_to_raw_data_%d = %u ; точка входа в секцию сырых данных (RAW)", i+1, pointer_to_raw_data[i]);
+    }
     if (path_output_dump_file[0] != '\0')
     {
         fclose(stream);
