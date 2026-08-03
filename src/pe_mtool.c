@@ -757,6 +757,7 @@ void pe_minimal_analyzer(const char * path_file_being_analyzed, const char * pat
             offset++;
         }
         fprintf(stream, "\n %08llu~%08llu (%llu): 000 | 00 |  ", checkpoint_offset, offset, number_of_zeros);
+        offset++;
     }
     /*
     // === 2. ДИРЕКТИВНЫЙ АНАЛИЗ КОДА ЧЕРЕЗ ПРЫЖОК (RVA-TO-RAW) ===
